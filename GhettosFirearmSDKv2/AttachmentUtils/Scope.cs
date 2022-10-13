@@ -21,6 +21,7 @@ namespace GhettosFirearmSDKv2
         public List<float> MagnificationLevels;
         public Transform Selector;
         public List<Transform> SelectorPositions;
+        public List<GameObject> Reticles;
         public AudioSource CycleUpSound;
         public AudioSource CycleDownSound;
         int currentIndex;
@@ -95,6 +96,14 @@ namespace GhettosFirearmSDKv2
 
         public void UpdatePosition()
         {
+            if (Reticles.Count > currentIndex && Reticles[currentIndex] != null)
+            {
+                foreach (GameObject reticle in Reticles)
+                {
+                    reticle.SetActive(false);
+                }
+                Reticles[currentIndex].SetActive(true);
+            }
             if (Selector != null && SelectorPositions[currentIndex] is Transform t)
             {
                 Selector.localPosition = t.localPosition;
