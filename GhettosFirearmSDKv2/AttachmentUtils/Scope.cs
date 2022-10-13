@@ -12,6 +12,7 @@ namespace GhettosFirearmSDKv2
         public int materialIndex = 0;
         public Camera cam;
         [Header("Zoom")]
+        public bool overrideX1CameraFOV = false;
         public float noZoomMagnification;
         public bool hasZoom;
         public Handle controllingHandle;
@@ -27,7 +28,7 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
-            baseFov = cam.fieldOfView;
+            baseFov = overrideX1CameraFOV? cam.fieldOfView : Settings_LevelModule.local.scopeX1MagnificationFOV;
             RenderTexture rt = new RenderTexture(512, 512, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
             rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
             cam.targetTexture = rt;

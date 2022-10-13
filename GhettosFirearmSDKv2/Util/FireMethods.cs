@@ -14,15 +14,16 @@ namespace GhettosFirearmSDKv2
 {
     public class FireMethods : MonoBehaviour
     {
-        public static void Fire(Item gun, Transform muzzle, ProjectileData data)
+        public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitpoints)
         {
             if (data.isHitscan)
             {
-                FireHitscan(muzzle, data, gun);
+                FireHitscan(muzzle, data, gun, out hitpoints);
             }
             else
             {
                 FireItem(muzzle, data, gun);
+                hitpoints = null;
             }
         }
 
@@ -32,8 +33,9 @@ namespace GhettosFirearmSDKv2
             rb.AddRelativeTorque(Vector3.right * (force * recoilModifier * upwardsModifier), ForceMode.Impulse);
         }
 
-        public static List<Creature> FireHitscan(Transform muzzle, ProjectileData data, Item item)
+        public static List<Creature> FireHitscan(Transform muzzle, ProjectileData data, Item item, out List<Vector3> returnedHitpoints)
         {
+            returnedHitpoints = new List<Vector3>();
             List<Creature> crs = new List<Creature>();
             for (int i = 0; i < data.projectileCount; i++)
             {
@@ -41,14 +43,15 @@ namespace GhettosFirearmSDKv2
                 tempMuz.parent = muzzle;
                 tempMuz.localPosition = Vector3.zero;
                 tempMuz.localEulerAngles = new Vector3(UnityEngine.Random.Range(-data.projectileSpread, data.projectileSpread), UnityEngine.Random.Range(-data.projectileSpread, data.projectileSpread), 0);
-                Creature cr = Hitscan(tempMuz, data, item);
+                Creature cr = Hitscan(tempMuz, data, item, out Vector3 hit);
+                returnedHitpoints.Add(hit);
                 Destroy(tempMuz.gameObject);
                 if (cr != null) crs.Add(cr);
             }
             return crs;
         }
 
-        private static Creature Hitscan(Transform muzzle, ProjectileData data, Item gunItem)
+        private static Creature Hitscan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 hitpoint)
         {
             Settings_LevelModule.local.shotsFired++;
 
@@ -92,6 +95,7 @@ namespace GhettosFirearmSDKv2
 
             if (Physics.Raycast(muzzle.position, muzzle.forward, out RaycastHit hit, data.projectileRange, layer))
             {
+                hitpoint = hit.point;
                 if (hit.rigidbody != null)
                 {
                     if (hit.rigidbody.gameObject.TryGetComponent(out Shootable sb))
@@ -363,6 +367,7 @@ namespace GhettosFirearmSDKv2
                     }
                 }
             }
+            else hitpoint = Vector3.zero;
             return null;
         }
 
@@ -495,7 +500,7 @@ namespace GhettosFirearmSDKv2
             data2.projectileCount = data.shrapnelCount;
             data2.projectileSpread = 180;
             data2.slicesBodyParts = true;
-            Fire(item, muzzle, data2);
+            Fire(item, muzzle, data2, out List<Vector3> hits);
         }
 
         public static ProjectileData.PenetrationLevels GetRequiredPenetrationLevel(RaycastHit hit, Vector3 direction, Item handler)

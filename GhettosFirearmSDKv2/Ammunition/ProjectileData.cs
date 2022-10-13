@@ -24,6 +24,7 @@ namespace GhettosFirearmSDKv2
         public float accuracyMultiplier = 1;
         public float recoil;
         public float recoilUpwardsModifier = 2f;
+        public bool playFirearmDefaultMuzzleFlash = true;
 
         //hitscan
         public int projectileCount = 1;

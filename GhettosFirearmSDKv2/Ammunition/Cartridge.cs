@@ -24,7 +24,7 @@ namespace GhettosFirearmSDKv2
         public ParticleSystem additionalMuzzleFlash;
         public List<Collider> colliders;
         public Transform cartridgeFirePoint;
-        public List<UnityEvent> onFireEvents;
+        public UnityEvent onFireEvent;
 
         private void Awake()
         {
@@ -33,25 +33,23 @@ namespace GhettosFirearmSDKv2
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
         }
 
-        public void Fire()
+        public void Fire(List<Vector3> hits, Transform muzzle)
         {
             fired = true;
             if (firedOnlyObject != null) firedOnlyObject.SetActive(true);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(false);
-            foreach (UnityEvent ue in onFireEvents)
-            {
-                ue.Invoke();
-            }
+            onFireEvent?.Invoke();
+            OnFiredWithHitPointsAndMuzzle?.Invoke(hits, muzzle);
             if (destroyOnFire) item.Despawn();
         }
 
         public void Detonate()
         {
-            FireMethods.Fire(item, cartridgeFirePoint, data);
+            FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits);
             if (detonationParticle != null) detonationParticle.Play();
             FireMethods.ApplyRecoil(this.transform, this.item.rb, 1f, data.recoil, 0f);
             Util.PlayRandomAudioSource(detonationSounds);
-            Fire();
+            Fire(hits, null);
         }
 
         public void Reset()
@@ -91,5 +89,8 @@ namespace GhettosFirearmSDKv2
             item.SetCull(false);
             item.Hide(false);
         }
+
+        public delegate void OnFired(List<Vector3> hitPoints, Transform muzzle);
+        public event OnFired OnFiredWithHitPointsAndMuzzle;
     }
 }

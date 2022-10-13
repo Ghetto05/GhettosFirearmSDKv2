@@ -20,6 +20,7 @@ namespace GhettosFirearmSDKv2
         public bool doMagazineTypeChecks;
         public float damageMultiplier;
         public bool magazinesHaveNoCollision = true;
+        public float scopeX1MagnificationFOV = 28.5f;
 
         public int shotsFired = 0;
         public int shotsHit = 0;
@@ -100,7 +101,7 @@ namespace GhettosFirearmSDKv2
             builder.AppendLine("    ]");
             builder.AppendLine("}");
             string assemblyFullName = type.Assembly.GetName().Name;
-            string jsonName = assemblyFullName + "\\Level_Master_Test.json";
+            string jsonName = assemblyFullName + "\\Level_Master.json";
             File.WriteAllText(FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, jsonName), builder.ToString());
         }
 

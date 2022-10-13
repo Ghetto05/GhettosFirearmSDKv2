@@ -110,10 +110,10 @@ namespace GhettosFirearmSDKv2
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
             firearm.PlayFireSound();
-            firearm.PlayMuzzleFlash();
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, firearm.recoilModifier, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier);
-            loadedCartridge.Fire();
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data);
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits);
+            loadedCartridge.Fire(hits, firearm.actualHitscanMuzzle);
             Lock(false);
         }
 

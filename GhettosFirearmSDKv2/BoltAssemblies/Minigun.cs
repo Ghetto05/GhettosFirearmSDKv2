@@ -100,12 +100,12 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.transform.SetParent(null);
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
-            firearm.PlayMuzzleFlash();
-            firearm.PlayFireSound(false);
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
+            firearm.PlayFireSound();
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, firearm.recoilModifier, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier);
             Util.PlayRandomAudioSource(firearm.fireSounds);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data);
-            loadedCartridge.Fire();
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits);
+            loadedCartridge.Fire(hits, firearm.actualHitscanMuzzle);
             EjectRound();
         }
 
