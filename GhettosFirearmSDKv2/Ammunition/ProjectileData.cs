@@ -59,7 +59,7 @@ namespace GhettosFirearmSDKv2
 
         //physical
         public string projectileItemId;
-        public float muzzleVelocity = 200;
+        public float projectileForce = 200;
 
         void Awake()
         {
