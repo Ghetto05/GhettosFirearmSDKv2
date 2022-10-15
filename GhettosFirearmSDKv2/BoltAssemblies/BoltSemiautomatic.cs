@@ -57,7 +57,7 @@ namespace GhettosFirearmSDKv2
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
 
-            if (locksWhenSafetyIsOn && firearm.fireMode == Firearm.FireModes.Safe) InitializeJoint(false, true);
+            if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe) InitializeJoint(false, true);
             else InitializeJoint(false);
             UpdateBoltHandles();
             firearm.item.OnHeldActionEvent += BoltSemiautomatic_OnHeldActionEvent;
@@ -76,7 +76,7 @@ namespace GhettosFirearmSDKv2
         private void Firearm_OnFiremodeChangedEvent()
         {
             if (!locksWhenSafetyIsOn) return;
-            if (firearm.fireMode == Firearm.FireModes.Safe)
+            if (firearm.fireMode == FirearmBase.FireModes.Safe)
             {
                 InitializeJoint(false, true);
             }
@@ -271,11 +271,11 @@ namespace GhettosFirearmSDKv2
             #endregion firing movement
 
             //firing
-            if (state == BoltState.Locked && firearm.triggerState && firearm.fireMode != Firearm.FireModes.Safe)
+            if (state == BoltState.Locked && firearm.triggerState && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == Firearm.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
-                else if (firearm.fireMode == Firearm.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
-                else if (firearm.fireMode == Firearm.FireModes.Auto) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Auto) TryFire();
             }
         }
 

@@ -7,7 +7,7 @@ namespace GhettosFirearmSDKv2
 {
     public class BoltBase : MonoBehaviour
     {
-        public Firearm firearm;
+        public FirearmBase firearm;
         [HideInInspector]
         public BoltState state = BoltState.Locked;
         public BoltState laststate = BoltState.Locked;

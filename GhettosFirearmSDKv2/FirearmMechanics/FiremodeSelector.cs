@@ -6,14 +6,14 @@ namespace GhettosFirearmSDKv2
 {
     public class FiremodeSelector : MonoBehaviour
     {
-        public Firearm firearm;
+        public FirearmBase firearm;
         public Transform SafetySwitch;
         public Transform SafePosition;
         public Transform SemiPosition;
         public Transform BurstPosition;
         public Transform AutoPosition;
         public AudioSource switchSound;
-        public Firearm.FireModes[] firemodes;
+        public FirearmBase.FireModes[] firemodes;
         private int currentIndex = 0;
 
         private void Awake()
@@ -68,30 +68,30 @@ namespace GhettosFirearmSDKv2
         private void UpdatePosition()
         {
             if (SafetySwitch == null) return;
-            Firearm.FireModes mode = firearm.fireMode;
-            if (mode == Firearm.FireModes.Safe && SafePosition != null)
+            FirearmBase.FireModes mode = firearm.fireMode;
+            if (mode == FirearmBase.FireModes.Safe && SafePosition != null)
             {
                 SafetySwitch.position = SafePosition.position;
                 SafetySwitch.rotation = SafePosition.rotation;
             }
-            else if (mode == Firearm.FireModes.Semi && SemiPosition != null)
+            else if (mode == FirearmBase.FireModes.Semi && SemiPosition != null)
             {
                 SafetySwitch.position = SemiPosition.position;
                 SafetySwitch.rotation = SemiPosition.rotation;
             }
-            else if (mode == Firearm.FireModes.Burst && BurstPosition != null)
+            else if (mode == FirearmBase.FireModes.Burst && BurstPosition != null)
             {
                 SafetySwitch.position = BurstPosition.position;
                 SafetySwitch.rotation = BurstPosition.rotation;
             }
-            else if (mode == Firearm.FireModes.Auto && AutoPosition != null)
+            else if (mode == FirearmBase.FireModes.Auto && AutoPosition != null)
             {
                 SafetySwitch.position = AutoPosition.position;
                 SafetySwitch.rotation = AutoPosition.rotation;
             }
         }
 
-        public delegate void OnModeChangedDelegate(Firearm.FireModes newMode);
+        public delegate void OnModeChangedDelegate(FirearmBase.FireModes newMode);
         public event OnModeChangedDelegate onFiremodeChanged;
     }
 }

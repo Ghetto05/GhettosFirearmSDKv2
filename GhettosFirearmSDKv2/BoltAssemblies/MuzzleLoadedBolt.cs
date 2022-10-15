@@ -79,11 +79,11 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
         {
-            if (isPulled && firearm.fireMode != Firearm.FireModes.Safe)
+            if (isPulled && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == Firearm.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
-                else if (firearm.fireMode == Firearm.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
-                else if (firearm.fireMode == Firearm.FireModes.Auto) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Auto) TryFire();
             }
             if (!isPulled)
             {

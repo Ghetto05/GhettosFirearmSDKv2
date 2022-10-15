@@ -21,7 +21,7 @@ namespace GhettosFirearmSDKv2.Explosives
             if (effect != null)
             {
                 effect.gameObject.transform.SetParent(null);
-                Player.local.StartCoroutine(Explosive.delayedDestroy(effect.gameObject, effect.main.duration + 1f));
+                Player.local.StartCoroutine(delayedDestroy(effect.gameObject, effect.main.duration + 1f));
                 effect.Play();
             }
             
@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2.Explosives
             foreach (AudioSource s in audioEffects)
             {
                 s.gameObject.transform.SetParent(null);
-                Player.local.StartCoroutine(Explosive.delayedDestroy(s.gameObject, s.clip.length + 1f));
+                Player.local.StartCoroutine(delayedDestroy(s.gameObject, s.clip.length + 1f));
             }
             FireMethods.HitscanExplosion(this.transform.position, data, item, out List<Creature> hc, out List<Item> hi);
             item.Despawn();

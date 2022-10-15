@@ -101,9 +101,9 @@ namespace GhettosFirearmSDKv2
                 }
             }
             //firing
-            if (state == BoltState.Locked && firearm.triggerState && firearm.fireMode != Firearm.FireModes.Safe)
+            if (state == BoltState.Locked && firearm.triggerState && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == Firearm.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
             }
         }
 

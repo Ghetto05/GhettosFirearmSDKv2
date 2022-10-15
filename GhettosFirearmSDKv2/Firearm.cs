@@ -8,42 +8,17 @@ using UnityEngine;
 using ThunderRoad;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using GhettosFirearmSDKv2.SaveData;
 
 namespace GhettosFirearmSDKv2
 {
-    public class Firearm : MonoBehaviour
+    public class Firearm : FirearmBase
     {
-        public enum FireModes
-        {
-            Safe,
-            Semi,
-            Burst,
-            Auto
-        }
-
-        public Item item;
-        public bool triggerState;
-        public BoltBase bolt;
-        public Handle boltHandle;
-        public MagazineWell magazineWell;
-        public Transform hitscanMuzzle;
-        public Transform actualHitscanMuzzle;
-        public bool integrallySuppressed;
-        public AudioSource[] fireSounds;
-        public AudioSource[] suppressedFireSounds;
-        public FireModes fireMode;
-        public ParticleSystem defaultMuzzleFlash;
-        public int burstSize = 3;
-        public int roundsPerMinute;
-        float lastPressTime = 0f;
-        public float longPressTime;
-        public float recoilModifier = 1f;
         public List<AttachmentPoint> attachmentPoints;
-        bool countingForLongpress = false;
         public List<Attachment> allAttachments;
-        private SaveData.AttachmentTree attachmentTree;
+        public AttachmentTree attachmentTree;
         public Texture icon;
-        private List<Handle> preSnapActiveHandles;
+        public List<Handle> preSnapActiveHandles;
 
         private void Awake()
         {
@@ -52,9 +27,8 @@ namespace GhettosFirearmSDKv2
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
-            item.OnUngrabEvent += Item_OnUngrabEvent;
-            Settings_LevelModule.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
-            Settings_LevelModule_OnValueChangedEvent();
+            item.OnSnapEvent += Item_OnSnapEvent2;
+            item.OnUnSnapEvent += Item_OnUnSnapEvent2;
             allAttachments = new List<Attachment>();
             foreach (AttachmentPoint ap in attachmentPoints)
             {
@@ -63,14 +37,44 @@ namespace GhettosFirearmSDKv2
             StartCoroutine(DelayedLoadAttachments());
         }
 
-        private void CalculateMuzzle()
+        //experimental
+        private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
         {
-            Transform t = hitscanMuzzle;
-            foreach (Attachment a in allAttachments)
+            if (boltHandle != null && handle == boltHandle && item.mainHandleLeft.handlers.Count == 0)
             {
-                if (a.minimumMuzzlePosition != null && Vector3.Distance(hitscanMuzzle.position, a.minimumMuzzlePosition.position) > Vector3.Distance(hitscanMuzzle.position, t.position)) t = a.minimumMuzzlePosition;
+                //if (heldNotBoltHandle() is Handle han) han.SetJointModifier(this, 1, 1, 100, 1);
+                if (heldNotBoltHandle() is Handle han) han.SetJointToTwoHanded(han.handlers[0].side);
             }
-            actualHitscanMuzzle = t;
+        }
+
+        Handle heldNotBoltHandle()
+        {
+            foreach (Handle han in item.handles)
+            {
+                if (han != boltHandle && han.handlers.Count > 0) return han;
+            }
+            return null;
+        }
+
+        public void Item_OnUnSnapEvent2(Holder holder)
+        {
+            foreach (Handle han in preSnapActiveHandles)
+            {
+                han.SetTouch(true);
+            }
+        }
+
+        public void Item_OnSnapEvent2(Holder holder)
+        {
+            preSnapActiveHandles = new List<Handle>();
+            foreach (Handle han in item.handles)
+            {
+                if (han.enabled && han.touchCollider.enabled && han != item.mainHandleLeft && han != item.mainHandleRight)
+                {
+                    preSnapActiveHandles.Add(han);
+                    han.SetTouch(false);
+                }
+            }
         }
 
         public void UpdateAttachments(bool initialSetup = false)
@@ -87,7 +91,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private void AddAttachments(List<AttachmentPoint> points)
+        public void AddAttachments(List<AttachmentPoint> points)
         {
             foreach (AttachmentPoint point in points)
             {
@@ -99,7 +103,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        IEnumerator DelayedLoadAttachments()
+        public IEnumerator DelayedLoadAttachments()
         {
             yield return new WaitForSeconds(1f);
 
@@ -132,15 +136,6 @@ namespace GhettosFirearmSDKv2
             CalculateMuzzle();
         }
 
-        private void Item_OnUngrabEvent(Handle handle, RagdollHand ragdollHand, bool throwing)
-        {
-            if (triggerState)
-            {
-                OnTriggerChangeEvent?.Invoke(false);
-                triggerState = false;
-            }
-        }
-
         public AttachmentPoint GetSlotFromId(string id)
         {
             foreach (AttachmentPoint point in attachmentPoints)
@@ -150,107 +145,7 @@ namespace GhettosFirearmSDKv2
             return null;
         }
 
-        private void Settings_LevelModule_OnValueChangedEvent()
-        {
-        }
-
-        private void Item_OnUnSnapEvent(Holder holder)
-        {
-            OnColliderToggleEvent?.Invoke(true);
-            foreach (Handle han in preSnapActiveHandles)
-            {
-                han.SetTouch(true);
-            }
-        }
-
-        private void Item_OnSnapEvent(Holder holder)
-        {
-            OnColliderToggleEvent?.Invoke(false);
-            if (triggerState)
-            {
-                OnTriggerChangeEvent?.Invoke(false);
-                triggerState = false;
-            }
-            preSnapActiveHandles = new List<Handle>();
-            foreach (Handle han in item.handles)
-            {
-                if (han.enabled && han.touchCollider.enabled && han != item.mainHandleLeft && han != item.mainHandleRight)
-                {
-                    preSnapActiveHandles.Add(han);
-                    han.SetTouch(false);
-                }
-            }
-        }
-
-        private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
-        {
-            if (boltHandle != null && handle == boltHandle && item.mainHandleLeft.handlers.Count == 0)
-            {
-                //if (heldNotBoltHandle() is Handle han) han.SetJointModifier(this, 1, 1, 100, 1);
-                if (heldNotBoltHandle() is Handle han) han.SetJointToTwoHanded(han.handlers[0].side);
-            }
-        }
-
-        private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
-        {
-            if (handle == item.mainHandleLeft)
-            {
-                if (action == Interactable.Action.UseStart)
-                {
-                    OnTriggerChangeEvent?.Invoke(true);
-                    triggerState = true;
-                }
-                else if (action == Interactable.Action.UseStop)
-                {
-                    OnTriggerChangeEvent?.Invoke(false);
-                    triggerState = false;
-                }
-
-                if (action == Interactable.Action.AlternateUseStart)
-                {
-                    lastPressTime = Time.time;
-                    countingForLongpress = true;
-                }
-                if (action == Interactable.Action.AlternateUseStop && countingForLongpress)
-                {
-                    countingForLongpress = false;
-                    if (Time.time - lastPressTime >= longPressTime) LongPress();
-                    else ShortPress();
-                }
-            }
-        }
-
-        private void OnCollisionEnter(Collision collision)
-        {
-            OnCollisionEvent?.Invoke(collision);
-        }
-
-        private bool isSuppressed()
-        {
-            if (integrallySuppressed) return true;
-            foreach (Attachment at in allAttachments)
-            {
-                if (at.isSuppressing) return true;
-            }
-            return false;
-        }
-
-        public void PlayFireSound(bool overrideSuppressedbool = false, bool suppressed = false)
-        {
-            bool supp = isSuppressed();
-            if (overrideSuppressedbool) supp = suppressed;
-            if (!supp)
-            {
-                Util.PlayRandomAudioSource(fireSounds);
-                Util.AlertAllCreaturesInRange(hitscanMuzzle.position, 50);
-            }
-            else
-            {
-                Util.PlayRandomAudioSource(suppressedFireSounds);
-            }
-        }
-
-        public void PlayMuzzleFlash()
+        public override void PlayMuzzleFlash()
         {
             bool overridden = false;
             foreach (Attachment at in allAttachments)
@@ -269,88 +164,24 @@ namespace GhettosFirearmSDKv2
             if (!overridden && defaultMuzzleFlash is ParticleSystem mf) mf.Play();
         }
 
-        private bool NoMuzzleFlashOverridingAttachmentChildren(Attachment attachment)
+        public override bool isSuppressed()
         {
-            foreach (AttachmentPoint p in attachment.attachmentPoints)
+            if (integrallySuppressed) return true;
+            foreach (Attachment at in allAttachments)
             {
-                if (p.currentAttachment != null)
-                {
-                    if (!NMFOACrecurve(p.currentAttachment)) return false;
-                }
+                if (at.isSuppressing) return true;
             }
-            return true;
+            return false;
         }
 
-        private bool NMFOACrecurve(Attachment attachment)
+        public override void CalculateMuzzle()
         {
-            foreach (AttachmentPoint p in attachment.attachmentPoints)
+            Transform t = hitscanMuzzle;
+            foreach (Attachment a in allAttachments)
             {
-                if (p.currentAttachment != null)
-                {
-                    if (!NMFOACrecurve(p.currentAttachment)) return false;
-                }
+                if (a.minimumMuzzlePosition != null && Vector3.Distance(hitscanMuzzle.position, a.minimumMuzzlePosition.position) > Vector3.Distance(hitscanMuzzle.position, t.position)) t = a.minimumMuzzlePosition;
             }
-            if (attachment.overridesMuzzleFlash) return false;
-            return true;
-        }
-
-        private bool NoAttachments(Attachment attachment)
-        {
-            foreach (AttachmentPoint p in attachment.attachmentPoints)
-            {
-                if (p.currentAttachment != null) return false;
-            }
-            return true;
-        }
-
-        void ShortPress()
-        {
-            OnAltActionEvent?.Invoke(false);
-            if (magazineWell != null && magazineWell.canEject)
-            {
-                if (!bolt.caught || (bolt.caught && magazineWell.IsEmptyAndHasMagazine())) magazineWell.Eject();
-                else if (bolt.caught && !magazineWell.IsEmpty()) bolt.TryRelease();
-            }
-            else bolt.TryRelease();
-        }
-
-        void LongPress()
-        {
-            OnAltActionEvent?.Invoke(true);
-        }
-
-        public void SetFiremode(FireModes mode)
-        {
-            fireMode = mode;
-            OnFiremodeChangedEvent?.Invoke();
-        }
-
-        //EVENTS
-        public delegate void OnTriggerChange(bool isPulled);
-        public event OnTriggerChange OnTriggerChangeEvent;
-
-        public delegate void OnCollision(Collision collision);
-        public event OnCollision OnCollisionEvent;
-
-        public delegate void OnAction(Interactable.Action action);
-        public event OnAction OnActionEvent;
-
-        public delegate void OnAltAction(bool longPress);
-        public event OnAltAction OnAltActionEvent;
-
-        public delegate void OnToggleColliders(bool active);
-        public event OnToggleColliders OnColliderToggleEvent;
-
-        public delegate void OnFiremodeChanged();
-        public event OnFiremodeChanged OnFiremodeChangedEvent;
-
-        Handle heldNotBoltHandle()
-        {
-            foreach (Handle han in item.handles)
-            {
-                if (han != boltHandle && han.handlers.Count > 0) return han;
-            }
-            return null;
+            actualHitscanMuzzle = t;
         }
     }
 }

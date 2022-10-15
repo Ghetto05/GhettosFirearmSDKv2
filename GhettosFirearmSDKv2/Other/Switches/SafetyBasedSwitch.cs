@@ -18,21 +18,21 @@ namespace GhettosFirearmSDKv2
             selector.onFiremodeChanged += Selector_onFiremodeChanged;
         }
 
-        private void Selector_onFiremodeChanged(Firearm.FireModes newMode)
+        private void Selector_onFiremodeChanged(FirearmBase.FireModes newMode)
         {
-            if (newMode == Firearm.FireModes.Safe)
+            if (newMode == FirearmBase.FireModes.Safe)
             {
                 onSafe?.Invoke();
             }
-            else if (newMode == Firearm.FireModes.Semi)
+            else if (newMode == FirearmBase.FireModes.Semi)
             {
                 onSemi?.Invoke();
             }
-            else if (newMode == Firearm.FireModes.Burst)
+            else if (newMode == FirearmBase.FireModes.Burst)
             {
                 onBurst?.Invoke();
             }
-            else if (newMode == Firearm.FireModes.Auto)
+            else if (newMode == FirearmBase.FireModes.Auto)
             {
                 onAuto?.Invoke();
             }

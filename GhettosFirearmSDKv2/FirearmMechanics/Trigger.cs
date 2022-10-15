@@ -6,7 +6,7 @@ namespace GhettosFirearmSDKv2
 {
     public class Trigger : MonoBehaviour
     {
-        public Firearm firearm;
+        public FirearmBase firearm;
 
         public Transform trigger;
         public Transform idlePosition;

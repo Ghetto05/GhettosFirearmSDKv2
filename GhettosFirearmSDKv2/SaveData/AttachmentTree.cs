@@ -9,7 +9,7 @@ namespace GhettosFirearmSDKv2.SaveData
     {
         public List<Node> firearmAttachments;
 
-        public void ApplyToFirearm(Firearm firearm)
+        public void ApplyToFirearm(FirearmBase firearm)
         {
             if (firearmAttachments == null) return;
             foreach (Node node in firearmAttachments)
@@ -19,7 +19,7 @@ namespace GhettosFirearmSDKv2.SaveData
             }
         }
 
-        public void GetFromFirearm(Firearm firearm)
+        public void GetFromFirearm(FirearmBase firearm)
         {
             firearmAttachments = new List<Node>();
             foreach (AttachmentPoint ap in firearm.attachmentPoints)

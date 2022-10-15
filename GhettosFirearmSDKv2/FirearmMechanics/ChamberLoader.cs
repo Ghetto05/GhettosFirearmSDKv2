@@ -10,7 +10,7 @@ namespace GhettosFirearmSDKv2
         public Collider loadCollider;
         public BoltBase boltToBeLoaded;
         public Lock lockingCondition;
-        public Firearm firearm;
+        public FirearmBase firearm;
         public AudioSource[] insertSounds;
 
         private void Awake()

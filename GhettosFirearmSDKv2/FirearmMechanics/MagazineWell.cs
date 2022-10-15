@@ -7,7 +7,7 @@ namespace GhettosFirearmSDKv2
 {
     public class MagazineWell : MonoBehaviour
     {
-        public Firearm firearm;
+        public FirearmBase firearm;
         public string acceptedMagazineType;
         public Collider loadingCollider;
         public Transform mountPoint;

@@ -367,6 +367,7 @@
     <Compile Include="Ammunition\TracerModule.cs" />
     <Compile Include="Attachments\AttachmentJointConnector.cs" />
     <Compile Include="BoltAssemblies\BoltBase.cs" />
+    <Compile Include="FirearmBase.cs" />
     <Compile Include="Other\Locks\BoltBasedLock.cs" />
     <Compile Include="BoltAssemblies\BoltChildPositionLimiter.cs" />
     <Compile Include="FirearmMechanics\BoltReleaseButton.cs" />

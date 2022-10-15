@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnDespawnEvent += Item_OnDespawnEvent;
-            if (overrideItem != null) overrideItem.GetComponent<Firearm>().OnCollisionEvent += OnCollisionEnter;
+            if (overrideItem != null) overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
             handlesTR = new List<Handle>();
             foreach (Transform t in handles)
             {

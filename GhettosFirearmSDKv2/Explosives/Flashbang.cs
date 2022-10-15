@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2.Explosives
             if (effect != null)
             {
                 effect.gameObject.transform.SetParent(null);
-                Player.local.StartCoroutine(Explosive.delayedDestroy(effect.gameObject, effect.main.duration + 1f));
+                Player.local.StartCoroutine(delayedDestroy(effect.gameObject, effect.main.duration + 1f));
                 effect.Play();
             }
             
@@ -31,7 +31,7 @@ namespace GhettosFirearmSDKv2.Explosives
             foreach (AudioSource s in audioEffects)
             {
                 s.gameObject.transform.SetParent(null);
-                Player.local.StartCoroutine(Explosive.delayedDestroy(s.gameObject, s.clip.length + 1f));
+                Player.local.StartCoroutine(delayedDestroy(s.gameObject, s.clip.length + 1f));
             }
 
             if (Vector3.Distance(this.transform.position, Player.local.head.cam.transform.position) < range) Chemicals.PlayerEffectsAndChemicalsModule.Flashbang(time);

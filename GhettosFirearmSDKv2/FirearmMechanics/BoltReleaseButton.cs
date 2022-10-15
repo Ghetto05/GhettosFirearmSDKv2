@@ -7,7 +7,7 @@ namespace GhettosFirearmSDKv2
 {
     public class BoltReleaseButton : MonoBehaviour
     {
-        public Firearm firearm;
+        public FirearmBase firearm;
         public bool caught;
         public Transform button;
         public Transform uncaughtPosition;
