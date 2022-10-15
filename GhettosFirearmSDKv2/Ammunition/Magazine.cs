@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ThunderRoad;
+using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
@@ -32,6 +33,7 @@ namespace GhettosFirearmSDKv2
         public bool hasOverrideLoad;
         public Transform overrideItem;
         public List<Collider> colliders;
+        private List<Renderer> originalRenderers;
 
         private void Update()
         {
@@ -179,6 +181,17 @@ namespace GhettosFirearmSDKv2
         {
             item.disallowDespawn = true;
             item.disallowRoomDespawn = true;
+
+            //renderers reassignment to fix dungeon lighting
+            if (originalRenderers == null) originalRenderers = item.renderers.ToList();
+            foreach (Renderer ren in originalRenderers)
+            {
+                well.firearm.item.renderers.Add(ren);
+                item.renderers.Remove(ren);
+            }
+            well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
+            item.lightVolumeReceiver.SetRenderers(item.renderers);
+
             if (Settings_LevelModule.local.magazinesHaveNoCollision) ToggleCollision(false);
             currentWell = well;
             currentWell.currentMagazine = this;
@@ -206,11 +219,14 @@ namespace GhettosFirearmSDKv2
                     handle.SetTelekinesis(false);
                 }
             }
+
+            //Saving firearm's magazine 
             currentWell.firearm.item.RemoveCustomData<MagazineSaveData>();
             MagazineSaveData data = new MagazineSaveData();
             data.GetContentsFromMagazine(this);
             data.itemID = item.itemId;
             currentWell.firearm.item.AddCustomData(data);
+
             UpdateCartridgePositions();
         }
 
@@ -220,6 +236,16 @@ namespace GhettosFirearmSDKv2
             {
                 item.disallowDespawn = false;
                 item.disallowRoomDespawn = false;
+
+                //Revert dungeon lighting fix
+                foreach (Renderer ren in originalRenderers)
+                {
+                    currentWell.firearm.item.renderers.Remove(ren);
+                    item.renderers.Add(ren);
+                }
+                currentWell.firearm.item.lightVolumeReceiver.SetRenderers(currentWell.firearm.item.renderers);
+                item.lightVolumeReceiver.SetRenderers(item.renderers);
+
                 Util.PlayRandomAudioSource(magazineEjectSounds);
                 Util.DelayIgnoreCollision(this.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
                 foreach (Cartridge c in cartridges)
