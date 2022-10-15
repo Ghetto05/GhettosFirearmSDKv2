@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GhettosFirearmSDKv2
 {
@@ -12,6 +13,7 @@ namespace GhettosFirearmSDKv2
         public float range;
         public bool activeByDefault;
         bool active;
+        public Text distanceDisplay;
 
         void Awake()
         {
@@ -31,11 +33,13 @@ namespace GhettosFirearmSDKv2
                 if (cylinderRoot != null) cylinderRoot.localScale = lengthScale(hit.distance);
                 if (endPointObject != null && !endPointObject.activeInHierarchy) endPointObject.SetActive(true);
                 if (endPointObject != null) endPointObject.transform.localPosition = lengthPosition(hit.distance);
+                if (distanceDisplay != null) distanceDisplay.text = hit.distance.ToString();
             }
             else
             {
                 if (cylinderRoot != null) cylinderRoot.localScale = lengthScale(8000f);
                 if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
+                if (distanceDisplay != null) distanceDisplay.text = "---";
             }
         }
 
