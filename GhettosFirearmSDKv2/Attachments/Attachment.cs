@@ -90,6 +90,7 @@ namespace GhettosFirearmSDKv2
                 han.item = attachmentPoint.parentFirearm.item;
                 han.rb = attachmentPoint.parentFirearm.item.rb;
                 attachmentPoint.parentFirearm.item.handles.Add(han);
+                if (attachmentPoint.parentFirearm.item.holder != null) han.SetTouch(false);
             }
             if (damagers != null)
             {
