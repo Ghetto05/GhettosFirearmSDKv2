@@ -15,6 +15,7 @@ namespace GhettosFirearmSDKv2
         public bool ejectOnEmpty = false;
         public Magazine currentMagazine;
         public bool spawnMagazineOnAwake;
+        public string roundCounterMessage;
 
         public virtual void Awake()
         {
@@ -28,8 +29,10 @@ namespace GhettosFirearmSDKv2
             if (currentMagazine != null)
             {
                 currentMagazine.item.SetColliderLayer(firearm.item.currentPhysicsLayer);
-                currentMagazine.item.SetMeshLayer(firearm.item.gameObject.layer); 
+                currentMagazine.item.SetMeshLayer(firearm.item.gameObject.layer);
+                roundCounterMessage = currentMagazine.cartridges.Count.ToString();
             }
+            else roundCounterMessage = "N/A";
         }
 
         private void Firearm_OnColliderToggleEvent(bool active)
