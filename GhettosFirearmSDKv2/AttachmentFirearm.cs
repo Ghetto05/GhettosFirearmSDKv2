@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         {
             item = attachment.attachmentPoint.parentFirearm.item;
             attachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;
-            item.OnHeldActionEvent += Item_OnHeldActionEvent;
+            attachment.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
         }
