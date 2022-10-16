@@ -169,7 +169,7 @@ namespace GhettosFirearmSDKv2
             return true;
         }
 
-        private void OnCollisionEnter(Collision collision)
+        public void OnCollisionEnter(Collision collision)
         {
             OnCollisionEvent?.Invoke(collision);
         }
