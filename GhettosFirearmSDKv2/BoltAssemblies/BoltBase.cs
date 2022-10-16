@@ -13,6 +13,11 @@ namespace GhettosFirearmSDKv2
         public BoltState laststate = BoltState.Locked;
         public bool caught;
 
+        public static Vector3 GrandparentLocalPosition(Transform child, Transform grandparent)
+        {
+            return grandparent.InverseTransformPoint(child.position);
+        }
+
         public virtual void TryFire()
         {
         }

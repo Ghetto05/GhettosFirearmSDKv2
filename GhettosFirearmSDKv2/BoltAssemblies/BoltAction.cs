@@ -73,14 +73,14 @@ namespace GhettosFirearmSDKv2
                 else if (Util.AbsDist(bolt.position, startPoint.position) < pointTreshold && state == BoltState.Locked && Vector3.Angle(rotatingChild.localEulerAngles, unlockRot.localEulerAngles) < pointTreshold)
                 {
                     state = BoltState.Front;
-                    joint.anchor = new Vector3(endPoint.localPosition.x, endPoint.localPosition.y, endPoint.localPosition.z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
+                    joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
                     Util.PlayRandomAudioSource(unlockSounds);
                 }
                 //locking
                 else if (Util.AbsDist(bolt.position, startPoint.position) < pointTreshold && state == BoltState.Front && Vector3.Angle(rotatingChild.localEulerAngles, lockRot.localEulerAngles) < pointTreshold)
                 {
                     state = BoltState.Locked;
-                    joint.anchor = startPoint.localPosition;
+                    joint.anchor = GrandparentLocalPosition(startPoint, firearm.item.transform);
                     Util.PlayRandomAudioSource(lockSounds);
                 }
                 //moving
@@ -186,7 +186,7 @@ namespace GhettosFirearmSDKv2
             ConfigurableJoint pJoint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
             handle.transform.localEulerAngles = new Vector3(handle.transform.localEulerAngles.x, handle.transform.localEulerAngles.y, handle.transform.localEulerAngles.z + ((Vector3.Angle(lockRot.localEulerAngles, unlockRot.localEulerAngles) / 2)));
             pJoint.connectedBody = handle;
-            joint.anchor = startPoint.localPosition;
+            joint.anchor = GrandparentLocalPosition(startPoint, firearm.item.transform);
             //pJoint.massScale = 0.00001f;
             pJoint.connectedMassScale = 100f;
             SoftJointLimit limit = new SoftJointLimit();

@@ -325,19 +325,19 @@ namespace GhettosFirearmSDKv2
             //default, start to back movement
             if (!lockedBack && !safetyLocked)
             {
-                pJoint.anchor = new Vector3(endPoint.localPosition.x, endPoint.localPosition.y, endPoint.localPosition.z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
+                pJoint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
                 limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
             }
             //locked back, between end point and lock point movement
             else if (lockedBack && !safetyLocked)
             {
-                pJoint.anchor = new Vector3(endPoint.localPosition.x, endPoint.localPosition.y, endPoint.localPosition.z + ((catchPoint.localPosition.z - endPoint.localPosition.z) / 2));
+                pJoint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((catchPoint.localPosition.z - endPoint.localPosition.z) / 2));
                 limit.limit = Vector3.Distance(endPoint.position, catchPoint.position) / 2;
             }
             else if (safetyLocked && !lockedBack)
             //locked front by safety, between start and ak lock point movement
             {
-                pJoint.anchor = new Vector3(startPoint.localPosition.x, startPoint.localPosition.y, startPoint.localPosition.z + ((akBoltLockPoint.localPosition.z - startPoint.localPosition.z) / 2));
+                pJoint.anchor = new Vector3(GrandparentLocalPosition(startPoint, firearm.item.transform).x, GrandparentLocalPosition(startPoint, firearm.item.transform).y, GrandparentLocalPosition(startPoint, firearm.item.transform).z + ((akBoltLockPoint.localPosition.z - startPoint.localPosition.z) / 2));
                 limit.limit = Vector3.Distance(startPoint.position, akBoltLockPoint.position) / 2;
             }
             pJoint.linearLimit = limit;

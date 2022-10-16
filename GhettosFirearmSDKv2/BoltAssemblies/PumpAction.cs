@@ -235,7 +235,7 @@ namespace GhettosFirearmSDKv2
             //pJoint.massScale = 0.00001f;
             pJoint.connectedMassScale = 100f;
             SoftJointLimit limit = new SoftJointLimit();
-            pJoint.anchor = new Vector3(endPoint.localPosition.x, endPoint.localPosition.y, endPoint.localPosition.z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
+            pJoint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
             limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
             pJoint.linearLimit = limit;
             pJoint.autoConfigureConnectedAnchor = false;
