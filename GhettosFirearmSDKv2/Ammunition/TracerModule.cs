@@ -19,6 +19,7 @@ namespace GhettosFirearmSDKv2
         {
             cartridge = gameObject.GetComponent<Cartridge>();
             cartridge.OnFiredWithHitPointsAndMuzzle += Fire;
+            startTime = Time.time;
         }
 
         public void Fire(List<Vector3> hitPoints, Transform muzzle)
