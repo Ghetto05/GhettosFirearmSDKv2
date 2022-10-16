@@ -14,6 +14,7 @@ namespace GhettosFirearmSDKv2
         public Transform endPoint;
         public Transform roundEjectPoint;
         public Transform roundLoadPoint;
+        public Transform roundMountAfterLock;
 
         public float pointTreshold;
 
@@ -152,6 +153,12 @@ namespace GhettosFirearmSDKv2
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Locked;
+                    if (roundMountAfterLock != null && loadedCartridge != null)
+                    {
+                        loadedCartridge.transform.parent = roundMount;
+                        loadedCartridge.transform.localPosition = Vector3.zero;
+                        loadedCartridge.transform.localEulerAngles = Vector3.zero;
+                    }
                     if (wentToFrontSinceLastLock) Lock(true);
                     Util.PlayRandomAudioSource(rackSounds);
                 }
