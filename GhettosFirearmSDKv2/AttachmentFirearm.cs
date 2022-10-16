@@ -11,14 +11,20 @@ namespace GhettosFirearmSDKv2
     public class AttachmentFirearm : FirearmBase
     {
         public Attachment attachment;
+        public Handle fireHandle;
 
         private void Awake()
         {
             item = attachment.attachmentPoint.parentFirearm.item;
             attachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;
-            attachment.OnHeldActionEvent += Item_OnHeldActionEvent;
+            fireHandle.OnHeldActionEvent += FireHandle_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
+        }
+
+        private void FireHandle_OnHeldActionEvent(RagdollHand ragdollHand, Interactable.Action action)
+        {
+            base.Item_OnHeldActionEvent(ragdollHand, fireHandle, action);
         }
 
         public override void PlayMuzzleFlash()

@@ -19,7 +19,7 @@ namespace GhettosFirearmSDKv2
         private void Awake()
         {
             if (item == null) item = this.GetComponent<Item>();
-            item.OnHeldActionEvent += Item_OnHeldActionEvent;
+            item.mainHandleLeft.OnHeldActionEvent += MainHandleLeft_OnHeldActionEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
@@ -31,6 +31,11 @@ namespace GhettosFirearmSDKv2
                 ap.parentFirearm = this;
             }
             StartCoroutine(DelayedLoadAttachments());
+        }
+
+        private void MainHandleLeft_OnHeldActionEvent(RagdollHand ragdollHand, Interactable.Action action)
+        {
+            base.Item_OnHeldActionEvent(ragdollHand, item.mainHandleLeft, action);
         }
 
         //experimental

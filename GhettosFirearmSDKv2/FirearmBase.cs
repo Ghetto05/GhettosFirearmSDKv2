@@ -64,28 +64,25 @@ namespace GhettosFirearmSDKv2
 
         public void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (handle == item.mainHandleLeft)
+            if (action == Interactable.Action.UseStart)
             {
-                if (action == Interactable.Action.UseStart)
-                {
-                    ChangeTrigger(true);
-                }
-                else if (action == Interactable.Action.UseStop || action == Interactable.Action.Ungrab)
-                {
-                    ChangeTrigger(false);
-                }
+                ChangeTrigger(true);
+            }
+            else if (action == Interactable.Action.UseStop || action == Interactable.Action.Ungrab)
+            {
+                ChangeTrigger(false);
+            }
 
-                if (action == Interactable.Action.AlternateUseStart)
-                {
-                    lastPressTime = Time.time;
-                    countingForLongpress = true;
-                }
-                if (action == Interactable.Action.AlternateUseStop && countingForLongpress)
-                {
-                    countingForLongpress = false;
-                    if (Time.time - lastPressTime >= longPressTime) LongPress();
-                    else ShortPress();
-                }
+            if (action == Interactable.Action.AlternateUseStart)
+            {
+                lastPressTime = Time.time;
+                countingForLongpress = true;
+            }
+            if (action == Interactable.Action.AlternateUseStop && countingForLongpress)
+            {
+                countingForLongpress = false;
+                if (Time.time - lastPressTime >= longPressTime) LongPress();
+                else ShortPress();
             }
         }
 
