@@ -268,7 +268,6 @@ namespace GhettosFirearmSDKv2
             }
             float Y = rows * categoryElementHeight + headers * categroyHeaderHeight + gaps * categoryGapHeight;
             trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Y);
-            Debug.Log(Y);
         }
 
         private void SetupAttachmentList(string attachmentType, string[] alternateTypes)
