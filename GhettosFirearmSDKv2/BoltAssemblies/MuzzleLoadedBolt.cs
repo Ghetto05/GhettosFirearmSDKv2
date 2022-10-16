@@ -118,7 +118,7 @@ namespace GhettosFirearmSDKv2
             c.transform.parent = null;
             rb.isKinematic = false;
             rb.WakeUp();
-            rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
+            if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
             c.ToggleHandles(true);
         }
     }
