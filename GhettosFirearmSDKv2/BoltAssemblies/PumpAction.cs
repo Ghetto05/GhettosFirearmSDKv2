@@ -95,7 +95,7 @@ namespace GhettosFirearmSDKv2
         public override void TryFire()
         {
             if (loadedCartridge == null || loadedCartridge.fired) return;
-            foreach (RagdollHand hand in firearm.gameObject.GetComponent<Item>().handlers)
+            foreach (RagdollHand hand in firearm.item.handlers)
             {
                 if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
                 hand.playerHand.controlHand.HapticShort(50f);
@@ -122,7 +122,7 @@ namespace GhettosFirearmSDKv2
             {
                 bolt.localPosition = startPoint.localPosition;
                 handle.transform.localPosition = startPoint.localPosition;
-                if (lockJoint == null) lockJoint = firearm.gameObject.AddComponent<FixedJoint>();
+                if (lockJoint == null) lockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
                 lockJoint.connectedBody = handle;
                 lockJoint.connectedMassScale = 100f;
                 closedSinceLastEject = true;
