@@ -15,8 +15,8 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
-            item = attachment.attachmentPoint.parentFirearm.item;
-            attachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;
+            item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
+            attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.OnCollisionEvent += OnCollisionEnter;
             fireHandle.OnHeldActionEvent += FireHandle_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
@@ -58,12 +58,12 @@ namespace GhettosFirearmSDKv2
 
         public override void CalculateMuzzle()
         {
-            Transform t = hitscanMuzzle;
-            foreach (Attachment a in attachment.attachmentPoint.parentFirearm.allAttachments)
-            {
-                if (a.minimumMuzzlePosition != null && Vector3.Distance(hitscanMuzzle.position, a.minimumMuzzlePosition.position) > Vector3.Distance(hitscanMuzzle.position, t.position)) t = a.minimumMuzzlePosition;
-            }
-            actualHitscanMuzzle = t;
+            //Transform t = hitscanMuzzle;
+            //foreach (Attachment a in attachment.attachmentPoint.parentFirearm.allAttachments)
+            //{
+            //    if (a.minimumMuzzlePosition != null && Vector3.Distance(hitscanMuzzle.position, a.minimumMuzzlePosition.position) > Vector3.Distance(hitscanMuzzle.position, t.position)) t = a.minimumMuzzlePosition;
+            //}
+            //actualHitscanMuzzle = t;
         }
     }
 }

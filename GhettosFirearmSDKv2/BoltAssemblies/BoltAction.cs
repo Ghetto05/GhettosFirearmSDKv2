@@ -183,7 +183,7 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeJoint()
         {
-            ConfigurableJoint pJoint = firearm.gameObject.AddComponent<ConfigurableJoint>();
+            ConfigurableJoint pJoint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
             handle.transform.localEulerAngles = new Vector3(handle.transform.localEulerAngles.x, handle.transform.localEulerAngles.y, handle.transform.localEulerAngles.z + ((Vector3.Angle(lockRot.localEulerAngles, unlockRot.localEulerAngles) / 2)));
             pJoint.connectedBody = handle;
             joint.anchor = startPoint.localPosition;

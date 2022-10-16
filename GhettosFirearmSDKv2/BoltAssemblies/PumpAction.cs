@@ -42,8 +42,6 @@ namespace GhettosFirearmSDKv2
             bhandle = handle.gameObject.GetComponentInChildren<Handle>();
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.item.OnGrabEvent += Item_OnGrabEvent;
-            bhandle.rb = handle;
-            bhandle.customRigidBody = handle;
             StartCoroutine(delayedGetChamber());
             Lock(true);
         }
@@ -232,7 +230,7 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeJoint()
         {
-            ConfigurableJoint pJoint = firearm.gameObject.AddComponent<ConfigurableJoint>();
+            ConfigurableJoint pJoint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
             pJoint.connectedBody = handle;
             //pJoint.massScale = 0.00001f;
             pJoint.connectedMassScale = 100f;

@@ -318,7 +318,7 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeJoint(bool lockedBack, bool safetyLocked = false)
         {
-            ConfigurableJoint pJoint = firearm.gameObject.AddComponent<ConfigurableJoint>();
+            ConfigurableJoint pJoint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
             pJoint.connectedBody = rigidBody;
             pJoint.massScale = 0.00001f;
             SoftJointLimit limit = new SoftJointLimit();
