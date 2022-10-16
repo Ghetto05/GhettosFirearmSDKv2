@@ -402,11 +402,11 @@ namespace GhettosFirearmSDKv2
         {
             Catalog.GetData<ItemData>(data.projectileItemId, true).SpawnAsync(thisSpawnedItem =>
             {
-                item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, muzzle, data.projectileForce));
+                item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, muzzle, data.muzzleVelocity));
             }, muzzle.position, muzzle.rotation);
         }
 
-        private static IEnumerator FireItemCoroutine(Item projectilItem, Item gunItem, Transform muzzle, float force)
+        private static IEnumerator FireItemCoroutine(Item projectilItem, Item gunItem, Transform muzzle, float velocity)
         {
             projectilItem.rb.isKinematic = true;
             Util.IgnoreCollision(projectilItem.gameObject, gunItem.gameObject, true);
@@ -417,7 +417,7 @@ namespace GhettosFirearmSDKv2
             yield return new WaitForFixedUpdate();
             projectilItem.rb.isKinematic = false;
             projectilItem.Throw();
-            projectilItem.rb.AddForce(projectilItem.rb.transform.forward * force * 1000);
+            projectilItem.rb.velocity = muzzle.forward * velocity;
         }
 
         private static IEnumerator TemporaryKnockout(float duration, Creature creature)
