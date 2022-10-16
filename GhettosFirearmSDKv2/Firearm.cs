@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using ThunderRoad;
 using UnityEngine.AddressableAssets;
@@ -22,7 +18,7 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
-            item = this.GetComponent<Item>();
+            if (item == null) item = this.GetComponent<Item>();
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnSnapEvent += Item_OnSnapEvent;

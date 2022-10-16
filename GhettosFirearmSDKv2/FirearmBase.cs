@@ -48,9 +48,14 @@ namespace GhettosFirearmSDKv2
             OnColliderToggleEvent?.Invoke(false);
             if (triggerState)
             {
-                OnTriggerChangeEvent?.Invoke(false);
-                triggerState = false;
+                ChangeTrigger(false);
             }
+        }
+
+        public void ChangeTrigger(bool pulled)
+        {
+            OnTriggerChangeEvent?.Invoke(pulled);
+            triggerState = pulled;
         }
 
         public virtual void CalculateMuzzle()
@@ -63,13 +68,11 @@ namespace GhettosFirearmSDKv2
             {
                 if (action == Interactable.Action.UseStart)
                 {
-                    OnTriggerChangeEvent?.Invoke(true);
-                    triggerState = true;
+                    ChangeTrigger(true);
                 }
                 else if (action == Interactable.Action.UseStop || action == Interactable.Action.Ungrab)
                 {
-                    OnTriggerChangeEvent?.Invoke(false);
-                    triggerState = false;
+                    ChangeTrigger(false);
                 }
 
                 if (action == Interactable.Action.AlternateUseStart)
