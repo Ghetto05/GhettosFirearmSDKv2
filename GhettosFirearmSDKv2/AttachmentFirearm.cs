@@ -29,30 +29,12 @@ namespace GhettosFirearmSDKv2
 
         public override void PlayMuzzleFlash()
         {
-            bool overridden = false;
-            foreach (Attachment at in attachment.attachmentPoint.parentFirearm.allAttachments)
-            {
-                if (at.overridesMuzzleFlash) overridden = true;
-                if (at.overridesMuzzleFlash && NoMuzzleFlashOverridingAttachmentChildren(at))
-                {
-                    if (at.newFlash != null)
-                    {
-                        at.newFlash.Play();
-                    }
-                }
-            }
-
-            //default
-            if (!overridden && defaultMuzzleFlash is ParticleSystem mf) mf.Play();
+            if (defaultMuzzleFlash is ParticleSystem mf) mf.Play();
         }
 
         public override bool isSuppressed()
         {
             if (integrallySuppressed) return true;
-            foreach (Attachment at in attachment.attachmentPoint.parentFirearm.allAttachments)
-            {
-                if (at.isSuppressing) return true;
-            }
             return false;
         }
 

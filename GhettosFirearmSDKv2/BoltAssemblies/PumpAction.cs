@@ -42,8 +42,14 @@ namespace GhettosFirearmSDKv2
             bhandle = handle.gameObject.GetComponentInChildren<Handle>();
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.item.OnGrabEvent += Item_OnGrabEvent;
+            firearm.item.OnUngrabEvent += Item_OnUngrabEvent;
+            InitializeJoint();
             StartCoroutine(delayedGetChamber());
             Lock(true);
+        }
+
+        private void Item_OnUngrabEvent(Handle handle, RagdollHand ragdollHand, bool throwing)
+        {
         }
 
         private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
@@ -66,10 +72,12 @@ namespace GhettosFirearmSDKv2
             {
                 foreach (RagdollHand hand in bhandle.handlers)
                 {
-                    if (hand.gripInfo.joint is ConfigurableJoint j)
+                    if (hand.gripInfo is Handle.GripInfo g)
                     {
-                        j.connectedBody = firearm.item.rb;
-                        j.connectedAnchor = firearm.item.rb.transform.InverseTransformPoint(hand.gripInfo.transform.position);
+                        g.joint.connectedBody = firearm.item.rb;
+                        g.joint.connectedAnchor = firearm.item.rb.transform.InverseTransformPoint(hand.gripInfo.transform.position);
+                        //g.playerJoint.connectedBody = firearm.item.rb;
+                        //g.playerJoint.connectedAnchor = firearm.item.rb.transform.InverseTransformPoint(g.transform.position);
                     }
                 }
             }
@@ -77,10 +85,12 @@ namespace GhettosFirearmSDKv2
             {
                 foreach (RagdollHand hand in bhandle.handlers)
                 {
-                    if (hand.gripInfo.joint is ConfigurableJoint j)
+                    if (hand.gripInfo is Handle.GripInfo g)
                     {
-                        j.connectedBody = handle;
-                        j.connectedAnchor = bhandle.rb.transform.InverseTransformPoint(hand.gripInfo.transform.position);
+                        g.joint.connectedBody = handle;
+                        g.joint.connectedAnchor = handle.transform.InverseTransformPoint(hand.gripInfo.transform.position);
+                        //g.playerJoint.connectedBody = handle;
+                        //g.playerJoint.connectedAnchor = handle.transform.InverseTransformPoint(g.transform.position);
                     }
                 }
             }
@@ -127,12 +137,12 @@ namespace GhettosFirearmSDKv2
                 lockJoint.connectedMassScale = 100f;
                 closedSinceLastEject = true;
                 wentToFrontSinceLastLock = false;
-                Destroy(joint);
+                //Destroy(joint);
                 SetStateOnAllHandlers(true);
             }
             else if (lockJoint != null)
             {
-                InitializeJoint();
+                //InitializeJoint();
                 Destroy(lockJoint);
                 SetStateOnAllHandlers(false);
             }
@@ -230,23 +240,22 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeJoint()
         {
-            ConfigurableJoint pJoint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
-            pJoint.connectedBody = handle;
+            joint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
+            joint.connectedBody = handle;
             //pJoint.massScale = 0.00001f;
-            pJoint.connectedMassScale = 100f;
+            joint.connectedMassScale = 9999f;
             SoftJointLimit limit = new SoftJointLimit();
-            pJoint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
+            joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
             limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
-            pJoint.linearLimit = limit;
-            pJoint.autoConfigureConnectedAnchor = false;
-            pJoint.connectedAnchor = Vector3.zero;
-            pJoint.xMotion = ConfigurableJointMotion.Locked;
-            pJoint.yMotion = ConfigurableJointMotion.Locked;
-            pJoint.zMotion = ConfigurableJointMotion.Limited;
-            pJoint.angularXMotion = ConfigurableJointMotion.Locked;
-            pJoint.angularYMotion = ConfigurableJointMotion.Locked;
-            pJoint.angularZMotion = ConfigurableJointMotion.Locked;
-            joint = pJoint;
+            joint.linearLimit = limit;
+            joint.autoConfigureConnectedAnchor = false;
+            joint.connectedAnchor = Vector3.zero;
+            joint.xMotion = ConfigurableJointMotion.Locked;
+            joint.yMotion = ConfigurableJointMotion.Locked;
+            joint.zMotion = ConfigurableJointMotion.Limited;
+            joint.angularXMotion = ConfigurableJointMotion.Locked;
+            joint.angularYMotion = ConfigurableJointMotion.Locked;
+            joint.angularZMotion = ConfigurableJointMotion.Locked;
             handle.transform.localPosition = startPoint.localPosition;
             handle.transform.localRotation = startPoint.localRotation;
         }

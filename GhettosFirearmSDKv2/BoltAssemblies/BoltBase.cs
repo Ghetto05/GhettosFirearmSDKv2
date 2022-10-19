@@ -34,7 +34,7 @@ namespace GhettosFirearmSDKv2
         public IEnumerator delayedGetChamber()
         {
             yield return new WaitForSeconds(1f);
-            if (firearm.item.TryGetCustomData(out ChamberSaveData data))
+            if (firearm.GetType() == typeof(Firearm) && firearm.item.TryGetCustomData(out ChamberSaveData data))
             {
                 Catalog.GetData<ItemData>(data.itemId).SpawnAsync(carItem =>
                 {
