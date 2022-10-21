@@ -373,6 +373,7 @@
     <Compile Include="BoltAssemblies\BoltBase.cs" />
     <Compile Include="AttachmentFirearm.cs" />
     <Compile Include="Ammunition\StickyBomb.cs" />
+    <Compile Include="Explosives\Detonators\TimedDetonator.cs" />
     <Compile Include="TriggerRelay.cs" />
     <Compile Include="FirearmBase.cs" />
     <Compile Include="Other\Locks\BoltBasedLock.cs" />
