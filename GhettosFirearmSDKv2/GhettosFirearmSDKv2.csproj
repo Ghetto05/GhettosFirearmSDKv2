@@ -411,7 +411,7 @@
     <Compile Include="Explosives\Smoke.cs" />
     <Compile Include="AttachmentUtils\Scope.cs" />
     <Compile Include="Explosives\SimpleExplosive.cs" />
-    <Compile Include="GrenadeMechanics\ImpactDetonator.cs" />
+    <Compile Include="Explosives\Detonators\ImpactDetonator.cs" />
     <Compile Include="Other\Locks\Lock.cs" />
     <Compile Include="BoltAssemblies\Minigun.cs" />
     <Compile Include="SaveData\ChamberSaveData.cs" />
