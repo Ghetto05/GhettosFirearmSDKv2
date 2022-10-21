@@ -10,6 +10,8 @@ namespace GhettosFirearmSDKv2
 {
     public class ViceUI : MonoBehaviour
     {
+        public bool AlwaysFrozen;
+
         public Item item;
 
         public Collider screenCollider;
@@ -39,11 +41,16 @@ namespace GhettosFirearmSDKv2
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
+            if (AlwaysFrozen)
+            {
+                item.rb.isKinematic = !item.rb.isKinematic;
+                item.disallowDespawn = item.rb.isKinematic;
+            }
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (action == Interactable.Action.UseStart || action == Interactable.Action.AlternateUseStart)
+            if (!AlwaysFrozen && action == Interactable.Action.UseStart || action == Interactable.Action.AlternateUseStart)
             {
                 item.rb.isKinematic = !item.rb.isKinematic;
                 item.disallowDespawn = item.rb.isKinematic;
