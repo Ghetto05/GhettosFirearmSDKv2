@@ -210,6 +210,12 @@ namespace GhettosFirearmSDKv2
 
                     EjectRound();
                 }
+                //Pulled safety lock
+                else if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe && Util.AbsDist(startPoint.position, akBoltLockPoint.position) < 0.01 && Util.AbsDist(bolt.position, akBoltLockPoint.position) < pointTreshold && state == BoltState.Moving)
+                {
+                    Util.PlayRandomAudioSource(pullSounds);
+                    Util.PlayRandomAudioSource(chargingHandlePullSounds);
+                }
                 //moving
                 else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > pointTreshold && Util.AbsDist(bolt.position, startPoint.position) > pointTreshold)
                 {
