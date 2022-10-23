@@ -26,10 +26,11 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadMagazine(Magazine magazine, MagazineWell well)
         {
+            if (magazine.currentWell != null || magazine.item.holder != null || well.currentMagazine != null) return false;
             if (!Settings_LevelModule.local.doMagazineTypeChecks) return true;
             if (magazine.magazineType.Equals("DEBUG UNIVERSAL")) return true;
 
-            return magazine.magazineType.Equals(well.acceptedMagazineType) && magazine.currentWell == null && magazine.item.holder == null && well.currentMagazine == null;
+            return magazine.magazineType.Equals(well.acceptedMagazineType);
         }
 
         public static void AlertAllCreaturesInRange(Vector3 point, float range)
