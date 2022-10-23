@@ -2,21 +2,21 @@
 using ThunderRoad;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2.FirearmMechanics
+namespace GhettosFirearmSDKv2
 {
     public class AKMagazineSlap : MonoBehaviour
     {
-        public Firearm firearm;
+        public FirearmBase firearm;
         public List<Collider> triggers;
 
-        private void Awake()
+        public void Awake()
         {
             firearm.OnCollisionEvent += Firearm_OnCollisionEvent;
         }
 
-        private void Firearm_OnCollisionEvent(Collision collision)
+        public void Firearm_OnCollisionEvent(Collision collision)
         {
-            if (triggers.Contains(collision.contacts[0].thisCollider) && collision.gameObject.GetComponentInParent<Magazine>() is Magazine mag)
+            if (collision.collider.GetComponentInParent<Magazine>() is Magazine mag && triggers.Contains(collision.contacts[0].thisCollider))
             {
                 if (mag != firearm.magazineWell.currentMagazine)
                 {
