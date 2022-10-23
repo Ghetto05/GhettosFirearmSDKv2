@@ -215,6 +215,8 @@ namespace GhettosFirearmSDKv2
                 {
                     Util.PlayRandomAudioSource(pullSounds);
                     Util.PlayRandomAudioSource(chargingHandlePullSounds);
+                    laststate = BoltState.Moving;
+                    state = BoltState.Back;
                 }
                 //moving
                 else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > pointTreshold && Util.AbsDist(bolt.position, startPoint.position) > pointTreshold)
