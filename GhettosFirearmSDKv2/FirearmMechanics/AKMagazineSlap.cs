@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2.FirearmMechanics
 
         private void Firearm_OnCollisionEvent(Collision collision)
         {
-            if (triggers.Contains(collision.contacts[0].thisCollider) && collision.gameObject.GetComponent<Magazine>() is Magazine mag)
+            if (triggers.Contains(collision.contacts[0].thisCollider) && collision.gameObject.GetComponentInParent<Magazine>() is Magazine mag)
             {
                 if (mag != firearm.magazineWell.currentMagazine)
                 {
