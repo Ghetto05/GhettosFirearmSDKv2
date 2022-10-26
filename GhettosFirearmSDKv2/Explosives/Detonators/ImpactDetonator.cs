@@ -9,6 +9,7 @@ namespace GhettosFirearmSDKv2
     {
         public Explosive explosive;
         public Collider[] triggers;
+        public float delay;
         public bool startAtAwake;
         public float minimumArmingDistance;
         public float minimumArmingTime;
@@ -42,7 +43,7 @@ namespace GhettosFirearmSDKv2
         {
             if (IsArmed() && TriggerColliderHit(collision))
             {
-                if (explosive != null) explosive.Detonate();
+                if (explosive != null) explosive.Detonate(delay);
             }
         }
 
