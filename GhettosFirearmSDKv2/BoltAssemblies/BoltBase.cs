@@ -53,6 +53,7 @@ namespace GhettosFirearmSDKv2
 
         public void SaveChamber(string id)
         {
+            if (!firearm.SaveChamber()) return;
             firearm.item.RemoveCustomData<ChamberSaveData>();
             ChamberSaveData data = new ChamberSaveData();
             data.itemId = id;
