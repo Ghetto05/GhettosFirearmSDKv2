@@ -119,52 +119,60 @@ namespace GhettosFirearmSDKv2
                             }
 
                             float DamageToBeDealt = 0;
+                            int pushLevel = 1;
                             switch (ragdollPart.type)
                             {
                                 case RagdollPart.Type.Head: //damage = infinity, remove voice, push(3)
                                     {
                                         Settings_LevelModule.local.headshots++;
                                         DamageToBeDealt = (data.forcePerProjectile / 40) * 2;
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        pushLevel = 3;
                                     }
                                     break;
                                 case RagdollPart.Type.Neck: //damage = infinity, push(1)
                                     {
                                         DamageToBeDealt = (data.forcePerProjectile / 40) * 2;
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
+                                        pushLevel = 1;
                                     }
                                     break;
                                 case RagdollPart.Type.Torso: //damage = damage, push(2)
                                     {
                                         DamageToBeDealt = (data.forcePerProjectile / 40);
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 2);
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 2);
+                                        pushLevel = 2;
                                     }
                                     break;
                                 case RagdollPart.Type.LeftArm: //damage = damage/3, release weapon, push(1)
                                     {
                                         DamageToBeDealt = (data.forcePerProjectile / 40) / 3;
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
-                                        if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
+                                        pushLevel = 1;
+                                        if (!cr.isKilled && !cr.isPlayer) cr.handLeft.TryRelease();
                                     }
                                     break;
                                 case RagdollPart.Type.RightArm: //damage = damage/3, release weapon, push(1)
                                     {
                                         DamageToBeDealt = (data.forcePerProjectile / 40) / 3;
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
+                                        pushLevel = 1;
                                         if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
                                     }
                                     break;
                                 case RagdollPart.Type.LeftFoot: //damage = damage/4, destabilize, push(3)
                                     {
                                         DamageToBeDealt = (data.forcePerProjectile / 40) / 4;
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        pushLevel = 3;
                                         if (!cr.isKilled && !cr.isPlayer) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                                     }
                                     break;
                                 case RagdollPart.Type.RightFoot: //damage = damage/4, destabilize, push(3)
                                     {
                                         DamageToBeDealt = (data.forcePerProjectile / 40) / 4;
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        pushLevel = 3;
                                         if (!cr.isKilled && !cr.isPlayer) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                                     }
                                     break;
@@ -183,7 +191,8 @@ namespace GhettosFirearmSDKv2
                                 case RagdollPart.Type.LeftLeg: //damage = damage/3, destabilize, push(3)
                                     {
                                         DamageToBeDealt = (data.forcePerProjectile / 40) / 3;
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        pushLevel = 3;
                                         if (!cr.isKilled && !cr.isPlayer && DamageToBeDealt < cr.currentHealth)
                                             cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                                     }
@@ -191,14 +200,19 @@ namespace GhettosFirearmSDKv2
                                 case RagdollPart.Type.RightLeg: //damage = damage/3, destabilize, push(3)
                                     {
                                         DamageToBeDealt = (data.forcePerProjectile / 40) / 3;
-                                        cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        //cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
+                                        pushLevel = 3;
                                         if (!cr.isKilled && !cr.isPlayer && DamageToBeDealt < cr.currentHealth)
                                             cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                                     }
                                     break;
                             }
-
-                            cr.Damage(new CollisionInstance(new DamageStruct(DamageType.Blunt, DamageToBeDealt)));
+                            CollisionInstance ci = new CollisionInstance(new DamageStruct(DamageType.Blunt, DamageToBeDealt));
+                            ci.impactVelocity = muzzle.forward * 200;
+                            ci.contactPoint = hit.point;
+                            ci.contactNormal = hit.normal;
+                            ci.damageStruct.pushLevel = pushLevel;
+                            cr.Damage(ci);
                         }
                         else
                         {
@@ -312,6 +326,7 @@ namespace GhettosFirearmSDKv2
                             coll.sourceColliderGroup = gunItem.colliderGroups[0];
                             coll.contactPoint = hit.point;
                             coll.contactNormal = hit.normal;
+                            coll.impactVelocity = muzzle.forward * 200;
 
                             Transform penPoint = new GameObject().transform;
                             penPoint.position = hit.point;
@@ -322,7 +337,7 @@ namespace GhettosFirearmSDKv2
                             coll.damageStruct.penetrationDepth = 10;
                             coll.damageStruct.hitRagdollPart = ragdollPart;
                             coll.intensity = DamageToBeDealt;
-                            coll.pressureRelativeVelocity = Vector3.one;
+                            coll.pressureRelativeVelocity = muzzle.forward * 200;
 
                             cr.Damage(coll);
 
@@ -337,6 +352,8 @@ namespace GhettosFirearmSDKv2
                         {
                             if (data.knocksOutTemporarily) gunItem.StartCoroutine(TemporaryKnockout(data.temporaryKnockoutTime, cr));
                         }
+                        BrainModuleHitReaction hitReaction = cr.brain.instance.GetModule<BrainModuleHitReaction>();
+                        hitReaction.SetStagger(hitReaction.staggerMedium);
                         return cr;
                     }
                     else
