@@ -28,7 +28,6 @@ namespace GhettosFirearmSDKv2
         int currentIndex;
         float baseFov;
 
-        [ConsoleMethod("SetScopeX1FOV", "Set the default camera FOV for scopes' x1 magnification (usage: SetScopeX1FOV [x1fov])", new string[] { })]
         public static void SetX1FOV(float fov)
         {
             Settings_LevelModule.local.scopeX1MagnificationFOV = fov;
@@ -37,6 +36,7 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
+            DebugLogConsole.AddCommand<float>("SetScopeX1FOV", "Sets scope default zoom", SetX1FOV);
             baseFov = overrideX1CameraFOV? cam.fieldOfView : Settings_LevelModule.local.scopeX1MagnificationFOV;
             RenderTexture rt = new RenderTexture(512, 512, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
             rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
@@ -109,7 +109,7 @@ namespace GhettosFirearmSDKv2
         {
             var factor = 2.0f * Mathf.Tan(0.5f * baseFov * Mathf.Deg2Rad);
             var zoomedFOV = 2.0f * Mathf.Atan(factor / (2.0f * MagnificationLevels[currentIndex])) * Mathf.Rad2Deg;
-            cam.fieldOfView = zoomedFOV;
+            if (cam != null) cam.fieldOfView = zoomedFOV;
         }
 
         public void UpdatePosition()
