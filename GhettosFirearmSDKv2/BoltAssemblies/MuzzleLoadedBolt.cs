@@ -48,7 +48,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null || loadedCartridge.fired) return;
             shotsSinceTriggerReset++;
-            foreach (RagdollHand hand in firearm.gameObject.GetComponent<Item>().handlers)
+            foreach (RagdollHand hand in firearm.item.handlers)
             {
                 if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
                 hand.playerHand.controlHand.HapticShort(50f);
