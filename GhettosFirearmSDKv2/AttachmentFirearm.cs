@@ -20,6 +20,7 @@ namespace GhettosFirearmSDKv2
             fireHandle.OnHeldActionEvent += FireHandle_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
+            CalculateMuzzle();
         }
 
         private void FireHandle_OnHeldActionEvent(RagdollHand ragdollHand, Interactable.Action action)
@@ -46,6 +47,7 @@ namespace GhettosFirearmSDKv2
             //    if (a.minimumMuzzlePosition != null && Vector3.Distance(hitscanMuzzle.position, a.minimumMuzzlePosition.position) > Vector3.Distance(hitscanMuzzle.position, t.position)) t = a.minimumMuzzlePosition;
             //}
             //actualHitscanMuzzle = t;
+            actualHitscanMuzzle = hitscanMuzzle;
         }
     }
 }

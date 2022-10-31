@@ -38,6 +38,11 @@ namespace GhettosFirearmSDKv2
             Auto
         }
 
+        public virtual bool SaveChamber()
+        {
+            return false;
+        }
+
         public void Item_OnUnSnapEvent(Holder holder)
         {
             OnColliderToggleEvent?.Invoke(true);

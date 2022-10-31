@@ -16,11 +16,14 @@ namespace GhettosFirearmSDKv2
 
         public void Firearm_OnCollisionEvent(Collision collision)
         {
-            if (collision.collider.GetComponentInParent<Magazine>() is Magazine mag && triggers.Contains(collision.contacts[0].thisCollider))
+            if (collision.collider.GetComponentInParent<Magazine>() is Magazine mag)
             {
-                if (mag != firearm.magazineWell.currentMagazine)
+                if (triggers.Contains(collision.contacts[0].thisCollider))
                 {
-                    firearm.magazineWell.Eject();
+                    if (mag != firearm.magazineWell.currentMagazine)
+                    {
+                        firearm.magazineWell.Eject(true);
+                    }
                 }
             }
         }

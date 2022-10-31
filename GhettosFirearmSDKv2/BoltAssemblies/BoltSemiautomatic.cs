@@ -35,6 +35,10 @@ namespace GhettosFirearmSDKv2
         public AudioSource[] pullSounds;
         public AudioSource[] chargingHandleRackSounds;
         public AudioSource[] chargingHandlePullSounds;
+        public AudioSource[] rackSoundsHeld;
+        public AudioSource[] pullSoundsHeld;
+        public AudioSource[] rackSoundsNotHeld;
+        public AudioSource[] pullSoundsNotHeld;
 
         public float roundEjectForce;
         public Transform roundEjectDir;
@@ -189,6 +193,8 @@ namespace GhettosFirearmSDKv2
                     state = BoltState.Locked;
                     Util.PlayRandomAudioSource(rackSounds);
                     Util.PlayRandomAudioSource(chargingHandleRackSounds);
+                    if (isHeld) Util.PlayRandomAudioSource(rackSoundsHeld);
+                    else Util.PlayRandomAudioSource(rackSoundsNotHeld);
                 }
                 //Pulled
                 else if (Util.AbsDist(bolt.position, endPoint.position) < pointTreshold && state == BoltState.Moving)
@@ -197,6 +203,8 @@ namespace GhettosFirearmSDKv2
                     state = BoltState.Back;
                     Util.PlayRandomAudioSource(pullSounds);
                     Util.PlayRandomAudioSource(chargingHandlePullSounds);
+                    if (isHeld) Util.PlayRandomAudioSource(pullSoundsHeld);
+                    else Util.PlayRandomAudioSource(pullSoundsNotHeld);
 
                     if (firearm.magazineWell.IsEmptyAndHasMagazine() && !caught && hasBoltcatch)
                     {
@@ -209,14 +217,6 @@ namespace GhettosFirearmSDKv2
                     closingAfterRelease = false;
 
                     EjectRound();
-                }
-                //Pulled safety lock
-                else if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe && Util.AbsDist(startPoint.position, akBoltLockPoint.position) > 0.01 && Util.AbsDist(bolt.position, akBoltLockPoint.position) < pointTreshold && state == BoltState.Moving)
-                {
-                    Util.PlayRandomAudioSource(pullSounds);
-                    Util.PlayRandomAudioSource(chargingHandlePullSounds);
-                    laststate = BoltState.Moving;
-                    state = BoltState.Back;
                 }
                 //moving
                 else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > pointTreshold && Util.AbsDist(bolt.position, startPoint.position) > pointTreshold)
@@ -255,6 +255,7 @@ namespace GhettosFirearmSDKv2
                     {
                         isClosing = false;
                         LockBoltOnLockPoint(true);
+                        state = BoltState.LockedBack;
                         bolt.localPosition = catchPoint.localPosition;
                     }
                     else

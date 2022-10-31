@@ -180,9 +180,14 @@ namespace GhettosFirearmSDKv2
             Transform t = hitscanMuzzle;
             foreach (Attachment a in allAttachments)
             {
-                if (a.minimumMuzzlePosition != null && Vector3.Distance(hitscanMuzzle.position, a.minimumMuzzlePosition.position) > Vector3.Distance(hitscanMuzzle.position, t.position)) t = a.minimumMuzzlePosition;
+                if (a.minimumMuzzlePosition != null && Vector3.Distance(transform.position, a.minimumMuzzlePosition.position) > Vector3.Distance(transform.position, t.position)) t = a.minimumMuzzlePosition;
             }
             actualHitscanMuzzle = t;
+        }
+
+        public override bool SaveChamber()
+        {
+            return true;
         }
     }
 }
