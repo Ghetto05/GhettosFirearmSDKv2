@@ -277,7 +277,7 @@ namespace GhettosFirearmSDKv2
             trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Y);
         }
 
-        private void SetupAttachmentList(string attachmentType, string[] alternateTypes)
+        private void SetupAttachmentList(string attachmentType, List<string> alternateTypes)
         {
             foreach (ViceUIAttachment button in attachmentButtons)
             {
@@ -309,7 +309,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private bool TypeMatch(string type, string[] alternateTypes, AttachmentData data)
+        private bool TypeMatch(string type, List<string> alternateTypes, AttachmentData data)
         {
             if (data.type.Equals(type)) return true;
             foreach (string s in alternateTypes)
