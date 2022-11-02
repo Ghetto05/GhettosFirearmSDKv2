@@ -29,8 +29,30 @@ namespace GhettosFirearmSDKv2
         public List<UnityEvent> OnAttachEvents;
         public List<UnityEvent> OnDetachEvents;
 
+        private List<Renderer> renderers;
+
+        private void Update()
+        {
+            if (attachmentPoint != null && attachmentPoint.parentFirearm != null && attachmentPoint.parentFirearm.item != null) Hide(attachmentPoint.parentFirearm.item.renderers[0].enabled);
+        }
+
+        public void Hide(bool hidden)
+        {
+            if (renderers == null) return;
+            foreach (MeshRenderer ren in renderers)
+            {
+                ren.enabled = hidden;
+            }
+        }
+
         public void Initialize(SaveData.AttachmentTree.Node thisNode = null, bool initialSetup = false)
         {
+            renderers = new List<Renderer>();
+            foreach (Renderer ren in this.gameObject.GetComponentsInChildren<Renderer>())
+            {
+                renderers.Add(ren);
+                if (!nonLightVolumeRenderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
+            }
             this.transform.parent = attachmentPoint.transform;
             this.transform.localPosition = Vector3.zero;
             this.transform.localEulerAngles = Vector3.zero;
@@ -47,10 +69,6 @@ namespace GhettosFirearmSDKv2
                 icon = tex;
             }, "Attachment_" + data.id);
             if (thisNode != null) ApplyNode(thisNode);
-            foreach (Renderer ren in this.gameObject.GetComponentsInChildren<Renderer>())
-            {
-                if (!nonLightVolumeRenderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
-            }
             attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers);
             foreach (UnityEvent eve in OnAttachEvents)
             {
