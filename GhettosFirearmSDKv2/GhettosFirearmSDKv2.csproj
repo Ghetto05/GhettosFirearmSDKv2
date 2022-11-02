@@ -368,6 +368,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ammunition\AmmunitionPouch.cs" />
+    <Compile Include="Ammunition\Tracer.cs" />
     <Compile Include="Ammunition\TracerModule.cs" />
     <Compile Include="Attachments\AttachmentJointConnector.cs" />
     <Compile Include="BoltAssemblies\BoltBase.cs" />
