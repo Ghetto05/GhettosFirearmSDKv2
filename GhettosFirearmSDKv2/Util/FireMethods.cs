@@ -55,7 +55,7 @@ namespace GhettosFirearmSDKv2
         {
             Settings_LevelModule.local.shotsFired++;
 
-            //PHYSICS TOGGLE SHOT
+            #region physics toggle
             foreach (RaycastHit hit1 in Physics.RaycastAll(muzzle.position, muzzle.forward, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion")))
             {
                 if (hit1.collider.gameObject.GetComponentInParent<Creature>() is Creature cr)
@@ -77,8 +77,9 @@ namespace GhettosFirearmSDKv2
                     }
                 }
             }
+            #endregion physics toggle
 
-            //FIRE SHOT
+            #region penetration level set
             int layer;
             if (data.penetrationPower >= ProjectileData.PenetrationLevels.Items)
             {
@@ -92,6 +93,7 @@ namespace GhettosFirearmSDKv2
             {
                 layer = LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject", "Avatar", "PlayerHandAndFoot");
             }
+            #endregion penetration level set
 
             if (Physics.Raycast(muzzle.position, muzzle.forward, out RaycastHit hit, data.projectileRange, layer))
             {
@@ -102,13 +104,14 @@ namespace GhettosFirearmSDKv2
                     {
                         sb.Shoot(data.penetrationPower);
                     }
+                    #region creature hit
                     if (hit.collider.gameObject.GetComponentInParent<Ragdoll>() is Ragdoll rag)
                     {
                         Creature cr = rag.creature;
                         RagdollPart ragdollPart = hit.collider.gameObject.GetComponentInParent<RagdollPart>();
                         Settings_LevelModule.local.shotsHit++;
 
-                        //armor detection, FAILED
+                        #region failed penetration
                         if (GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) > data.penetrationPower)
                         {
                             if (data.hasImpactEffect)
@@ -118,6 +121,7 @@ namespace GhettosFirearmSDKv2
                                 ei.Play();
                             }
 
+                            #region damage determination
                             float DamageToBeDealt = 0;
                             int pushLevel = 1;
                             switch (ragdollPart.type)
@@ -207,6 +211,9 @@ namespace GhettosFirearmSDKv2
                                     }
                                     break;
                             }
+                            DamageToBeDealt *= Settings_LevelModule.local.damageMultiplier;
+                            #endregion damage determination
+
                             CollisionInstance ci = new CollisionInstance(new DamageStruct(DamageType.Blunt, DamageToBeDealt));
                             ci.impactVelocity = muzzle.forward * 200;
                             ci.contactPoint = hit.point;
@@ -214,6 +221,9 @@ namespace GhettosFirearmSDKv2
                             ci.damageStruct.pushLevel = pushLevel;
                             cr.Damage(ci);
                         }
+                        #endregion failed penetration
+
+                        #region penetration
                         else
                         {
                             if (data.hasBodyImpactEffect)
@@ -225,6 +235,8 @@ namespace GhettosFirearmSDKv2
                             }
 
                             if (data.drawsImpactDecal) DrawDecal(ragdollPart, hit, data.customImpactDecalId);
+
+                            #region damage determination
                             float DamageToBeDealt = 0;
                             switch (ragdollPart.type)
                             {
@@ -312,9 +324,10 @@ namespace GhettosFirearmSDKv2
                                     }
                                     break;
                             }
-                            if (ragdollPart.sliceAllowed && data.slicesBodyParts && !cr.isPlayer) ragdollPart.TrySlice();
+                            if (data.slicesBodyParts && !cr.isPlayer) ragdollPart.TrySlice();
 
                             DamageToBeDealt *= Settings_LevelModule.local.damageMultiplier;
+                            #endregion damage determination
 
                             //Damage
                             CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damagePerProjectile));
@@ -344,6 +357,8 @@ namespace GhettosFirearmSDKv2
                             if (data.isElectrifying) cr.TryElectrocute(data.tasingForce, data.tasingDuration, true, false, Catalog.GetData<EffectData>("ImbueLightningRagdoll"));
                             if (data.forceDestabilize && !cr.isPlayer && !cr.isKilled) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                         }
+                        #endregion penetration
+
                         if (cr.isKilled && !cr.isPlayer)
                         {
                             hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
@@ -356,6 +371,9 @@ namespace GhettosFirearmSDKv2
                         hitReaction.SetStagger(hitReaction.staggerMedium);
                         return cr;
                     }
+                    #endregion creature hit
+
+                    #region non-creature hit
                     else
                     {
                         if (data.hasImpactEffect)
@@ -373,6 +391,7 @@ namespace GhettosFirearmSDKv2
                             hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
                         }
                     }
+                    #endregion non-creature hit
                 }
                 else
                 {
