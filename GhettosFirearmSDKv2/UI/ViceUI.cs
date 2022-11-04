@@ -43,8 +43,8 @@ namespace GhettosFirearmSDKv2
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             if (AlwaysFrozen)
             {
-                item.rb.isKinematic = !item.rb.isKinematic;
-                item.disallowDespawn = item.rb.isKinematic;
+                item.rb.isKinematic = true;
+                item.disallowDespawn = true;
             }
         }
 
