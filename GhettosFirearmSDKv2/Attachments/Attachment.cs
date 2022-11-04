@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
         public void Hide(bool hidden)
         {
             if (renderers == null) return;
-            foreach (MeshRenderer ren in renderers)
+            foreach (Renderer ren in renderers)
             {
                 ren.enabled = hidden;
             }
