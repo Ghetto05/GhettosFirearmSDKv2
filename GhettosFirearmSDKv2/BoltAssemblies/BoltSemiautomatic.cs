@@ -143,8 +143,8 @@ namespace GhettosFirearmSDKv2
             firearm.PlayFireSound();
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, firearm.recoilModifier, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits);
-            loadedCartridge.Fire(hits, firearm.actualHitscanMuzzle);
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories);
+            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
             isReciprocating = true;
             startTimeOfMovement = Time.time;
         }
@@ -174,6 +174,10 @@ namespace GhettosFirearmSDKv2
             }
 
             isHeld = BoltHeld();
+            if (isHeld)
+            {
+                isReciprocating = false;
+            }
             #region held movement
             //state check
             if (isHeld || letGoBeforeClosed || closingAfterRelease)
