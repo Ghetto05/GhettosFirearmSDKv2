@@ -375,7 +375,9 @@
     <Compile Include="AttachmentFirearm.cs" />
     <Compile Include="Ammunition\StickyBomb.cs" />
     <Compile Include="Explosives\Detonators\TimedDetonator.cs" />
+    <Compile Include="Explosives\GrenadeJumpCharge.cs" />
     <Compile Include="FirearmMechanics\AKMagazineSlap.cs" />
+    <Compile Include="FirearmMechanics\StockTogglerAdditional.cs" />
     <Compile Include="TriggerRelay.cs" />
     <Compile Include="FirearmBase.cs" />
     <Compile Include="Other\Locks\BoltBasedLock.cs" />
@@ -401,6 +403,8 @@
     <Compile Include="AttachmentUtils\Laser.cs" />
     <Compile Include="Other\Switches\SafetyBasedSwitch.cs" />
     <Compile Include="Other\StateTogglerWithAnimation.cs" />
+    <Compile Include="UI\AmmoBox\AmmoSpawnerUI.cs" />
+    <Compile Include="UI\AmmoBox\AmmoModule.cs" />
     <Compile Include="Util\CollisionDisabler.cs" />
     <Compile Include="GrenadeMechanics\GreanadePin.cs" />
     <Compile Include="GrenadeMechanics\GrenadeSpoon.cs" />
