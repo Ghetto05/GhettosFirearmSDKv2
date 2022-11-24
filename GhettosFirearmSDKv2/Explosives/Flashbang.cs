@@ -14,7 +14,6 @@ namespace GhettosFirearmSDKv2.Explosives
 
         private void Awake()
         {
-            item = this.gameObject.GetComponentInParent<Item>();
         }
 
         public override void ActualDetonate()
@@ -44,6 +43,7 @@ namespace GhettosFirearmSDKv2.Explosives
                     cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                 }
             }
+            base.ActualDetonate();
         }
     }
 }

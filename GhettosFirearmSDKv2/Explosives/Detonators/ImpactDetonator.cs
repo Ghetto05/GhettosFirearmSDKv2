@@ -11,31 +11,20 @@ namespace GhettosFirearmSDKv2
         public Collider[] triggers;
         public float delay;
         public bool startAtAwake;
-        public float minimumArmingDistance;
         public float minimumArmingTime;
         public float minimumImpactForce;
         bool armed = false;
 
         private float startTime;
-        private Vector3 startPoint;
-        float distanceTravelled = 0f;
-        Vector3 lastPoint;
 
         private void Awake()
         {
             if (startAtAwake) StartArming();
         }
 
-        void Update()
-        {
-            distanceTravelled += Vector3.Distance(this.transform.position, lastPoint);
-            lastPoint = this.transform.position;
-        }
-
         public void StartArming()
         {
-            startTime = Time.time;
-            startPoint = this.transform.position;
+            startTime = Time.time;;
             armed = true;
         }
 
@@ -43,13 +32,17 @@ namespace GhettosFirearmSDKv2
         {
             if (IsArmed() && TriggerColliderHit(collision))
             {
-                if (explosive != null) explosive.Detonate(delay);
+                if (explosive != null)
+                {
+                    explosive.Detonate(delay);
+                    explosive.impactNormal = collision.contacts[0].normal;
+                }
             }
         }
 
         public bool IsArmed()
         {
-            return armed && distanceTravelled >= minimumArmingDistance && Time.time - startTime >= minimumArmingTime;
+            return armed && Time.time - startTime >= minimumArmingTime;
         }
 
         private bool TriggerColliderHit(Collision collision)

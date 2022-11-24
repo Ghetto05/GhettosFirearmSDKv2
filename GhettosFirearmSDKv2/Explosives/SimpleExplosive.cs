@@ -10,10 +10,10 @@ namespace GhettosFirearmSDKv2.Explosives
         public ExplosiveData data;
         public AudioSource[] audioEffects;
         public ParticleSystem effect;
+        public bool destroyItem = true;
 
         private void Awake()
         {
-            item = this.gameObject.GetComponentInParent<Item>();
         }
 
         public override void ActualDetonate()
@@ -33,7 +33,15 @@ namespace GhettosFirearmSDKv2.Explosives
                 Player.local.StartCoroutine(delayedDestroy(s.gameObject, s.clip.length + 1f));
             }
             FireMethods.HitscanExplosion(this.transform.position, data, item, out List<Creature> hc, out List<Item> hi);
-            item.Despawn();
+            if (item != null && destroyItem)
+            {
+                item.Despawn();
+                item.Despawn(0.2f);
+                item.Despawn(0.6f);
+                item.Despawn(1f);
+                item.Despawn(2f);
+            }
+            base.ActualDetonate();
         }
     }
 }

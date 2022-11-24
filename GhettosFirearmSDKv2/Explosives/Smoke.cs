@@ -19,7 +19,6 @@ namespace GhettosFirearmSDKv2.Explosives
 
         void Awake()
         {
-            item = this.GetComponentInParent<Item>();
             if (item != null)
             {
                 item.disallowDespawn = true;
@@ -42,6 +41,7 @@ namespace GhettosFirearmSDKv2.Explosives
             timestamp = Time.time;
             if (gameObject.GetComponentInParent<Rigidbody>() is Rigidbody rb) rb.velocity = Vector3.zero;
             ready = true;
+            base.ActualDetonate();
         }
 
         void Update()

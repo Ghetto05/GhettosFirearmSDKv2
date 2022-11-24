@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ThunderRoad;
 using UnityEngine.Rendering;
+using GhettosFirearmSDKv2.Chemicals;
 
 namespace GhettosFirearmSDKv2.Explosives
 {
@@ -22,7 +23,6 @@ namespace GhettosFirearmSDKv2.Explosives
 
         void Awake()
         {
-            item = this.GetComponentInParent<Item>();
             if (item != null)
             {
                 item.disallowDespawn = true;
@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2.Explosives
             active = true;
             volume.SetActive(true);
             zoneObj = new GameObject("CSgas_Zone");
-            zoneObj.layer = 28;
+            zoneObj.layer = LayerMask.NameToLayer("Zone");
             zone = zoneObj.AddComponent<CapsuleCollider>();
             zone.isTrigger = true;
             zoneObj.transform.parent = this.transform;
@@ -46,16 +46,18 @@ namespace GhettosFirearmSDKv2.Explosives
             timestamp = Time.time;
             if (gameObject.GetComponentInParent<Rigidbody>() is Rigidbody rb) rb.velocity = Vector3.zero;
             ready = true;
+            base.ActualDetonate();
         }
 
         void Update()
         {
             if (!detonated || !ready) return;
 
+            zoneObj.SetActive(PlayerEffectsAndChemicalsModule.local.gasMasks.Count < 1);
+
             if (Time.time >= timestamp + emissionDuration)
             {
                 loop.Stop();
-                zoneObj.transform.SetParent(null);
             }
 
             if (!active) return;
