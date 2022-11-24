@@ -10,6 +10,8 @@ namespace GhettosFirearmSDKv2.Chemicals
     {
         public static PlayerEffectsAndChemicalsModule local;
 
+        public List<GameObject> gasMasks;
+
         //---STATE---
         bool inCSgas = false;
         bool inSmoke = false;
@@ -34,6 +36,8 @@ namespace GhettosFirearmSDKv2.Chemicals
         void Awake()
         {
             local = this;
+
+            gasMasks = new List<GameObject>();
 
             //speech
             speech = Player.local.head.cam.gameObject.AddComponent<AudioSource>();
