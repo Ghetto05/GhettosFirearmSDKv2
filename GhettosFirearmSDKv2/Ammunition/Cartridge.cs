@@ -33,23 +33,23 @@ namespace GhettosFirearmSDKv2
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
         }
 
-        public void Fire(List<Vector3> hits, Transform muzzle)
+        public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle)
         {
             fired = true;
             if (firedOnlyObject != null) firedOnlyObject.SetActive(true);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(false);
             onFireEvent?.Invoke();
-            OnFiredWithHitPointsAndMuzzle?.Invoke(hits, muzzle);
+            OnFiredWithHitPointsAndMuzzle?.Invoke(hits, directions, muzzle);
             if (destroyOnFire) item.Despawn();
         }
 
         public void Detonate()
         {
-            FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits);
+            FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories);
             if (detonationParticle != null) detonationParticle.Play();
             FireMethods.ApplyRecoil(this.transform, this.item.rb, 1f, data.recoil, 0f);
             Util.PlayRandomAudioSource(detonationSounds);
-            Fire(hits, null);
+            Fire(hits, trajectories, null);
         }
 
         public void Reset()
@@ -90,7 +90,7 @@ namespace GhettosFirearmSDKv2
             item.Hide(false);
         }
 
-        public delegate void OnFired(List<Vector3> hitPoints, Transform muzzle);
+        public delegate void OnFired(List<Vector3> hitPoints, List<Vector3> trajectories, Transform muzzle);
         public event OnFired OnFiredWithHitPointsAndMuzzle;
     }
 }
