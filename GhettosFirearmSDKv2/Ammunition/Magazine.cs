@@ -10,6 +10,7 @@ namespace GhettosFirearmSDKv2
     {
         public string magazineType;
         public string caliber;
+        public List<string> alternateCalibers;
         public List<Cartridge> cartridges;
         public int maximumCapacity;
         public bool canEjectRounds;
@@ -136,7 +137,7 @@ namespace GhettosFirearmSDKv2
 
         public void InsertRound(Cartridge c, bool silent)
         {
-            if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, caliber))
+            if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, this))
             {
                 c.item.disallowDespawn = true;
                 c.item.disallowRoomDespawn = true;

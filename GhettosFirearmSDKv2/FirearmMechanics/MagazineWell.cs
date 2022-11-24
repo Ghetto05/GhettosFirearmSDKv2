@@ -9,6 +9,8 @@ namespace GhettosFirearmSDKv2
     {
         public FirearmBase firearm;
         public string acceptedMagazineType;
+        public string caliber;
+        public List<string> alternateCalibers;
         public Collider loadingCollider;
         public Transform mountPoint;
         public bool canEject;
@@ -42,7 +44,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual IEnumerator delayedLoad()
         {
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(4f);
             if (firearm.item.TryGetCustomData(out MagazineSaveData data))
             {
                 List<ContentCustomData> cdata = new List<ContentCustomData>();

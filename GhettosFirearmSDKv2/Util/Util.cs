@@ -24,13 +24,43 @@ namespace GhettosFirearmSDKv2
             return cartridge.caliber.Equals(requiredCaliber);
         }
 
+        public static bool AllowLoadCatridge(Cartridge cartridge, Magazine magazine)
+        {
+            if (!Settings_LevelModule.local.doCaliberChecks) return true;
+            if (cartridge.caliber.Equals("DEBUG UNIVERSAL")) return true;
+            bool correctCaliber = cartridge.caliber.Equals(magazine.caliber) || ListContainsString(magazine.alternateCalibers, cartridge.caliber);
+            bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridge.caliber);
+            return correctCaliber && magHasSameCaliber;
+        }
+
+        public static bool AllowLoadCatridge(string cartridgeCaliber, Magazine magazine)
+        {
+            if (!Settings_LevelModule.local.doCaliberChecks) return true;
+            if (cartridgeCaliber.Equals("DEBUG UNIVERSAL")) return true;
+            bool correctCaliber = cartridgeCaliber.Equals(magazine.caliber) || ListContainsString(magazine.alternateCalibers, cartridgeCaliber);
+            bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridgeCaliber);
+            return correctCaliber && magHasSameCaliber;
+        }
+
         public static bool AllowLoadMagazine(Magazine magazine, MagazineWell well)
         {
             if (magazine.currentWell != null || magazine.item.holder != null || well.currentMagazine != null) return false;
             if (!Settings_LevelModule.local.doMagazineTypeChecks) return true;
             if (magazine.magazineType.Equals("DEBUG UNIVERSAL")) return true;
 
-            return magazine.magazineType.Equals(well.acceptedMagazineType);
+            bool sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
+            bool compatibleCaliber = (magazine.cartridges.Count == 0) || ((well.caliber.Equals(magazine.cartridges[0].caliber))||(ListContainsString(well.alternateCalibers, magazine.cartridges[0].caliber)));
+
+            return sameType && compatibleCaliber;
+        }
+
+        public static bool ListContainsString(List<string> list, string str)
+        {
+            foreach (string s in list)
+            {
+                if (s.Equals(str)) return true;
+            }
+            return false;
         }
 
         public static void AlertAllCreaturesInRange(Vector3 point, float range)
@@ -73,6 +103,7 @@ namespace GhettosFirearmSDKv2
 
         public static void IgnoreCollision(GameObject obj1, GameObject obj2, bool ignore)
         {
+            if (obj1 == null || obj2 == null) return;
             foreach (Collider c1 in obj1.GetComponentsInChildren<Collider>())
             {
                 foreach (Collider c2 in obj2.GetComponentsInChildren<Collider>())
@@ -93,6 +124,8 @@ namespace GhettosFirearmSDKv2
             IgnoreCollision(obj1, obj2, ignore);
             yield break;
         }
+
+        public static void PlayRandomAudioSource(List<AudioSource> sources) => PlayRandomAudioSource(sources.ToArray());
 
         public static void PlayRandomAudioSource(AudioSource[] sources)
         {
