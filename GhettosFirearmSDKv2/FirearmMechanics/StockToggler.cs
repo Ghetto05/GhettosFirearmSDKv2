@@ -41,7 +41,7 @@ namespace GhettosFirearmSDKv2
         {
             if (handle == toggleHandle && action == Interactable.Action.UseStart)
             {
-                if (currentIndex + 1 >= positions.Length) currentIndex = 0;
+                if (currentIndex + 1 >= positions.Length) currentIndex = -1;
                 else currentIndex++;
                 ApplyPosition(currentIndex);
             }
@@ -58,6 +58,10 @@ namespace GhettosFirearmSDKv2
             if (toggleSound != null && playSound) toggleSound.Play();
             pivot.localPosition = positions[index].localPosition;
             pivot.localEulerAngles = positions[index].localEulerAngles;
+            OnToggleEvent?.Invoke(index, playSound);
         }
+
+        public delegate void OnToggle(int newIndex, bool playSound);
+        public event OnToggle OnToggleEvent;
     }
 }
