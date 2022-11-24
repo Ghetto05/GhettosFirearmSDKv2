@@ -14,6 +14,8 @@ namespace GhettosFirearmSDKv2
         public List<Handle> handles;
         public AttachmentData data;
         public ColliderGroup colliderGroup;
+        public List<ColliderGroup> alternateGroups;
+        public List<string> alternateGroupsIds;
         [Space]
         public bool isSuppressing;
         public bool damageMultiplier;
@@ -103,6 +105,16 @@ namespace GhettosFirearmSDKv2
                     c.gameObject.layer = attachmentPoint.parentFirearm.item.currentPhysicsLayer;
                 }
             }
+            foreach (ColliderGroup colll in alternateGroups)
+            {
+                colll.Load(Catalog.GetData<ColliderGroupData>(alternateGroupsIds[alternateGroups.IndexOf(colll)]));
+                attachmentPoint.parentFirearm.item.colliderGroups.Add(colll);
+                attachmentPoint.parentFirearm.item.RefreshCollision();
+                foreach (Collider c in colll.colliders)
+                {
+                    c.gameObject.layer = attachmentPoint.parentFirearm.item.currentPhysicsLayer;
+                }
+            }
             foreach (Handle han in handles)
             {
                 han.item = attachmentPoint.parentFirearm.item;
@@ -165,6 +177,10 @@ namespace GhettosFirearmSDKv2
             }
             firearm.UpdateAttachments();
             firearm.item.colliderGroups.Remove(colliderGroup);
+            foreach (ColliderGroup colll in alternateGroups)
+            {
+                firearm.item.colliderGroups.Remove(colll);
+            }
             foreach (Renderer ren in this.gameObject.GetComponentsInChildren<Renderer>())
             {
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.renderers.Remove(ren);
