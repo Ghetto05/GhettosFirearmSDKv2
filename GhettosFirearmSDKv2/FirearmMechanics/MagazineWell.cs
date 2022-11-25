@@ -18,12 +18,14 @@ namespace GhettosFirearmSDKv2
         public Magazine currentMagazine;
         public bool spawnMagazineOnAwake;
         public string roundCounterMessage;
+        public bool allowLoad = false;
 
         public virtual void Awake()
         {
             firearm.OnCollisionEvent += TryMount;
             firearm.OnColliderToggleEvent += Firearm_OnColliderToggleEvent;
             if (spawnMagazineOnAwake) StartCoroutine(delayedLoad());
+            else allowLoad = true;
         }
 
         void Update()
@@ -49,23 +51,25 @@ namespace GhettosFirearmSDKv2
             {
                 List<ContentCustomData> cdata = new List<ContentCustomData>();
                 cdata.Add(data);
-                Catalog.GetData<ItemData>(data.itemID).SpawnAsync(magItem => 
+                Catalog.GetData<ItemData>(data.itemID).SpawnAsync(magItem =>
                 {
                     Magazine mag = magItem.gameObject.GetComponent<Magazine>();
-                    StartCoroutine(delayedInsert(mag, 1f));
+                    StartCoroutine(delayedInsert(mag, 1f, true));
                 }, mountPoint.position + Vector3.up * 3, null, null, true, cdata);
             }
+            else allowLoad = true;
         }
 
-        public virtual IEnumerator delayedInsert(Magazine mag, float delay)
+        public virtual IEnumerator delayedInsert(Magazine mag, float delay, bool initialLoad = false)
         {
             yield return new WaitForSeconds(delay);
+            if (initialLoad) allowLoad = true;
             mag.Mount(this, firearm.item.rb);
         }
 
         public virtual void TryMount(Collision collision)
         {
-            if (collision.collider.GetComponentInParent<Magazine>() is Magazine mag && collision.contacts[0].thisCollider == loadingCollider)
+            if (allowLoad && collision.collider.GetComponentInParent<Magazine>() is Magazine mag && collision.contacts[0].thisCollider == loadingCollider)
             {
                 if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this))
                 {
