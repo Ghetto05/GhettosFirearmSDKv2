@@ -23,8 +23,7 @@ namespace GhettosFirearmSDKv2
         public AudioSource[] magazineInsertSounds;
         public Collider mountCollider;
         public bool canBeGrabbedInWell;
-        public Transform[] handles;
-        List<Handle> handlesTR;
+        public List<Handle> handles;
         public MagazineWell currentWell;
         FixedJoint joint;
         public Transform nullCartridgePosition;
@@ -42,10 +41,10 @@ namespace GhettosFirearmSDKv2
             UpdateCartridgePositions();
             if (currentWell != null && currentWell.firearm != null && canBeGrabbedInWell)
             {
-                foreach (Handle handle in handlesTR)
+                foreach (Handle handle in handles)
                 {
-                    handle.SetTouch(currentWell.firearm.GetComponent<Item>().holder == null);
-                    handle.SetTelekinesis(currentWell.firearm.GetComponent<Item>().holder == null);
+                    handle.SetTouch(currentWell.firearm.item.holder == null);
+                    handle.SetTelekinesis(currentWell.firearm.item.holder == null);
                 }
             }
         }
@@ -60,11 +59,6 @@ namespace GhettosFirearmSDKv2
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnDespawnEvent += Item_OnDespawnEvent;
             if (overrideItem != null) overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
-            handlesTR = new List<Handle>();
-            foreach (Transform t in handles)
-            {
-                handlesTR.Add(t.GetComponent<Handle>());
-            }
             StartCoroutine(DelayedLoad());
         }
 
@@ -214,7 +208,7 @@ namespace GhettosFirearmSDKv2
             if (Settings_LevelModule.local.magazinesHaveNoCollision) joint.massScale = 99999f;
             if (!canBeGrabbedInWell)
             {
-                foreach (Handle handle in handlesTR)
+                foreach (Handle handle in handles)
                 {
                     handle.SetTouch(false);
                     handle.SetTelekinesis(false);
@@ -222,11 +216,14 @@ namespace GhettosFirearmSDKv2
             }
 
             //Saving firearm's magazine 
-            currentWell.firearm.item.RemoveCustomData<MagazineSaveData>();
-            MagazineSaveData data = new MagazineSaveData();
-            data.GetContentsFromMagazine(this);
-            data.itemID = item.itemId;
-            currentWell.firearm.item.AddCustomData(data);
+            if (currentWell.firearm.GetType() != typeof(AttachmentFirearm))
+            {
+                currentWell.firearm.item.RemoveCustomData<MagazineSaveData>();
+                MagazineSaveData data = new MagazineSaveData();
+                data.GetContentsFromMagazine(this);
+                data.itemID = item.itemId;
+                currentWell.firearm.item.AddCustomData(data);
+            }
 
             UpdateCartridgePositions();
         }
@@ -256,7 +253,7 @@ namespace GhettosFirearmSDKv2
                 currentWell.firearm.item.RemoveCustomData<MagazineSaveData>();
                 currentWell.currentMagazine = null;
                 currentWell = null;
-                foreach (Handle handle in handlesTR)
+                foreach (Handle handle in handles)
                 {
                     handle.SetTouch(true);
                     handle.SetTelekinesis(true);
