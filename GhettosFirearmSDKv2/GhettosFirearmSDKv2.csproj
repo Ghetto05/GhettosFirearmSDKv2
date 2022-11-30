@@ -371,6 +371,7 @@
     <Compile Include="Ammunition\Tracer.cs" />
     <Compile Include="Ammunition\TracerModule.cs" />
     <Compile Include="Attachments\AttachmentJointConnector.cs" />
+    <Compile Include="Other\Switches\SwitchRelation.cs" />
     <Compile Include="BoltAssemblies\BoltBase.cs" />
     <Compile Include="AttachmentFirearm.cs" />
     <Compile Include="Ammunition\StickyBomb.cs" />
