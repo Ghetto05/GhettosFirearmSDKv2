@@ -12,12 +12,22 @@ namespace GhettosFirearmSDKv2
         public Firearm parentFirearm;
         public Attachment currentAttachment;
         public string defaultAttachment;
+        public GameObject disableOnAttach;
 
         public void SpawnDefaultAttachment()
         {
             if (!string.IsNullOrEmpty(defaultAttachment))
             {
                 Catalog.GetData<AttachmentData>(defaultAttachment).SpawnAndAttach(this);
+            }
+        }
+
+        private void Update()
+        {
+            if (disableOnAttach != null)
+            {
+                if (currentAttachment == null && !disableOnAttach.activeInHierarchy) disableOnAttach.SetActive(true);
+                else if (currentAttachment != null && disableOnAttach.activeInHierarchy) disableOnAttach.SetActive(false);
             }
         }
     }
