@@ -12,7 +12,7 @@ namespace GhettosFirearmSDKv2
         public Transform cylinderRoot;
         public float range;
         public bool activeByDefault;
-        bool active;
+        bool active = false;
         public Text distanceDisplay;
 
         void Awake()
