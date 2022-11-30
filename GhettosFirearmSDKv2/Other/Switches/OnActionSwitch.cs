@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ThunderRoad;
 using UnityEngine.Events;
+using System;
 
 namespace GhettosFirearmSDKv2
 {
@@ -31,6 +32,8 @@ namespace GhettosFirearmSDKv2
         {
             if (parentItem != null) parentItem.OnHeldActionEvent += OnHeldActionEvent;
             else if (parentAttachment != null) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
+            if (switches != null) Debug.Log("Switch list length: " + switches.Count);
+            else Debug.Log("Switches is null!");
         }
 
         private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -61,31 +64,24 @@ namespace GhettosFirearmSDKv2
             events[current]?.Invoke();
             foreach (SwitchRelation swi in switches)
             {
-                if (swi != null) swi.AlignSwitch(current);
+                if (swi != null) AlignSwitch(swi, current);
             }
         }
 
-        [System.Serializable]
-        public class SwitchRelation
+        public void AlignSwitch(SwitchRelation swi, int index)
         {
-            public Transform switchObject;
-            public bool usePositionsAsDifferentObjects = false;
-            public List<Transform> modePositions;
-
-            public void AlignSwitch(int index)
+            if (!swi.usePositionsAsDifferentObjects && swi.switchObject != null && swi.modePositions.Count > index && swi.modePositions[index] != null)
             {
-                if (!usePositionsAsDifferentObjects && switchObject != null && modePositions.Count > index && modePositions[index] != null)
+                swi.switchObject.localPosition = swi.modePositions[index].localPosition;
+                swi.switchObject.localEulerAngles = swi.modePositions[index].localEulerAngles;
+            }
+            else
+            {
+                foreach (Transform t in swi.modePositions)
                 {
-                    switchObject.localPosition = modePositions[index].localPosition;
-                    switchObject.localEulerAngles = modePositions[index].localEulerAngles;
+                    t.gameObject.SetActive(false);
                 }
-                else
-                {
-                    foreach (Transform t in modePositions)
-                    {
-                        t.gameObject.SetActive(modePositions.IndexOf(t) == index);
-                    }
-                }
+                swi.modePositions[current].gameObject.SetActive(true);
             }
         }
     }
