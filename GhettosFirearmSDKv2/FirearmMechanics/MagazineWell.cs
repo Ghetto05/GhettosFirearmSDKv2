@@ -73,7 +73,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this))
                 {
-                    mag.Mount(this, firearm.GetComponent<Rigidbody>());
+                    mag.Mount(this, firearm.item.rb);
                 }
             }
         }
