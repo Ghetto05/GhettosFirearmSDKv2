@@ -20,7 +20,13 @@ namespace GhettosFirearmSDKv2
             fireHandle.OnHeldActionEvent += FireHandle_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
+            item.OnGrabEvent += Item_OnGrabEvent;
             CalculateMuzzle();
+        }
+
+        private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
+        {
+            if (handle == fireHandle && bolt != null) bolt.Initialize();
         }
 
         private void FireHandle_OnHeldActionEvent(RagdollHand ragdollHand, Interactable.Action action)
