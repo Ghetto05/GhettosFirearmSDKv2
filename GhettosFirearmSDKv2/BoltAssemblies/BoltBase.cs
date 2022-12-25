@@ -12,6 +12,8 @@ namespace GhettosFirearmSDKv2
         public BoltState state = BoltState.Locked;
         public BoltState laststate = BoltState.Locked;
         public bool caught;
+        public bool isHeld;
+        public bool fireOnTriggerPress = true;
 
         public static Vector3 GrandparentLocalPosition(Transform child, Transform grandparent)
         {
@@ -60,6 +62,14 @@ namespace GhettosFirearmSDKv2
             firearm.item.AddCustomData(data);
         }
 
+        public virtual void Initialize()
+        { }
+
+        public virtual Cartridge GetChamber()
+        {
+            return null;
+        }
+
         public enum BoltState
         {
             Locked,
@@ -68,5 +78,13 @@ namespace GhettosFirearmSDKv2
             Back,
             LockedBack
         }
+
+        public void InvokeFireEvent() => OnFireEvent?.Invoke();
+        public delegate void OnFire();
+        public event OnFire OnFireEvent;
+
+        public void InvokeEjectRound(bool manual, Cartridge cartridge) => OnRoundEjectEvent?.Invoke(manual, cartridge);
+        public delegate void OnEject(bool manual, Cartridge cartridge);
+        public event OnEject OnRoundEjectEvent;
     }
 }
