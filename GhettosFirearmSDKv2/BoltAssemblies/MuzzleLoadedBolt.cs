@@ -66,6 +66,12 @@ namespace GhettosFirearmSDKv2
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories);
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
             if (ejectOnFire) EjectRound();
+            InvokeFireEvent();
+        }
+
+        public override Cartridge GetChamber()
+        {
+            return loadedCartridge;
         }
 
         private void UpdateChamberedRound()
@@ -79,7 +85,7 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
         {
-            if (isPulled && firearm.fireMode != FirearmBase.FireModes.Safe)
+            if (fireOnTriggerPress && isPulled && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
                 if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
