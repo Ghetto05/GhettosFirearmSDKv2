@@ -19,8 +19,8 @@ namespace GhettosFirearmSDKv2
         private void Awake()
         {
             if (item == null) item = this.GetComponent<Item>();
-            item.mainHandleLeft.OnHeldActionEvent += MainHandleLeft_OnHeldActionEvent;
-            item.OnGrabEvent += Item_OnGrabEvent;
+            if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
+            item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnSnapEvent += Item_OnSnapEvent2;
@@ -31,30 +31,6 @@ namespace GhettosFirearmSDKv2
                 ap.parentFirearm = this;
             }
             StartCoroutine(DelayedLoadAttachments());
-        }
-
-        private void MainHandleLeft_OnHeldActionEvent(RagdollHand ragdollHand, Interactable.Action action)
-        {
-            base.Item_OnHeldActionEvent(ragdollHand, item.mainHandleLeft, action);
-        }
-
-        //experimental
-        private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
-        {
-            if (boltHandle != null && handle == boltHandle && item.mainHandleLeft.handlers.Count == 0)
-            {
-                //if (heldNotBoltHandle() is Handle han) han.SetJointModifier(this, 1, 1, 100, 1);
-                if (heldNotBoltHandle() is Handle han) han.SetJointToTwoHanded(han.handlers[0].side);
-            }
-        }
-
-        Handle heldNotBoltHandle()
-        {
-            foreach (Handle han in item.handles)
-            {
-                if (han != boltHandle && han.handlers.Count > 0) return han;
-            }
-            return null;
         }
 
         public void Item_OnUnSnapEvent2(Holder holder)
