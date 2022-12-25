@@ -26,15 +26,18 @@ namespace GhettosFirearmSDKv2
 
         void Update()
         {
-            if (caught)
+            if (button != null)
             {
-                button.localPosition = caughtPosition.localPosition;
-                button.localRotation = caughtPosition.localRotation;
-            }
-            else
-            {
-                button.localPosition = uncaughtPosition.localPosition;
-                button.localRotation = uncaughtPosition.localRotation;
+                if (caught)
+                {
+                    button.localPosition = caughtPosition.localPosition;
+                    button.localRotation = caughtPosition.localRotation;
+                }
+                else
+                {
+                    button.localPosition = uncaughtPosition.localPosition;
+                    button.localRotation = uncaughtPosition.localRotation;
+                }
             }
         }
 
