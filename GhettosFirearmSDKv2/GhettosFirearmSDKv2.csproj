@@ -371,6 +371,11 @@
     <Compile Include="Ammunition\Tracer.cs" />
     <Compile Include="Ammunition\TracerModule.cs" />
     <Compile Include="Attachments\AttachmentJointConnector.cs" />
+    <Compile Include="AttachmentUtils\Bipod.cs" />
+    <Compile Include="AttachmentUtils\MagazineWellSwitcher.cs" />
+    <Compile Include="AttachmentUtils\MainHandleReplacer.cs" />
+    <Compile Include="BoltAssemblies\BoltActionHandle.cs" />
+    <Compile Include="BoltAssemblies\HandleFolder.cs" />
     <Compile Include="Other\Switches\SwitchRelation.cs" />
     <Compile Include="BoltAssemblies\BoltBase.cs" />
     <Compile Include="AttachmentFirearm.cs" />
@@ -379,6 +384,7 @@
     <Compile Include="Explosives\GrenadeJumpCharge.cs" />
     <Compile Include="FirearmMechanics\AKMagazineSlap.cs" />
     <Compile Include="FirearmMechanics\StockTogglerAdditional.cs" />
+    <Compile Include="SaveData\PouchSaveData.cs" />
     <Compile Include="TriggerRelay.cs" />
     <Compile Include="FirearmBase.cs" />
     <Compile Include="Other\Locks\BoltBasedLock.cs" />
@@ -406,6 +412,11 @@
     <Compile Include="Other\StateTogglerWithAnimation.cs" />
     <Compile Include="UI\AmmoBox\AmmoSpawnerUI.cs" />
     <Compile Include="UI\AmmoBox\AmmoModule.cs" />
+    <Compile Include="UI\GunLocker\GunLockerSaveData.cs" />
+    <Compile Include="UI\GunLocker\GunLockerUI.cs" />
+    <Compile Include="UI\GunLocker\GunLockerUICategory.cs" />
+    <Compile Include="UI\GunLocker\GunLockerUISave.cs" />
+    <Compile Include="Util\AdditionalFireSoundManager.cs" />
     <Compile Include="Util\CollisionDisabler.cs" />
     <Compile Include="GrenadeMechanics\GreanadePin.cs" />
     <Compile Include="GrenadeMechanics\GrenadeSpoon.cs" />
@@ -423,13 +434,11 @@
     <Compile Include="Other\Locks\Lock.cs" />
     <Compile Include="BoltAssemblies\Minigun.cs" />
     <Compile Include="SaveData\ChamberSaveData.cs" />
-    <Compile Include="SaveData\PouchSaveData.cs" />
     <Compile Include="SaveData\MagazineSaveData.cs" />
     <Compile Include="Firearm.cs" />
     <Compile Include="FirearmMechanics\FiremodeSelector.cs" />
     <Compile Include="FirearmMechanics\MagazineWell.cs" />
     <Compile Include="Ammunition\MagazineLoad.cs" />
-    <Compile Include="BoltAssemblies\BoltAction.cs" />
     <Compile Include="FirearmMechanics\StockToggler.cs" />
     <Compile Include="UI\CanvasCamAssigner.cs" />
     <Compile Include="UI\CheatsWindow.cs" />
