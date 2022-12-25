@@ -14,7 +14,6 @@ namespace GhettosFirearmSDKv2
         public Item connectedItem;
         public Attachment connectedAttachment;
         public int currentIndex = 0;
-        Item item;
 
         void Awake()
         {
@@ -27,12 +26,10 @@ namespace GhettosFirearmSDKv2
             if (connectedItem != null)
             {
                 connectedItem.OnHeldActionEvent += OnAction;
-                item = connectedItem;
             }
             else if (connectedAttachment != null)
             {
-                connectedAttachment.attachmentPoint.parentFirearm.item.OnHeldActionEvent += OnAction;
-                item = connectedAttachment.attachmentPoint.parentFirearm.item;
+                connectedAttachment.OnHeldActionEvent += OnAction;
             }
             ApplyPosition(0, false);
         }
@@ -41,13 +38,13 @@ namespace GhettosFirearmSDKv2
         {
             if (handle == toggleHandle && action == Interactable.Action.UseStart)
             {
-                if (currentIndex + 1 >= positions.Length) currentIndex = -1;
+                if (currentIndex + 1 == positions.Length) currentIndex = 0;
                 else currentIndex++;
                 ApplyPosition(currentIndex);
             }
             else if (handle == toggleHandle && action == Interactable.Action.AlternateUseStart)
             {
-                if (currentIndex - 1 < 0) currentIndex = positions.Length;
+                if (currentIndex - 1 == -1) currentIndex = positions.Length - 1;
                 else currentIndex--;
                 ApplyPosition(currentIndex);
             }
@@ -55,10 +52,18 @@ namespace GhettosFirearmSDKv2
 
         public void ApplyPosition(int index, bool playSound = true)
         {
-            if (toggleSound != null && playSound) toggleSound.Play();
-            pivot.localPosition = positions[index].localPosition;
-            pivot.localEulerAngles = positions[index].localEulerAngles;
-            OnToggleEvent?.Invoke(index, playSound);
+            try
+            {
+                if (toggleSound != null && playSound) toggleSound.Play();
+                pivot.localPosition = positions[index].localPosition;
+                pivot.localEulerAngles = positions[index].localEulerAngles;
+                OnToggleEvent?.Invoke(index, playSound);
+            }
+            catch (System.Exception)
+            {
+                if (connectedAttachment != null) Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.parentFirearm.name}: Index {index}, list is {positions.Length} entires long!");
+                else if (connectedItem != null) Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedItem.name}: Index {index}, list is {positions.Length} entires long!");
+            }
         }
 
         public delegate void OnToggle(int newIndex, bool playSound);
