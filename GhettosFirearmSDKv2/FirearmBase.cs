@@ -12,9 +12,11 @@ namespace GhettosFirearmSDKv2
     public class FirearmBase : MonoBehaviour
     {
         public Item item;
+        public bool disableMainFireHandle = false;
+        public List<Handle> additionalTriggerHandles;
         public bool triggerState;
         public BoltBase bolt;
-        public Handle boltHandle;
+        public Handle mainFireHandle;
         public MagazineWell magazineWell;
         public Transform hitscanMuzzle;
         public Transform actualHitscanMuzzle;
@@ -69,25 +71,28 @@ namespace GhettosFirearmSDKv2
 
         public void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (action == Interactable.Action.UseStart)
+            if (handle == mainFireHandle || Util.ListContainsHandle(additionalTriggerHandles, handle))
             {
-                ChangeTrigger(true);
-            }
-            else if (action == Interactable.Action.UseStop || action == Interactable.Action.Ungrab)
-            {
-                ChangeTrigger(false);
-            }
+                if (action == Interactable.Action.UseStart)
+                {
+                    ChangeTrigger(true);
+                }
+                else if (action == Interactable.Action.UseStop || action == Interactable.Action.Ungrab)
+                {
+                    ChangeTrigger(false);
+                }
 
-            if (action == Interactable.Action.AlternateUseStart)
-            {
-                lastPressTime = Time.time;
-                countingForLongpress = true;
-            }
-            if (action == Interactable.Action.AlternateUseStop && countingForLongpress)
-            {
-                countingForLongpress = false;
-                if (Time.time - lastPressTime >= longPressTime) LongPress();
-                else ShortPress();
+                if (action == Interactable.Action.AlternateUseStart)
+                {
+                    lastPressTime = Time.time;
+                    countingForLongpress = true;
+                }
+                if (action == Interactable.Action.AlternateUseStop && countingForLongpress)
+                {
+                    countingForLongpress = false;
+                    if (Time.time - lastPressTime >= longPressTime) LongPress();
+                    else ShortPress();
+                }
             }
         }
 
