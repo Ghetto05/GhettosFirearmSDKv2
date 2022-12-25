@@ -29,7 +29,6 @@ namespace GhettosFirearmSDKv2
         private void Awake()
         {
             firearm.item.OnHeldActionEvent += Item_OnHeldActionEvent;
-            degreesPerSecond = rotationsPerSecond * 360;
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -49,6 +48,10 @@ namespace GhettosFirearmSDKv2
             revving = true;
             RevUpSound.Play();
             RotatingLoop.PlayDelayed(RevUpSound.clip.length);
+            float timeForOneRound = 60f / firearm.roundsPerMinute;
+            float timeForOneRotation = timeForOneRound * barrelAngles.Length;
+            rotationsPerSecond = 1 / timeForOneRotation;
+            degreesPerSecond = rotationsPerSecond * 360;
         }
 
         private void StopRevving()
@@ -88,7 +91,7 @@ namespace GhettosFirearmSDKv2
         public override void TryFire()
         {
             if (loadedCartridge == null || loadedCartridge.fired) return;
-            foreach (RagdollHand hand in firearm.gameObject.GetComponent<Item>().handlers)
+            foreach (RagdollHand hand in firearm.item.handlers)
             {
                 if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
                 hand.playerHand.controlHand.HapticShort(50f);
@@ -107,6 +110,7 @@ namespace GhettosFirearmSDKv2
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories);
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
             EjectRound();
+            InvokeFireEvent();
         }
 
         private void EjectRound()
