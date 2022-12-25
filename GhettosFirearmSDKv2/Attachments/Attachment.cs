@@ -9,6 +9,7 @@ namespace GhettosFirearmSDKv2
 {
     public class Attachment : MonoBehaviour
     {
+        public List<Handle> additionalTriggerHandles;
         public AttachmentPoint attachmentPoint;
         public List<AttachmentPoint> attachmentPoints;
         public List<Handle> handles;
@@ -122,6 +123,10 @@ namespace GhettosFirearmSDKv2
                 attachmentPoint.parentFirearm.item.handles.Add(han);
                 if (attachmentPoint.parentFirearm.item.holder != null) han.SetTouch(false);
             }
+            foreach (Handle han in additionalTriggerHandles)
+            {
+                attachmentPoint.parentFirearm.additionalTriggerHandles.Add(han);
+            }
             if (damagers != null)
             {
                 foreach (Damager dmg in damagers)
@@ -134,6 +139,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
             attachmentPoint.parentFirearm.item.OnHeldActionEvent += InvokeHeldAction;
+            OnDelayedAttachEvent?.Invoke();
         }
 
         private void InvokeHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -160,6 +166,10 @@ namespace GhettosFirearmSDKv2
                 eve.Invoke();
             }
             Firearm firearm = attachmentPoint.parentFirearm;
+            foreach (Handle han in additionalTriggerHandles)
+            {
+                firearm.additionalTriggerHandles.Remove(han);
+            }
             attachmentPoint.currentAttachment = null;
             foreach (AttachmentPoint point in attachmentPoints)
             {
@@ -199,6 +209,9 @@ namespace GhettosFirearmSDKv2
             }
             return null;
         }
+
+        public delegate void OnDelayedAttach();
+        public event OnDelayedAttach OnDelayedAttachEvent;
 
         public delegate void OnDetach();
         public event OnDetach OnDetachEvent;
