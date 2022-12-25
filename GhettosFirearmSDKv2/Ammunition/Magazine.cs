@@ -8,6 +8,7 @@ namespace GhettosFirearmSDKv2
 {
     public class Magazine : MonoBehaviour
     {
+        public bool infinite = false;
         public string magazineType;
         public string caliber;
         public List<string> alternateCalibers;
@@ -156,10 +157,13 @@ namespace GhettosFirearmSDKv2
             Cartridge c = null;
             if (cartridges.Count > 0)
             {
-                if (Settings_LevelModule.local.infiniteAmmo)
+                if (infinite || Settings_LevelModule.local.infiniteAmmo)
                 {
                     GameObject obj = Instantiate(cartridges[0].gameObject, cartridges[0].transform.position, cartridges[0].transform.rotation);
-                    c = obj.GetComponent<Cartridge>();
+                    Cartridge newC = obj.GetComponent<Cartridge>();
+                    c = cartridges[0];
+                    cartridges.RemoveAt(0);
+                    cartridges.Add(newC);
                 }
                 else
                 {
@@ -311,6 +315,16 @@ namespace GhettosFirearmSDKv2
             data.GetContentsFromMagazine(this);
             item.RemoveCustomData<MagazineSaveData>();
             item.AddCustomData(data);
+            if (currentWell != null && currentWell.firearm.GetType() != typeof(AttachmentFirearm))
+            {
+                bool flag = currentWell.firearm.item.TryGetCustomData(out MagazineSaveData magadata);
+                if (!flag)
+                {
+                    magadata = new MagazineSaveData();
+                    currentWell.firearm.item.AddCustomData(magadata);
+                }
+                data.CloneTo(magadata);
+            }
         }
     }
 }
