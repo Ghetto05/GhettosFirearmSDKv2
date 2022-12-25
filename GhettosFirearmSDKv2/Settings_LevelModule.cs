@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using UnityEngine;
 using ThunderRoad;
 using System.Collections;
 using Newtonsoft.Json;
 using System.IO;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace GhettosFirearmSDKv2
 {
@@ -44,6 +42,29 @@ namespace GhettosFirearmSDKv2
             return base.OnLoadCoroutine();
         }
 
+        private void SpawnGunLocker()
+        {
+            Level.current.StartCoroutine(DelayedLockerSpawn());
+        }
+
+        private IEnumerator DelayedLockerSpawn()
+        {
+            yield return new WaitForSeconds(3f);
+            Vector3 position = new Vector3(41.3f, 2.5f, -43.0f);
+            Vector3 rotation = new Vector3(0, 120, 0);
+            Addressables.InstantiateAsync("GunLocker_Ghetto05_FirearmSDKv2", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += (System.Action<AsyncOperationHandle<GameObject>>)(handle =>
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                }
+                else
+                {
+                    Debug.LogWarning((object)("Unable to instantiate gun locker!"));
+                    Addressables.ReleaseInstance(handle);
+                }
+            });
+        }
+
         private void EventManager_onCreatureSpawn(Creature creature)
         {
             if (creature.isPlayer) return;
@@ -68,6 +89,8 @@ namespace GhettosFirearmSDKv2
             {
                 rppd.Init();
             }
+
+            if (Level.current.data.id.Equals("Home")) SpawnGunLocker();
         }
 
         public void SendUpdate()
