@@ -49,9 +49,18 @@ namespace GhettosFirearmSDKv2
             if (magazine.magazineType.Equals("DEBUG UNIVERSAL")) return true;
 
             bool sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
-            bool compatibleCaliber = (magazine.cartridges.Count == 0) || ((well.caliber.Equals(magazine.cartridges[0].caliber))||(ListContainsString(well.alternateCalibers, magazine.cartridges[0].caliber)));
+            bool compatibleCaliber = (magazine.cartridges.Count == 0) || !Settings_LevelModule.local.doCaliberChecks || ((well.caliber.Equals(magazine.cartridges[0].caliber))||(ListContainsString(well.alternateCalibers, magazine.cartridges[0].caliber)));
 
             return sameType && compatibleCaliber;
+        }
+
+        public static bool ListContainsHandle(List<Handle> list, Handle handle)
+        {
+            foreach (Handle h in list)
+            {
+                if (handle == h) return true;
+            }
+            return false;
         }
 
         public static bool ListContainsString(List<string> list, string str)
