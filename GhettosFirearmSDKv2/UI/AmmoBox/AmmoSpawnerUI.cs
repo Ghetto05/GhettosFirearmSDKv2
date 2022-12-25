@@ -159,9 +159,12 @@ namespace GhettosFirearmSDKv2
         public void Lock()
         {
             locked = !locked;
-            item.rb.isKinematic = locked;
+            if (item != null)
+            {
+                item.rb.isKinematic = locked;
+                item.disallowDespawn = locked;
+            }
             canvasCollider.enabled = locked;
-            item.disallowDespawn = locked;
             canvas.enabled = locked;
         }
         #endregion Actions
