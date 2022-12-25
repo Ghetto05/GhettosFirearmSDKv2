@@ -16,8 +16,9 @@ namespace GhettosFirearmSDKv2
         private void Awake()
         {
             item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
+            mainFireHandle = fireHandle;
             attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.OnCollisionEvent += OnCollisionEnter;
-            fireHandle.OnHeldActionEvent += FireHandle_OnHeldActionEvent;
+            item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
@@ -27,11 +28,6 @@ namespace GhettosFirearmSDKv2
         private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
         {
             if (handle == fireHandle && bolt != null) bolt.Initialize();
-        }
-
-        private void FireHandle_OnHeldActionEvent(RagdollHand ragdollHand, Interactable.Action action)
-        {
-            base.Item_OnHeldActionEvent(ragdollHand, fireHandle, action);
         }
 
         public override void PlayMuzzleFlash()
