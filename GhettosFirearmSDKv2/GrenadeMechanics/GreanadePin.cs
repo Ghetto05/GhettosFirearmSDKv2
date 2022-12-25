@@ -25,7 +25,7 @@ namespace GhettosFirearmSDKv2
         {
             if (handle2 == handle && joint != null)
             {
-                joint.breakForce = 9999999;
+                joint.breakForce = Mathf.Infinity;
             }
         }
 
