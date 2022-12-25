@@ -51,7 +51,8 @@ namespace GhettosFirearmSDKv2
             if (!overrideX1CameraFOV)
             {
                 baseFov = Settings_LevelModule.local.scopeX1MagnificationFOV;
-                SetZoom();
+                if (hasZoom) SetZoom();
+                else SetZoomNoZoomer(noZoomMagnification);
             }
         }
 
