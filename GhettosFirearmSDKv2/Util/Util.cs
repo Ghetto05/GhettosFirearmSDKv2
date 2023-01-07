@@ -1,20 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class Util : MonoBehaviour
+    public class Util
     {
-        public void LoadAudioData(AudioSource source)
-        {
-            if (source == null || source.clip == null) return;
-            source.clip.LoadAudioData();
-        }
 
         public static bool AllowLoadCatridge(Cartridge cartridge, string requiredCaliber)
         {
@@ -134,13 +127,19 @@ namespace GhettosFirearmSDKv2
             yield break;
         }
 
-        public static void PlayRandomAudioSource(List<AudioSource> sources) => PlayRandomAudioSource(sources.ToArray());
-
-        public static void PlayRandomAudioSource(AudioSource[] sources)
+        public static void PlayRandomAudioSource(List<AudioSource> sources)
         {
-            if (sources == null || sources.Length == 0) return;
-            int i = Random.Range(0, sources.Length);
-            if (sources[i] != null) sources[i].Play();
+            AudioSource source = GetRandomFromList(sources);
+            if (source != null) source.Play();
+        }
+
+        public static void PlayRandomAudioSource(AudioSource[] sources) => PlayRandomAudioSource(sources.ToList());
+
+        public static T GetRandomFromList<T>(List<T> list)
+        {
+            if (list == null || list.Count == 0) return default;
+            int i = Random.Range(0, list.Count);
+            return list[i];
         }
 
         public static float AbsDist(Vector3 v1, Vector3 v2)
