@@ -13,6 +13,7 @@ namespace GhettosFirearmSDKv2
         public bool startAtAwake;
         public float minimumArmingTime;
         public float minimumImpactForce;
+        public float selfDestructDelay;
         bool armed = false;
 
         private float startTime;
@@ -52,6 +53,15 @@ namespace GhettosFirearmSDKv2
                 if (Util.CheckForCollisionWithThisCollider(collision, c)) return true;
             }
             return false;
+        }
+
+        private void Update()
+        {
+            if (selfDestructDelay > 0.2f && Time.time > startTime + selfDestructDelay)
+            {
+                explosive.Detonate(delay);
+                explosive.impactNormal = this.transform.forward;
+            }
         }
     }
 }
