@@ -40,8 +40,8 @@ namespace GhettosFirearmSDKv2
         {
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
-            item.OnHeldActionEvent += Item_OnHeldActionEvent;
-            if (AlwaysFrozen)
+            if (!AlwaysFrozen && item != null) item.OnHeldActionEvent += Item_OnHeldActionEvent;
+            if (AlwaysFrozen && item != null)
             {
                 item.rb.isKinematic = true;
                 item.disallowDespawn = true;
@@ -136,8 +136,11 @@ namespace GhettosFirearmSDKv2
         {
             foreach (AttachmentPoint point in parentFirearm.attachmentPoints)
             {
-                AddPoint(point, parentFirearm.icon, point.id);
-                if (point.currentAttachment != null) FromAttachment(point.currentAttachment);
+                if (point.gameObject.activeInHierarchy)
+                {
+                    AddPoint(point, parentFirearm.icon, point.id);
+                    if (point.currentAttachment != null) FromAttachment(point.currentAttachment);
+                }
             }
         }
 
