@@ -36,7 +36,7 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (attachmentPoint != null && attachmentPoint.parentFirearm != null && attachmentPoint.parentFirearm.item != null) Hide(attachmentPoint.parentFirearm.item.renderers[0].enabled);
+            if (attachmentPoint != null && attachmentPoint.parentFirearm != null && attachmentPoint.parentFirearm.item != null) Hide(!attachmentPoint.parentFirearm.item.renderers[0].enabled);
         }
 
         public void Hide(bool hidden)
@@ -44,7 +44,7 @@ namespace GhettosFirearmSDKv2
             if (renderers == null) return;
             foreach (Renderer ren in renderers)
             {
-                ren.enabled = hidden;
+                ren.enabled = !hidden;
             }
         }
 

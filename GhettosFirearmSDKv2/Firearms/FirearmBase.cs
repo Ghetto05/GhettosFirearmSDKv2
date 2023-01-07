@@ -77,7 +77,11 @@ namespace GhettosFirearmSDKv2
                 {
                     ChangeTrigger(true);
                 }
-                else if (action == Interactable.Action.UseStop || action == Interactable.Action.Ungrab)
+                else if (action == Interactable.Action.UseStop)
+                {
+                    ChangeTrigger(false);
+                }
+                else if (action == Interactable.Action.Ungrab && triggerState)
                 {
                     ChangeTrigger(false);
                 }

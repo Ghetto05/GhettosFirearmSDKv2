@@ -210,13 +210,13 @@ namespace GhettosFirearmSDKv2
             joint = this.gameObject.AddComponent<FixedJoint>();
             joint.connectedBody = rb;
             if (Settings_LevelModule.local.magazinesHaveNoCollision) joint.massScale = 99999f;
-            if (!canBeGrabbedInWell)
+            foreach (Handle handle in handles)
             {
-                foreach (Handle handle in handles)
+                if (!canBeGrabbedInWell)
                 {
                     handle.SetTouch(false);
-                    handle.SetTelekinesis(false);
                 }
+                handle.SetTelekinesis(false);
             }
 
             //Saving firearm's magazine 

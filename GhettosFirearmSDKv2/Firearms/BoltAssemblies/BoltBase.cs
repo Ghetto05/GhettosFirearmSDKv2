@@ -28,6 +28,22 @@ namespace GhettosFirearmSDKv2
         {
         }
 
+        public virtual void TryEject()
+        {
+        }
+
+        public static void AddTorqueToCartridge(Cartridge c)
+        {
+            float f = Settings_LevelModule.local.cartridgeEjectionTorque;
+            Vector3 torque = new Vector3
+            {
+                x = Random.Range(-f, f),
+                y = Random.Range(-f, f),
+                z = Random.Range(-f, f)
+            };
+            c.item.rb.AddTorque(torque);
+        }
+
         public virtual bool ForceLoadChamber(Cartridge c)
         {
             return false;

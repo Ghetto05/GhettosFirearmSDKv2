@@ -52,6 +52,8 @@ namespace GhettosFirearmSDKv2
 
         //hitscan explosive
         public ExplosiveData explosiveData;
+        public ParticleSystem explosiveEffect;
+        public List<AudioSource> explosiveSoundEffects;
 
         //hitscan electrification
         public float tasingDuration = 5;

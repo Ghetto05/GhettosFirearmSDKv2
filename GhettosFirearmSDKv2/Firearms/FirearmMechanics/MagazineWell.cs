@@ -24,8 +24,14 @@ namespace GhettosFirearmSDKv2
         {
             firearm.OnCollisionEvent += TryMount;
             firearm.OnColliderToggleEvent += Firearm_OnColliderToggleEvent;
+            firearm.item.OnDespawnEvent += Item_OnDespawnEvent;
             if (spawnMagazineOnAwake) StartCoroutine(delayedLoad());
             else allowLoad = true;
+        }
+
+        private void Item_OnDespawnEvent(EventTime eventTime)
+        {
+            if (currentMagazine != null && !currentMagazine.overrideItem) currentMagazine.item.Despawn();
         }
 
         void Update()
@@ -46,7 +52,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual IEnumerator delayedLoad()
         {
-            yield return new WaitForSeconds(4f);
+            yield return new WaitForSeconds(1.5f);
             if (firearm.item.TryGetCustomData(out MagazineSaveData data))
             {
                 List<ContentCustomData> cdata = new List<ContentCustomData>();

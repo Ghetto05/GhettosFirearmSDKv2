@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2
         public Transform catchPoint;
         public Transform akBoltLockPoint;
         public Transform roundLoadPoint;
-        public Transform roundEjectPoint;
+        public Transform hammerCockPoint;
         public Transform roundMount;
         public Cartridge loadedCartridge;
 
@@ -41,6 +41,7 @@ namespace GhettosFirearmSDKv2
 
         public float roundEjectForce;
         public Transform roundEjectDir;
+        public Transform roundEjectPoint;
         int shotsSinceTriggerReset = 0;
 
         bool isReciprocating = false;
@@ -50,10 +51,10 @@ namespace GhettosFirearmSDKv2
         bool closingAfterRelease = false;
 
         bool behindLoadPoint = false;
+        bool beforeHammerPoint = true;
 
         private bool lastFrameHeld = false;
-
-        FixedJoint nonheldjoint;
+        public Hammer hammer;
 
         public void Awake()
         {
@@ -129,12 +130,12 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
+            if (hammer != null) hammer.Fire();
             if (loadedCartridge == null || loadedCartridge.fired) return;
             shotsSinceTriggerReset++;
             foreach (RagdollHand hand in firearm.item.handlers)
             {
-                if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
-                hand.playerHand.controlHand.HapticShort(50f);
+                if (hand.playerHand != null || hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
             }
             if (loadedCartridge.additionalMuzzleFlash != null)
             {
@@ -263,6 +264,15 @@ namespace GhettosFirearmSDKv2
                     }
                     else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) behindLoadPoint = true;
                 }
+                //hammer
+                if (state == BoltState.Moving && laststate == BoltState.Locked)
+                {
+                    if (hammer != null && !hammer.cocked && beforeHammerPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition))
+                    {
+                        hammer.Cock();
+                    }
+                    else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition)) beforeHammerPoint = true;
+                }
             }
             #endregion held movement
             #region firing movement
@@ -272,9 +282,16 @@ namespace GhettosFirearmSDKv2
                 {
                     bolt.localPosition = Vector3.Lerp(endPoint.localPosition, startPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
                 }
+
+                //hammer
                 if (isReciprocating)
                 {
                     bolt.localPosition = Vector3.Lerp(startPoint.localPosition, endPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
+                    if (hammer != null && !hammer.cocked && beforeHammerPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition))
+                    {
+                        hammer.Cock();
+                    }
+                    else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition)) beforeHammerPoint = true;
                 }
 
                 if (Util.AbsDist(bolt.localPosition, endPoint.localPosition) < 0.0001f && isReciprocating)
@@ -311,7 +328,7 @@ namespace GhettosFirearmSDKv2
             #endregion firing movement
 
             //firing
-            if (fireOnTriggerPress && state == BoltState.Locked && firearm.triggerState && firearm.fireMode != FirearmBase.FireModes.Safe)
+            if ((hammer == null || hammer.cocked) && fireOnTriggerPress && state == BoltState.Locked && firearm.triggerState && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
                 if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
@@ -335,13 +352,18 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = c.GetComponent<Rigidbody>();
+            Rigidbody rb = c.item.rb;
             c.item.disallowDespawn = false;
             c.item.disallowRoomDespawn = false;
             c.transform.parent = null;
             rb.isKinematic = false;
             rb.WakeUp();
-            if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
+            if (roundEjectDir != null) 
+            {
+                float f = Settings_LevelModule.local.cartridgeEjectionForceRandomizationDevision;
+                rb.AddForce(roundEjectDir.forward * (roundEjectForce + Random.Range(-(roundEjectForce / f), (roundEjectForce / f))), ForceMode.Impulse);
+                AddTorqueToCartridge(c);
+            }
             c.ToggleHandles(true);
             base.InvokeEjectRound(manual, c);
         }

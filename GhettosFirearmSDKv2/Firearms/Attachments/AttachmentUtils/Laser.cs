@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
@@ -14,41 +15,53 @@ namespace GhettosFirearmSDKv2
         public bool activeByDefault;
         bool active = false;
         public Text distanceDisplay;
+        public Item item;
+        public Attachment attachment;
+        private Item actualItem;
 
-        void Awake()
+        private void Awake()
         {
             active = activeByDefault;
+            if (item != null) actualItem = item;
+            else if (attachment != null) attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            else actualItem = null;
         }
 
-        void Update()
+        private void Attachment_OnDelayedAttachEvent()
         {
-            if (!active)
+            actualItem = attachment.attachmentPoint.parentFirearm.item;
+        }
+
+        private void Update()
+        {
+            if (!active || (actualItem != null && actualItem.holder != null))
             {
                 if (cylinderRoot != null) cylinderRoot.localScale = Vector3.zero;
                 if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
+                if (distanceDisplay != null) distanceDisplay.text = "";
                 return;
             }
             if (Physics.Raycast(source.position, source.forward, out RaycastHit hit, range, LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject", "Avatar", "PlayerHandAndFoot")))
             {
-                if (cylinderRoot != null) cylinderRoot.localScale = lengthScale(hit.distance);
+                if (cylinderRoot != null) cylinderRoot.localScale = LengthScale(hit.distance);
                 if (endPointObject != null && !endPointObject.activeInHierarchy) endPointObject.SetActive(true);
-                if (endPointObject != null) endPointObject.transform.localPosition = lengthPosition(hit.distance);
+                if (endPointObject != null) endPointObject.transform.localPosition = LengthPosition(hit.distance);
                 if (distanceDisplay != null) distanceDisplay.text = hit.distance.ToString();
             }
             else
             {
-                if (cylinderRoot != null) cylinderRoot.localScale = lengthScale(8000f);
+                if (cylinderRoot != null) cylinderRoot.localScale = LengthScale(8000f);
                 if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
                 if (distanceDisplay != null) distanceDisplay.text = "---";
             }
         }
 
-        Vector3 lengthScale(float length)
+        Vector3 LengthScale(float length)
         {
             return new Vector3(1, 1, length);
         }
 
-        Vector3 lengthPosition(float length)
+        Vector3 LengthPosition(float length)
         {
             return new Vector3(0, 0, length);
         }
