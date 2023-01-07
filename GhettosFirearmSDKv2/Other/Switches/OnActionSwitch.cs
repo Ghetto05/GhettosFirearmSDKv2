@@ -32,8 +32,11 @@ namespace GhettosFirearmSDKv2
         {
             if (parentItem != null) parentItem.OnHeldActionEvent += OnHeldActionEvent;
             else if (parentAttachment != null) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
-            if (switches != null) Debug.Log("Switch list length: " + switches.Count);
-            else Debug.Log("Switches is null!");
+            events[current]?.Invoke();
+            foreach (SwitchRelation swi in switches)
+            {
+                if (swi != null) AlignSwitch(swi, current);
+            }
         }
 
         private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
