@@ -14,19 +14,18 @@ namespace GhettosFirearmSDKv2
         public Transform roundEjectPoint;
         public Transform roundLoadPoint;
         public List<AttachmentPoint> onBoltPoints;
+        [HideInInspector]
         public List<Handle> boltHandles;
 
         public float pointTreshold;
-
         public AudioSource[] rackSounds;
         public AudioSource[] pullSounds;
-
         public bool slamFire;
-
         public float roundEjectForce;
         public Transform roundEjectDir;
-
         public Transform roundMount;
+        public Transform roundReparent;
+        [HideInInspector]
         public Cartridge loadedCartridge;
 
         bool behindLoadPoint = false;
@@ -36,6 +35,7 @@ namespace GhettosFirearmSDKv2
         ConfigurableJoint joint;
         bool closedSinceLastEject = false;
         bool wentToFrontSinceLastLock = false;
+        bool currentRoundRemounted;
 
         public void Awake()
         {
@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null) return;
             loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
-            loadedCartridge.transform.parent = roundMount;
+            loadedCartridge.transform.parent = currentRoundRemounted && roundReparent != null ? roundReparent : roundMount;
             loadedCartridge.transform.localPosition = Vector3.zero;
             loadedCartridge.transform.localEulerAngles = Vector3.zero;
         }
@@ -261,6 +261,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
+                currentRoundRemounted = false;
                 loadedCartridge = c;
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
