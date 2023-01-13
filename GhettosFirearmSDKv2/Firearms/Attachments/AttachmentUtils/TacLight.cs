@@ -1,5 +1,6 @@
 using UnityEngine;
 using ThunderRoad;
+using System.Collections;
 
 namespace GhettosFirearmSDKv2
 {
@@ -16,8 +17,13 @@ namespace GhettosFirearmSDKv2
         public void Start()
         {
             if (item != null) actualItem = item;
-            else if (attachment != null) actualItem = attachment.attachmentPoint.parentFirearm.item;
+            else if (attachment != null) attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
             else actualItem = null;
+        }
+
+        private void Attachment_OnDelayedAttachEvent()
+        {
+            actualItem = attachment.attachmentPoint.parentFirearm.item;
         }
 
         public void SetActive()
