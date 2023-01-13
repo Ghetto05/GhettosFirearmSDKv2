@@ -2,10 +2,6 @@
 using UnityEngine;
 using ThunderRoad;
 using System.Collections.Generic;
-using GhettosFirearmSDKv2.SaveData;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using System.Collections;
 
 namespace GhettosFirearmSDKv2
 {
@@ -185,6 +181,16 @@ namespace GhettosFirearmSDKv2
             OnCollisionEvent?.Invoke(collision);
         }
 
+        public void InvokeAttachmentAdded(Attachment attachment, AttachmentPoint attachmentPoint)
+        {
+            OnAttachmentAddedEvent?.Invoke(attachment, attachmentPoint);
+        }
+
+        public void InvokeAttachmentRemoved(AttachmentPoint attachmentPoint)
+        {
+            OnAttachmentRemovedEvent.Invoke(attachmentPoint);
+        }
+
         //EVENTS
         public delegate void OnTriggerChange(bool isPulled);
         public event OnTriggerChange OnTriggerChangeEvent;
@@ -203,5 +209,11 @@ namespace GhettosFirearmSDKv2
 
         public delegate void OnFiremodeChanged();
         public event OnFiremodeChanged OnFiremodeChangedEvent;
+
+        public delegate void OnAttachmentAdded(Attachment attachment, AttachmentPoint attachmentPoint);
+        public event OnAttachmentAdded OnAttachmentAddedEvent;
+
+        public delegate void OnAttachmentRemoved(AttachmentPoint attachmentPoint);
+        public event OnAttachmentRemoved OnAttachmentRemovedEvent;
     }
 }

@@ -14,6 +14,17 @@ namespace GhettosFirearmSDKv2
         public string defaultAttachment;
         public GameObject disableOnAttach;
 
+        public List<Attachment> GetAllChildAttachments()
+        {
+            List<Attachment> list = new List<Attachment>();
+            if (currentAttachment == null) return list;
+            foreach (AttachmentPoint point in currentAttachment.attachmentPoints)
+            {
+                list.AddRange(point.GetAllChildAttachments());
+            }
+            return list;
+        }
+
         public void SpawnDefaultAttachment()
         {
             if (!string.IsNullOrEmpty(defaultAttachment))
