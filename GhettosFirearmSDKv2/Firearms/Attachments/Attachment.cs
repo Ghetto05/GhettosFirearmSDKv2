@@ -140,6 +140,7 @@ namespace GhettosFirearmSDKv2
             }
             attachmentPoint.parentFirearm.item.OnHeldActionEvent += InvokeHeldAction;
             OnDelayedAttachEvent?.Invoke();
+            attachmentPoint.parentFirearm.InvokeAttachmentAdded(this, attachmentPoint);
         }
 
         private void InvokeHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -197,6 +198,7 @@ namespace GhettosFirearmSDKv2
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.lightVolumeReceiver.renderers.Remove(ren);
             }
             firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers);
+            firearm.InvokeAttachmentRemoved(attachmentPoint);
             if (this == null || this.gameObject == null) return;
             Destroy(this.gameObject);
         }
