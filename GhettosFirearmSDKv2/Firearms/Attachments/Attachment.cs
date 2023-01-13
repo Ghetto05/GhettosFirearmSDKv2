@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
                 icon = tex;
             }, "Attachment_" + data.id);
             if (thisNode != null) ApplyNode(thisNode);
-            attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers);
+            try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); };
             foreach (UnityEvent eve in OnAttachEvents)
             {
                 eve.Invoke();
