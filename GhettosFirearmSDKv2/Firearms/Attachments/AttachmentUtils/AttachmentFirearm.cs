@@ -15,8 +15,8 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
-            item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
             mainFireHandle = fireHandle;
+            item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
             attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.OnCollisionEvent += OnCollisionEnter;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;

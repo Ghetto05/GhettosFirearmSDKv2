@@ -10,6 +10,7 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         public Handle newMainHandle;
         public Handle oldMainHandle;
+        private bool working = false;
 
         private void Awake()
         {
@@ -19,26 +20,40 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDetachEvent()
         {
-            attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
-            attachment.OnDetachEvent -= Attachment_OnDetachEvent;
-
             oldMainHandle.SetTouch(true);
             oldMainHandle.SetTelekinesis(true);
             oldMainHandle.enabled = true;
+            oldMainHandle.gameObject.SetActive(true);
 
             attachment.attachmentPoint.parentFirearm.item.mainHandleLeft = oldMainHandle;
             attachment.attachmentPoint.parentFirearm.item.mainHandleRight = oldMainHandle;
+
+            attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
+            attachment.OnDetachEvent -= Attachment_OnDetachEvent;
+        }
+
+        private void Update()
+        {
+            if (!working) return;
+            oldMainHandle.SetTouch(false);
+            oldMainHandle.SetTelekinesis(false);
+            oldMainHandle.enabled = false;
+            oldMainHandle.gameObject.SetActive(false);
+
+
+            newMainHandle.SetTouch(true);
+            newMainHandle.SetTelekinesis(true);
+            newMainHandle.enabled = true;
+            newMainHandle.gameObject.SetActive(true);
+
+            attachment.attachmentPoint.parentFirearm.item.mainHandleLeft = newMainHandle;
+            attachment.attachmentPoint.parentFirearm.item.mainHandleRight = newMainHandle;
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
             oldMainHandle = attachment.attachmentPoint.parentFirearm.item.mainHandleLeft;
-            oldMainHandle.SetTouch(false);
-            oldMainHandle.SetTelekinesis(false);
-            oldMainHandle.enabled = false;
-
-            attachment.attachmentPoint.parentFirearm.item.mainHandleLeft = newMainHandle;
-            attachment.attachmentPoint.parentFirearm.item.mainHandleRight = newMainHandle;
+            working = true;
         }
     }
 }

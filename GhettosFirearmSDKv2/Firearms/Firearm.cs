@@ -46,7 +46,7 @@ namespace GhettosFirearmSDKv2
             preSnapActiveHandles = new List<Handle>();
             foreach (Handle han in item.handles)
             {
-                if (han.enabled && han.touchCollider.enabled && han != item.mainHandleLeft && han != item.mainHandleRight)
+                if (han.enabled && han.touchCollider.enabled && !(han.data.id.Equals("ObjectHandleHeavy") || han.data.id.Equals("ObjectHandleHeavyPistol")))
                 {
                     preSnapActiveHandles.Add(han);
                     han.SetTouch(false);

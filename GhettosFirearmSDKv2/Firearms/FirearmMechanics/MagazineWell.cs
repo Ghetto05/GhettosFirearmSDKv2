@@ -31,15 +31,18 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnDespawnEvent(EventTime eventTime)
         {
-            if (currentMagazine != null && !currentMagazine.overrideItem) currentMagazine.item.Despawn();
+            if (currentMagazine != null && currentMagazine.overrideItem == null) currentMagazine.item.Despawn();
         }
 
         void Update()
         {
             if (currentMagazine != null)
             {
-                currentMagazine.item.SetColliderLayer(firearm.item.currentPhysicsLayer);
-                currentMagazine.item.SetMeshLayer(firearm.item.gameObject.layer);
+                if (currentMagazine.overrideItem == null)
+                {
+                    currentMagazine.item.SetColliderLayer(firearm.item.currentPhysicsLayer);
+                    currentMagazine.item.SetMeshLayer(firearm.item.gameObject.layer);
+                }
                 roundCounterMessage = currentMagazine.cartridges.Count.ToString();
             }
             else roundCounterMessage = "N/A";

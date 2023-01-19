@@ -64,20 +64,44 @@ namespace GhettosFirearmSDKv2
             }
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
+            firearm.item.OnHeldActionEvent += BoltSemiautomatic_OnHeldActionEvent;
+            firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
+            firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
 
             if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe) InitializeJoint(false, true);
             else InitializeJoint(false);
             UpdateBoltHandles();
-            firearm.item.OnHeldActionEvent += BoltSemiautomatic_OnHeldActionEvent;
             StartCoroutine(delayedGetChamber());
+        }
+
+        private void Firearm_OnAttachmentRemovedEvent(AttachmentPoint attachmentPoint)
+        {
+            UpdateBoltHandles();
+        }
+
+        private void Firearm_OnAttachmentAddedEvent(Attachment attachment, AttachmentPoint attachmentPoint)
+        {
+            UpdateBoltHandles();
         }
 
         public void UpdateBoltHandles()
         {
-            boltHandles = rigidBody.GetComponentsInChildren<Handle>().ToList();
+            boltHandles = new List<Handle>();
+            foreach (Handle h in rigidBody.gameObject.GetComponentsInChildren<Handle>())
+            {
+                boltHandles.Add(h);
+                h.customRigidBody = rigidBody;
+            }
             foreach (AttachmentPoint point in onBoltPoints)
             {
-                if (point.currentAttachment != null) boltHandles.AddRange(point.currentAttachment.handles);
+                foreach (Attachment attachment in point.GetAllChildAttachments())
+                {
+                    foreach (Handle handle in attachment.handles)
+                    {
+                        handle.customRigidBody = rigidBody;
+                        boltHandles.Add(handle);
+                    }
+                }
             }
         }
 
@@ -396,12 +420,12 @@ namespace GhettosFirearmSDKv2
                 joint.massScale = 0.00001f;
             }
             SoftJointLimit limit = new SoftJointLimit();
-            //default, start to back movement
             if (boltActionLocked)
             {
                 joint.anchor = GrandparentLocalPosition(rigidBody.transform, firearm.item.transform);
                 limit.limit = 0;
             }
+            //default, start to back movement
             else if (!lockedBack && !safetyLocked)
             {
                 joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));

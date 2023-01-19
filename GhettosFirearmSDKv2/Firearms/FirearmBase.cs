@@ -188,7 +188,7 @@ namespace GhettosFirearmSDKv2
 
         public void InvokeAttachmentRemoved(AttachmentPoint attachmentPoint)
         {
-            OnAttachmentRemovedEvent.Invoke(attachmentPoint);
+            OnAttachmentRemovedEvent?.Invoke(attachmentPoint);
         }
 
         //EVENTS

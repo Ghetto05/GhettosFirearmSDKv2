@@ -51,11 +51,12 @@ namespace GhettosFirearmSDKv2
         public void Initialize(SaveData.AttachmentTree.Node thisNode = null, bool initialSetup = false)
         {
             renderers = new List<Renderer>();
-            foreach (Renderer ren in this.gameObject.GetComponentsInChildren<Renderer>())
+            foreach (Renderer ren in this.gameObject.GetComponentsInChildren<Renderer>(true))
             {
-                renderers.Add(ren);
-                if (!nonLightVolumeRenderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
+                if (!renderers.Contains(ren)) renderers.Add(ren);
+                if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.parentFirearm.item.renderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
             }
+            try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); };
             this.transform.parent = attachmentPoint.transform;
             this.transform.localPosition = Vector3.zero;
             this.transform.localEulerAngles = Vector3.zero;
@@ -72,7 +73,6 @@ namespace GhettosFirearmSDKv2
                 icon = tex;
             }, "Attachment_" + data.id);
             if (thisNode != null) ApplyNode(thisNode);
-            try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); };
             foreach (UnityEvent eve in OnAttachEvents)
             {
                 eve.Invoke();
@@ -192,12 +192,12 @@ namespace GhettosFirearmSDKv2
             {
                 firearm.item.colliderGroups.Remove(colll);
             }
-            foreach (Renderer ren in this.gameObject.GetComponentsInChildren<Renderer>())
+            foreach (Renderer ren in renderers)
             {
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.renderers.Remove(ren);
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.lightVolumeReceiver.renderers.Remove(ren);
             }
-            firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers);
+            try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); };
             firearm.InvokeAttachmentRemoved(attachmentPoint);
             if (this == null || this.gameObject == null) return;
             Destroy(this.gameObject);

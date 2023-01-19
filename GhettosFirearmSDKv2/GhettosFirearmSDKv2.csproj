@@ -367,6 +367,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HelloWorld.cs" />
     <Compile Include="Firearms\Ammunition\AmmunitionPouch.cs" />
     <Compile Include="Firearms\Ammunition\Tracer.cs" />
     <Compile Include="Firearms\Ammunition\TracerModule.cs" />

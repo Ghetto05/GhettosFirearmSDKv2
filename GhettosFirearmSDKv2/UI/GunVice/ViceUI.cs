@@ -136,7 +136,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (AttachmentPoint point in parentFirearm.attachmentPoints)
             {
-                if (point.gameObject.activeInHierarchy)
+                if (point.gameObject.activeInHierarchy && point.gameObject.ActiveInPrefabHierarchy() && point.gameObject.activeSelf)
                 {
                     AddPoint(point, parentFirearm.icon, point.id);
                     if (point.currentAttachment != null) FromAttachment(point.currentAttachment);

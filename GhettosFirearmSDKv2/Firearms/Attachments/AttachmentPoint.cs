@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using ThunderRoad;
 using UnityEngine;
 
@@ -14,6 +15,11 @@ namespace GhettosFirearmSDKv2
         public string defaultAttachment;
         public GameObject disableOnAttach;
 
+        private void Awake()
+        {
+            StartCoroutine(Alert());
+        }
+
         public List<Attachment> GetAllChildAttachments()
         {
             List<Attachment> list = new List<Attachment>();
@@ -22,7 +28,14 @@ namespace GhettosFirearmSDKv2
             {
                 list.AddRange(point.GetAllChildAttachments());
             }
+            list.Add(currentAttachment);
             return list;
+        }
+
+        private IEnumerator Alert()
+        {
+            yield return new WaitForSeconds(1f);
+            if (parentFirearm == null) Debug.Log("Not initialized! Name: " + name);
         }
 
         public void SpawnDefaultAttachment()

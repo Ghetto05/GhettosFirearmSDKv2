@@ -6,11 +6,32 @@ namespace GhettosFirearmSDKv2
 {
     public class MagazineSizeIncreaser : MonoBehaviour
     {
-        public Magazine magazine;
+        public Attachment attachment;
         public bool useDeltaInsteadOfFixed;
         public int targetSize;
         public int deltaSize;
         private int previousSize;
+        private Magazine magazine;
+
+        private void Awake()
+        {
+            attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            attachment.OnDetachEvent += Attachment_OnDetachEvent;
+        }
+
+        private void Attachment_OnDetachEvent()
+        {
+            if (attachment.attachmentPoint.parentFirearm.magazineWell is MagazineWell well && well.currentMagazine is Magazine mag)
+            {
+                magazine = mag;
+                Apply();
+            }
+        }
+
+        private void Attachment_OnDelayedAttachEvent()
+        {
+            if (magazine != null) Revert();
+        }
 
         public void Apply()
         {
@@ -30,6 +51,10 @@ namespace GhettosFirearmSDKv2
         {
             if (magazine == null) return;
             magazine.maximumCapacity = previousSize;
+            foreach (Cartridge c in magazine.cartridges)
+            {
+                if (magazine.cartridges.IndexOf(c) >= previousSize) c.item.Despawn();
+            }
         }
     }
 }

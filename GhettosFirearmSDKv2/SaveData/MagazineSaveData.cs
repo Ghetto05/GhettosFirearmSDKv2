@@ -24,7 +24,7 @@ namespace GhettosFirearmSDKv2
             if (index < 0) return;
             Catalog.GetData<ItemData>(contents[index]).SpawnAsync(cartridge =>
             {
-                mag.InsertRound(cartridge.GetComponent<Cartridge>(), true);
+                mag.InsertRound(cartridge.GetComponent<Cartridge>(), true, true);
                 ApplyToMagazineRecurve(index - 1, mag);
             }, mag.transform.position + Vector3.up * 3, null, null, false);
         }
