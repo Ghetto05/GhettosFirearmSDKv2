@@ -19,7 +19,7 @@ namespace GhettosFirearmSDKv2
             if (index < 0) return;
             Catalog.GetData<ItemData>(ids[index]).SpawnAsync(item =>
             {
-                mag.InsertRound(item.GetComponent<Cartridge>(), true);
+                mag.InsertRound(item.GetComponent<Cartridge>(), true, true);
                 Recurve(index - 1, mag);
             }, this.transform.position + Vector3.up * 3, this.transform.rotation);
         }

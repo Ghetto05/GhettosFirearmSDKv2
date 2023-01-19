@@ -32,7 +32,7 @@ namespace GhettosFirearmSDKv2
         public Item item;
         public MagazineLoad defaultLoad;
         public bool hasOverrideLoad;
-        public Transform overrideItem;
+        public Item overrideItem;
         public List<Collider> colliders;
         private List<Renderer> originalRenderers;
 
@@ -54,7 +54,8 @@ namespace GhettosFirearmSDKv2
         {
             cartridges = new List<Cartridge>();
             if (overrideItem == null) item = this.GetComponent<Item>();
-            else item = overrideItem.GetComponent<Item>();
+            else item = overrideItem;
+            if (item == null) return;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
@@ -130,9 +131,9 @@ namespace GhettosFirearmSDKv2
             return c;
         }
 
-        public void InsertRound(Cartridge c, bool silent)
+        public void InsertRound(Cartridge c, bool silent, bool forced)
         {
-            if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, this))
+            if ((cartridges.Count < maximumCapacity || forced) && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, this))
             {
                 c.item.disallowDespawn = true;
                 c.item.disallowRoomDespawn = true;
@@ -274,7 +275,7 @@ namespace GhettosFirearmSDKv2
         {
             if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge car && Util.CheckForCollisionWithThisCollider(collision, roundInsertCollider))
             {
-                InsertRound(car, false);
+                InsertRound(car, false, false);
             }
         }
 
