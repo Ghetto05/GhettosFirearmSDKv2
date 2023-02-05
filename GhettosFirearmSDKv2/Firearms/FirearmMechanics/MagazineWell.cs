@@ -9,6 +9,7 @@ namespace GhettosFirearmSDKv2
     {
         public FirearmBase firearm;
         public string acceptedMagazineType;
+        public List<string> alternateMagazineTypes;
         public string caliber;
         public List<string> alternateCalibers;
         public Collider loadingCollider;
@@ -16,6 +17,7 @@ namespace GhettosFirearmSDKv2
         public bool canEject;
         public bool ejectOnEmpty = false;
         public Magazine currentMagazine;
+        public bool mountCurrentMagazine = true;
         public bool spawnMagazineOnAwake;
         public string roundCounterMessage;
         public bool allowLoad = false;
@@ -26,7 +28,11 @@ namespace GhettosFirearmSDKv2
             firearm.OnColliderToggleEvent += Firearm_OnColliderToggleEvent;
             firearm.item.OnDespawnEvent += Item_OnDespawnEvent;
             if (spawnMagazineOnAwake) StartCoroutine(delayedLoad());
-            else allowLoad = true;
+            else
+            {
+                if (currentMagazine != null && mountCurrentMagazine) StartCoroutine(currentMagazine.DelayedMount(this, this.firearm.item.rb, 0.02f));
+                else allowLoad = true;
+            }
         }
 
         private void Item_OnDespawnEvent(EventTime eventTime)
