@@ -73,10 +73,10 @@ namespace GhettosFirearmSDKv2
             if (connectedItem != null && connectedItem.TryGetCustomData(out ZoomSaveData data))
             {
                 currentIndex = data.index;
-                SetZoom();
-                UpdatePosition();
             }
             else currentIndex = 0;
+            SetZoom();
+            UpdatePosition();
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
