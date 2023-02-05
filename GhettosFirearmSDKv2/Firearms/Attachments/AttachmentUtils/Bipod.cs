@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
         public List<Transform> positions;
         public Handle toggleHandle;
         public AudioSource toggleSound;
-        private int index = 0;
+        public int index = 0;
 
         private void Awake()
         {
