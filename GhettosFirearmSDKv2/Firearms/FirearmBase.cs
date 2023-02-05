@@ -27,6 +27,7 @@ namespace GhettosFirearmSDKv2
         public float longPressTime;
         public float recoilModifier = 1f;
         public bool countingForLongpress = false;
+        public List<RecoilModifier> recoilModifiers = new List<RecoilModifier>();
 
         public enum FireModes
         {
@@ -186,9 +187,44 @@ namespace GhettosFirearmSDKv2
             OnAttachmentAddedEvent?.Invoke(attachment, attachmentPoint);
         }
 
-        public void InvokeAttachmentRemoved(AttachmentPoint attachmentPoint)
+        public void InvokeAttachmentRemoved(Attachment attachment, AttachmentPoint attachmentPoint)
         {
-            OnAttachmentRemovedEvent?.Invoke(attachmentPoint);
+            OnAttachmentRemovedEvent?.Invoke(attachment, attachmentPoint);
+        }
+
+        public void AddRecoilModifier(float linearModifier, float muzzleRiseModifier, object modifierHandler)
+        {
+            RecoilModifier modifier = new RecoilModifier
+            {
+                modifier = linearModifier,
+                muzzleRiseModifier = muzzleRiseModifier,
+                handler = modifierHandler
+            };
+            RemoveRecoilModifier(modifierHandler);
+            recoilModifiers.Add(modifier);
+        }
+
+        public void RemoveRecoilModifier(object modifierHandler)
+        {
+            foreach (RecoilModifier mod in recoilModifiers.ToArray())
+            {
+                if (mod.handler == modifierHandler) recoilModifiers.Remove(mod);
+            }
+        }
+
+        public void RefreshRecoilModifiers()
+        {
+            foreach (RecoilModifier mod in recoilModifiers.ToArray())
+            {
+                if (mod.handler == null) recoilModifiers.Remove(mod);
+            }
+        }
+
+        public class RecoilModifier
+        {
+            public float modifier;
+            public float muzzleRiseModifier;
+            public object handler;
         }
 
         //EVENTS
@@ -213,7 +249,7 @@ namespace GhettosFirearmSDKv2
         public delegate void OnAttachmentAdded(Attachment attachment, AttachmentPoint attachmentPoint);
         public event OnAttachmentAdded OnAttachmentAddedEvent;
 
-        public delegate void OnAttachmentRemoved(AttachmentPoint attachmentPoint);
+        public delegate void OnAttachmentRemoved(Attachment attachment, AttachmentPoint attachmentPoint);
         public event OnAttachmentRemoved OnAttachmentRemovedEvent;
     }
 }

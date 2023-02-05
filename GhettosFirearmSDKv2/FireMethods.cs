@@ -28,10 +28,22 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public static void ApplyRecoil(Transform transform, Rigidbody rb, float recoilModifier, float force, float upwardsModifier)
+        public static void ApplyRecoil(Transform transform, Rigidbody rb, float force, float upwardsModifier, float firearmRecoilModifier, List<FirearmBase.RecoilModifier> modifiers)
         {
-            rb.AddForce(-transform.forward * force * recoilModifier, ForceMode.Impulse);
-            rb.AddRelativeTorque(Vector3.right * (force * recoilModifier * upwardsModifier), ForceMode.Impulse);
+            float upMod = 1f;
+            float linMod = 1f;
+
+            if (modifiers != null)
+            {
+                foreach (FirearmBase.RecoilModifier mod in modifiers)
+                {
+                    upMod *= mod.muzzleRiseModifier;
+                    linMod *= mod.modifier;
+                }
+            }
+
+            rb.AddForce(-transform.forward * (force * linMod) * firearmRecoilModifier, ForceMode.Impulse);
+            rb.AddRelativeTorque(Vector3.right * ((force * upMod) * upwardsModifier) * firearmRecoilModifier, ForceMode.Impulse);
         }
 
         public static List<Creature> FireHitscan(Transform muzzle, ProjectileData data, Item item, out List<Vector3> returnedHitpoints, out List<Vector3> returnedTrajectories)
@@ -271,7 +283,7 @@ namespace GhettosFirearmSDKv2
                         if (data.forceDestabilize && !cr.isPlayer && !cr.isKilled) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
 
                         //RB Push
-                        if (cr.isKilled && !cr.isPlayer)
+                        if (cr.isKilled && !cr.isPlayer && hit.rigidbody != null)
                         {
                             hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
                             //cr.locomotion.rb.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);

@@ -33,6 +33,11 @@ namespace GhettosFirearmSDKv2
             StartCoroutine(DelayedLoadAttachments());
         }
 
+        private void Update()
+        {
+            RefreshRecoilModifiers();
+        }
+
         public void Item_OnUnSnapEvent2(Holder holder)
         {
             foreach (Handle han in preSnapActiveHandles)
