@@ -10,7 +10,6 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         public Handle newMainHandle;
         public Handle oldMainHandle;
-        private bool working = false;
 
         private void Awake()
         {
@@ -32,9 +31,8 @@ namespace GhettosFirearmSDKv2
             attachment.OnDetachEvent -= Attachment_OnDetachEvent;
         }
 
-        private void Update()
+        public void Apply()
         {
-            if (!working) return;
             oldMainHandle.SetTouch(false);
             oldMainHandle.SetTelekinesis(false);
             oldMainHandle.enabled = false;
@@ -53,7 +51,12 @@ namespace GhettosFirearmSDKv2
         private void Attachment_OnDelayedAttachEvent()
         {
             oldMainHandle = attachment.attachmentPoint.parentFirearm.item.mainHandleLeft;
-            working = true;
+            attachment.attachmentPoint.parentFirearm.OnAttachmentAddedEvent += OnAttachmentChanged;
+            Apply();
+        }
+
+        private void OnAttachmentChanged(Attachment attachment, AttachmentPoint attachmentPoint)
+        {
         }
     }
 }
