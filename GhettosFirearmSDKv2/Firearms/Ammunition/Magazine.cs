@@ -45,7 +45,7 @@ namespace GhettosFirearmSDKv2
                 foreach (Handle handle in handles)
                 {
                     handle.SetTouch(currentWell.firearm.item.holder == null);
-                    handle.SetTelekinesis(currentWell.firearm.item.holder == null);
+                    handle.SetTelekinesis(currentWell == null);
                 }
             }
         }
@@ -175,6 +175,12 @@ namespace GhettosFirearmSDKv2
             UpdateCartridgePositions();
             SaveCustomData();
             return c;
+        }
+
+        public IEnumerator DelayedMount(MagazineWell well, Rigidbody rb, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            Mount(well, rb);
         }
 
         public void Mount(MagazineWell well, Rigidbody rb)
