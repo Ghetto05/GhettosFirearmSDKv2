@@ -167,6 +167,7 @@ namespace GhettosFirearmSDKv2
                 eve.Invoke();
             }
             Firearm firearm = attachmentPoint.parentFirearm;
+            firearm.InvokeAttachmentRemoved(this, attachmentPoint);
             foreach (Handle han in additionalTriggerHandles)
             {
                 firearm.additionalTriggerHandles.Remove(han);
@@ -198,7 +199,6 @@ namespace GhettosFirearmSDKv2
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.lightVolumeReceiver.renderers.Remove(ren);
             }
             try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); };
-            firearm.InvokeAttachmentRemoved(attachmentPoint);
             if (this == null || this.gameObject == null) return;
             Destroy(this.gameObject);
         }
