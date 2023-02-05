@@ -331,7 +331,7 @@ namespace GhettosFirearmSDKv2
                         string descriptionText = "";
                         if (!data.isHitscan)
                         {
-                            descriptionText += "Projectile: " + data.projectileItemId + "\n";
+                            //descriptionText += "Projectile: " + data.projectileItemId + "\n";
                             descriptionText += "Velocity: " + data.muzzleVelocity;
                             if (!string.IsNullOrWhiteSpace(data.additionalInformation))
                             {
