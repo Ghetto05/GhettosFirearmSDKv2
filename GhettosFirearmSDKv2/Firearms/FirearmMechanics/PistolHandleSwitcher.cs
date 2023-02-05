@@ -8,38 +8,31 @@ namespace GhettosFirearmSDKv2
     {
         public Handle mainHandle;
         public Handle secondaryHandle;
-        public Item item;
+        public Firearm firearm;
+        private bool lastFrameDualHeld = false;
 
-        public void Awake()
+        public void Update()
         {
-            item.OnGrabEvent += Item_OnGrabEvent;
-            item.OnUngrabEvent += Item_OnUngrabEvent;
-        }
+            mainHandle.SetTouch(mainHandle.handlers.Count == 0);
+            secondaryHandle.SetTouch(mainHandle.handlers.Count != 0);
 
-        private void Item_OnUngrabEvent(Handle handle, RagdollHand ragdollHand, bool throwing)
-        {
-            if (handle == secondaryHandle) secondaryHandle.SetTouch(true);
-            if (handle == mainHandle)
+            if (mainHandle.handlers.Count == 0 && secondaryHandle.handlers.Count > 0)
             {
-                if (secondaryHandle.handlers.Count > 0)
-                {
-                    foreach (RagdollHand hand in secondaryHandle.handlers.ToArray())
-                    {
-                        hand.UnGrab(false);
-                        hand.Grab(mainHandle);
-                    }
-                }
-                else
-                {
-                    mainHandle.SetTouch(true);
-                }
+                RagdollHand hand = secondaryHandle.handlers[0];
+                hand.UnGrab(false);
+                hand.Grab(mainHandle);
             }
-        }
 
-        private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
-        {
-            if (handle == mainHandle) mainHandle.SetTouch(false);
-            else if (handle == secondaryHandle) secondaryHandle.SetTouch(false);
+            bool dualHeld = mainHandle.handlers.Count > 0 && secondaryHandle.handlers.Count > 0;
+            if (!lastFrameDualHeld && dualHeld)
+            {
+                firearm.AddRecoilModifier(0.3f, 1f, this);
+            }
+            else if (lastFrameDualHeld && !dualHeld)
+            {
+                firearm.RemoveRecoilModifier(this);
+            }
+            lastFrameDualHeld = dualHeld;
         }
     }
 }
