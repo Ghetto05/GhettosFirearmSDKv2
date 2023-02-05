@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ThunderRoad;
 using UnityEngine.UI;
+using UnityEngine.AddressableAssets;
 
 namespace GhettosFirearmSDKv2
 {
@@ -320,7 +321,58 @@ namespace GhettosFirearmSDKv2
             currentVariant = variant;
             SetupVariantList(currentCaliber);
             currentItemId = AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant);
-            description.text = AmmoModule.GetDescription(currentItemId);
+
+            Addressables.LoadAssetAsync<GameObject>(Catalog.GetData<ItemData>(currentItemId).prefabLocation).Completed += (handle =>
+            {
+                if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                {
+                    if (handle.Result.GetComponent<ProjectileData>() is ProjectileData data)
+                    {
+                        string descriptionText = "";
+                        if (!data.isHitscan)
+                        {
+                            descriptionText += "Projectile: " + data.projectileItemId + "\n";
+                            descriptionText += "Velocity: " + data.muzzleVelocity;
+                            if (!string.IsNullOrWhiteSpace(data.additionalInformation))
+                            {
+                                descriptionText += "\n";
+                                descriptionText += data.additionalInformation;
+                            }
+                        }
+                        else
+                        {
+                            if (data.projectileCount == 1)
+                            {
+                                descriptionText += "Damage: " + data.damagePerProjectile + "\n";
+                                descriptionText += "Force: " + data.forcePerProjectile + "\n";
+                            }
+                            else
+                            {
+                                descriptionText += "Damage per projectile: " + data.damagePerProjectile + "\n";
+                                descriptionText += "Force per projectile: " + data.forcePerProjectile + "\n";
+                            }
+                            descriptionText += "Range: " + data.projectileRange + "\n";
+                            descriptionText += "Penetration level: " + data.penetrationPower.ToString();
+                            if (handle.Result.GetComponentInChildren<TracerModule>() != null) descriptionText += "\nHas tracer function";
+                            if (data.forceDestabilize && !data.knocksOutTemporarily) descriptionText += "\nAlways destabilizes hit target";
+                            if (data.knocksOutTemporarily) descriptionText += $"\nIncapitates hit target for {data.temporaryKnockoutTime} seconds";
+                            if (data.isElectrifying) descriptionText += $"\nElectrifies targets for {data.tasingDuration} with a force of {data.tasingForce}";
+                            if (data.isExplosive) descriptionText += $"\nExplodes: {data.explosiveData.radius} meters radius, {data.explosiveData.force} force, {data.explosiveData.damage} damage";
+                            if (!string.IsNullOrWhiteSpace(data.additionalInformation))
+                            {
+                                descriptionText += "\n" + data.additionalInformation;
+                            }
+                        }
+
+                        description.text = descriptionText;
+                    }
+                    else Debug.LogWarning("No projectile data component found on root object of " + currentCaliber + ", " + currentVariant + "! Please make sure it is added to the root, not a child object!");
+                }
+                else
+                {
+                    Debug.LogError("Couldn't load prefab of " + currentCaliber + ", " + currentVariant + "!");
+                }
+            });
         }
         #endregion Updates
     }

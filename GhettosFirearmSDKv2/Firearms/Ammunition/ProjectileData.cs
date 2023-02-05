@@ -20,6 +20,8 @@ namespace GhettosFirearmSDKv2
             World
         }
 
+        public string additionalInformation;
+
         public bool isHitscan = true;
         public float accuracyMultiplier = 1;
         public float recoil;
