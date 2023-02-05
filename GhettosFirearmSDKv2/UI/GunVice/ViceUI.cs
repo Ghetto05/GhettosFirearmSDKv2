@@ -136,7 +136,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (AttachmentPoint point in parentFirearm.attachmentPoints)
             {
-                if (point.gameObject.activeInHierarchy && point.gameObject.ActiveInPrefabHierarchy() && point.gameObject.activeSelf)
+                if (point.gameObject.activeInHierarchy)
                 {
                     AddPoint(point, parentFirearm.icon, point.id);
                     if (point.currentAttachment != null) FromAttachment(point.currentAttachment);
@@ -148,8 +148,11 @@ namespace GhettosFirearmSDKv2
         {
             foreach (AttachmentPoint point in attachment.attachmentPoints)
             {
-                AddPoint(point, attachment.icon, point.id);
-                if (point.currentAttachment != null) FromAttachment(point.currentAttachment);
+                if (point.gameObject.activeInHierarchy)
+                {
+                    AddPoint(point, attachment.icon, point.id);
+                    if (point.currentAttachment != null) FromAttachment(point.currentAttachment);
+                }
             }
         }
 
