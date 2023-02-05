@@ -367,6 +367,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clothing\HUD\HUD.cs" />
+    <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\BipodManager.cs" />
+    <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs" />
+    <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs" />
+    <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
     <Compile Include="HelloWorld.cs" />
     <Compile Include="Firearms\Ammunition\AmmunitionPouch.cs" />
     <Compile Include="Firearms\Ammunition\Tracer.cs" />
@@ -464,7 +470,6 @@
     <Compile Include="FireMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).pdb" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\$(TargetName)\$(TargetName).pdb"
