@@ -63,7 +63,7 @@ namespace GhettosFirearmSDKv2
             firearm.PlayFireSound();
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories);
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
             if (ejectOnFire) EjectRound();
             InvokeFireEvent();

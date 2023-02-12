@@ -19,7 +19,8 @@ namespace GhettosFirearmSDKv2
         public List<string> alternateGroupsIds;
         [Space]
         public bool isSuppressing;
-        public bool damageMultiplier;
+        public bool multiplyDamage;
+        public float damageMultiplier;
         public Texture2D icon;
         public string ColliderGroupId = "PropMetal";
         public bool overridesMuzzleFlash;

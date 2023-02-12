@@ -45,7 +45,7 @@ namespace GhettosFirearmSDKv2
 
         public void Detonate()
         {
-            FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories);
+            FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories, 1f);
             if (detonationParticle != null) detonationParticle.Play();
             FireMethods.ApplyRecoil(this.transform, this.item.rb, data.recoil, 0f, 1f, null);
             Util.PlayRandomAudioSource(detonationSounds);
