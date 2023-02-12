@@ -163,6 +163,7 @@ namespace GhettosFirearmSDKv2
                     GameObject obj = Instantiate(cartridges[0].gameObject, cartridges[0].transform.position, cartridges[0].transform.rotation);
                     Cartridge newC = obj.GetComponent<Cartridge>();
                     c = cartridges[0];
+                    Util.IgnoreCollision(c.gameObject, gameObject, false);
                     cartridges.RemoveAt(0);
                     cartridges.Add(newC);
                 }

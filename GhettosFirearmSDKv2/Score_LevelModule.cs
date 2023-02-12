@@ -6,14 +6,13 @@ namespace GhettosFirearmSDKv2
 {
     public class Score_LevelModule : LevelModule
     {
-        public float accuracy;
         public int shotsFired;
         public int shotsHit;
         public int headshots;
 
-        public void CalculateAccuracy()
+        public float CalculateAccuracy()
         {
-            accuracy = (shotsHit / shotsFired) * 100f;
+            return (shotsHit / shotsFired) * 100f;
         }
     }
 }
