@@ -370,7 +370,6 @@
     <Compile Include="Clothing\HUD\HUD.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\BipodManager.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellColliderReplacer.cs" />
     <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs" />
     <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
@@ -431,7 +430,6 @@
     <Compile Include="UI\GunLocker\GunLockerUI.cs" />
     <Compile Include="UI\GunLocker\GunLockerUICategory.cs" />
     <Compile Include="UI\GunLocker\GunLockerUISave.cs" />
-    <Compile Include="UI\SettingsPanel\ScoreWindow.cs" />
     <Compile Include="Util\AdditionalFireSoundManager.cs" />
     <Compile Include="Util\CollisionDisabler.cs" />
     <Compile Include="Explosives\GrenadeMechanics\GreanadePin.cs" />

@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2
                 category = holder.items[0].data.displayName,
                 dataList = holder.items[0].contentCustomData.ToList()
             };
-            Settings_LevelModule.CreateSaveFolder();
+            Settings_LevelModule.GenerateGunSaveFolders();
             string path = FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, "GhettosFirearmSDKv2Saves\\Saves\\" + newData.id + ".json");
             string content = JsonConvert.SerializeObject(newData, Catalog.jsonSerializerSettings);
             Catalog.LoadJson(newData, content, path, "GhettosFirearmSDKv2Saves\\Saves");

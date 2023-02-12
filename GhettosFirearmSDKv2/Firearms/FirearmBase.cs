@@ -29,11 +29,6 @@ namespace GhettosFirearmSDKv2
         public bool countingForLongpress = false;
         public List<RecoilModifier> recoilModifiers = new List<RecoilModifier>();
 
-        public virtual float CalculateDamageMultiplier()
-        {
-            return 1f;
-        }
-
         public enum FireModes
         {
             Safe,
@@ -136,7 +131,6 @@ namespace GhettosFirearmSDKv2
             if (!supp)
             {
                 Util.PlayRandomAudioSource(fireSounds);
-                NoiseManager.AddNoise(actualHitscanMuzzle.position, 600f);
                 Util.AlertAllCreaturesInRange(hitscanMuzzle.position, 50);
             }
             else

@@ -343,13 +343,12 @@ namespace GhettosFirearmSDKv2
                         {
                             if (data.projectileCount == 1)
                             {
-                                descriptionText += "Damage: " + 50 / data.damagePerProjectile + "%\n";
+                                descriptionText += "Damage: " + data.damagePerProjectile + "\n";
                                 descriptionText += "Force: " + data.forcePerProjectile + "\n";
                             }
                             else
                             {
-                                descriptionText += "Projectile count: " + data.projectileCount + "\n";
-                                descriptionText += "Damage per projectile: " + 50 / data.damagePerProjectile + "%\n";
+                                descriptionText += "Damage per projectile: " + data.damagePerProjectile + "\n";
                                 descriptionText += "Force per projectile: " + data.forcePerProjectile + "\n";
                             }
                             descriptionText += "Range: " + data.projectileRange + "\n";

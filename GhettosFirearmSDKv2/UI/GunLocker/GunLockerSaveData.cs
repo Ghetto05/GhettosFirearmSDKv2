@@ -29,7 +29,7 @@ namespace GhettosFirearmSDKv2
         {
             if (category.Equals("Prebuilts"))
             {
-                Settings_LevelModule.CreateSaveFolder();
+                Settings_LevelModule.GenerateGunSaveFolders();
                 ItemData itemData = (ItemData)Catalog.GetData<ItemData>(itemId).Clone();
                 itemData.modules = itemData.modules.CloneJson();
                 itemData.id = "Item" + id;

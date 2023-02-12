@@ -32,7 +32,6 @@ namespace GhettosFirearmSDKv2
         bool behindLoadPoint = false;
         int shotsSinceTriggerReset;
         FixedJoint lockJoint;
-        FixedJoint nonHeldLockJoint;
         ConfigurableJoint joint;
         bool closedSinceLastEject = false;
         bool wentToFrontSinceLastLock = false;
@@ -178,7 +177,7 @@ namespace GhettosFirearmSDKv2
             firearm.PlayFireSound();
             firearm.PlayMuzzleFlash();
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories);
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
             Lock(false);
         }
@@ -223,11 +222,6 @@ namespace GhettosFirearmSDKv2
             //state check
             if (isHeld)
             {
-                if (state != BoltState.Locked)
-                {
-                    if (nonHeldLockJoint != null) Destroy(nonHeldLockJoint);
-                }
-
                 if (lockJoint == null) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
                 if (Util.AbsDist(bolt.position, startPoint.position) < pointTreshold && state == BoltState.Moving)
                 {
@@ -260,15 +254,6 @@ namespace GhettosFirearmSDKv2
                         behindLoadPoint = false;
                     }
                     else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) behindLoadPoint = true;
-                }
-            }
-            else
-            {
-                if (nonHeldLockJoint == null)
-                {
-                    nonHeldLockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
-                    nonHeldLockJoint.connectedBody = rb;
-                    nonHeldLockJoint.connectedMassScale = 100f;
                 }
             }
             //firing

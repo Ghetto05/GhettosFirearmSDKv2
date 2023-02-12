@@ -35,23 +35,7 @@ namespace GhettosFirearmSDKv2
         private IEnumerator Alert()
         {
             yield return new WaitForSeconds(1f);
-            if (parentFirearm == null)
-            {
-                string parentFound = "";
-                if (GetComponentInParent<Attachment>() is Attachment a)
-                {
-                    parentFound = "Attachment name: " + a.gameObject.name;
-                }
-                else if (GetComponentInParent<Firearm>() is Firearm f)
-                {
-                    parentFound = "Firearm name: " + f.gameObject.name;
-                }
-                else
-                {
-                    parentFound = "No parent firearm or attachment found!";
-                }
-                Debug.Log("Not initialized! Name: " + name + "\n" + parentFound);
-            }
+            if (parentFirearm == null) Debug.Log("Not initialized! Name: " + name);
         }
 
         public void SpawnDefaultAttachment()

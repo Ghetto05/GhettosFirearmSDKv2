@@ -14,11 +14,11 @@ namespace GhettosFirearmSDKv2
 {
     public class FireMethods : MonoBehaviour
     {
-        public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitpoints, out List<Vector3> trajectories, float damageMultiplier)
+        public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitpoints, out List<Vector3> trajectories)
         {
             if (data.isHitscan)
             {
-                FireHitscan(muzzle, data, gun, out hitpoints, out trajectories, damageMultiplier);
+                FireHitscan(muzzle, data, gun, out hitpoints, out trajectories);
             }
             else
             {
@@ -46,7 +46,7 @@ namespace GhettosFirearmSDKv2
             rb.AddRelativeTorque(Vector3.right * ((force * upMod) * upwardsModifier) * firearmRecoilModifier, ForceMode.Impulse);
         }
 
-        public static List<Creature> FireHitscan(Transform muzzle, ProjectileData data, Item item, out List<Vector3> returnedHitpoints, out List<Vector3> returnedTrajectories, float damageMultiplier)
+        public static List<Creature> FireHitscan(Transform muzzle, ProjectileData data, Item item, out List<Vector3> returnedHitpoints, out List<Vector3> returnedTrajectories)
         {
             returnedHitpoints = new List<Vector3>();
             returnedTrajectories = new List<Vector3>();
@@ -57,7 +57,7 @@ namespace GhettosFirearmSDKv2
                 tempMuz.parent = muzzle;
                 tempMuz.localPosition = Vector3.zero;
                 tempMuz.localEulerAngles = new Vector3(UnityEngine.Random.Range(-data.projectileSpread, data.projectileSpread), UnityEngine.Random.Range(-data.projectileSpread, data.projectileSpread), 0);
-                Creature cr = Hitscan(tempMuz, data, item, out Vector3 hit, damageMultiplier);
+                Creature cr = Hitscan(tempMuz, data, item, out Vector3 hit);
                 returnedHitpoints.Add(hit);
                 returnedTrajectories.Add(tempMuz.forward);
                 Destroy(tempMuz.gameObject);
@@ -66,7 +66,7 @@ namespace GhettosFirearmSDKv2
             return crs;
         }
 
-        private static Creature Hitscan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 hitpoint, float damageMultiplier)
+        private static Creature Hitscan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 hitpoint)
         {
             Settings_LevelModule.localScore.shotsFired++;
 
@@ -156,29 +156,30 @@ namespace GhettosFirearmSDKv2
 
                         if (data.drawsImpactDecal && penetrated) DrawDecal(ragdollPart, hit, data.customImpactDecalId);
 
-                        #region Damage level determination
-                        float damageModifier = 1;
+                        #region damage determination
+                        float DamageToBeDealt = 0;
                         switch (ragdollPart.type)
                         {
                             case RagdollPart.Type.Head: //damage = infinity, remove voice, push(3)
                                 {
                                     Settings_LevelModule.localScore.headshots++;
-                                    if (penetrated && data.lethalHeadshot) damageModifier = Mathf.Infinity;
-                                    else damageModifier = 2;
-                                    if (penetrated && WouldCreatureBeKilled(data.damagePerProjectile * damageModifier, cr) && !cr.isPlayer) cr.brain.instance.GetModule<BrainModuleSpeak>().Unload();
+                                    if (penetrated && data.lethalHeadshot) DamageToBeDealt = Mathf.Infinity;
+                                    else DamageToBeDealt = data.damagePerProjectile * 2;
+                                    if (penetrated && DamageToBeDealt >= cr.currentHealth && !cr.isPlayer) cr.brain.instance.GetModule<BrainModuleSpeak>().Unload();
                                     if (penetrated && data.slicesBodyParts) cr.ragdoll.GetPart(RagdollPart.Type.Head).TrySlice();
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 3);
                                 }
                                 break;
                             case RagdollPart.Type.Neck: //damage = infinity, push(1)
                                 {
-                                    if (penetrated && data.lethalHeadshot) damageModifier = Mathf.Infinity;
-                                    else damageModifier = 2;
+                                    if (penetrated && data.lethalHeadshot) DamageToBeDealt = Mathf.Infinity;
+                                    else DamageToBeDealt = data.damagePerProjectile * 2;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                 }
                                 break;
                             case RagdollPart.Type.Torso: //damage = damage, push(2)
                                 {
+                                    DamageToBeDealt = data.damagePerProjectile;
                                     if (penetrated && Settings_LevelModule.local.incapitateOnTorsoShot && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
                                     {
                                         cr.brain.AddNoStandUpModifier(gunItem);
@@ -189,68 +190,69 @@ namespace GhettosFirearmSDKv2
                                 break;
                             case RagdollPart.Type.LeftArm: //damage = damage/3, release weapon, push(1)
                                 {
-                                    damageModifier = 1 / 3;
+                                    DamageToBeDealt = data.damagePerProjectile / 3;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                     if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
                                 }
                                 break;
                             case RagdollPart.Type.RightArm: //damage = damage/3, release weapon, push(1)
                                 {
-                                    damageModifier = 1 / 3;
+                                    DamageToBeDealt = data.damagePerProjectile / 3;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                     if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
                                 }
                                 break;
                             case RagdollPart.Type.LeftFoot: //damage = damage/4, destabilize, push(3)
                                 {
-                                    damageModifier = 0.25f;
+                                    DamageToBeDealt = data.damagePerProjectile / 4;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                     if (!cr.isKilled && !cr.isPlayer) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                                 }
                                 break;
                             case RagdollPart.Type.RightFoot: //damage = damage/4, destabilize, push(3)
                                 {
-                                    damageModifier = 0.25f;
+                                    DamageToBeDealt = data.damagePerProjectile / 4;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                     if (!cr.isKilled && !cr.isPlayer) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                                 }
                                 break;
                             case RagdollPart.Type.LeftHand: //damage = damage/4, release weapon, push(1)
                                 {
-                                    damageModifier = 0.25f;
+                                    DamageToBeDealt = data.damagePerProjectile / 4;
                                     if (!cr.isKilled && !cr.isPlayer) cr.handLeft.TryRelease();
                                 }
                                 break;
                             case RagdollPart.Type.RightHand: //damage = damage/4, release weapon, push(1)
                                 {
-                                    damageModifier = 0.25f;
+                                    DamageToBeDealt = data.damagePerProjectile / 4;
                                     if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
                                 }
                                 break;
                             case RagdollPart.Type.LeftLeg: //damage = damage/3, destabilize, push(3)
                                 {
-                                    damageModifier = 1 / 3;
+                                    DamageToBeDealt = data.damagePerProjectile / 3;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
-                                    if (!cr.isKilled && !cr.isPlayer && damageModifier < cr.currentHealth)
+                                    if (!cr.isKilled && !cr.isPlayer && DamageToBeDealt < cr.currentHealth)
                                         cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                                 }
                                 break;
                             case RagdollPart.Type.RightLeg: //damage = damage/3, destabilize, push(3)
                                 {
-                                    damageModifier = 1 / 3;
+                                    DamageToBeDealt = data.damagePerProjectile / 3;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
-                                    if (!cr.isKilled && !cr.isPlayer && damageModifier < cr.currentHealth)
+                                    if (!cr.isKilled && !cr.isPlayer && DamageToBeDealt < cr.currentHealth)
                                         cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                                 }
                                 break;
                         }
                         if (penetrated && data.slicesBodyParts && !cr.isPlayer && ragdollPart.sliceAllowed) ragdollPart.TrySlice();
-                        if (!penetrated) damageModifier /= 4;
-                        #endregion Damage level determination
+                        if (!penetrated) DamageToBeDealt /= 4;
+                        DamageToBeDealt *= Settings_LevelModule.local.damageMultiplier;
+                        #endregion damage determination
 
-                        #region Damaging
+                        //Damage
                         CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damagePerProjectile));
-                        coll.damageStruct.damage = EvaluateDamage(data.damagePerProjectile * damageModifier, cr);
+                        coll.damageStruct.damage = DamageToBeDealt;
                         coll.damageStruct.damageType = DamageType.Pierce;
                         coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
                         coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
@@ -268,13 +270,12 @@ namespace GhettosFirearmSDKv2
                         coll.damageStruct.penetrationPoint = penPoint;
                         coll.damageStruct.penetrationDepth = 10;
                         coll.damageStruct.hitRagdollPart = ragdollPart;
-                        coll.intensity = EvaluateDamage(data.damagePerProjectile * damageModifier * damageMultiplier, cr);
+                        coll.intensity = DamageToBeDealt;
                         coll.pressureRelativeVelocity = muzzle.forward * 200;
 
                         cr.Damage(coll);
-                        #endregion Damaging
 
-                        #region Additional Effects
+
                         //Taser
                         if (data.isElectrifying) cr.TryElectrocute(data.tasingForce, data.tasingDuration, true, false, Catalog.GetData<EffectData>("ImbueLightningRagdoll"));
 
@@ -296,8 +297,6 @@ namespace GhettosFirearmSDKv2
 
                         BrainModuleHitReaction hitReaction = cr.brain.instance.GetModule<BrainModuleHitReaction>();
                         hitReaction.SetStagger(hitReaction.staggerMedium);
-                        #endregion Additional Effects
-
                         return cr;
                     }
                     #endregion creature hit
@@ -393,6 +392,7 @@ namespace GhettosFirearmSDKv2
             creature.brain.RemoveNoStandUpModifier(handler);
         }
 
+        //EXPLOSIVES
         public static void HitscanExplosion(Vector3 point, ExplosiveData data, Item item, out List<Creature> hitCreatures, out List<Item> hitItems)
         {
             //PHYSICS TOGGLE
@@ -432,7 +432,7 @@ namespace GhettosFirearmSDKv2
             foreach (Creature hitCreature in hitCreatures)
             {
                 CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damage * Settings_LevelModule.local.damageMultiplier));
-                coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
+                coll.damageStruct.damage = data.damage * Settings_LevelModule.local.damageMultiplier;
                 coll.damageStruct.damageType = DamageType.Pierce;
                 coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
                 coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
@@ -448,7 +448,7 @@ namespace GhettosFirearmSDKv2
                 hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
                 foreach (RagdollPart rp in hitCreature.ragdoll.parts)
                 {
-                    rp.rb.AddForce((rp.rb.position - point).normalized * data.force);
+                    rp.rb.AddExplosionForce(data.force/2, point, data.radius*5, data.upwardsModifier);
                 }
             }
 
@@ -461,26 +461,6 @@ namespace GhettosFirearmSDKv2
             {
                 hitItem.rb.AddExplosionForce(data.force * 200, point, data.radius*3, data.upwardsModifier);
             }
-
-            if (!string.IsNullOrWhiteSpace(data.effectId))
-            {
-                EffectInstance ei = Catalog.GetData<EffectData>(data.effectId).Spawn(point, Quaternion.Euler(0, 0, 0));
-                ei.Play();
-            }
-        }
-
-        public static float EvaluateDamage(float perfifty, Creature c)
-        {
-            float perFiftyDamage = perfifty * Settings_LevelModule.local.damageMultiplier;
-            float aspect = 50 / perFiftyDamage;
-            float damageToBeDone = c.maxHealth * aspect;
-
-            return damageToBeDone;
-        }
-
-        public static bool WouldCreatureBeKilled(float perfifty, Creature c)
-        {
-            return EvaluateDamage(perfifty, c) >= c.currentHealth;
         }
 
         public static ProjectileData.PenetrationLevels GetRequiredPenetrationLevel(RaycastHit hit, Vector3 direction, Item handler)

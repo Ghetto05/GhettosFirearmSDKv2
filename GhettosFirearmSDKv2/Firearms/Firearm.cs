@@ -16,19 +16,6 @@ namespace GhettosFirearmSDKv2
         public Texture icon;
         public List<Handle> preSnapActiveHandles;
 
-        public override float CalculateDamageMultiplier()
-        {
-            float multiply = 1f;
-            foreach (Attachment a in allAttachments)
-            {
-                if (a.multiplyDamage)
-                {
-                    multiply *= a.damageMultiplier;
-                }
-            }
-            return multiply;
-        }
-
         private void Awake()
         {
             if (item == null) item = this.GetComponent<Item>();
@@ -129,13 +116,6 @@ namespace GhettosFirearmSDKv2
                 }
             }
             CalculateMuzzle();
-            yield return new WaitForSeconds(3f);
-            if (item.holder != null)
-            {
-                Holder h = item.holder;
-                item.holder.UnSnap(item, true);
-                h.Snap(item, true);
-            }
         }
 
         public AttachmentPoint GetSlotFromId(string id)
