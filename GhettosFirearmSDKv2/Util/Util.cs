@@ -75,7 +75,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (Vector3.Distance(cr.animator.GetBoneTransform(HumanBodyBones.Neck).position, point) <= range)
                 {
-                    cr.brain.SetState(Brain.State.Investigate);
+                    cr.brain.SetState(Brain.State.Alert);
                 }
             }
         }

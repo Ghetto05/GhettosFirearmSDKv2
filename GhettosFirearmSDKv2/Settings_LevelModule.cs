@@ -21,13 +21,26 @@ namespace GhettosFirearmSDKv2
         {
             local = this;
 
+            string settingsPath = FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, "GhettosFirearmSDKv2Saves\\settings.json");
+            if (File.Exists(settingsPath))
+            {
+                SettingsWrapper wrap = JsonConvert.DeserializeObject<SettingsWrapper>(File.ReadAllText(settingsPath), Catalog.jsonSerializerSettings);
+                incapitateOnTorsoShot = wrap.incapitateOnTorsoShot;
+                infiniteAmmo = wrap.infiniteAmmo;
+                doCaliberChecks = wrap.doCaliberChecks;
+                doMagazineTypeChecks = wrap.doMagazineTypeChecks;
+                damageMultiplier = wrap.damageMultiplier;
+                magazinesHaveNoCollision = wrap.magazinesHaveNoCollision;
+                scopeX1MagnificationFOV = wrap.scopeX1MagnificationFOV;
+            }
+
             Debug.Log("------------> Loaded FirearmSDKv2 settings!");
-            Debug.Log($"-------------- Incapitate: {incapitateOnTorsoShot}");
-            Debug.Log($"-------------- Infinite ammo: {infiniteAmmo}");
-            Debug.Log($"-------------- Caliber checks: {doCaliberChecks}");
-            Debug.Log($"-------------- Magazine type checks: {doMagazineTypeChecks}");
-            Debug.Log($"-------------- Damage multiplier: {damageMultiplier}");
-            Debug.Log($"-------------- Disable magazine collisions: {magazinesHaveNoCollision}");
+            Debug.Log($"-----------------> Incapitate: {incapitateOnTorsoShot}");
+            Debug.Log($"-----------------> Infinite ammo: {infiniteAmmo}");
+            Debug.Log($"-----------------> Caliber checks: {doCaliberChecks}");
+            Debug.Log($"-----------------> Magazine type checks: {doMagazineTypeChecks}");
+            Debug.Log($"-----------------> Damage multiplier: {damageMultiplier}");
+            Debug.Log($"-----------------> Disable magazine collisions: {magazinesHaveNoCollision}");
 
             EventManager.OnPlayerSpawned += EventManager_OnPlayerSpawned;
             EventManager.onCreatureSpawn += EventManager_onCreatureSpawn;
@@ -88,30 +101,9 @@ namespace GhettosFirearmSDKv2
 
         private void OverrideJson(string content)
         {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("{");
-            builder.AppendLine("    \"$type\": \"ThunderRoad.LevelData, ThunderRoad\",");
-            builder.AppendLine("    \"id\": \"Master\",");
-            builder.AppendLine("    \"saveFolder\": \"Bas\",");
-            builder.AppendLine("    \"version\": 3,");
-            builder.AppendLine("    \"name\": null,");
-            builder.AppendLine("    \"description\": null,");
-            builder.AppendLine("    \"modes\":");
-            builder.AppendLine("    [");
-            builder.AppendLine("        {");
-            builder.AppendLine("            \"name\": \"Default\",");
-            builder.AppendLine("            \"displayName\": \"{Default}\", ");
-            builder.AppendLine("            \"description\": \"{NoDescription}\", ");
-            builder.AppendLine("            \"modules\":");
-            builder.AppendLine("            [");
-            builder.AppendLine(content);
-            builder.AppendLine("            ]");
-            builder.AppendLine("        }");
-            builder.AppendLine("    ]");
-            builder.AppendLine("}");
-            string assemblyFullName = type.Assembly.GetName().Name;
-            string jsonName = assemblyFullName + "\\Level_Master.json";
-            File.WriteAllText(FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, jsonName), builder.ToString());
+            CreateSaveFolder();
+            SettingsWrapper wrap = new SettingsWrapper(incapitateOnTorsoShot, infiniteAmmo, doCaliberChecks, doMagazineTypeChecks, damageMultiplier, magazinesHaveNoCollision, scopeX1MagnificationFOV, cartridgeEjectionTorque, cartridgeEjectionForceRandomizationDevision);
+            File.WriteAllText(FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, "GhettosFirearmSDKv2Saves\\settings.json"), JsonConvert.SerializeObject(wrap, Catalog.jsonSerializerSettings));
         }
 
         public void SendUpdate()
@@ -119,6 +111,32 @@ namespace GhettosFirearmSDKv2
             string s = JsonConvert.SerializeObject(this, Catalog.jsonSerializerSettings);
             OverrideJson(s);
             OnValueChangedEvent?.Invoke();
+        }
+
+        public class SettingsWrapper
+        {
+            public SettingsWrapper(bool iots, bool ia, bool cc, bool mtc, float dm, bool mhnc, float sx1mfov, float cet, float cefrd)
+            {
+                incapitateOnTorsoShot = iots;
+                infiniteAmmo = ia;
+                doCaliberChecks = cc;
+                doMagazineTypeChecks = mtc;
+                damageMultiplier = dm;
+                magazinesHaveNoCollision = mhnc;
+                scopeX1MagnificationFOV = sx1mfov;
+                cartridgeEjectionTorque = cet;
+                cartridgeEjectionForceRandomizationDevision = cefrd;
+            }
+
+            public bool incapitateOnTorsoShot;
+            public bool infiniteAmmo;
+            public bool doCaliberChecks;
+            public bool doMagazineTypeChecks;
+            public float damageMultiplier;
+            public bool magazinesHaveNoCollision;
+            public float scopeX1MagnificationFOV;
+            public float cartridgeEjectionTorque;
+            public float cartridgeEjectionForceRandomizationDevision;
         }
 
         public delegate void OnValueChangedDelegate();
@@ -146,7 +164,7 @@ namespace GhettosFirearmSDKv2
             });
         }
 
-        public static void GenerateGunSaveFolders()
+        public static void CreateSaveFolder()
         {
             Directory.CreateDirectory(FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, "GhettosFirearmSDKv2Saves\\Saves"));
             ModData manifest = new ModData
