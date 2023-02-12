@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
             }
             foreach (Transform t in groundFollowers)
             {
-                if (!Physics.Raycast(t.position, t.forward, 0.06f, LayerMask.GetMask("Default"))) extended = false;
+                if (!Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default"))) extended = false;
             }
 
             if (extended && !lastFrameOverriden) firearm.AddRecoilModifier(linearRecoilModifier, muzzleRiseModifier, this);
