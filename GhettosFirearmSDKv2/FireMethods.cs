@@ -472,7 +472,7 @@ namespace GhettosFirearmSDKv2
         public static float EvaluateDamage(float perfifty, Creature c)
         {
             float perFiftyDamage = perfifty * Settings_LevelModule.local.damageMultiplier;
-            float aspect = 50 / perFiftyDamage;
+            float aspect = perFiftyDamage / 50;
             float damageToBeDone = c.maxHealth * aspect;
 
             return damageToBeDone;
