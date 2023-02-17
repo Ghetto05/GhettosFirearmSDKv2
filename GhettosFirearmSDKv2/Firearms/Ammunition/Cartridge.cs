@@ -25,12 +25,28 @@ namespace GhettosFirearmSDKv2
         public List<Collider> colliders;
         public Transform cartridgeFirePoint;
         public UnityEvent onFireEvent;
+        private List<Renderer> renderers;
+        private Item currentRendererSource;
 
         private void Awake()
         {
             item = this.GetComponent<Item>();
             if (firedOnlyObject != null) firedOnlyObject.SetActive(false);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
+            renderers = GetComponentsInChildren<Renderer>();
+            currentRendererSource = item;
+        }
+
+        public void SetRenderersTo(Item newItem)
+        {
+            foreach (Renderer r in renderers)
+            {
+                currentRendererSource.renderers.Remove(r);
+            }
+            currentRendererSource.lightVolumeReceiver.SetRenderers(currentRendererSource.renderers);
+            newItem.renderers.AddRange(renderers);
+            newItem.lightVolumeReceiver.SetRenderers(newItem.renderers);
+            currentRendererSource = newItem;
         }
 
         public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle)

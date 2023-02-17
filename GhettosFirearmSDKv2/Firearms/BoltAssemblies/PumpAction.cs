@@ -283,6 +283,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null) return;
             currentRoundRemounted = false;
             Cartridge c = loadedCartridge;
+            c.SetRenderersTo(c.item);
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -307,6 +308,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
                 loadedCartridge = c;
+                c.SetRenderersTo(firearm.item);
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
@@ -342,6 +344,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null)
             {
                 loadedCartridge = c;
+                c.SetRenderersTo(firearm.item);
                 c.item.disallowDespawn = true;
                 c.item.disallowRoomDespawn = true;
                 c.loaded = true;

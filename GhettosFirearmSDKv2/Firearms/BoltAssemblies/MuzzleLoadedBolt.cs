@@ -22,6 +22,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null)
             {
                 loadedCartridge = c;
+                c.SetRenderersTo(firearm.item);
                 c.item.disallowDespawn = true;
                 c.item.disallowRoomDespawn = true;
                 c.loaded = true;
@@ -109,6 +110,7 @@ namespace GhettosFirearmSDKv2
             Util.PlayRandomAudioSource(ejectSounds);
             firearm.item.RemoveCustomData<ChamberSaveData>();
             Cartridge c = loadedCartridge;
+            c.SetRenderersTo(c.item);
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {

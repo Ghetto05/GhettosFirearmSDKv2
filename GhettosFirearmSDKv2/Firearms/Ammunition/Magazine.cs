@@ -114,6 +114,7 @@ namespace GhettosFirearmSDKv2
             {
                 Util.PlayRandomAudioSource(roundEjectSounds);
                 c = cartridges[0];
+                c.SetRenderersTo(c.item);
                 c.ToggleCollision(true);
                 c.ToggleHandles(true);
                 cartridges.RemoveAt(0);
@@ -135,6 +136,7 @@ namespace GhettosFirearmSDKv2
         {
             if ((cartridges.Count < maximumCapacity || forced) && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, this))
             {
+                c.SetRenderersTo(currentWell == null ? item : currentWell.firearm.item);
                 c.item.disallowDespawn = true;
                 c.item.disallowRoomDespawn = true;
                 c.loaded = true;
@@ -170,6 +172,7 @@ namespace GhettosFirearmSDKv2
                 else
                 {
                     c = cartridges[0];
+                    Util.IgnoreCollision(c.gameObject, gameObject, false);
                     cartridges.RemoveAt(0);
                 }
             }
@@ -198,6 +201,11 @@ namespace GhettosFirearmSDKv2
             }
             well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
             item.lightVolumeReceiver.SetRenderers(item.renderers);
+
+            foreach (Cartridge c in cartridges)
+            {
+                c.SetRenderersTo(well.firearm.item);
+            }
 
             if (Settings_LevelModule.local.magazinesHaveNoCollision) ToggleCollision(false);
             currentWell = well;
@@ -255,6 +263,11 @@ namespace GhettosFirearmSDKv2
                 }
                 currentWell.firearm.item.lightVolumeReceiver.SetRenderers(currentWell.firearm.item.renderers);
                 item.lightVolumeReceiver.SetRenderers(item.renderers);
+
+                foreach (Cartridge c in cartridges)
+                {
+                    c.SetRenderersTo(item);
+                }
 
                 Util.PlayRandomAudioSource(magazineEjectSounds);
                 Util.DelayIgnoreCollision(this.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
