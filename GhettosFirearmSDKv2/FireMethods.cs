@@ -287,7 +287,12 @@ namespace GhettosFirearmSDKv2
                         //Stun
                         else if (!cr.isPlayer)
                         {
-                            if (data.knocksOutTemporarily) gunItem.StartCoroutine(TemporaryKnockout(data.temporaryKnockoutTime, cr));
+                            if (data.forceIncapitate ) cr.brain.AddNoStandUpModifier(gunItem);
+                            else if (data.knocksOutTemporarily)
+                            {
+                                GameObject handler = new GameObject($"TempKnockoutHandler_{Random.Range(0, 9999)}");
+                                gunItem.StartCoroutine(TemporaryKnockout(data.temporaryKnockoutTime, cr, handler));
+                            }
                         }
 
                         BrainModuleHitReaction hitReaction = cr.brain.instance.GetModule<BrainModuleHitReaction>();
@@ -384,12 +389,12 @@ namespace GhettosFirearmSDKv2
             projectilItem.rb.velocity = dir * velocity;
         }
 
-        private static IEnumerator TemporaryKnockout(float duration, Creature creature)
+        private static IEnumerator TemporaryKnockout(float duration, Creature creature, GameObject handler)
         {
-            GameObject handler = new GameObject($"TempKnockoutHandler_{UnityEngine.Random.Range(0, 9999)}");
             creature.brain.AddNoStandUpModifier(handler);
             yield return new WaitForSeconds(duration);
             creature.brain.RemoveNoStandUpModifier(handler);
+            Destroy(handler);
         }
 
         public static void HitscanExplosion(Vector3 point, ExplosiveData data, Item item, out List<Creature> hitCreatures, out List<Item> hitItems)
