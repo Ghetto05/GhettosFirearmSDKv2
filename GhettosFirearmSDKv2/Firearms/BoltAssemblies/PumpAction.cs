@@ -223,10 +223,7 @@ namespace GhettosFirearmSDKv2
             //state check
             if (isHeld)
             {
-                if (state != BoltState.Locked)
-                {
-                    if (nonHeldLockJoint != null) Destroy(nonHeldLockJoint);
-                }
+                if (nonHeldLockJoint != null) Destroy(nonHeldLockJoint);
 
                 if (lockJoint == null) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
                 if (Util.AbsDist(bolt.position, startPoint.position) < pointTreshold && state == BoltState.Moving)
