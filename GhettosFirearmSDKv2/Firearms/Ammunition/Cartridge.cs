@@ -33,7 +33,7 @@ namespace GhettosFirearmSDKv2
             item = this.GetComponent<Item>();
             if (firedOnlyObject != null) firedOnlyObject.SetActive(false);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
-            renderers = GetComponentsInChildren<Renderer>();
+            renderers = GetComponentsInChildren<Renderer>().ToList();
             currentRendererSource = item;
         }
 

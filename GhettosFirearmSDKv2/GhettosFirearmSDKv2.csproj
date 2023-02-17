@@ -379,7 +379,6 @@
     <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs" />
     <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
-    <Compile Include="HelloWorld.cs" />
     <Compile Include="Firearms\Ammunition\AmmunitionPouch.cs" />
     <Compile Include="Firearms\Ammunition\Tracer.cs" />
     <Compile Include="Firearms\Ammunition\TracerModule.cs" />
