@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="chabuk.manikinmono, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\chabuk.manikinmono.dll</HintPath>
+    </Reference>
     <Reference Include="GhettosFirearmSDKv2.Hitscan">
       <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\GhettosFirearmFrameworkV2\GhettosFirearmSDKv2.Hitscan.dll</HintPath>
     </Reference>
@@ -367,6 +371,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs" />
     <Compile Include="Clothing\HUD\HUD.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\BipodManager.cs" />
