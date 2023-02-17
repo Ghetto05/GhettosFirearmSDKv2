@@ -1,59 +1,43 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using ThunderRoad;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class MuzzleLoadedBolt : BoltBase
+    public class SelfLoadingBolt : BoltBase
     {
-        public Cartridge loadedCartridge;
         public Transform roundMount;
         public AudioSource[] ejectSounds;
 
         public Transform roundEjectPoint;
         public float roundEjectForce;
         public Transform roundEjectDir;
-        public bool ejectOnFire;
         int shotsSinceTriggerReset = 0;
+        private float lastFireTime = -100f;
+
+        public bool ReadToFire()
+        {
+            float timePerRound = 60f / firearm.roundsPerMinute;
+            float passedTime = Time.time - lastFireTime;
+            return passedTime >= timePerRound;
+        }
 
         public override bool ForceLoadChamber(Cartridge c)
         {
-            if (loadedCartridge == null)
-            {
-                loadedCartridge = c;
-                c.SetRenderersTo(firearm.item);
-                c.item.disallowDespawn = true;
-                c.item.disallowRoomDespawn = true;
-                c.loaded = true;
-                c.ToggleHandles(false);
-                c.ToggleCollision(false);
-                c.UngrabAll();
-                Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
-                c.GetComponent<Rigidbody>().isKinematic = true;
-                c.transform.parent = roundMount;
-                c.transform.localPosition = Vector3.zero;
-                c.transform.localEulerAngles = Vector3.zero;
-                SaveChamber(c.item.itemId);
-                return true;
-            }
             return false;
-        }
-
-        public override void TryRelease()
-        {
-            EjectRound();
         }
 
         public override void TryFire()
         {
-            if (loadedCartridge == null || loadedCartridge.fired) return;
+            if (firearm.magazineWell.IsEmpty()) return;
             shotsSinceTriggerReset++;
+            lastFireTime = Time.time;
             foreach (RagdollHand hand in firearm.item.handlers)
             {
                 if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
                 hand.playerHand.controlHand.HapticShort(50f);
             }
+            Cartridge loadedCartridge = firearm.magazineWell.ConsumeRound();
             if (loadedCartridge.additionalMuzzleFlash != null)
             {
                 loadedCartridge.additionalMuzzleFlash.transform.position = firearm.hitscanMuzzle.position;
@@ -66,30 +50,24 @@ namespace GhettosFirearmSDKv2
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
-            if (ejectOnFire) EjectRound();
             InvokeFireEvent();
         }
 
         public override Cartridge GetChamber()
         {
-            return loadedCartridge;
+            return null;
         }
 
         private void UpdateChamberedRound()
         {
-            if (loadedCartridge == null) return;
-            loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
-            loadedCartridge.transform.parent = roundMount;
-            loadedCartridge.transform.localPosition = Vector3.zero;
-            loadedCartridge.transform.localEulerAngles = Vector3.zero;
         }
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
         {
             if (fireOnTriggerPress && isPulled && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
-                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0 && ReadToFire()) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize && ReadToFire()) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Auto) TryFire();
             }
             if (!isPulled)
@@ -104,14 +82,12 @@ namespace GhettosFirearmSDKv2
             StartCoroutine(delayedGetChamber());
         }
 
-        private void EjectRound()
+        private void EjectRound(Cartridge c)
         {
-            if (loadedCartridge == null) return;
+            if (c == null) return;
             Util.PlayRandomAudioSource(ejectSounds);
             firearm.item.RemoveCustomData<ChamberSaveData>();
-            Cartridge c = loadedCartridge;
             c.SetRenderersTo(c.item);
-            loadedCartridge = null;
             if (roundEjectPoint != null)
             {
                 c.transform.position = roundEjectPoint.position;
