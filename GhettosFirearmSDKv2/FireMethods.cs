@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using ThunderRoad;
-using UnityEngine.Internal;
 using RainyReignGames.RevealMask;
 using System.Collections;
 using GhettosFirearmSDKv2.Explosives;
@@ -365,24 +361,27 @@ namespace GhettosFirearmSDKv2
 
         public static void FireItem(Transform muzzle, ProjectileData data, Item item)
         {
+            Vector3 fireDir = muzzle.forward;
+            Vector3 firePoint = muzzle.position;
+            Quaternion fireRotation = muzzle.rotation;
             Catalog.GetData<ItemData>(data.projectileItemId, true).SpawnAsync(thisSpawnedItem =>
             {
-                item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, muzzle, data.muzzleVelocity));
+                item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, firePoint, fireRotation, fireDir, data.muzzleVelocity));
             }, muzzle.position, muzzle.rotation);
         }
 
-        private static IEnumerator FireItemCoroutine(Item projectilItem, Item gunItem, Transform muzzle, float velocity)
+        private static IEnumerator FireItemCoroutine(Item projectilItem, Item gunItem, Vector3 pos, Quaternion rot, Vector3 dir, float velocity)
         {
             projectilItem.rb.isKinematic = true;
             Util.IgnoreCollision(projectilItem.gameObject, gunItem.gameObject, true);
             Util.IgnoreCollision(projectilItem.gameObject, Player.local.gameObject, true);
-            projectilItem.transform.rotation = muzzle.rotation;
-            projectilItem.transform.position = muzzle.position;
+            projectilItem.transform.rotation = rot;
+            projectilItem.transform.position = pos;
             yield return new WaitForFixedUpdate();
             yield return new WaitForFixedUpdate();
             projectilItem.rb.isKinematic = false;
             projectilItem.Throw();
-            projectilItem.rb.velocity = muzzle.forward * velocity;
+            projectilItem.rb.velocity = dir * velocity;
         }
 
         private static IEnumerator TemporaryKnockout(float duration, Creature creature)
