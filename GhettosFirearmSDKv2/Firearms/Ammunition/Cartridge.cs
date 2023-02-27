@@ -35,18 +35,28 @@ namespace GhettosFirearmSDKv2
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
             renderers = GetComponentsInChildren<Renderer>().ToList();
             currentRendererSource = item;
+            //item.OnDespawnEvent += Item_OnDespawnEvent;
         }
+
+        //private void Item_OnDespawnEvent(EventTime eventTime)
+        //{
+        //    if (eventTime == EventTime.OnStart)
+        //    {
+        //        SetRenderersTo(item);
+        //        item.OnDespawnEvent -= Item_OnDespawnEvent;
+        //    }
+        //}
 
         public void SetRenderersTo(Item newItem)
         {
-            foreach (Renderer r in renderers)
-            {
-                currentRendererSource.renderers.Remove(r);
-            }
-            currentRendererSource.lightVolumeReceiver.SetRenderers(currentRendererSource.renderers);
-            newItem.renderers.AddRange(renderers);
-            newItem.lightVolumeReceiver.SetRenderers(newItem.renderers);
-            currentRendererSource = newItem;
+            //foreach (Renderer r in renderers)
+            //{
+            //    currentRendererSource.renderers.Remove(r);
+            //}
+            //currentRendererSource.lightVolumeReceiver.SetRenderers(currentRendererSource.renderers);
+            //newItem.renderers.AddRange(renderers);
+            //newItem.lightVolumeReceiver.SetRenderers(newItem.renderers);
+            //currentRendererSource = newItem;
         }
 
         public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle)
@@ -65,7 +75,7 @@ namespace GhettosFirearmSDKv2
             if (detonationParticle != null) detonationParticle.Play();
             FireMethods.ApplyRecoil(this.transform, this.item.rb, data.recoil, 0f, 1f, null);
             Util.PlayRandomAudioSource(detonationSounds);
-            Fire(hits, trajectories, null);
+            Fire(hits, trajectories, cartridgeFirePoint);
         }
 
         public void Reset()
