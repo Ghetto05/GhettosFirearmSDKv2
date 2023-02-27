@@ -18,20 +18,34 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            if (bolt.state != BoltBase.BoltState.Locked)
+            if (bolt.firearm.roundsPerMinute == 0)
             {
-                handle.localEulerAngles = openedPosition.localEulerAngles;
+                if (bolt.state != BoltBase.BoltState.Locked)
+                {
+                    handle.localEulerAngles = openedPosition.localEulerAngles;
+                }
+                else
+                {
+                    handle.localEulerAngles = bolt.isHeld ? openedPosition.localEulerAngles : lockedPosition.localEulerAngles;
+                    if (lastFrameIsHeld != bolt.isHeld)
+                    {
+                        Util.PlayRandomAudioSource(bolt.isHeld ? handleUpSounds : handleDownSounds);
+                    }
+                }
+
+                lastFrameIsHeld = bolt.isHeld;
             }
             else
             {
-                handle.localEulerAngles = bolt.isHeld ? openedPosition.localEulerAngles : lockedPosition.localEulerAngles;
-                if (lastFrameIsHeld != bolt.isHeld)
+                if (bolt.state != BoltBase.BoltState.Locked)
                 {
-                    Util.PlayRandomAudioSource(bolt.isHeld ? handleUpSounds : handleDownSounds);
+                    handle.localEulerAngles = openedPosition.localEulerAngles;
+                }
+                else
+                {
+                    handle.localEulerAngles = lockedPosition.localEulerAngles;
                 }
             }
-
-            lastFrameIsHeld = bolt.isHeld;
         }
     }
 }
