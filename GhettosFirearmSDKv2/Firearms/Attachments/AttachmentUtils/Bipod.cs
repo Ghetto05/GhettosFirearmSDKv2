@@ -20,6 +20,7 @@ namespace GhettosFirearmSDKv2
         {
             if (item != null) item.OnHeldActionEvent += OnHeldActionEvent;
             else if (attachment != null) attachment.OnHeldActionEvent += OnHeldActionEvent;
+            ApplyPosition(false);
         }
 
         private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -42,9 +43,9 @@ namespace GhettosFirearmSDKv2
             ApplyPosition();
         }
 
-        public void ApplyPosition()
+        public void ApplyPosition(bool playSound = true)
         {
-            toggleSound.Play();
+            if (playSound) toggleSound.Play();
             axis.localPosition = positions[index].localPosition;
             axis.localEulerAngles = positions[index].localEulerAngles;
         }
