@@ -378,6 +378,7 @@
     <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellColliderReplacer.cs" />
     <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs" />
+    <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs" />
     <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
     <Compile Include="Firearms\Ammunition\AmmunitionPouch.cs" />
     <Compile Include="Firearms\Ammunition\Tracer.cs" />
