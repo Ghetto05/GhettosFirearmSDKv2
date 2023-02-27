@@ -60,14 +60,17 @@ namespace GhettosFirearmSDKv2
             else currentIndex = 0;
             firearm.SetFiremode(firemodes[currentIndex]);
             if (switchSound != null) switchSound.Play();
-            onFiremodeChanged?.Invoke(firearm.fireMode);
             SaveFiremode();
             UpdatePosition();
+            onFiremodeChanged?.Invoke(firearm.fireMode);
         }
 
         private void UpdatePosition()
         {
-            if (SafetySwitch == null) return;
+            if (SafetySwitch == null)
+            {
+                return;
+            }
             FirearmBase.FireModes mode = firearm.fireMode;
             if (mode == FirearmBase.FireModes.Safe && SafePosition != null)
             {

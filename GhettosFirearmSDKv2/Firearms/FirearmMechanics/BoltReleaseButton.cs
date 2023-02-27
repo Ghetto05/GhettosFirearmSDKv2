@@ -51,7 +51,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public delegate void OnReleaseDelegate();
+        public delegate void OnReleaseDelegate(bool forced = false);
         public event OnReleaseDelegate OnReleaseEvent;
     }
 }

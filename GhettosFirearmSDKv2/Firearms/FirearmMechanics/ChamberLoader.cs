@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2
         {
             if ((lockingCondition == null || lockingCondition.isUnlocked()) && Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.collider.GetComponentInParent<Cartridge>() is Cartridge c && Util.AllowLoadCatridge(c, caliber))
             {
-                if (boltToBeLoaded.ForceLoadChamber(c))
+                if (boltToBeLoaded.LoadChamber(c))
                 {
                     Util.PlayRandomAudioSource(insertSounds);
                 }
