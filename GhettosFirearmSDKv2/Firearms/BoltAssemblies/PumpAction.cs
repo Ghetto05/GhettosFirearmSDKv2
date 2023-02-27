@@ -275,7 +275,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private void EjectRound()
+        public override void EjectRound()
         {
             if (loadedCartridge == null) return;
             currentRoundRemounted = false;
@@ -298,9 +298,10 @@ namespace GhettosFirearmSDKv2
             rb.WakeUp();
             if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
             c.ToggleHandles(true);
+            InvokeEjectRound(c);
         }
 
-        private void TryLoadRound()
+        public override void TryLoadRound()
         {
             if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
@@ -336,9 +337,9 @@ namespace GhettosFirearmSDKv2
             rb.transform.localRotation = startPoint.localRotation;
         }
 
-        public override bool ForceLoadChamber(Cartridge c)
+        public override bool LoadChamber(Cartridge c, bool forced)
         {
-            if (loadedCartridge == null)
+            if (loadedCartridge == null && (state != BoltState.Locked || forced))
             {
                 loadedCartridge = c;
                 c.SetRenderersTo(firearm.item);
@@ -359,7 +360,7 @@ namespace GhettosFirearmSDKv2
             return false;
         }
 
-        public override void TryRelease()
+        public override void TryRelease(bool forced = false)
         {
             if (lockJoint != null) Lock(false);
         }

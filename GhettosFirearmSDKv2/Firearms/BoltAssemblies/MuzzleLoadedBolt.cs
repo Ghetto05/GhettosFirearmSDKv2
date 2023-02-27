@@ -17,7 +17,7 @@ namespace GhettosFirearmSDKv2
         public bool ejectOnFire;
         int shotsSinceTriggerReset = 0;
 
-        public override bool ForceLoadChamber(Cartridge c)
+        public override bool LoadChamber(Cartridge c, bool forced)
         {
             if (loadedCartridge == null)
             {
@@ -40,7 +40,7 @@ namespace GhettosFirearmSDKv2
             return false;
         }
 
-        public override void TryRelease()
+        public override void TryRelease(bool forced = false)
         {
             EjectRound();
         }
@@ -104,7 +104,7 @@ namespace GhettosFirearmSDKv2
             StartCoroutine(delayedGetChamber());
         }
 
-        private void EjectRound()
+        public override void EjectRound()
         {
             if (loadedCartridge == null) return;
             Util.PlayRandomAudioSource(ejectSounds);
@@ -128,6 +128,7 @@ namespace GhettosFirearmSDKv2
             rb.WakeUp();
             if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
             c.ToggleHandles(true);
+            InvokeEjectRound(c);
         }
     }
 }

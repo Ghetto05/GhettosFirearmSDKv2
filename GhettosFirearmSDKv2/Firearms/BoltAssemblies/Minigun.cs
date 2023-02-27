@@ -113,7 +113,7 @@ namespace GhettosFirearmSDKv2
             InvokeFireEvent();
         }
 
-        private void EjectRound()
+        public override void EjectRound()
         {
             if (loadedCartridge == null) return;
             Cartridge c = loadedCartridge;
@@ -134,9 +134,10 @@ namespace GhettosFirearmSDKv2
             rb.WakeUp();
             if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
             c.ToggleHandles(true);
+            InvokeEjectRound(c);
         }
 
-        private void TryLoadRound()
+        public override void TryLoadRound()
         {
             if (loadedCartridge == null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {

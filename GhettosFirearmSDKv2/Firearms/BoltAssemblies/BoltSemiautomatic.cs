@@ -46,7 +46,7 @@ namespace GhettosFirearmSDKv2
 
         bool isReciprocating = false;
         bool isClosing = false;
-        float startTimeOfMovement = 0f;
+        public float startTimeOfMovement = 0f;
         bool letGoBeforeClosed = false;
         bool closingAfterRelease = false;
 
@@ -108,6 +108,12 @@ namespace GhettosFirearmSDKv2
         private void Firearm_OnFiremodeChangedEvent()
         {
             if (!locksWhenSafetyIsOn) return;
+            StartCoroutine(DelayedReSetupBolt());
+        }
+
+        private IEnumerator DelayedReSetupBolt()
+        {
+            yield return new WaitForSeconds(0.03f);
             if (firearm.fireMode == FirearmBase.FireModes.Safe)
             {
                 InitializeJoint(false, true);
@@ -183,9 +189,9 @@ namespace GhettosFirearmSDKv2
             return loadedCartridge;
         }
 
-        public override void TryRelease()
+        public override void TryRelease(bool forced = false)
         {
-            if (!hasBoltCatchReleaseControl) return;
+            if (!hasBoltCatchReleaseControl && !forced) return;
             LockBoltOnLockPoint(false);
         }
 
@@ -270,7 +276,7 @@ namespace GhettosFirearmSDKv2
                     }
                     closingAfterRelease = false;
 
-                    EjectRound(true);
+                    EjectRound();
                 }
                 //moving
                 else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > pointTreshold && Util.AbsDist(bolt.position, startPoint.position) > pointTreshold)
@@ -299,6 +305,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
             #endregion held movement
+
             #region firing movement
             else if (firearm.roundsPerMinute != 0)
             {
@@ -307,10 +314,11 @@ namespace GhettosFirearmSDKv2
                     bolt.localPosition = Vector3.Lerp(endPoint.localPosition, startPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
                 }
 
-                //hammer
                 if (isReciprocating)
                 {
+                    state = BoltState.Moving;
                     bolt.localPosition = Vector3.Lerp(startPoint.localPosition, endPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
+                    //hammer
                     if (hammer != null && !hammer.cocked && beforeHammerPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition))
                     {
                         hammer.Cock();
@@ -321,7 +329,7 @@ namespace GhettosFirearmSDKv2
                 if (Util.AbsDist(bolt.localPosition, endPoint.localPosition) < 0.0001f && isReciprocating)
                 {
                     isReciprocating = false;
-                    if (firearm.magazineWell.IsEmptyAndHasMagazine() && !caught && hasBoltcatch)
+                    if ((firearm.magazineWell.IsEmptyAndHasMagazine() && !caught && hasBoltcatch) || (reciprocatingBarrel != null && !reciprocatingBarrel.AllowBoltReturn()))
                     {
                         isClosing = false;
                         LockBoltOnLockPoint(true);
@@ -334,8 +342,11 @@ namespace GhettosFirearmSDKv2
                     }
                     state = BoltState.Moving;
                     startTimeOfMovement = Time.time;
-                    EjectRound(false);
-                    TryLoadRound();
+                    if (reciprocatingBarrel == null || !reciprocatingBarrel.lockBoltBack)
+                    {
+                        EjectRound();
+                        TryLoadRound();
+                    }
                     Util.PlayRandomAudioSource(pullSounds);
                     Util.PlayRandomAudioSource(pullSoundsNotHeld);
                 }
@@ -362,7 +373,7 @@ namespace GhettosFirearmSDKv2
             lastFrameHeld = isHeld;
         }
 
-        private void EjectRound(bool manual)
+        public override void EjectRound()
         {
             if (loadedCartridge == null) return;
             firearm.item.RemoveCustomData<ChamberSaveData>();
@@ -390,10 +401,10 @@ namespace GhettosFirearmSDKv2
                 AddTorqueToCartridge(c);
             }
             c.ToggleHandles(true);
-            base.InvokeEjectRound(manual, c);
+            InvokeEjectRound(c);
         }
 
-        private void TryLoadRound()
+        public override void TryLoadRound()
         {
             if (loadedCartridge == null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
@@ -479,9 +490,9 @@ namespace GhettosFirearmSDKv2
             return timeThatPassed / (timeForOneRound / 2f);
         }
 
-        public override bool ForceLoadChamber(Cartridge c)
+        public override bool LoadChamber(Cartridge c, bool forced)
         {
-            if (loadedCartridge == null)
+            if (loadedCartridge == null && (state != BoltState.Locked || forced))
             {
                 loadedCartridge = c;
                 c.SetRenderersTo(firearm.item);

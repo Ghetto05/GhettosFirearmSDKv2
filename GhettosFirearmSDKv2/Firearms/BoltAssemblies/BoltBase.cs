@@ -14,6 +14,7 @@ namespace GhettosFirearmSDKv2
         public bool caught;
         public bool isHeld;
         public bool fireOnTriggerPress = true;
+        public ReciprocatingBarrel reciprocatingBarrel;
 
         public static Vector3 GrandparentLocalPosition(Transform child, Transform grandparent)
         {
@@ -21,16 +22,19 @@ namespace GhettosFirearmSDKv2
         }
 
         public virtual void TryFire()
-        {
-        }
+        { }
 
-        public virtual void TryRelease()
-        {
-        }
+        public virtual void TryRelease(bool forced = false)
+        { }
 
         public virtual void TryEject()
-        {
-        }
+        { }
+
+        public virtual void EjectRound()
+        { }
+
+        public virtual void TryLoadRound()
+        { }
 
         public static void AddTorqueToCartridge(Cartridge c)
         {
@@ -44,7 +48,7 @@ namespace GhettosFirearmSDKv2
             c.item.rb.AddTorque(torque);
         }
 
-        public virtual bool ForceLoadChamber(Cartridge c)
+        public virtual bool LoadChamber(Cartridge c, bool forced = false)
         {
             return false;
         }
@@ -65,7 +69,7 @@ namespace GhettosFirearmSDKv2
         IEnumerator delayedLoadChamber(Cartridge c, float delay)
         {
             yield return new WaitForSeconds(delay);
-            bool succ = ForceLoadChamber(c);
+            bool succ = LoadChamber(c, true);
             if (!succ) c.item.Despawn();
         }
 
@@ -99,8 +103,8 @@ namespace GhettosFirearmSDKv2
         public delegate void OnFire();
         public event OnFire OnFireEvent;
 
-        public void InvokeEjectRound(bool manual, Cartridge cartridge) => OnRoundEjectEvent?.Invoke(manual, cartridge);
-        public delegate void OnEject(bool manual, Cartridge cartridge);
+        public void InvokeEjectRound(Cartridge cartridge) => OnRoundEjectEvent?.Invoke(cartridge);
+        public delegate void OnEject(Cartridge cartridge);
         public event OnEject OnRoundEjectEvent;
     }
 }
