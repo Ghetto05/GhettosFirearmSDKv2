@@ -77,13 +77,16 @@ namespace GhettosFirearmSDKv2
                         {
                             part.gameObject.SetActive(true);
                         }
-                        if (cr.equipment.GetHeldItem(Side.Left) is Item leftHeld)
+                        if (cr.equipment != null)
                         {
-                            leftHeld.SetPhysicsState(true);
-                        }
-                        if (cr.equipment.GetHeldItem(Side.Right) is Item rightHeld)
-                        {
-                            rightHeld.SetPhysicsState(true);
+                            if (cr.equipment.GetHeldItem(Side.Left) != null)
+                            {
+                                cr.equipment.GetHeldItem(Side.Left).SetPhysicsState(true);
+                            }
+                            if (cr.equipment.GetHeldItem(Side.Right) != null)
+                            {
+                                cr.equipment.GetHeldItem(Side.Right).SetPhysicsState(true);
+                            }
                         }
                     }
                 }
@@ -109,6 +112,7 @@ namespace GhettosFirearmSDKv2
 
             if (Physics.Raycast(muzzle.position, muzzle.forward, out RaycastHit hit, data.projectileRange, layer))
             {
+                #region explosive
                 if (data.isExplosive)
                 {
                     HitscanExplosion(hit.point, data.explosiveData, gunItem, out List<Creature> hitCrs, out List<Item> hitItems);
@@ -126,14 +130,18 @@ namespace GhettosFirearmSDKv2
                         Player.local.StartCoroutine(Explosive.delayedDestroy(audio.gameObject, audio.clip.length + 1f));
                     }
                 }
+                #endregion explosive
 
                 hitpoint = hit.point;
                 if (hit.rigidbody != null)
                 {
+                    #region shootables
                     if (hit.rigidbody.gameObject.TryGetComponent(out Shootable sb))
                     {
                         sb.Shoot(data.penetrationPower);
                     }
+                    #endregion shootables
+
                     #region creature hit
                     if (hit.collider.gameObject.GetComponentInParent<Ragdoll>() is Ragdoll rag)
                     {
@@ -142,6 +150,8 @@ namespace GhettosFirearmSDKv2
                         Settings_LevelModule.localScore.shotsHit++;
 
                         bool penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= data.penetrationPower;
+
+                        #region impact effect
                         if (data.hasBodyImpactEffect)
                         {
                             //Effect
@@ -149,8 +159,8 @@ namespace GhettosFirearmSDKv2
                             ei.SetIntensity(100f);
                             ei.Play();
                         }
-
                         if (data.drawsImpactDecal && penetrated) DrawDecal(ragdollPart, hit, data.customImpactDecalId);
+                        #endregion impact effect
 
                         #region Damage level determination
                         float damageModifier = 1;
@@ -185,14 +195,14 @@ namespace GhettosFirearmSDKv2
                                 break;
                             case RagdollPart.Type.LeftArm: //damage = damage/3, release weapon, push(1)
                                 {
-                                    damageModifier = 1 / 3;
+                                    damageModifier = 0.3f;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                     if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
                                 }
                                 break;
                             case RagdollPart.Type.RightArm: //damage = damage/3, release weapon, push(1)
                                 {
-                                    damageModifier = 1 / 3;
+                                    damageModifier = 0.3f;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                     if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
                                 }
@@ -225,7 +235,7 @@ namespace GhettosFirearmSDKv2
                                 break;
                             case RagdollPart.Type.LeftLeg: //damage = damage/3, destabilize, push(3)
                                 {
-                                    damageModifier = 1 / 3;
+                                    damageModifier = 0.3f;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                     if (!cr.isKilled && !cr.isPlayer && damageModifier < cr.currentHealth)
                                         cr.ragdoll.SetState(Ragdoll.State.Destabilized);
@@ -233,7 +243,7 @@ namespace GhettosFirearmSDKv2
                                 break;
                             case RagdollPart.Type.RightLeg: //damage = damage/3, destabilize, push(3)
                                 {
-                                    damageModifier = 1 / 3;
+                                    damageModifier = 0.3f;
                                     cr.TryPush(Creature.PushType.Hit, muzzle.forward, 1);
                                     if (!cr.isKilled && !cr.isPlayer && damageModifier < cr.currentHealth)
                                         cr.ragdoll.SetState(Ragdoll.State.Destabilized);
@@ -267,7 +277,7 @@ namespace GhettosFirearmSDKv2
                         coll.intensity = EvaluateDamage(data.damagePerProjectile * damageModifier * damageMultiplier, cr);
                         coll.pressureRelativeVelocity = muzzle.forward * 200;
 
-                        cr.Damage(coll);
+                        try { cr.Damage(coll); } catch (System.Exception) {}
                         #endregion Damaging
 
                         #region Additional Effects
@@ -275,7 +285,7 @@ namespace GhettosFirearmSDKv2
                         if (data.isElectrifying) cr.TryElectrocute(data.tasingForce, data.tasingDuration, true, false, Catalog.GetData<EffectData>("ImbueLightningRagdoll"));
 
                         //Force knockout
-                        if (data.forceDestabilize && !cr.isPlayer && !cr.isKilled) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
+                        if ((data.forceDestabilize || data.isElectrifying) && !cr.isPlayer && !cr.isKilled) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
 
                         //RB Push
                         if (cr.isKilled && !cr.isPlayer && hit.rigidbody != null)
@@ -290,8 +300,7 @@ namespace GhettosFirearmSDKv2
                             if (data.forceIncapitate ) cr.brain.AddNoStandUpModifier(gunItem);
                             else if (data.knocksOutTemporarily)
                             {
-                                GameObject handler = new GameObject($"TempKnockoutHandler_{Random.Range(0, 9999)}");
-                                gunItem.StartCoroutine(TemporaryKnockout(data.temporaryKnockoutTime, cr, handler));
+                                gunItem.StartCoroutine(TemporaryKnockout(data.temporaryKnockoutTime, cr));
                             }
                         }
 
@@ -372,7 +381,7 @@ namespace GhettosFirearmSDKv2
             Catalog.GetData<ItemData>(data.projectileItemId, true).SpawnAsync(thisSpawnedItem =>
             {
                 item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, firePoint, fireRotation, fireDir, data.muzzleVelocity));
-            }, muzzle.position, muzzle.rotation);
+            }, firePoint, fireRotation);
         }
 
         private static IEnumerator FireItemCoroutine(Item projectilItem, Item gunItem, Vector3 pos, Quaternion rot, Vector3 dir, float velocity)
@@ -389,8 +398,9 @@ namespace GhettosFirearmSDKv2
             projectilItem.rb.velocity = dir * velocity;
         }
 
-        private static IEnumerator TemporaryKnockout(float duration, Creature creature, GameObject handler)
+        public static IEnumerator TemporaryKnockout(float duration, Creature creature)
         {
+            GameObject handler = new GameObject($"TempKnockoutHandler_{Random.Range(0, 9999)}");
             creature.brain.AddNoStandUpModifier(handler);
             yield return new WaitForSeconds(duration);
             creature.brain.RemoveNoStandUpModifier(handler);
@@ -437,7 +447,7 @@ namespace GhettosFirearmSDKv2
             {
                 CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damage * Settings_LevelModule.local.damageMultiplier));
                 coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
-                coll.damageStruct.damageType = DamageType.Pierce;
+                coll.damageStruct.damageType = DamageType.Energy;
                 coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
                 coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
                 coll.targetColliderGroup = hitCreature.ragdoll.parts[0].colliderGroup;
@@ -447,12 +457,12 @@ namespace GhettosFirearmSDKv2
                 coll.damageStruct.penetrationDepth = 10;
                 coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
                 coll.intensity = data.damage * Settings_LevelModule.local.damageMultiplier;
-                hitCreature.Damage(coll);
+                try { hitCreature.Damage(coll); } catch (System.Exception) { }
 
                 hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
                 foreach (RagdollPart rp in hitCreature.ragdoll.parts)
                 {
-                    rp.rb.AddForce((rp.rb.position - point).normalized * data.force);
+                    rp.rb.AddForce((rp.rb.position - point).normalized * data.force * 3f);
                 }
             }
 
@@ -463,7 +473,7 @@ namespace GhettosFirearmSDKv2
 
             foreach (Item hitItem in hitItems)
             {
-                hitItem.rb.AddExplosionForce(data.force * 200, point, data.radius*3, data.upwardsModifier);
+                hitItem.rb.AddExplosionForce(data.force * 200, point, data.radius * 3, data.upwardsModifier);
             }
 
             if (!string.IsNullOrWhiteSpace(data.effectId))

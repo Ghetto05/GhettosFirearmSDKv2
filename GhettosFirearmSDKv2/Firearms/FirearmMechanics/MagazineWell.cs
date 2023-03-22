@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
             if (spawnMagazineOnAwake) StartCoroutine(delayedLoad());
             else
             {
-                if (currentMagazine != null && mountCurrentMagazine) StartCoroutine(currentMagazine.DelayedMount(this, this.firearm.item.rb, 0.02f));
+                if (currentMagazine != null && mountCurrentMagazine) StartCoroutine(currentMagazine.DelayedMount(this, this.firearm.item.rb, 0.05f));
                 else allowLoad = true;
             }
         }

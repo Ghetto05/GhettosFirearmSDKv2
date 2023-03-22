@@ -374,10 +374,19 @@
     <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs" />
     <Compile Include="Clothing\HUD\HUD.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
+    <Compile Include="Clothing\GasMask.cs" />
+    <Compile Include="Clothing\HUD\HUDModuleStats.cs" />
+    <Compile Include="Clothing\HUD\HUDToggle.cs" />
+    <Compile Include="Firearms\Ammunition\Projectilifier.cs" />
+    <Compile Include="Firearms\Ammunition\Speedloader.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\BipodManager.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellColliderReplacer.cs" />
     <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs" />
+    <Compile Include="Firearms\BoltAssemblies\MultiChamberMuzzleLoadedBolt.cs" />
+    <Compile Include="Firearms\BoltAssemblies\BreakAction.cs" />
+    <Compile Include="Firearms\BoltAssemblies\BreakActionMuzzleOverride.cs" />
+    <Compile Include="Firearms\BoltAssemblies\SelfLoadingBolt.cs" />
     <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs" />
     <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
     <Compile Include="Firearms\Ammunition\AmmunitionPouch.cs" />
@@ -392,8 +401,11 @@
     <Compile Include="Clothing\NVGs\NVGOnlyRendererMeshModule.cs" />
     <Compile Include="Clothing\NVGs\NVGOnlyRenderer.cs" />
     <Compile Include="Firearms\FirearmMechanics\Hammer.cs" />
+    <Compile Include="LevelModules\GunGame\GunGameWeaponData.cs" />
+    <Compile Include="LevelModules\GunGame\GunGame.cs" />
+    <Compile Include="Other\CollisionRelay.cs" />
     <Compile Include="SaveData\HammerSaveData.cs" />
-    <Compile Include="Score_LevelModule.cs" />
+    <Compile Include="LevelModules\Score_LevelModule.cs" />
     <Compile Include="Other\Switches\SwitchRelation.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltBase.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearm.cs" />
@@ -469,13 +481,15 @@
     <Compile Include="UI\GunVice\ViceUI.cs" />
     <Compile Include="UI\GunVice\ViceUIAttachment.cs" />
     <Compile Include="UI\GunVice\ViceUIAttachmentSlot.cs" />
+    <Compile Include="Util\LineAttacher.cs" />
     <Compile Include="Util\Util.cs" />
     <Compile Include="Firearms\Ammunition\Magazine.cs" />
     <Compile Include="Firearms\Ammunition\ProjectileData.cs" />
     <Compile Include="Explosives\ExplosiveData.cs" />
-    <Compile Include="Settings_LevelModule.cs" />
+    <Compile Include="LevelModules\Settings_LevelModule.cs" />
     <Compile Include="FireMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WTFInator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -11,6 +11,7 @@ namespace GhettosFirearmSDKv2
 {
     public class Cartridge : MonoBehaviour
     {
+        public bool keepRotationAtZero;
         public GameObject firedOnlyObject;
         public GameObject unfiredOnlyObject;
         public string caliber;
@@ -36,6 +37,11 @@ namespace GhettosFirearmSDKv2
             renderers = GetComponentsInChildren<Renderer>().ToList();
             currentRendererSource = item;
             //item.OnDespawnEvent += Item_OnDespawnEvent;
+        }
+
+        private void Update()
+        {
+            if (loaded && transform.localEulerAngles != Vector3.zero) transform.localEulerAngles = Vector3.zero;
         }
 
         //private void Item_OnDespawnEvent(EventTime eventTime)
@@ -73,7 +79,7 @@ namespace GhettosFirearmSDKv2
         {
             FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories, 1f);
             if (detonationParticle != null) detonationParticle.Play();
-            FireMethods.ApplyRecoil(this.transform, this.item.rb, data.recoil, 0f, 1f, null);
+            if (item != null) FireMethods.ApplyRecoil(this.transform, this.item.rb, data.recoil, 0f, 1f, null);
             Util.PlayRandomAudioSource(detonationSounds);
             Fire(hits, trajectories, cartridgeFirePoint);
         }

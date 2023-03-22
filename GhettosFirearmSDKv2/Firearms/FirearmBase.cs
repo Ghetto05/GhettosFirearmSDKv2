@@ -5,9 +5,8 @@ using System.Collections.Generic;
 
 namespace GhettosFirearmSDKv2
 {
-    public class FirearmBase : MonoBehaviour
+    public class FirearmBase : AIFireable
     {
-        public Item item;
         public bool disableMainFireHandle = false;
         public List<Handle> additionalTriggerHandles;
         public bool triggerState;
@@ -69,6 +68,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void CalculateMuzzle()
         {
+            OnMuzzleCalculatedEvent?.Invoke();
         }
 
         public void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -110,7 +110,7 @@ namespace GhettosFirearmSDKv2
                 if (!bolt.caught || (bolt.caught && magazineWell.IsEmptyAndHasMagazine())) magazineWell.Eject();
                 else if (bolt.caught && !magazineWell.IsEmpty()) bolt.TryRelease();
             }
-            else bolt.TryRelease();
+            else if (bolt != null) bolt.TryRelease();
         }
 
         public void LongPress()
@@ -257,5 +257,8 @@ namespace GhettosFirearmSDKv2
 
         public delegate void OnAttachmentRemoved(Attachment attachment, AttachmentPoint attachmentPoint);
         public event OnAttachmentRemoved OnAttachmentRemovedEvent;
+
+        public delegate void OnMuzzleCalculated();
+        public event OnMuzzleCalculated OnMuzzleCalculatedEvent;
     }
 }

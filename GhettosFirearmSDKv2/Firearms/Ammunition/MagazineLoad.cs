@@ -21,7 +21,7 @@ namespace GhettosFirearmSDKv2
             {
                 mag.InsertRound(item.GetComponent<Cartridge>(), true, true);
                 Recurve(index - 1, mag);
-            }, this.transform.position + Vector3.up * 3, this.transform.rotation);
+            }, this.transform.position + Vector3.up * 3, this.transform.rotation, null, false);
         }
     }
 }

@@ -11,7 +11,8 @@ namespace GhettosFirearmSDKv2
         public float fuseTime;
         public Transform startPosition;
         public Transform endPosition;
-        public Rigidbody body;
+        public Transform body;
+        public Rigidbody rb;
         public float deployForce;
         public Transform forceDir;
         public List<Lock> locks;
@@ -26,6 +27,15 @@ namespace GhettosFirearmSDKv2
         {
             grenadeItem.OnUngrabEvent += GrenadeItem_OnUngrabEvent;
             grenadeItem.OnHeldActionEvent += GrenadeItem_OnHeldActionEvent;
+            foreach (Lock l in locks)
+            {
+                l.ChangedEvent += L_ChangedEvent;
+            }
+        }
+
+        private void L_ChangedEvent()
+        {
+            StartCoroutine(delayedCheck());
         }
 
         private void GrenadeItem_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -38,23 +48,28 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (moving && body != null)
+            if (moving && body != null && !triggered)
             {
-                body.transform.localRotation = Quaternion.Lerp(startPosition.localRotation, endPosition.localRotation, (Time.time - startTime) / deployTime);
+                body.localRotation = Quaternion.Lerp(startPosition.localRotation, endPosition.localRotation, (Time.time - startTime) / deployTime);
             }
             if (Quaternion.Angle(endPosition.localRotation, body.transform.localRotation) < 0.01f && !triggered)
             {
                 triggered = true;
+                rb = body.gameObject.AddComponent<Rigidbody>();
                 explosive.Detonate(fuseTime);
-                body.isKinematic = false;
-                body.transform.SetParent(null);
-                body.transform.rotation = endPosition.rotation;
-                body.transform.position = endPosition.position;
-                body.position = endPosition.position;
+                body.SetParent(null);
                 body.rotation = endPosition.rotation;
-                body.useGravity = true;
-                body.AddForce(forceDir.forward * deployForce);
+                body.position = endPosition.position;
+                rb.velocity = grenadeItem.rb.velocity;
+                rb.useGravity = true;
+                StartCoroutine(DelayedAddForce(rb));
             }
+        }
+
+        IEnumerator DelayedAddForce(Rigidbody rb)
+        {
+            yield return new WaitForSeconds(0.01f);
+            rb.AddForce(forceDir.forward * deployForce * 10);
         }
 
         private void GrenadeItem_OnUngrabEvent(Handle handle, RagdollHand ragdollHand, bool throwing)
@@ -65,7 +80,7 @@ namespace GhettosFirearmSDKv2
         IEnumerator delayedCheck()
         {
             yield return new WaitForSeconds(0.01f);
-            if (grenadeItem.handlers.Count == 0)
+            if (grenadeItem.mainHandleRight.handlers.Count < 1)
             {
                 Release();
             }

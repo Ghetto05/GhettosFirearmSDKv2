@@ -61,10 +61,10 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnAttachmentAddedEvent(Attachment attachment, AttachmentPoint attachmentPoint)
         {
-            RefreshBoltHandles();
+            RefreshBoltHandles(true);
         }
 
-        public void RefreshBoltHandles()
+        public void RefreshBoltHandles(bool attachmentAdded = false)
         {
             boltHandles = new List<Handle>();
             handlers = new List<List<RagdollHand>>();
@@ -73,7 +73,7 @@ namespace GhettosFirearmSDKv2
             foreach (Handle h in rb.gameObject.GetComponentsInChildren<Handle>())
             {
                 boltHandles.Add(h);
-                h.customRigidBody = rb;
+                //h.customRigidBody = rb;
             }
             foreach (AttachmentPoint point in onBoltPoints)
             {
@@ -81,7 +81,7 @@ namespace GhettosFirearmSDKv2
                 {
                     foreach (Handle handle in attachment.handles)
                     {
-                        handle.customRigidBody = rb;
+                        if (attachmentAdded) handle.customRigidBody = rb;
                         boltHandles.Add(handle);
                     }
                 }
@@ -100,7 +100,7 @@ namespace GhettosFirearmSDKv2
             {
                 RefreshBoltHandles();
             }
-            SetStateOnAllHandlers(lockJoint != null);
+            //SetStateOnAllHandlers(lockJoint != null);
         }
 
         private void UpdateChamberedRound()
@@ -109,7 +109,7 @@ namespace GhettosFirearmSDKv2
             loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
             loadedCartridge.transform.parent = currentRoundRemounted && roundReparent != null ? roundReparent : roundMount;
             loadedCartridge.transform.localPosition = Vector3.zero;
-            loadedCartridge.transform.localEulerAngles = Vector3.zero;
+            loadedCartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
         }
 
         public void SetStateOnAllHandlers(bool locked)
@@ -118,15 +118,18 @@ namespace GhettosFirearmSDKv2
             {
                 foreach (Handle handle in boltHandles)
                 {
-                    int handleIndex = boltHandles.IndexOf(handle);
-                    foreach (RagdollHand hand in handle.handlers)
+                    //int handleIndex = boltHandles.IndexOf(handle);
+                    foreach (RagdollHand hand in handle.handlers.ToArray())
                     {
-                        if (hand.gripInfo.joint is ConfigurableJoint j)
-                        {
-                            j.connectedBody = firearm.item.rb;
-                            j.anchor = Vector3.zero;
-                            j.connectedAnchor = handlers[handleIndex].Contains(hand) ? handlerAnchors[handleIndex][handlers[handleIndex].IndexOf(hand)] : firearm.item.rb.transform.InverseTransformPoint(j.transform.position);
-                        }
+                        Handle h = hand.grabbedHandle;
+                        hand.UnGrab(false);
+                        hand.Grab(h, true);
+                        //if (hand.gripInfo.joint is ConfigurableJoint j)
+                        //{
+                        //    j.connectedBody = firearm.item.rb;
+                        //    j.anchor = Vector3.zero;
+                        //    j.connectedAnchor = handlers[handleIndex].Contains(hand) ? handlerAnchors[handleIndex][handlers[handleIndex].IndexOf(hand)] : firearm.item.rb.transform.InverseTransformPoint(j.transform.position);
+                        //}
                     }
                 }
             }
@@ -134,20 +137,23 @@ namespace GhettosFirearmSDKv2
             {
                 foreach (Handle handle in boltHandles)
                 {
-                    int handleIndex = boltHandles.IndexOf(handle);
-                    foreach (RagdollHand hand in handle.handlers)
+                    //int handleIndex = boltHandles.IndexOf(handle);
+                    foreach (RagdollHand hand in handle.handlers.ToArray())
                     {
-                        if (hand.gripInfo.joint is ConfigurableJoint j)
-                        {
-                            if (!handlers[handleIndex].Contains(hand))
-                            {
-                                handlers[handleIndex].Add(hand);
-                                handlerAnchors[handleIndex].Insert(handlers[handleIndex].IndexOf(hand), j.connectedAnchor);
-                            }
-                            j.connectedBody = rb;
-                            j.anchor = Vector3.zero;
-                            j.connectedAnchor = rb.transform.InverseTransformPoint(j.transform.position);
-                        }
+                        Handle h = hand.grabbedHandle;
+                        hand.UnGrab(false);
+                        hand.Grab(h, true);
+                        //if (hand.gripInfo.joint is ConfigurableJoint j)
+                        //{
+                        //    if (!handlers[handleIndex].Contains(hand))
+                        //    {
+                        //        handlers[handleIndex].Add(hand);
+                        //        handlerAnchors[handleIndex].Insert(handlers[handleIndex].IndexOf(hand), j.connectedAnchor);
+                        //    }
+                        //    j.connectedBody = rb;
+                        //    j.anchor = Vector3.zero;
+                        //    j.connectedAnchor = rb.transform.InverseTransformPoint(j.transform.position);
+                        //}
                     }
                 }
             }
@@ -156,12 +162,16 @@ namespace GhettosFirearmSDKv2
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
         {
             if (!isPulled) shotsSinceTriggerReset = 0;
-            else Lock(false);
+            //else Lock(false);
         }
 
         public override void TryFire()
         {
-            if (loadedCartridge == null || loadedCartridge.fired) return;
+            if (loadedCartridge == null || loadedCartridge.fired)
+            {
+                Lock(false);
+                return;
+            }
             foreach (RagdollHand hand in firearm.item.handlers)
             {
                 if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
@@ -183,6 +193,12 @@ namespace GhettosFirearmSDKv2
             Lock(false);
         }
 
+        private IEnumerator DelayedUnlock()
+        {
+            yield return new WaitForSeconds(0.05f);
+            Lock(false);
+        }
+
         private void Lock(bool locked)
         {
             if (locked)
@@ -194,11 +210,19 @@ namespace GhettosFirearmSDKv2
                 lockJoint.connectedMassScale = 100f;
                 closedSinceLastEject = true;
                 wentToFrontSinceLastLock = false;
+                foreach (Handle h in boltHandles)
+                {
+                    h.customRigidBody = firearm.item.rb;
+                }
                 Destroy(joint);
                 SetStateOnAllHandlers(true);
             }
             else if (lockJoint != null)
             {
+                foreach (Handle h in boltHandles)
+                {
+                    h.customRigidBody = rb;
+                }
                 InitializeJoint();
                 Destroy(lockJoint);
                 SetStateOnAllHandlers(false);
@@ -217,7 +241,7 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            UpdateChamberedRound();
+            //UpdateChamberedRound();
             isHeld = BoltHandleHeld();
 
             //state check
@@ -296,7 +320,11 @@ namespace GhettosFirearmSDKv2
             c.transform.parent = null;
             rb.isKinematic = false;
             rb.WakeUp();
-            if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
+            if (roundEjectDir != null)
+            {
+                AddTorqueToCartridge(c);
+                AddForceToCartridge(c, roundEjectDir, roundEjectForce);
+            }
             c.ToggleHandles(true);
             InvokeEjectRound(c);
         }
@@ -310,7 +338,7 @@ namespace GhettosFirearmSDKv2
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
-                c.transform.localEulerAngles = Vector3.zero;
+                c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 SaveChamber(c.item.itemId);
             }
         }
@@ -339,7 +367,7 @@ namespace GhettosFirearmSDKv2
 
         public override bool LoadChamber(Cartridge c, bool forced)
         {
-            if (loadedCartridge == null && (state != BoltState.Locked || forced))
+            if (loadedCartridge == null && (state != BoltState.Locked || forced) && !c.loaded)
             {
                 loadedCartridge = c;
                 c.SetRenderersTo(firearm.item);
@@ -353,7 +381,7 @@ namespace GhettosFirearmSDKv2
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
-                c.transform.localEulerAngles = Vector3.zero;
+                c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 SaveChamber(c.item.itemId);
                 return true;
             }

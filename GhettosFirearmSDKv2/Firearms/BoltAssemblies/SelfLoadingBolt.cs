@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2
             return passedTime >= timePerRound;
         }
 
-        public override bool ForceLoadChamber(Cartridge c)
+        public override bool LoadChamber(Cartridge c, bool forced = false)
         {
             return false;
         }

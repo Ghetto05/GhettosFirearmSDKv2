@@ -50,6 +50,7 @@ namespace GhettosFirearmSDKv2
             //}
             //actualHitscanMuzzle = t;
             actualHitscanMuzzle = hitscanMuzzle;
+            base.CalculateMuzzle();
         }
     }
 }

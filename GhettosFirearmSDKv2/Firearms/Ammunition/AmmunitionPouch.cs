@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
-            StartCoroutine(delayedLoad());
+            StartCoroutine(DelayedLoad());
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
             pouchItem.OnHeldActionEvent += PouchItem_OnHeldActionEvent;
@@ -27,20 +27,22 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_UnSnapped(Item item)
         {
-            SpawnSavedItem();
+            SpawnSavedItemV2();
+            Util.IgnoreCollision(gameObject, item.gameObject, false);
         }
 
         private void Holder_Snapped(Item item)
         {
-            if (string.IsNullOrEmpty(savedData.itemID)) SaveItem();
+            if (string.IsNullOrEmpty(savedData.itemID)) SaveItemV2();
+            Util.IgnoreCollision(gameObject, item.gameObject, true);
         }
 
-        IEnumerator delayedLoad()
+        IEnumerator DelayedLoad()
         {
             yield return new WaitForSeconds(0.5f);
             if (pouchItem.TryGetCustomData(out savedData))
             {
-                SpawnSavedItem();
+                SpawnSavedItemV2();
             }
             else
             {
@@ -49,7 +51,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        IEnumerator delayedSnap(Item item)
+        IEnumerator DelayedSnap(Item item)
         {
             yield return new WaitForSeconds(0.05f);
             holder.Snap(item);
@@ -65,12 +67,25 @@ namespace GhettosFirearmSDKv2
                 savedData.savedMagazineData = null;
                 return;
             }
-            savedData.itemID = holder.items[0].itemId;
+            savedData.itemID = holder.items[0].data.id;
             if (holder.items[0].TryGetComponent(out Magazine mag))
             {
                 savedData.savedMagazineData = new MagazineSaveData();
                 savedData.savedMagazineData.GetContentsFromMagazine(mag);
             }
+            pouchItem.AddCustomData(savedData);
+        }
+
+        public void SaveItemV2()
+        {
+            pouchItem.RemoveCustomData<PouchSaveData>();
+            savedData = new PouchSaveData();
+            if (holder.items.Count < 1)
+            {
+                return;
+            }
+            savedData.itemID = holder.items[0].data.id;
+            savedData.dataList = holder.items[0].contentCustomData.CloneJson();
             pouchItem.AddCustomData(savedData);
         }
 
@@ -85,8 +100,17 @@ namespace GhettosFirearmSDKv2
                     magSave.contents = savedData.savedMagazineData.contents;
                     newItem.AddCustomData(magSave);
                 }
-                StartCoroutine(delayedSnap(newItem));
+                StartCoroutine(DelayedSnap(newItem));
             }, transform.position, transform.rotation);
+        }
+
+        public void SpawnSavedItemV2()
+        {
+            if (savedData == null || string.IsNullOrEmpty(savedData.itemID)) return;
+            Catalog.GetData<ItemData>(savedData.itemID)?.SpawnAsync(newItem =>
+            {
+                StartCoroutine(DelayedSnap(newItem));
+            }, transform.position, transform.rotation, null, true, savedData.dataList.CloneJson());
         }
 
         public void Reset()

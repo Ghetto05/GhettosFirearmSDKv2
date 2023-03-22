@@ -5,7 +5,7 @@ using GhettosFirearmSDKv2.Explosives;
 
 namespace GhettosFirearmSDKv2
 {
-    public class ImpactDetonator : MonoBehaviour
+    public class ImpactDetonator : Explosive
     {
         public Explosive explosive;
         public Collider[] triggers;
@@ -21,6 +21,12 @@ namespace GhettosFirearmSDKv2
         private void Awake()
         {
             if (startAtAwake) StartArming();
+        }
+
+        public override void ActualDetonate()
+        {
+            StartArming();
+            base.ActualDetonate();
         }
 
         public void StartArming()

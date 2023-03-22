@@ -9,8 +9,7 @@ namespace GhettosFirearmSDKv2
     public class Minigun : BoltBase
     {
         public float[] barrelAngles;
-        float lastRotation;
-        public float rotationsPerSecond;
+        private float lastRotation;
         public Transform roundMount;
         public Cartridge loadedCartridge;
         public Transform roundEjectPoint;
@@ -22,9 +21,16 @@ namespace GhettosFirearmSDKv2
         public AudioSource RevDownSound;
         public AudioSource RotatingLoop;
         public AudioSource RotatingLoopPlusFiring;
-        bool trigger = false;
         bool revving = false;
         float degreesPerSecond;
+
+        private float lastShotTime = 0f;
+        private float currentSpeed = 0f;
+        private float revUpBeginTime = 0f;
+        private float beginTime = -100f;
+        private bool revvingUp = false;
+        private bool revvingDown = false;
+
 
         private void Awake()
         {
@@ -35,9 +41,7 @@ namespace GhettosFirearmSDKv2
         {
             if (handle == firearm.item.mainHandleRight)
             {
-                if (action == Interactable.Action.UseStart) trigger = true;
-                else if (action == Interactable.Action.UseStop) trigger = false;
-                else if (action == Interactable.Action.AlternateUseStart) StartRevving();
+                if (action == Interactable.Action.AlternateUseStart) StartRevving();
                 else if (action == Interactable.Action.AlternateUseStop) StopRevving();
             }
         }
@@ -45,12 +49,15 @@ namespace GhettosFirearmSDKv2
         private void StartRevving()
         {
             if (revving) return;
-            revving = true;
+            revvingUp = true;
+            revvingDown = false;
+            beginTime = Time.time;
+            revUpBeginTime = Time.time;
             RevUpSound.Play();
             RotatingLoop.PlayDelayed(RevUpSound.clip.length);
             float timeForOneRound = 60f / firearm.roundsPerMinute;
             float timeForOneRotation = timeForOneRound * barrelAngles.Length;
-            rotationsPerSecond = 1 / timeForOneRotation;
+            float rotationsPerSecond = 1 / timeForOneRotation;
             degreesPerSecond = rotationsPerSecond * 360;
         }
 
@@ -58,6 +65,9 @@ namespace GhettosFirearmSDKv2
         {
             if (!revving) return;
             revving = false;
+            revvingUp = false;
+            revvingDown = true;
+            beginTime = Time.time;
             RotatingLoop.Stop();
             RotatingLoopPlusFiring.Stop();
             RevUpSound.Stop();
@@ -66,22 +76,35 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            if (loadedCartridge == null) TryLoadRound();
-            if (revving)
+            revving = revvingUp && (Time.time - revUpBeginTime >= RevUpSound.clip.length);
+
+            if (revvingUp || revvingDown)
             {
-                barrel.Rotate(new Vector3(0, 0, degreesPerSecond * Time.deltaTime));
+                float timeSinceStart = Time.time - beginTime;
+                float speed = timeSinceStart / RevUpSound.clip.length;
+                if (speed > 1) speed = 1;
+                if (revvingDown) speed = 1f - speed;
+                currentSpeed = speed;
             }
-            foreach (float degree in barrelAngles)
+
+            barrel.Rotate(new Vector3(0, 0, degreesPerSecond * Time.deltaTime * currentSpeed));
+            //foreach (float degree in barrelAngles)
+            //{
+            //    if (lastRotation < degree && barrel.localEulerAngles.z >= degree && trigger && revving) TryFire();
+            //}
+            //lastRotation = barrel.localEulerAngles.z;
+
+            if (fireOnTriggerPress && firearm.triggerState && revving && Time.time - lastShotTime >= 60f / firearm.roundsPerMinute)
             {
-                if (lastRotation < degree && barrel.localEulerAngles.z >= degree && trigger) TryFire();
+                TryFire();
             }
-            lastRotation = barrel.localEulerAngles.z;
-            if (!RotatingLoopPlusFiring.isPlaying && revving && trigger && !firearm.magazineWell.IsEmpty())
+
+            if (!RotatingLoopPlusFiring.isPlaying && revving && firearm.triggerState && !firearm.magazineWell.IsEmpty())
             {
                 RotatingLoopPlusFiring.Play();
                 RotatingLoop.Stop();
             }
-            if (!RotatingLoop.isPlaying && revving && (!trigger || firearm.magazineWell.IsEmpty()))
+            if (!RotatingLoop.isPlaying && revving && (!firearm.triggerState || firearm.magazineWell.IsEmpty()))
             {
                 RotatingLoop.Play();
                 RotatingLoopPlusFiring.Stop();
@@ -90,7 +113,9 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
+            TryLoadRound();
             if (loadedCartridge == null || loadedCartridge.fired) return;
+            lastShotTime = Time.time;
             foreach (RagdollHand hand in firearm.item.handlers)
             {
                 if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
@@ -132,7 +157,11 @@ namespace GhettosFirearmSDKv2
             c.transform.parent = null;
             rb.isKinematic = false;
             rb.WakeUp();
-            if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
+            if (roundEjectDir != null)
+            {
+                AddTorqueToCartridge(c);
+                AddForceToCartridge(c, roundEjectDir, roundEjectForce);
+            }
             c.ToggleHandles(true);
             InvokeEjectRound(c);
         }
@@ -145,7 +174,7 @@ namespace GhettosFirearmSDKv2
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
-                c.transform.localEulerAngles = Vector3.zero;
+                c.transform.localEulerAngles = Util.RandomCartridgeRotation();
             }
         }
     }

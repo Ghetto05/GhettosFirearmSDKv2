@@ -33,7 +33,6 @@ namespace GhettosFirearmSDKv2.Explosives
         public override void ActualDetonate()
         {
             active = true;
-            volume.SetActive(true);
             zoneObj = new GameObject("CSgas_Zone");
             zoneObj.layer = LayerMask.NameToLayer("Zone");
             zone = zoneObj.AddComponent<CapsuleCollider>();
@@ -53,14 +52,13 @@ namespace GhettosFirearmSDKv2.Explosives
         {
             if (!detonated || !ready) return;
 
-            zoneObj.SetActive(PlayerEffectsAndChemicalsModule.local.gasMasks.Count < 1);
-
-            if (Time.time >= timestamp + emissionDuration)
+            if (Time.time >= timestamp + emissionDuration && loop.isPlaying)
             {
                 loop.Stop();
             }
 
             if (!active) return;
+            volume.SetActive(!PlayerEffectsAndChemicalsModule.local.WearingGasMask());
 
             if (Time.time >= timestamp + duration)
             {

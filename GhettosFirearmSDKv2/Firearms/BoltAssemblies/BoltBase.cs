@@ -48,6 +48,12 @@ namespace GhettosFirearmSDKv2
             c.item.rb.AddTorque(torque);
         }
 
+        public static void AddForceToCartridge(Cartridge c, Transform direction, float force)
+        {
+            float f = Settings_LevelModule.local.cartridgeEjectionForceRandomizationDevision;
+            c.item.rb.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
+        }
+
         public virtual bool LoadChamber(Cartridge c, bool forced = false)
         {
             return false;

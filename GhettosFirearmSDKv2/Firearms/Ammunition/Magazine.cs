@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
         private void Update()
         {
             if (Settings_LevelModule.local.magazinesHaveNoCollision && currentWell != null) ToggleCollision(false);
-            UpdateCartridgePositions();
+            //UpdateCartridgePositions();
             if (currentWell != null && currentWell.firearm != null && canBeGrabbedInWell)
             {
                 foreach (Handle handle in handles)
@@ -134,7 +134,7 @@ namespace GhettosFirearmSDKv2
 
         public void InsertRound(Cartridge c, bool silent, bool forced)
         {
-            if ((cartridges.Count < maximumCapacity || forced) && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, this))
+            if ((cartridges.Count < maximumCapacity || forced) && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, this) && !c.loaded)
             {
                 c.SetRenderersTo(currentWell == null ? item : currentWell.firearm.item);
                 c.item.disallowDespawn = true;
@@ -149,7 +149,7 @@ namespace GhettosFirearmSDKv2
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = nullCartridgePosition;
                 c.transform.localPosition = Vector3.zero;
-                c.transform.localEulerAngles = Vector3.zero;
+                c.transform.localEulerAngles = Util.RandomCartridgeRotation();
             }
             UpdateCartridgePositions();
             SaveCustomData();
@@ -160,20 +160,16 @@ namespace GhettosFirearmSDKv2
             Cartridge c = null;
             if (cartridges.Count > 0)
             {
+                c = cartridges[0];
+                Util.IgnoreCollision(c.gameObject, gameObject, false);
+                cartridges.RemoveAt(0);
                 if (infinite || Settings_LevelModule.local.infiniteAmmo)
                 {
-                    GameObject obj = Instantiate(cartridges[0].gameObject, cartridges[0].transform.position, cartridges[0].transform.rotation);
-                    Cartridge newC = obj.GetComponent<Cartridge>();
-                    c = cartridges[0];
-                    Util.IgnoreCollision(c.gameObject, gameObject, false);
-                    cartridges.RemoveAt(0);
-                    cartridges.Add(newC);
-                }
-                else
-                {
-                    c = cartridges[0];
-                    Util.IgnoreCollision(c.gameObject, gameObject, false);
-                    cartridges.RemoveAt(0);
+                    Catalog.GetData<ItemData>(c.item.itemId).SpawnAsync(car =>
+                    {
+                        Cartridge newC = car.GetComponent<Cartridge>();
+                        InsertRound(newC, true, true);
+                    }, transform.position + Vector3.up * 10, null, null, false);
                 }
             }
             UpdateCartridgePositions();
@@ -309,13 +305,13 @@ namespace GhettosFirearmSDKv2
                     {
                         c.transform.parent = nullCartridgePosition;
                         c.transform.localPosition = Vector3.zero;
-                        c.transform.localEulerAngles = Vector3.zero;
+                        c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                     }
                     else
                     {
                         c.transform.parent = cartridgePositions[cartridges.IndexOf(c)];
                         c.transform.localPosition = Vector3.zero;
-                        c.transform.localEulerAngles = Vector3.zero;
+                        c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                     }
                 }
             }
@@ -336,7 +332,8 @@ namespace GhettosFirearmSDKv2
             data.GetContentsFromMagazine(this);
             item.RemoveCustomData<MagazineSaveData>();
             item.AddCustomData(data);
-            if (currentWell != null && currentWell.firearm.GetType() != typeof(AttachmentFirearm))
+
+            if (overrideItem == null && currentWell != null && currentWell.firearm.GetType() != typeof(AttachmentFirearm))
             {
                 bool flag = currentWell.firearm.item.TryGetCustomData(out MagazineSaveData magadata);
                 if (!flag)

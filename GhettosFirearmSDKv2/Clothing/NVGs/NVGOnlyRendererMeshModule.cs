@@ -9,13 +9,7 @@ namespace GhettosFirearmSDKv2
     {
         public static List<NVGOnlyRendererMeshModule> all;
 
-        public enum Types
-        {
-            InfraRed,
-            Thermal
-        }
-
-        public Types renderType;
+        public NVGOnlyRenderer.Types renderType;
         public List<GameObject> objects;
 
         public void Start()

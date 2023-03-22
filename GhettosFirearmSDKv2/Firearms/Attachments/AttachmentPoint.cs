@@ -70,5 +70,9 @@ namespace GhettosFirearmSDKv2
                 else if (currentAttachment != null && disableOnAttach.activeInHierarchy) disableOnAttach.SetActive(false);
             }
         }
+
+        public void InvokeAttachmentAdded(Attachment attachment) => OnAttachmentAddedEvent?.Invoke(attachment);
+        public delegate void OnAttachmentAdded(Attachment attachment);
+        public event OnAttachmentAdded OnAttachmentAddedEvent;
     }
 }

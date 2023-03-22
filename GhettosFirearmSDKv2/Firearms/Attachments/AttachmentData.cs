@@ -47,6 +47,7 @@ namespace GhettosFirearmSDKv2
                     attachment.data = this;
                     attachment.attachmentPoint = point;
                     attachment.Initialize(thisNode, initialSetup);
+                    point.InvokeAttachmentAdded(attachment);
                 }
                 else
                 {

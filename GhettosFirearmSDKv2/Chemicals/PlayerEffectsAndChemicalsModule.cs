@@ -2,6 +2,7 @@
 using System.Collections;
 using ThunderRoad;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2.Chemicals
@@ -11,6 +12,8 @@ namespace GhettosFirearmSDKv2.Chemicals
         public static PlayerEffectsAndChemicalsModule local;
 
         public List<GameObject> gasMasks;
+
+        public Volume volume;
 
         //---STATE---
         bool inCSgas = false;
@@ -24,8 +27,6 @@ namespace GhettosFirearmSDKv2.Chemicals
         float delayBetweenSpeechMax = 5f;
 
         //CS gas
-
-        Volume csGasVolume;
         readonly string CSgasCoughAudioContainerId = "CoughingAgony_Ghetto05_FirearmSDKv2";
         AudioContainer CSgasCoughAudioContainer;
 
@@ -50,6 +51,14 @@ namespace GhettosFirearmSDKv2.Chemicals
             flashBangRingingSource = Player.local.head.cam.gameObject.AddComponent<AudioSource>();
             flashBangRingingSource.loop = true;
             Catalog.LoadAssetAsync<AudioClip>(flashBangRingingClipId, FBRAC => { flashBangRingingSource.clip = FBRAC; }, "Player chemicals module");
+
+            //post process volume
+            volume = Player.local.head.cam.gameObject.AddComponent<Volume>();
+            volume.priority = 10;
+            volume.isGlobal = true;
+            volume.weight = 1f;
+            volume.profile = ScriptableObject.CreateInstance<VolumeProfile>();
+            volume.profile.Add<LiftGammaGain>();
         }
 
         void Update()
@@ -59,9 +68,15 @@ namespace GhettosFirearmSDKv2.Chemicals
             bool foundPoisonGas = false;
             float highestPoisonGasDamage = 0f;
             GameObject csgasCollider = null;
+
+            for (int i = 0; i < gasMasks.Count; i++)
+            {
+                if (gasMasks[i] == null) gasMasks.RemoveAt(i);
+            }
+
             foreach (Collider c in Physics.OverlapSphere(Player.local.head.cam.transform.position, 0.1f))
             {
-                if (c.gameObject.name.Equals("CSgas_Zone"))
+                if (c.gameObject.name.Equals("CSgas_Zone") && !WearingGasMask())
                 {
                     foundCSgas = true;
                     csgasCollider = c.gameObject;
@@ -70,7 +85,7 @@ namespace GhettosFirearmSDKv2.Chemicals
                 {
                     foundSmoke = true;
                 }
-                if (c.gameObject.name.Equals("PoisonGas_Zone"))
+                if (c.gameObject.name.Equals("PoisonGas_Zone") && !WearingGasMask())
                 {
                     foundPoisonGas = true;
                     float d = float.Parse(c.transform.GetChild(0).name);
@@ -118,7 +133,6 @@ namespace GhettosFirearmSDKv2.Chemicals
             return inSmoke;
         }
 
-
         void UpdateSmoke()
         {
             if (!inSmoke) return;
@@ -142,10 +156,6 @@ namespace GhettosFirearmSDKv2.Chemicals
         void EnterCSgas(GameObject obj)
         {
             inCSgas = true;
-            csGasVolume = obj.AddComponent<Volume>();
-            csGasVolume.isGlobal = false;
-            csGasVolume.priority = 0;
-            csGasVolume.weight = 1f;
         }
 
         void ExitCSgas()
@@ -171,15 +181,39 @@ namespace GhettosFirearmSDKv2.Chemicals
 
         public static void Flashbang(float time)
         {
-            CameraEffects.DoTimedEffect(Color.grey, CameraEffects.TimedEffect.Flash, time);
-            local.StartCoroutine(FlashbangCoroutine(time));
+            if (local.volume.profile.TryGet(out LiftGammaGain lgg))
+            {
+                lgg.active = true;
+                lgg.lift.overrideState = true;
+                lgg.lift.Override(new Vector4(1f, 1f, 1f, 1f));
+                local.StartCoroutine(FlashbangCoroutine(time, lgg));
+            }
         }
 
-        static IEnumerator FlashbangCoroutine(float time)
+        static IEnumerator FlashbangCoroutine(float time, LiftGammaGain lgg)
         {
             local.flashBangRingingSource.Play();
-            if (time > 2f) yield return new WaitForSeconds(time - 2f);
-            yield return Utils.FadeOut(local.flashBangRingingSource, 2f);
+            local.flashBangRingingSource.volume = 1f;
+            if (time > 4f) yield return new WaitForSeconds(time - 4f);
+            yield return FadeOut(lgg, 4f);
+        }
+
+        public static IEnumerator FadeOut(LiftGammaGain lgg, float FadeTime)
+        {
+            float val = 1f;
+            while (lgg.lift.value.w > 0)
+            {
+                val -= Time.deltaTime / FadeTime;
+                val = Mathf.Clamp01(val);
+                local.flashBangRingingSource.volume = val;
+                lgg.lift.Override(new Vector4(1, 1, 1, val));
+                yield return null;
+            }
+        }
+
+        public bool WearingGasMask()
+        {
+            return gasMasks.Count > 0;
         }
     }
 }

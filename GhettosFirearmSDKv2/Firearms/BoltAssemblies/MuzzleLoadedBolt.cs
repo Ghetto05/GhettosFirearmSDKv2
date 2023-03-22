@@ -19,7 +19,7 @@ namespace GhettosFirearmSDKv2
 
         public override bool LoadChamber(Cartridge c, bool forced)
         {
-            if (loadedCartridge == null)
+            if (loadedCartridge == null && !c.loaded)
             {
                 loadedCartridge = c;
                 c.SetRenderersTo(firearm.item);
@@ -33,7 +33,7 @@ namespace GhettosFirearmSDKv2
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
-                c.transform.localEulerAngles = Vector3.zero;
+                c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 SaveChamber(c.item.itemId);
                 return true;
             }
@@ -81,7 +81,7 @@ namespace GhettosFirearmSDKv2
             loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
             loadedCartridge.transform.parent = roundMount;
             loadedCartridge.transform.localPosition = Vector3.zero;
-            loadedCartridge.transform.localEulerAngles = Vector3.zero;
+            loadedCartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
         }
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)

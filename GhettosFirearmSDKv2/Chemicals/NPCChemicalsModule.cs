@@ -18,9 +18,12 @@ namespace GhettosFirearmSDKv2.Chemicals
         float verFov;
         BrainModuleDetection det;
 
+        public List<GameObject> gasMasks;
+
         void Awake()
         {
             creature = this.gameObject.GetComponent<Creature>();
+            gasMasks = new List<GameObject>();
             det = creature.brain.instance.GetModule<BrainModuleDetection>();
             horFov = det.sightDetectionHorizontalFov;
             verFov = det.sightDetectionVerticalFov;

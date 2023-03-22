@@ -59,7 +59,7 @@ namespace GhettosFirearmSDKv2
         }
 
         #region Actions
-        public Magazine GetHeld()
+        public Magazine GetHeldMagazine()
         {
             if (Player.local.handRight.ragdollHand.grabbedHandle is Handle han && han.item is Item heldItem && heldItem.GetComponent<Firearm>() is Firearm firearm && firearm.magazineWell is MagazineWell magwell && magwell.currentMagazine is Magazine ma)
             {
@@ -80,9 +80,22 @@ namespace GhettosFirearmSDKv2
             else return null;
         }
 
+        public Speedloader GetHeldSpeedloader()
+        {
+            if (Player.local.handRight.ragdollHand.grabbedHandle is Handle han2 && han2.item is Item heldItem3 && heldItem3.GetComponent<Speedloader>() is Speedloader ma3)
+            {
+                return ma3;
+            }
+            else if (Player.local.handLeft.ragdollHand.grabbedHandle is Handle han3 && han3.item is Item heldItem4 && heldItem4.GetComponent<Speedloader>() is Speedloader ma4)
+            {
+                return ma4;
+            }
+            else return null;
+        }
+
         public void GetCaliberFromGunOrMag()
         {
-            Magazine mag = GetHeld();
+            Magazine mag = GetHeldMagazine();
 
             if (mag != null)
             {
@@ -97,20 +110,16 @@ namespace GhettosFirearmSDKv2
                 SetupVariantList(currentCaliber);
                 SetVariant(currentVariant);
             }
-            else
-            {
-                Debug.Log("No magazine found!");
-            }
         }
 
-        public void ClearMagazine(Magazine mag = null)
+        public void ClearMagazine()
         {
-            if (mag == null)
-            {
-                mag = GetHeld();
-            }
-            if (mag == null) return;
+            if (GetHeldMagazine() is Magazine mag && mag != null) ClearMagazine(mag);
+            if (GetHeldSpeedloader() is Speedloader speed && speed != null) ClearSpeedloader(speed);
+        }
 
+        public void ClearMagazine(Magazine mag)
+        {
             foreach (Cartridge car in mag.cartridges)
             {
                 car.item.Despawn(0.05f);
@@ -118,14 +127,48 @@ namespace GhettosFirearmSDKv2
             mag.cartridges.Clear();
         }
 
+        public void ClearSpeedloader(Speedloader speedloader)
+        {
+            for (int i = 0; i < speedloader.loadedCartridges.Length; i++)
+            {
+                if (speedloader.loadedCartridges[i] != null) speedloader.loadedCartridges[i].item.Despawn(0.05f);
+            }
+        }
+
         public void FillMagazine()
         {
-            Magazine mag = GetHeld();
-            if (mag == null) return;
-            if (!Util.AllowLoadCatridge(currentCaliber, mag)) return;
+            Magazine mag = GetHeldMagazine();
+            Speedloader sped = GetHeldSpeedloader();
+            if (mag != null && Util.AllowLoadCatridge(currentCaliber, mag))
+            {
+                ClearMagazine(mag);
+                SpawnAndInsertCar(mag, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+            }
+            if (sped != null && Util.AllowLoadCatridge(sped.calibers[0], currentCaliber))
+            {
+                ClearSpeedloader(sped);
+                FillSpeedloader(sped, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+            }
+        }
 
-            ClearMagazine(mag);
-            SpawnAndInsertCar(mag, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+
+        private void FillSpeedloader(Speedloader sped, string carId, int index = 0)
+        {
+            if (sped != null && !string.IsNullOrWhiteSpace(carId))
+            {
+                if (sped.loadedCartridges[index] == null)
+                {
+                    Catalog.GetData<ItemData>(carId).SpawnAsync(cartr =>
+                    {
+                        sped.LoadSlot(index, cartr.GetComponent<Cartridge>(), true);
+                        FillSpeedloader(sped, carId, index + 1);
+                    }, sped.transform.position + Vector3.up * 2);
+                }
+                else
+                {
+                    FillSpeedloader(sped, carId, index + 1);
+                }
+            }
         }
 
         private void SpawnAndInsertCar(Magazine mag, string carId)
@@ -142,7 +185,7 @@ namespace GhettosFirearmSDKv2
 
         public void TopOffMagazine()
         {
-            Magazine mag = GetHeld();
+            Magazine mag = GetHeldMagazine();
             if (mag == null) return;
             if (!Util.AllowLoadCatridge(currentCaliber, mag)) return;
 
@@ -173,7 +216,6 @@ namespace GhettosFirearmSDKv2
         #region Setups
         public void SetupCategories()
         {
-            #region cleanup
             if (categories != null)
             {
                 foreach (Transform button in categories)
@@ -182,8 +224,23 @@ namespace GhettosFirearmSDKv2
                 }
                 categories.Clear();
             }
-            #endregion cleanup
-            
+            if (calibers != null)
+            {
+                foreach (Transform button in calibers)
+                {
+                    Destroy(button.gameObject);
+                }
+                calibers.Clear();
+            }
+            if (variants != null)
+            {
+                foreach (Transform button in variants)
+                {
+                    Destroy(button.gameObject);
+                }
+                variants.Clear();
+            }
+
             List<string> list = AmmoModule.AllCategories();
             list.Sort();
             foreach (string s in list)
@@ -194,7 +251,6 @@ namespace GhettosFirearmSDKv2
 
         public void SetupCaliberList(string category)
         {
-            #region cleanup
             if (calibers != null)
             {
                 foreach (Transform button in calibers)
@@ -203,8 +259,15 @@ namespace GhettosFirearmSDKv2
                 }
                 calibers.Clear();
             }
-            #endregion cleanup
-            
+            if (variants != null)
+            {
+                foreach (Transform button in variants)
+                {
+                    Destroy(button.gameObject);
+                }
+                variants.Clear();
+            }
+
             List<string> list = AmmoModule.AllCalibersOfCategory(category);
             list.Sort();
             foreach (string s in list)
@@ -215,7 +278,6 @@ namespace GhettosFirearmSDKv2
 
         public void SetupVariantList(string caliber)
         {
-            #region cleanup
             if (variants != null)
             {
                 foreach (Transform button in variants)
@@ -224,7 +286,6 @@ namespace GhettosFirearmSDKv2
                 }
                 variants.Clear();
             }
-            #endregion cleanup
 
             List<string> list = AmmoModule.AllVariantsOfCaliber(caliber);
             list.Sort();

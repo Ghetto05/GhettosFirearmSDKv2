@@ -11,7 +11,8 @@ namespace GhettosFirearmSDKv2
         public enum Types
         {
             InfraRed,
-            Thermal
+            Thermal,
+            FirstPerson
         }
 
         public Types renderType;
@@ -27,11 +28,15 @@ namespace GhettosFirearmSDKv2
         {
             if (cam == renderCamera)
             {
+                if (NVGOnlyRendererMeshModule.all == null) return;
                 foreach (NVGOnlyRendererMeshModule module in NVGOnlyRendererMeshModule.all)
                 {
-                    foreach (GameObject obj in module.objects)
+                    if (module.renderType.Equals(renderType))
                     {
-                        obj.SetActive(false);
+                        foreach (GameObject obj in module.objects)
+                        {
+                            obj.SetActive(false);
+                        }
                     }
                 }
             }
@@ -41,11 +46,19 @@ namespace GhettosFirearmSDKv2
         {
             if (cam == renderCamera)
             {
+                if (NVGOnlyRendererMeshModule.all == null) return;
                 foreach (NVGOnlyRendererMeshModule module in NVGOnlyRendererMeshModule.all)
                 {
-                    foreach (GameObject obj in module.objects)
+                    if (module.renderType.Equals(renderType))
                     {
-                        obj.SetActive(true);
+                        foreach (GameObject obj in module.objects)
+                        {
+                            obj.SetActive(true);
+                            foreach (Renderer r in obj.GetComponentsInChildren<Renderer>())
+                            {
+                                r.enabled = true;
+                            }
+                        }
                     }
                 }
             }

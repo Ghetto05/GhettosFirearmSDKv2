@@ -178,12 +178,14 @@ namespace GhettosFirearmSDKv2
 
         public override void CalculateMuzzle()
         {
+            if (hitscanMuzzle == null) return;
             Transform t = hitscanMuzzle;
             foreach (Attachment a in allAttachments)
             {
                 if (a.minimumMuzzlePosition != null && Vector3.Distance(transform.position, a.minimumMuzzlePosition.position) > Vector3.Distance(transform.position, t.position)) t = a.minimumMuzzlePosition;
             }
             actualHitscanMuzzle = t;
+            base.CalculateMuzzle();
         }
 
         public override bool SaveChamber()

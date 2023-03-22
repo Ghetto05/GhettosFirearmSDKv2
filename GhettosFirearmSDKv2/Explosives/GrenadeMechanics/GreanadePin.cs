@@ -45,6 +45,7 @@ namespace GhettosFirearmSDKv2
         void OnJointBreak(float breakForce)
         {
             broken = true;
+            InvokeChange();
             Util.PlayRandomAudioSource(pullSounds);
             this.GetComponent<Rigidbody>().useGravity = true;
             this.transform.SetParent(null);

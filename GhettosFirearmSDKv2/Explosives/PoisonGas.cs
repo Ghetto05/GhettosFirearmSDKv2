@@ -52,7 +52,7 @@ namespace GhettosFirearmSDKv2.Explosives
         {
             if (!detonated || !ready) return;
 
-            if (Time.time >= timestamp + emissionDuration)
+            if (Time.time >= timestamp + emissionDuration && loop.isPlaying)
             {
                 loop.Stop();
                 zone.gameObject.transform.SetParent(null);

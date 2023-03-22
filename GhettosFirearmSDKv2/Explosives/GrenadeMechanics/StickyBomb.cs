@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ThunderRoad;
+using UnityEngine.Events;
 
 namespace GhettosFirearmSDKv2
 {
@@ -10,6 +11,8 @@ namespace GhettosFirearmSDKv2
     {
         public List<Collider> colliders;
         public Item item;
+        public UnityEvent onStickEvent;
+        private bool stuck = false;
 
         public void Awake()
         {
@@ -34,8 +37,11 @@ namespace GhettosFirearmSDKv2
 
         public void StickTo(Rigidbody rb)
         {
+            if (stuck) return;
+            stuck = true;
             FixedJoint joint = item.gameObject.AddComponent<FixedJoint>();
             joint.connectedBody = rb;
+            onStickEvent?.Invoke();
         }
     }
 }

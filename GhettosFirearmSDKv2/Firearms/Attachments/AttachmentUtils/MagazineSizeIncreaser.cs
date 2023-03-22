@@ -21,16 +21,16 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDetachEvent()
         {
+            if (magazine != null) Revert();
+        }
+
+        private void Attachment_OnDelayedAttachEvent()
+        {
             if (attachment.attachmentPoint.parentFirearm.magazineWell is MagazineWell well && well.currentMagazine is Magazine mag)
             {
                 magazine = mag;
                 Apply();
             }
-        }
-
-        private void Attachment_OnDelayedAttachEvent()
-        {
-            if (magazine != null) Revert();
         }
 
         public void Apply()

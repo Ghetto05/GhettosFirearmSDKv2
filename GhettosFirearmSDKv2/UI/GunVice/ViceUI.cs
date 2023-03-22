@@ -104,8 +104,6 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_Snapped(Item item)
         {
-            canvas.enabled = true;
-            screenCollider.enabled = true;
             SetupFirearm();
         }
 
@@ -114,8 +112,11 @@ namespace GhettosFirearmSDKv2
         {
             if (holder.items.Count > 0)
             {
-                if (holder.items[0].TryGetComponent(out Firearm firearm))
+                if (holder.items[0].TryGetComponent(out Firearm firearm) && firearm.attachmentPoints.Count > 0)
                 {
+                    canvas.enabled = true;
+                    screenCollider.enabled = true;
+
                     if (slotButtons != null)
                     {
                         foreach (ViceUIAttachmentSlot button in slotButtons)
@@ -127,9 +128,7 @@ namespace GhettosFirearmSDKv2
 
                     AddAttachmentSlots(firearm);
                 }
-                else Debug.Log("No firearm!");
             }
-            else Debug.Log("No items!");
         }
 
         private void AddAttachmentSlots(Firearm parentFirearm)

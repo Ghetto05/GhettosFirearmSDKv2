@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    [AddComponentMenu("Firearm SDK v2/Bolt assemblies/Barrel tilt/lock")]
+    [AddComponentMenu("Firearm SDK v2/Bolt assemblies/Barrel tilt-lock")]
     public class BarrelLocker : MonoBehaviour
     {
         public BoltBase bolt;

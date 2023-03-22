@@ -1,0 +1,257 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using ThunderRoad;
+using UnityEngine;
+
+namespace GhettosFirearmSDKv2
+{
+    [AddComponentMenu("Firearm SDK v2/Bolt assemblies/Muzzle loaded, multi chamber, self cocking")]
+    public class MultiChamberMuzzleLoadedBolt : BoltBase
+    {
+        public bool ejectOnFire;
+
+        public List<AudioSource> ejectSounds;
+        public List<AudioSource> insertSounds;
+
+        public List<string> calibers;
+        public List<Transform> muzzles;
+        public List<Transform> actualMuzzles;
+        public List<ParticleSystem> muzzleFlashes;
+        public List<ParticleSystem> actualMuzzleFlashes;
+        public List<Hammer> hammers;
+        public List<Transform> mountPoints;
+        public List<Collider> loadColliders;
+        public List<Transform> ejectDirections;
+        public List<Transform> ejectPoints;
+        private Cartridge[] loadedCartridges;
+        public List<float> ejectForces;
+
+        private int shotsSinceTriggerReset = 0;
+        private bool allowInsert = false;
+
+        private MagazineSaveData data;
+
+        private void Awake()
+        {
+            loadedCartridges = new Cartridge[mountPoints.Count];
+            actualMuzzles = muzzles;
+            firearm.OnMuzzleCalculatedEvent += Firearm_OnMuzzleCalculatedEvent;
+            firearm.OnCollisionEvent += OnCollisionEvent;
+            Initialize();
+            StartCoroutine(Delayed());
+        }
+
+        private IEnumerator Delayed()
+        {
+            yield return new WaitForSeconds(0.3f);
+            if (firearm.item.TryGetCustomData(out data))
+            {
+                for (int i = 0; i < data.contents.Length; i++)
+                {
+                    if (data.contents[i] != null)
+                    {
+                        int index = i;
+                        Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                    }
+                }
+                yield return new WaitForSeconds(0.1f);
+                UpdateCartridges();
+            }
+            else
+            {
+                firearm.item.AddCustomData(new MagazineSaveData());
+                firearm.item.TryGetCustomData(out data);
+                data.contents = new string[loadedCartridges.Length];
+            }
+            allowInsert = true;
+        }
+
+        private void Firearm_OnMuzzleCalculatedEvent()
+        {
+            if (firearm.actualHitscanMuzzle.TryGetComponent(out BreakActionMuzzleOverride overr))
+            {
+                actualMuzzles = overr.newMuzzles;
+                actualMuzzleFlashes = overr.newMuzzleFlashes;
+            }
+            else
+            {
+                actualMuzzles = muzzles;
+                actualMuzzleFlashes = muzzleFlashes;
+            }
+        }
+
+        private void OnCollisionEvent(Collision collision)
+        {
+            if (!allowInsert) return;
+            if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge car && !car.loaded)
+            {
+                foreach (Collider insertCollider in loadColliders)
+                {
+                    if (Util.CheckForCollisionWithThisCollider(collision, insertCollider))
+                    {
+                        int index = loadColliders.IndexOf(insertCollider);
+                        LoadChamber(index, car);
+                    }
+                }
+            }
+        }
+
+        public void LoadChamber(int index, Cartridge cartridge, bool overrideSave = true)
+        {
+            if (loadedCartridges[index] == null && Util.AllowLoadCatridge(cartridge, calibers[index]))
+            {
+                if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
+                loadedCartridges[index] = cartridge;
+                cartridge.item.disallowDespawn = true;
+                cartridge.item.disallowRoomDespawn = true;
+                cartridge.loaded = true;
+                cartridge.ToggleHandles(false);
+                cartridge.ToggleCollision(false);
+                cartridge.UngrabAll();
+                Util.IgnoreCollision(cartridge.gameObject, firearm.gameObject, true);
+                cartridge.GetComponent<Rigidbody>().isKinematic = true;
+                cartridge.transform.parent = mountPoints[index];
+                cartridge.transform.localPosition = Vector3.zero;
+                cartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
+                if (overrideSave) SaveCartridges();
+            }
+            UpdateCartridges();
+        }
+
+        public override void TryEject()
+        {
+            for (int i = 0; i < loadedCartridges.Length; i++)
+            {
+                TryEjectSingle(i);
+            }
+        }
+
+        public void TryEjectSingle(int i)
+        {
+            if (loadedCartridges[i] != null)
+            {
+                Util.PlayRandomAudioSource(ejectSounds);
+                Cartridge c = loadedCartridges[i];
+                loadedCartridges[i] = null;
+                if (ejectPoints.Count > i && ejectPoints[i] != null)
+                {
+                    c.transform.position = ejectPoints[i].position;
+                    c.transform.rotation = ejectPoints[i].rotation;
+                }
+                Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
+                c.ToggleCollision(true);
+                Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
+                Rigidbody rb = c.item.rb;
+                c.item.disallowDespawn = false;
+                c.item.disallowRoomDespawn = false;
+                c.transform.parent = null;
+                c.loaded = false;
+                rb.isKinematic = false;
+                rb.WakeUp();
+                if (ejectDirections[i] != null)
+                {
+                    AddForceToCartridge(c, ejectDirections[i], ejectForces[i]);
+                    //AddTorqueToCartridge(c);
+                }
+                c.ToggleHandles(true);
+                InvokeEjectRound(c);
+                SaveCartridges();
+            }
+        }
+
+        public void FixedUpdate()
+        {
+            if (firearm.triggerState)
+            {
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Auto) for (int i = 0; i < mountPoints.Count; i++) { TryFire(); };
+            }
+            else shotsSinceTriggerReset = 0;
+        }
+
+        private int GetFirstFireableChamber()
+        {
+            int car = -1;
+            for (int i = loadedCartridges.Length - 1; i >= 0; i--)
+            {
+                bool hammerCocked = hammers.Count - 1 < i || hammers[i] == null || hammers[i].cocked;
+                bool cartridge = loadedCartridges[i] != null && !loadedCartridges[i].fired;
+                if (hammerCocked && cartridge) car = i;
+            }
+            return car;
+        }
+
+        public override void TryFire()
+        {
+            if (state != BoltState.Locked) return;
+            int ca = GetFirstFireableChamber();
+            if (ca == -1) return;
+
+            shotsSinceTriggerReset++;
+            if (hammers.Count > ca && hammers[ca] != null) hammers[ca].Fire();
+            foreach (RagdollHand hand in firearm.item.handlers)
+            {
+                if (hand.playerHand != null || hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
+            }
+            Transform muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[ca];
+            Cartridge loadedCartridge = loadedCartridges[ca];
+            if (loadedCartridge.additionalMuzzleFlash != null)
+            {
+                loadedCartridge.additionalMuzzleFlash.transform.position = muzzle.position;
+                loadedCartridge.additionalMuzzleFlash.transform.rotation = muzzle.rotation;
+                loadedCartridge.additionalMuzzleFlash.transform.SetParent(muzzle);
+                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
+            }
+            firearm.PlayFireSound();
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
+            {
+                if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > ca && actualMuzzleFlashes[ca] != null && muzzles.Count > 1) actualMuzzleFlashes[ca].Play(); 
+                else firearm.PlayMuzzleFlash();
+            }
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
+            loadedCartridge.Fire(hits, trajectories, muzzle);
+            InvokeFireEvent();
+        }
+
+        public override void TryRelease(bool forced = false)
+        {
+            TryEject();
+        }
+
+        public override void Initialize()
+        {
+        }
+
+        public override void EjectRound()
+        {
+            if (mountPoints.Count == 1) TryEjectSingle(0);
+            else if (GetFirstFireableChamber() != -1) TryEjectSingle(GetFirstFireableChamber() - 1);
+            else if (mountPoints.Count > 0) TryEjectSingle(mountPoints.Count - 1);
+        }
+
+        public void SaveCartridges()
+        {
+            data.contents = new string[loadedCartridges.Length];
+            for (int i = 0; i < loadedCartridges.Length; i++)
+            {
+                data.contents[i] = loadedCartridges[i]?.item.itemId;
+            }
+        }
+        
+        private void UpdateCartridges()
+        {
+            for (int i = 0; i < mountPoints.Count; i++)
+            {
+                if (loadedCartridges[i] != null)
+                {
+                    loadedCartridges[i].GetComponent<Rigidbody>().isKinematic = true;
+                    loadedCartridges[i].transform.parent = mountPoints[i];
+                    loadedCartridges[i].transform.localPosition = Vector3.zero;
+                    loadedCartridges[i].transform.localEulerAngles = Util.RandomCartridgeRotation();
+                }
+            }
+        }
+    }
+}

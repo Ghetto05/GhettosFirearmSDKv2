@@ -25,37 +25,26 @@ namespace GhettosFirearmSDKv2
 
         public void UpdateRoundCounter()
         {
-            if (currentFirearm != null)
+            currentFirearm = GetHeldFirearm();
+            if (currentFirearm != null && currentFirearm.magazineWell != null && currentFirearm.magazineWell.currentMagazine != null)
             {
-                if (currentFirearm.magazineWell != null && currentFirearm.magazineWell.currentMagazine != null)
+                int count = currentFirearm.magazineWell.currentMagazine.cartridges.Count;
+                if (currentFirearm.bolt.GetChamber() != null)
                 {
-                    roundCounter.enabled = true;
-                    capacityDisplay.enabled = true;
-                    foreach (GameObject g in additionalDisableObjects)
-                    {
-                        g.SetActive(true);
-                    }
-                    int count = currentFirearm.magazineWell.currentMagazine.cartridges.Count;
-                    if (currentFirearm.bolt.GetChamber() != null) count++;
-                    roundCounter.text = count.ToString();
-                    //float f = (float)currentFirearm.magazineWell.currentMagazine.cartridges.Count / (float)currentFirearm.magazineWell.currentMagazine.maximumCapacity;
-                    //if ((f <= 0.1f) || (currentFirearm.bolt.state == BoltBase.BoltState.Locked && currentFirearm.bolt.GetChamber() == null))
-                    //{
-                    //    roundCounter.color = lowColor;
-                    //}
-                    //else
-                    //{
-                    //    roundCounter.color = defaultColor;
-                    //}
-                    capacityDisplay.text = currentFirearm.magazineWell.currentMagazine.maximumCapacity.ToString();
-                    return;
+                    count++;
                 }
+                if (roundCounter != null) roundCounter.text = count.ToString();
+                if (capacityDisplay != null) capacityDisplay.text = currentFirearm.magazineWell.currentMagazine.maximumCapacity.ToString();
             }
-            roundCounter.enabled = false;
-            capacityDisplay.enabled = false;
-            foreach (GameObject g in additionalDisableObjects)
+            else if (currentFirearm != null && currentFirearm.bolt.GetChamber() != null)
             {
-                g.SetActive(false);
+                if (roundCounter != null) roundCounter.text = 1.ToString();
+                if (capacityDisplay != null) capacityDisplay.text = 0.ToString();
+            }
+            else
+            {
+                if (roundCounter != null) roundCounter.text = 0.ToString();
+                if (capacityDisplay != null) capacityDisplay.text = 0.ToString();
             }
         }
 
@@ -63,7 +52,7 @@ namespace GhettosFirearmSDKv2
         {
             if (GetHeldFirearm() is Firearm firearm && icon.sprite == null)
             {
-                icon.enabled = true;
+                ToggleHUD(true);
                 currentFirearm = firearm;
                 if (firearm.GetComponent<HUDModuleHeldWeaponOverrideIcon>() is HUDModuleHeldWeaponOverrideIcon ico)
                 {
@@ -77,8 +66,19 @@ namespace GhettosFirearmSDKv2
             else if (GetHeldFirearm() == null)
             {
                 icon.sprite = null;
-                icon.enabled = false;
                 currentFirearm = null;
+                ToggleHUD(false);
+            }
+        }
+
+        private void ToggleHUD(bool hudEnabled)
+        {
+            icon.enabled = hudEnabled;
+            if (roundCounter != null) roundCounter.enabled = hudEnabled;
+            if (capacityDisplay != null) capacityDisplay.enabled = hudEnabled;
+            for (int i = 0; i < additionalDisableObjects.Count; i++)
+            {
+                additionalDisableObjects[i].SetActive(hudEnabled);
             }
         }
 
@@ -95,35 +95,6 @@ namespace GhettosFirearmSDKv2
                 f = Player.local.GetHand(Side.Left).ragdollHand.grabbedHandle.item.GetComponent<Firearm>();
             }
             return f;
-        }
-
-        public static Vector2 SizeToParent(RawImage image, float padding = 0)
-        {
-            float w = 0, h = 0;
-            var parent = image.GetComponentInParent<RectTransform>();
-            var imageTransform = image.GetComponent<RectTransform>();
-
-            if (image.texture != null)
-            {
-                if (!parent) { return imageTransform.sizeDelta; }
-                padding = 1 - padding;
-                float ratio = image.texture.width / (float)image.texture.height;
-                var bounds = new Rect(0, 0, parent.rect.width, parent.rect.height);
-                if (Mathf.RoundToInt(imageTransform.eulerAngles.z) % 180 == 90)
-                {
-                    bounds.size = new Vector2(bounds.height, bounds.width);
-                }
-                h = bounds.height * padding;
-                w = h * ratio;
-                if (w > bounds.width * padding)
-                {
-                    w = bounds.width * padding;
-                    h = w / ratio;
-                }
-            }
-            imageTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, w);
-            imageTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, h);
-            return imageTransform.sizeDelta;
         }
     }
 }

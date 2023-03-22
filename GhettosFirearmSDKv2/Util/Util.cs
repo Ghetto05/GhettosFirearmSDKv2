@@ -8,6 +8,10 @@ namespace GhettosFirearmSDKv2
 {
     public class Util
     {
+        public static Vector3 RandomCartridgeRotation()
+        {
+            return new Vector3(0, 0, Random.Range(0f, 360f));
+        }
 
         public static bool AllowLoadCatridge(Cartridge cartridge, string requiredCaliber)
         {
@@ -33,6 +37,14 @@ namespace GhettosFirearmSDKv2
             bool correctCaliber = cartridgeCaliber.Equals(magazine.caliber) || ListContainsString(magazine.alternateCalibers, cartridgeCaliber);
             bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridgeCaliber);
             return correctCaliber && magHasSameCaliber;
+        }
+
+        public static bool AllowLoadCatridge(string cartridgeCaliber, string otherCaliber)
+        {
+            if (!Settings_LevelModule.local.doCaliberChecks) return true;
+            if (cartridgeCaliber.Equals("DEBUG UNIVERSAL")) return true;
+            bool correctCaliber = cartridgeCaliber.Equals(otherCaliber);
+            return correctCaliber;
         }
 
         public static bool AllowLoadMagazine(Magazine magazine, MagazineWell well)
@@ -71,6 +83,7 @@ namespace GhettosFirearmSDKv2
 
         public static void AlertAllCreaturesInRange(Vector3 point, float range)
         {
+            return;
             foreach (Creature cr in Creature.allActive)
             {
                 if (Vector3.Distance(cr.animator.GetBoneTransform(HumanBodyBones.Neck).position, point) <= range)

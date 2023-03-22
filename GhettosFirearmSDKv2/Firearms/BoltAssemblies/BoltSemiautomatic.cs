@@ -74,6 +74,11 @@ namespace GhettosFirearmSDKv2
             StartCoroutine(delayedGetChamber());
         }
 
+        public void CalculateMuzzle()
+        {
+            
+        }
+
         private void Firearm_OnAttachmentRemovedEvent(Attachment attachment, AttachmentPoint attachmentPoint)
         {
             UpdateBoltHandles();
@@ -130,7 +135,7 @@ namespace GhettosFirearmSDKv2
             loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
             loadedCartridge.transform.parent = roundMount;
             loadedCartridge.transform.localPosition = Vector3.zero;
-            loadedCartridge.transform.localEulerAngles = Vector3.zero;
+            loadedCartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
         }
 
         private void BoltSemiautomatic_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -192,7 +197,7 @@ namespace GhettosFirearmSDKv2
         public override void TryRelease(bool forced = false)
         {
             if (!hasBoltCatchReleaseControl && !forced) return;
-            LockBoltOnLockPoint(false);
+            if (caught) LockBoltOnLockPoint(false);
         }
 
         private bool BoltHeld()
@@ -206,7 +211,7 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            UpdateChamberedRound();
+            //UpdateChamberedRound();
             if (caught && letGoBeforeClosed && chargingHandle != null) chargingHandle.localPosition = startPoint.localPosition;
             foreach (BoltReleaseButton releaseButton in releaseButtons)
             {
@@ -396,8 +401,7 @@ namespace GhettosFirearmSDKv2
             rb.WakeUp();
             if (roundEjectDir != null) 
             {
-                float f = Settings_LevelModule.local.cartridgeEjectionForceRandomizationDevision;
-                rb.AddForce(roundEjectDir.forward * (roundEjectForce + Random.Range(-(roundEjectForce / f), (roundEjectForce / f))), ForceMode.Impulse);
+                AddForceToCartridge(c, roundEjectDir, roundEjectForce);
                 AddTorqueToCartridge(c);
             }
             c.ToggleHandles(true);
@@ -413,7 +417,7 @@ namespace GhettosFirearmSDKv2
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
-                c.transform.localEulerAngles = Vector3.zero;
+                c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 SaveChamber(c.item.itemId);
             }
         }
@@ -492,7 +496,7 @@ namespace GhettosFirearmSDKv2
 
         public override bool LoadChamber(Cartridge c, bool forced)
         {
-            if (loadedCartridge == null && (state != BoltState.Locked || forced))
+            if (loadedCartridge == null && (state != BoltState.Locked || forced) && !c.loaded)
             {
                 loadedCartridge = c;
                 c.SetRenderersTo(firearm.item);
@@ -506,7 +510,7 @@ namespace GhettosFirearmSDKv2
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
-                c.transform.localEulerAngles = Vector3.zero;
+                c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 SaveChamber(c.item.itemId);
                 return true;
             }

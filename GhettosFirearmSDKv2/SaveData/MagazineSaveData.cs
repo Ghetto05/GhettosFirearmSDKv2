@@ -33,9 +33,10 @@ namespace GhettosFirearmSDKv2
         {
             if (magazine == null || magazine.cartridges == null) return;
             contents = new string[magazine.cartridges.Count];
-            foreach (Cartridge car in magazine.cartridges)
+            for (int i = 0; i < magazine.cartridges.Count; i++)
             {
-                contents[magazine.cartridges.IndexOf(car)] = car.item.itemId;
+                Cartridge car = magazine.cartridges[i];
+                contents[i] = car.item.itemId;
             }
         }
 

@@ -32,18 +32,26 @@ namespace GhettosFirearmSDKv2.Explosives
                 s.gameObject.transform.SetParent(null);
                 Player.local.StartCoroutine(delayedDestroy(s.gameObject, s.clip.length + 1f));
             }
-
-            if (Vector3.Distance(this.transform.position, Player.local.head.cam.transform.position) < range) Chemicals.PlayerEffectsAndChemicalsModule.Flashbang(time);
+            
+            if (Vector3.Distance(this.transform.position, Player.local.head.cam.transform.position) < range && !Raycast(Player.currentCreature)) Chemicals.PlayerEffectsAndChemicalsModule.Flashbang(time);
             
             foreach (Creature cr in Creature.allActive)
             {
                 Transform t = cr.animator.GetBoneTransform(HumanBodyBones.Head);
-                if (!cr.isPlayer && !cr.isKilled && Vector3.Distance(t.position, this.transform.position) < range)
+                if (!cr.isPlayer && !cr.isKilled && Vector3.Distance(t.position, this.transform.position) < range && !Raycast(cr))
                 {
                     cr.ragdoll.SetState(Ragdoll.State.Destabilized);
+                    StartCoroutine(FireMethods.TemporaryKnockout(time, cr));
                 }
             }
             base.ActualDetonate();
+        }
+
+        private bool Raycast(Creature cr)
+        {
+            int layer = LayerMask.GetMask("Default");
+            Vector3 pos = cr.animator.GetBoneTransform(HumanBodyBones.Head).position;
+            return Physics.Raycast(cr.centerEyes.position, (transform.position - pos).normalized, out RaycastHit hit, Vector3.Distance(pos, transform.position) - 0.1f, layer);
         }
     }
 }
