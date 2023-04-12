@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace GhettosFirearmSDKv2
 {
@@ -17,7 +18,9 @@ namespace GhettosFirearmSDKv2
         public Transform actualHitscanMuzzle;
         public bool integrallySuppressed;
         public AudioSource[] fireSounds;
+        private float[] fireSoundsPitch;
         public AudioSource[] suppressedFireSounds;
+        private float[] suppressedFireSoundsPitch;
         public FireModes fireMode;
         public ParticleSystem defaultMuzzleFlash;
         public int burstSize = 3;
@@ -27,6 +30,33 @@ namespace GhettosFirearmSDKv2
         public float recoilModifier = 1f;
         public bool countingForLongpress = false;
         public List<RecoilModifier> recoilModifiers = new List<RecoilModifier>();
+        public Light muzzleLight;
+
+        public virtual void Awake()
+        {
+            longPressTime = FirearmsSettings.values.longPressTime;
+            fireSoundsPitch = new float[fireSounds.Length];
+            suppressedFireSoundsPitch = new float[suppressedFireSounds.Length];
+            for (int i = 0; i < fireSounds.Length; i++)
+            {
+                fireSoundsPitch[i] = fireSounds[i].pitch;
+            }
+            for (int i = 0; i < suppressedFireSounds.Length; i++)
+            {
+                suppressedFireSoundsPitch[i] = suppressedFireSounds[i].pitch;
+            }
+            muzzleLight = new GameObject("MuzzleFlashLight").AddComponent<Light>();
+            muzzleLight.enabled = false;
+            muzzleLight.type = LightType.Point;
+            muzzleLight.range = 5f;
+            muzzleLight.intensity = 3f;
+            muzzleLight.color = RandomColor();
+        }
+
+        private Color RandomColor()
+        {
+            return Color.Lerp(new Color(1.0f, 0.3843f, 0.0f), new Color(1.0f, 0.5294f, 0.0f), Random.Range(0f, 1f));
+        }
 
         public virtual float CalculateDamageMultiplier()
         {
@@ -77,7 +107,15 @@ namespace GhettosFirearmSDKv2
             {
                 if (action == Interactable.Action.UseStart)
                 {
-                    ChangeTrigger(true);
+                    if (!countingForLongpress)
+                    {
+                        ChangeTrigger(true);
+                    }
+                    else
+                    {
+                        countingForLongpress = false;
+                        CockAction();
+                    }
                 }
                 else if (action == Interactable.Action.UseStop)
                 {
@@ -118,6 +156,11 @@ namespace GhettosFirearmSDKv2
             OnAltActionEvent?.Invoke(true);
         }
 
+        public void CockAction()
+        {
+            OnCockActionEvent?.Invoke();
+        }
+
         public void SetFiremode(FireModes mode)
         {
             fireMode = mode;
@@ -133,20 +176,43 @@ namespace GhettosFirearmSDKv2
         {
             bool supp = isSuppressed();
             if (overrideSuppressedbool) supp = suppressed;
+            AudioSource source;
             if (!supp)
             {
-                Util.PlayRandomAudioSource(fireSounds);
-                NoiseManager.AddNoise(actualHitscanMuzzle.position, 600f);
-                Util.AlertAllCreaturesInRange(hitscanMuzzle.position, 50);
+                source = Util.GetRandomFromList(fireSounds);
             }
             else
             {
-                Util.PlayRandomAudioSource(suppressedFireSounds);
+                source = Util.GetRandomFromList(suppressedFireSounds);
             }
+
+            if (source == null) return;
+            float pitch;
+            if (!supp)
+            {
+                NoiseManager.AddNoise(actualHitscanMuzzle.position, 600f);
+                Util.AlertAllCreaturesInRange(hitscanMuzzle.position, 50);
+                pitch = fireSoundsPitch[fireSounds.ToList().IndexOf(source)];
+            }
+            else
+            {
+                pitch = suppressedFireSoundsPitch[suppressedFireSounds.ToList().IndexOf(source)];
+            }
+            float deviation =  FirearmsSettings.values.firingSoundDeviation / pitch;
+            source.pitch = pitch += Random.Range(-deviation, deviation);
+            source.Play();
         }
 
         public virtual void PlayMuzzleFlash()
+        { }
+
+        public IEnumerator PlayMuzzleFlashLight()
         {
+            muzzleLight.color = RandomColor();
+            muzzleLight.transform.position = actualHitscanMuzzle.position + (actualHitscanMuzzle.forward * 0.04f);
+            muzzleLight.enabled = true;
+            yield return new WaitForEndOfFrame();
+            muzzleLight.enabled = false;
         }
 
         public bool NoMuzzleFlashOverridingAttachmentChildren(Attachment attachment)
@@ -245,6 +311,9 @@ namespace GhettosFirearmSDKv2
 
         public delegate void OnAltAction(bool longPress);
         public event OnAltAction OnAltActionEvent;
+
+        public delegate void OnCockAction();
+        public event OnCockAction OnCockActionEvent;
 
         public delegate void OnToggleColliders(bool active);
         public event OnToggleColliders OnColliderToggleEvent;

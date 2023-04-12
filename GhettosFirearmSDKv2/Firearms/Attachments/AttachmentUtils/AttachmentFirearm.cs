@@ -13,8 +13,9 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         public Handle fireHandle;
 
-        private void Awake()
+        public override void Awake()
         {
+            base.Awake();
             mainFireHandle = fireHandle;
             item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
             attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.OnCollisionEvent += OnCollisionEnter;
@@ -32,7 +33,11 @@ namespace GhettosFirearmSDKv2
 
         public override void PlayMuzzleFlash()
         {
-            if (defaultMuzzleFlash is ParticleSystem mf) mf.Play();
+            if (defaultMuzzleFlash is ParticleSystem mf)
+            {
+                mf.Play();
+                StartCoroutine(PlayMuzzleFlashLight());
+            }
         }
 
         public override bool isSuppressed()

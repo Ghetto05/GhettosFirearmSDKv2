@@ -29,8 +29,9 @@ namespace GhettosFirearmSDKv2
             return multiply;
         }
 
-        private void Awake()
+        public override void Awake()
         {
+            base.Awake();
             if (item == null) item = this.GetComponent<Item>();
             if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
@@ -39,6 +40,7 @@ namespace GhettosFirearmSDKv2
             item.OnSnapEvent += Item_OnSnapEvent2;
             item.OnUnSnapEvent += Item_OnUnSnapEvent2;
             allAttachments = new List<Attachment>();
+            OnAIFire = new FireableEvent(AIFire);
             foreach (AttachmentPoint ap in attachmentPoints)
             {
                 ap.parentFirearm = this;
@@ -158,12 +160,17 @@ namespace GhettosFirearmSDKv2
                     if (at.newFlash != null)
                     {
                         at.newFlash.Play();
+                        StartCoroutine(PlayMuzzleFlashLight());
                     }
                 }
             }
 
             //default
-            if (!overridden && defaultMuzzleFlash is ParticleSystem mf) mf.Play();
+            if (!overridden && defaultMuzzleFlash is ParticleSystem mf)
+            {
+                mf.Play();
+                StartCoroutine(PlayMuzzleFlashLight());
+            }
         }
 
         public override bool isSuppressed()
@@ -190,6 +197,12 @@ namespace GhettosFirearmSDKv2
 
         public override bool SaveChamber()
         {
+            return true;
+        }
+
+        public bool AIFire(AIFireable fireable, RagdollHand hand, bool finished)
+        {
+            if (bolt != null) bolt.TryFire();
             return true;
         }
     }
