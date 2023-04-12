@@ -96,10 +96,12 @@ namespace GhettosFirearmSDKv2
         public void GetCaliberFromGunOrMag()
         {
             Magazine mag = GetHeldMagazine();
+            Speedloader sped = GetHeldSpeedloader();
 
-            if (mag != null)
+            if (mag != null || sped != null)
             {
-                currentCaliber = mag.caliber;
+                if (mag != null) currentCaliber = mag.caliber;
+                else currentCaliber = sped.calibers[0];
                 currentCategory = AmmoModule.GetCaliberCategory(currentCaliber).Remove(0, 5);
                 List<string> varis = AmmoModule.AllVariantsOfCaliber(currentCaliber);
                 varis.Sort();
@@ -114,8 +116,8 @@ namespace GhettosFirearmSDKv2
 
         public void ClearMagazine()
         {
-            if (GetHeldMagazine() is Magazine mag && mag != null) ClearMagazine(mag);
-            if (GetHeldSpeedloader() is Speedloader speed && speed != null) ClearSpeedloader(speed);
+            if (GetHeldMagazine() != null) ClearMagazine(GetHeldMagazine());
+            if (GetHeldSpeedloader() != null) ClearSpeedloader(GetHeldSpeedloader());
         }
 
         public void ClearMagazine(Magazine mag)
@@ -131,7 +133,11 @@ namespace GhettosFirearmSDKv2
         {
             for (int i = 0; i < speedloader.loadedCartridges.Length; i++)
             {
-                if (speedloader.loadedCartridges[i] != null) speedloader.loadedCartridges[i].item.Despawn(0.05f);
+                if (speedloader.loadedCartridges[i] != null)
+                {
+                    speedloader.loadedCartridges[i].item.Despawn(0.05f);
+                    speedloader.loadedCartridges[i] = null;
+                }
             }
         }
 
@@ -151,10 +157,9 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-
         private void FillSpeedloader(Speedloader sped, string carId, int index = 0)
         {
-            if (sped != null && !string.IsNullOrWhiteSpace(carId))
+            if (sped != null && !string.IsNullOrWhiteSpace(carId) && index < sped.loadedCartridges.Length)
             {
                 if (sped.loadedCartridges[index] == null)
                 {
@@ -205,7 +210,7 @@ namespace GhettosFirearmSDKv2
             locked = !locked;
             if (item != null)
             {
-                item.rb.isKinematic = locked;
+                item.physicBody.isKinematic = locked;
                 item.disallowDespawn = locked;
             }
             canvasCollider.enabled = locked;
@@ -366,22 +371,22 @@ namespace GhettosFirearmSDKv2
         public void SetCategory(string category)
         {
             currentCategory = category;
-            SetupCaliberList(category);
             SetupCategories();
+            SetupCaliberList(category);
         }
 
         public void SetCaliber(string caliber)
         {
             currentCaliber = caliber;
-            SetupVariantList(caliber);
             SetupCaliberList(currentCategory);
+            SetupVariantList(caliber);
         }
 
         public void SetVariant(string variant)
         {
             currentVariant = variant;
-            SetupVariantList(currentCaliber);
             currentItemId = AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant);
+            SetupVariantList(currentCaliber);
 
             Addressables.LoadAssetAsync<GameObject>(Catalog.GetData<ItemData>(currentItemId).prefabLocation).Completed += (handle =>
             {
