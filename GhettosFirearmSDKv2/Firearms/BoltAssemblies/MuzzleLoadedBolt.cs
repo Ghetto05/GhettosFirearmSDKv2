@@ -22,9 +22,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null && !c.loaded)
             {
                 loadedCartridge = c;
-                c.SetRenderersTo(firearm.item);
                 c.item.disallowDespawn = true;
-                c.item.disallowRoomDespawn = true;
                 c.loaded = true;
                 c.ToggleHandles(false);
                 c.ToggleCollision(false);
@@ -63,7 +61,7 @@ namespace GhettosFirearmSDKv2
             }
             firearm.PlayFireSound();
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
             if (ejectOnFire) EjectRound();
@@ -110,7 +108,6 @@ namespace GhettosFirearmSDKv2
             Util.PlayRandomAudioSource(ejectSounds);
             firearm.item.RemoveCustomData<ChamberSaveData>();
             Cartridge c = loadedCartridge;
-            c.SetRenderersTo(c.item);
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -122,9 +119,9 @@ namespace GhettosFirearmSDKv2
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
             Rigidbody rb = c.GetComponent<Rigidbody>();
             c.item.disallowDespawn = false;
-            c.item.disallowRoomDespawn = false;
             c.transform.parent = null;
             rb.isKinematic = false;
+            c.loaded = false;
             rb.WakeUp();
             if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
             c.ToggleHandles(true);

@@ -187,7 +187,7 @@ namespace GhettosFirearmSDKv2
             }
             firearm.PlayFireSound();
             firearm.PlayMuzzleFlash();
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
             Lock(false);
@@ -212,7 +212,7 @@ namespace GhettosFirearmSDKv2
                 wentToFrontSinceLastLock = false;
                 foreach (Handle h in boltHandles)
                 {
-                    h.customRigidBody = firearm.item.rb;
+                    h.customRigidBody = firearm.item.physicBody.rigidBody;
                 }
                 Destroy(joint);
                 SetStateOnAllHandlers(true);
@@ -304,7 +304,6 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null) return;
             currentRoundRemounted = false;
             Cartridge c = loadedCartridge;
-            c.SetRenderersTo(c.item);
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -316,8 +315,8 @@ namespace GhettosFirearmSDKv2
             Util.DelayIgnoreCollision(c.gameObject, firearm.item.gameObject, false, 3f, firearm.item);
             Rigidbody rb = c.GetComponent<Rigidbody>();
             c.item.disallowDespawn = false;
-            c.item.disallowRoomDespawn = false;
             c.transform.parent = null;
+            c.loaded = false;
             rb.isKinematic = false;
             rb.WakeUp();
             if (roundEjectDir != null)
@@ -334,7 +333,6 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
                 loadedCartridge = c;
-                c.SetRenderersTo(firearm.item);
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
@@ -370,9 +368,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null && (state != BoltState.Locked || forced) && !c.loaded)
             {
                 loadedCartridge = c;
-                c.SetRenderersTo(firearm.item);
                 c.item.disallowDespawn = true;
-                c.item.disallowRoomDespawn = true;
                 c.loaded = true;
                 c.ToggleHandles(false);
                 c.ToggleCollision(false);

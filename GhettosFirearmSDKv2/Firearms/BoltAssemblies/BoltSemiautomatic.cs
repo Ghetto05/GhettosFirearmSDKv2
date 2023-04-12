@@ -68,10 +68,16 @@ namespace GhettosFirearmSDKv2
             firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
             firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
 
-            if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe) InitializeJoint(false, true);
+            if (firearm.roundsPerMinute == 0) InitializeJoint(false, false, true);
+            else if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe) InitializeJoint(false, true);
             else InitializeJoint(false);
             UpdateBoltHandles();
             StartCoroutine(delayedGetChamber());
+        }
+
+        public override List<Handle> GetNoInfluenceHandles()
+        {
+            return boltHandles;
         }
 
         public void CalculateMuzzle()
@@ -181,7 +187,7 @@ namespace GhettosFirearmSDKv2
             }
             firearm.PlayFireSound();
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
             isReciprocating = true;
@@ -227,16 +233,10 @@ namespace GhettosFirearmSDKv2
             #region non-held lock
             if (isHeld && firearm.roundsPerMinute == 0 && !lastFrameHeld)
             {
-                //if (nonheldjoint != null) Destroy(nonheldjoint);
                 InitializeJoint(false, false, false);
             }
             else if (!isHeld && firearm.roundsPerMinute == 0 && lastFrameHeld)
             {
-                //if (nonheldjoint == null)
-                //{
-                //    nonheldjoint = firearm.item.gameObject.AddComponent<FixedJoint>();
-                //    nonheldjoint.connectedBody = rigidBody;
-                //}
                 InitializeJoint(false, false, true);
             }
             #endregion non-held lock
@@ -383,7 +383,6 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null) return;
             firearm.item.RemoveCustomData<ChamberSaveData>();
             Cartridge c = loadedCartridge;
-            c.SetRenderersTo(c.item);
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -393,10 +392,10 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = c.item.rb;
+            Rigidbody rb = c.item.physicBody.rigidBody;
             c.item.disallowDespawn = false;
-            c.item.disallowRoomDespawn = false;
             c.transform.parent = null;
+            c.loaded = false;
             rb.isKinematic = false;
             rb.WakeUp();
             if (roundEjectDir != null) 
@@ -413,7 +412,6 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
                 loadedCartridge = c;
-                c.SetRenderersTo(firearm.item);
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
@@ -499,9 +497,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null && (state != BoltState.Locked || forced) && !c.loaded)
             {
                 loadedCartridge = c;
-                c.SetRenderersTo(firearm.item);
                 c.item.disallowDespawn = true;
-                c.item.disallowRoomDespawn = true;
                 c.loaded = true;
                 c.ToggleHandles(false);
                 c.ToggleCollision(false);

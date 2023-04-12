@@ -9,7 +9,6 @@ namespace GhettosFirearmSDKv2
     public class Minigun : BoltBase
     {
         public float[] barrelAngles;
-        private float lastRotation;
         public Transform roundMount;
         public Cartridge loadedCartridge;
         public Transform roundEjectPoint;
@@ -130,7 +129,7 @@ namespace GhettosFirearmSDKv2
             }
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
             firearm.PlayFireSound();
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             Util.PlayRandomAudioSource(firearm.fireSounds);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
@@ -153,9 +152,9 @@ namespace GhettosFirearmSDKv2
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
             Rigidbody rb = c.GetComponent<Rigidbody>();
             c.item.disallowDespawn = false;
-            c.item.disallowRoomDespawn = false;
             c.transform.parent = null;
             rb.isKinematic = false;
+            c.loaded = false;
             rb.WakeUp();
             if (roundEjectDir != null)
             {

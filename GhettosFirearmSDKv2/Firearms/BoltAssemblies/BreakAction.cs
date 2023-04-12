@@ -90,6 +90,8 @@ namespace GhettosFirearmSDKv2
                 data.contents = new string[loadedCartridges.Length];
             }
             allowInsert = true;
+            yield return new WaitForSeconds(0.7f);
+            UpdateCartridges();
         }
 
         private void Firearm_OnMuzzleCalculatedEvent()
@@ -129,7 +131,6 @@ namespace GhettosFirearmSDKv2
                 if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
                 loadedCartridges[index] = cartridge;
                 cartridge.item.disallowDespawn = true;
-                cartridge.item.disallowRoomDespawn = true;
                 cartridge.loaded = true;
                 cartridge.ToggleHandles(false);
                 cartridge.ToggleCollision(false);
@@ -167,9 +168,8 @@ namespace GhettosFirearmSDKv2
                 Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
                 c.ToggleCollision(true);
                 Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-                Rigidbody rb = c.item.rb;
+                Rigidbody rb = c.item.physicBody.rigidBody;
                 c.item.disallowDespawn = false;
-                c.item.disallowRoomDespawn = false;
                 c.transform.parent = null;
                 c.loaded = false;
                 rb.isKinematic = false;
@@ -297,7 +297,7 @@ namespace GhettosFirearmSDKv2
                 if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > ca && actualMuzzleFlashes[ca] != null && muzzles.Count > 1) actualMuzzleFlashes[ca].Play(); 
                 else firearm.PlayMuzzleFlash();
             }
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.rb, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, muzzle);
             InvokeFireEvent();
