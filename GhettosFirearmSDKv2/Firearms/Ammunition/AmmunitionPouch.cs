@@ -54,7 +54,7 @@ namespace GhettosFirearmSDKv2
         IEnumerator DelayedSnap(Item item)
         {
             yield return new WaitForSeconds(0.05f);
-            holder.Snap(item);
+            holder.Snap(item, true);
         }
 
         public void SaveItem()
