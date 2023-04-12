@@ -18,17 +18,37 @@ namespace GhettosFirearmSDKv2
         public Cartridge[] loadedCartridges;
         private MagazineSaveData data;
         private bool allowInsert = false;
+        private bool startRemoving = false;
 
         private void Awake()
         {
             loadedCartridges = new Cartridge[mountPoints.Count];
             item.OnGrabEvent += Item_OnGrabEvent;
+            item.OnSnapEvent += Item_OnSnapEvent;
+            item.OnUnSnapEvent += Item_OnUnSnapEvent;
             StartCoroutine(Delayed());
+        }
+
+        private void Item_OnUnSnapEvent(Holder holder)
+        {
+            foreach (Cartridge c in loadedCartridges)
+            {
+                if (c != null) c.ToggleCollision(true);
+            }
+        }
+
+        private void Item_OnSnapEvent(Holder holder)
+        {
+            foreach (Cartridge c in loadedCartridges)
+            {
+                if (c != null) c.ToggleCollision(false);
+            }
         }
 
         private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
         {
             UpdateCartridges();
+            startRemoving = true;
         }
 
         private IEnumerator Delayed()
@@ -48,6 +68,8 @@ namespace GhettosFirearmSDKv2
                 item.TryGetCustomData(out data);
             }
             allowInsert = true;
+            yield return new WaitForSeconds(0.1f);
+            if (item.holder != null) Item_OnSnapEvent(item.holder);
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -73,7 +95,6 @@ namespace GhettosFirearmSDKv2
                 if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
                 loadedCartridges[index] = cartridge;
                 cartridge.item.disallowDespawn = true;
-                cartridge.item.disallowRoomDespawn = true; 
                 cartridge.ToggleHandles(false);
                 //cartridge.ToggleCollision(false);
                 cartridge.UngrabAll();
@@ -105,7 +126,7 @@ namespace GhettosFirearmSDKv2
         {
             for (int i = 0; i < loadedCartridges.Length; i++)
             {
-                if (loadedCartridges[i] != null && (loadedCartridges[i].fired || loadedCartridges[i].transform.parent != mountPoints[i])) loadedCartridges[i] = null;
+                if (startRemoving && loadedCartridges[i] != null && (loadedCartridges[i].fired || loadedCartridges[i].transform.parent != mountPoints[i])) loadedCartridges[i] = null;
             }
         }
 
