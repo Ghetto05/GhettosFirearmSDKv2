@@ -16,6 +16,11 @@ namespace GhettosFirearmSDKv2
         public bool fireOnTriggerPress = true;
         public ReciprocatingBarrel reciprocatingBarrel;
 
+        public virtual List<Handle> GetNoInfluenceHandles()
+        {
+            return new List<Handle>();
+        }
+
         public static Vector3 GrandparentLocalPosition(Transform child, Transform grandparent)
         {
             return grandparent.InverseTransformPoint(child.position);
@@ -38,20 +43,20 @@ namespace GhettosFirearmSDKv2
 
         public static void AddTorqueToCartridge(Cartridge c)
         {
-            float f = Settings_LevelModule.local.cartridgeEjectionTorque;
+            float f = FirearmsSettings.values.cartridgeEjectionTorque;
             Vector3 torque = new Vector3
             {
                 x = Random.Range(-f, f),
                 y = Random.Range(-f, f),
                 z = Random.Range(-f, f)
             };
-            c.item.rb.AddTorque(torque);
+            c.item.physicBody.AddTorque(torque, ForceMode.Impulse);
         }
 
         public static void AddForceToCartridge(Cartridge c, Transform direction, float force)
         {
-            float f = Settings_LevelModule.local.cartridgeEjectionForceRandomizationDevision;
-            c.item.rb.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
+            float f = FirearmsSettings.values.cartridgeEjectionForceRandomizationDevision;
+            c.item.physicBody.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
         }
 
         public virtual bool LoadChamber(Cartridge c, bool forced = false)

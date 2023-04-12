@@ -29,20 +29,22 @@ namespace GhettosFirearmSDKv2
         {
             if (category.Equals("Prebuilts"))
             {
-                Settings_LevelModule.CreateSaveFolder();
+                FirearmsSettings.CreateSaveFolder();
                 ItemData itemData = (ItemData)Catalog.GetData<ItemData>(itemId).Clone();
                 itemData.modules = itemData.modules.CloneJson();
                 itemData.id = "Item" + id;
                 itemData.description = "Prebuilt version of the " + itemData.displayName + ".";
                 itemData.displayName = displayName;
-                PrebuiltLoader loader = new PrebuiltLoader();
-                loader.originalId = itemId;
-                loader.prebuiltId = id;
-                loader.itemData = itemData;
-                itemData.modules.Add(loader);
                 itemData.category = "Firearm Prebuilts";
-                itemData.iconAddress = id + ".Icon";
-                Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, "GhettosFirearmSDKv2Saves\\Saves\\" + "Item" + id + ".json"), "GhettosFirearmSDKv2_Saves");
+                //itemData.iconAddress = id + ".Icon";
+                PrebuiltLoader loader = new PrebuiltLoader
+                {
+                    originalId = itemId,
+                    prebuiltId = id,
+                    itemData = itemData
+                };
+                itemData.modules.Add(loader);
+                Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, FirearmsSettings.saveFolderName + "\\Saves\\" + "Item" + id + ".json"), "!GhettosFirearmSDKv2_Saves");
             }
             base.OnCatalogRefresh();
         }

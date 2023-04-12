@@ -30,19 +30,19 @@ namespace GhettosFirearmSDKv2
 
         public static void SetX1FOV(float fov)
         {
-            Settings_LevelModule.local.scopeX1MagnificationFOV = fov;
-            Settings_LevelModule.local.SendUpdate();
+            FirearmsSettings.values.scopeX1MagnificationFOV = fov;
+            FirearmsSettings.local.SendUpdate();
         }
 
         private void Awake()
         {
             DebugLogConsole.AddCommand<float>("SetScopeX1FOV", "Sets scope default zoom", SetX1FOV);
-            baseFov = overrideX1CameraFOV? cam.fieldOfView : Settings_LevelModule.local.scopeX1MagnificationFOV;
+            baseFov = overrideX1CameraFOV? cam.fieldOfView : FirearmsSettings.values.scopeX1MagnificationFOV;
             RenderTexture rt = new RenderTexture(512, 512, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
             rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
             cam.targetTexture = rt;
             lens.materials[materialIndex].SetTexture("_BaseMap", rt);
-            Settings_LevelModule.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
+            FirearmsSettings.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
             StartCoroutine(delayedLoad());
         }
 
@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!overrideX1CameraFOV)
             {
-                baseFov = Settings_LevelModule.local.scopeX1MagnificationFOV;
+                baseFov = FirearmsSettings.values.scopeX1MagnificationFOV;
                 if (hasZoom) SetZoom();
                 else SetZoomNoZoomer(noZoomMagnification);
             }

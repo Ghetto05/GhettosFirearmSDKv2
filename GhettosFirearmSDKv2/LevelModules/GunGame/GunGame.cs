@@ -29,7 +29,7 @@ namespace GhettosFirearmSDKv2
             }
 
             datas = Catalog.GetDataList<GunGameWeaponData>().OrderByDescending(data => data.order).ToList();
-            EventManager.OnPlayerSpawned += EventManager_OnPlayerSpawned;
+            EventManager.OnPlayerPrefabSpawned += EventManager_OnPlayerSpawned;
             EventManager.onCreatureKill += EventManager_onCreatureKill;
             return base.OnLoadCoroutine();
         }
@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             killsWithCurrentWeapon = 0;
             currentWeapon = 0;
 
-            if (datas.Count == 0) GameManager.LoadLevel("Home");
+            if (datas.Count == 0) LevelManager.LoadLevel("Home");
 
             foreach (Item i in Player.local.creature.equipment.GetAllHolsteredItems())
             {
@@ -89,7 +89,7 @@ namespace GhettosFirearmSDKv2
         public void SpawnWeaponAndMagazine()
         {
             if (weapon != null) weapon.Despawn();
-            if (GetCurrentWeapon() == null) GameManager.LoadLevel("Home");
+            if (GetCurrentWeapon() == null) LevelManager.LoadLevel("Home");
             Player.local.creature.GetHand(Side.Left).UnGrab(false);
             Player.local.creature.GetHand(Side.Right).UnGrab(false);
             GetCurrentWeapon()?.SpawnAsync(newWeapon => { weapon = newWeapon; Player.local.creature.GetHand(Side.Right).Grab(weapon.mainHandleRight); }, Player.local.transform.position);

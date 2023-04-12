@@ -120,7 +120,7 @@ namespace GhettosFirearmSDKv2
             foreach (Handle han in handles)
             {
                 han.item = attachmentPoint.parentFirearm.item;
-                han.rb = attachmentPoint.parentFirearm.item.rb;
+                han.physicBody.rigidBody = attachmentPoint.parentFirearm.item.physicBody.rigidBody;
                 attachmentPoint.parentFirearm.item.handles.Add(han);
                 if (attachmentPoint.parentFirearm.item.holder != null) han.SetTouch(false);
             }

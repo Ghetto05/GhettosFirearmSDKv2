@@ -43,7 +43,7 @@ namespace GhettosFirearmSDKv2
             if (!AlwaysFrozen && item != null) item.OnHeldActionEvent += Item_OnHeldActionEvent;
             if (AlwaysFrozen && item != null)
             {
-                item.rb.isKinematic = true;
+                item.physicBody.isKinematic = true;
                 item.disallowDespawn = true;
             }
         }
@@ -52,8 +52,8 @@ namespace GhettosFirearmSDKv2
         {
             if (!AlwaysFrozen && action == Interactable.Action.UseStart || action == Interactable.Action.AlternateUseStart)
             {
-                item.rb.isKinematic = !item.rb.isKinematic;
-                item.disallowDespawn = item.rb.isKinematic;
+                item.physicBody.isKinematic = !item.physicBody.isKinematic;
+                item.disallowDespawn = item.physicBody.isKinematic;
             }
         }
 

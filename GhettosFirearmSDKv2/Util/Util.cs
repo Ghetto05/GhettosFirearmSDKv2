@@ -15,7 +15,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadCatridge(Cartridge cartridge, string requiredCaliber)
         {
-            if (!Settings_LevelModule.local.doCaliberChecks) return true;
+            if (!FirearmsSettings.values.doCaliberChecks) return true;
             if (cartridge.caliber.Equals("DEBUG UNIVERSAL")) return true;
 
             return cartridge.caliber.Equals(requiredCaliber);
@@ -23,7 +23,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadCatridge(Cartridge cartridge, Magazine magazine)
         {
-            if (!Settings_LevelModule.local.doCaliberChecks) return true;
+            if (!FirearmsSettings.values.doCaliberChecks) return true;
             if (cartridge.caliber.Equals("DEBUG UNIVERSAL")) return true;
             bool correctCaliber = cartridge.caliber.Equals(magazine.caliber) || ListContainsString(magazine.alternateCalibers, cartridge.caliber);
             bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridge.caliber);
@@ -32,7 +32,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadCatridge(string cartridgeCaliber, Magazine magazine)
         {
-            if (!Settings_LevelModule.local.doCaliberChecks) return true;
+            if (!FirearmsSettings.values.doCaliberChecks) return true;
             if (cartridgeCaliber.Equals("DEBUG UNIVERSAL")) return true;
             bool correctCaliber = cartridgeCaliber.Equals(magazine.caliber) || ListContainsString(magazine.alternateCalibers, cartridgeCaliber);
             bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridgeCaliber);
@@ -41,7 +41,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadCatridge(string cartridgeCaliber, string otherCaliber)
         {
-            if (!Settings_LevelModule.local.doCaliberChecks) return true;
+            if (!FirearmsSettings.values.doCaliberChecks) return true;
             if (cartridgeCaliber.Equals("DEBUG UNIVERSAL")) return true;
             bool correctCaliber = cartridgeCaliber.Equals(otherCaliber);
             return correctCaliber;
@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
         public static bool AllowLoadMagazine(Magazine magazine, MagazineWell well)
         {
             if (magazine.currentWell != null || magazine.item.holder != null || well.currentMagazine != null) return false;
-            if (!Settings_LevelModule.local.doMagazineTypeChecks) return true;
+            if (!FirearmsSettings.values.doMagazineTypeChecks) return true;
             if (magazine.magazineType.Equals("DEBUG UNIVERSAL")) return true;
 
             bool sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (t.Equals(magazine.magazineType)) sameType = true;
             }
-            bool compatibleCaliber = (magazine.cartridges.Count == 0) || !Settings_LevelModule.local.doCaliberChecks || ((well.caliber.Equals(magazine.cartridges[0].caliber))||(ListContainsString(well.alternateCalibers, magazine.cartridges[0].caliber)));
+            bool compatibleCaliber = (magazine.cartridges.Count == 0) || !FirearmsSettings.values.doCaliberChecks || ((well.caliber.Equals(magazine.cartridges[0].caliber))||(ListContainsString(well.alternateCalibers, magazine.cartridges[0].caliber)));
 
             return sameType && compatibleCaliber;
         }
@@ -83,14 +83,13 @@ namespace GhettosFirearmSDKv2
 
         public static void AlertAllCreaturesInRange(Vector3 point, float range)
         {
-            return;
-            foreach (Creature cr in Creature.allActive)
-            {
-                if (Vector3.Distance(cr.animator.GetBoneTransform(HumanBodyBones.Neck).position, point) <= range)
-                {
-                    cr.brain.SetState(Brain.State.Alert);
-                }
-            }
+            //foreach (Creature cr in Creature.allActive)
+            //{
+            //    if (Vector3.Distance(cr.animator.GetBoneTransform(HumanBodyBones.Neck).position, point) <= range)
+            //    {
+            //        cr.brain.SetState(Brain.State.Alert);
+            //    }
+            //}
         }
 
         public static bool CheckForCollisionWithThisCollider(Collision collision, Collider thisCollider)
@@ -157,6 +156,12 @@ namespace GhettosFirearmSDKv2
             if (list == null || list.Count == 0) return default;
             int i = Random.Range(0, list.Count);
             return list[i];
+        }
+
+        public static T GetRandomFromList<T>(IList<T> array)
+        {
+            if (array == null) return default;
+            return GetRandomFromList(array.ToList());
         }
 
         public static float AbsDist(Vector3 v1, Vector3 v2)

@@ -38,10 +38,10 @@ namespace GhettosFirearmSDKv2
                 category = holder.items[0].data.displayName,
                 dataList = holder.items[0].contentCustomData.ToList()
             };
-            Settings_LevelModule.CreateSaveFolder();
-            string path = FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, "GhettosFirearmSDKv2Saves\\Saves\\" + newData.id + ".json");
+            FirearmsSettings.CreateSaveFolder();
+            string path = FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, FirearmsSettings.saveFolderName + "\\Saves\\" + newData.id + ".json");
             string content = JsonConvert.SerializeObject(newData, Catalog.jsonSerializerSettings);
-            Catalog.LoadJson(newData, content, path, "GhettosFirearmSDKv2Saves\\Saves");
+            Catalog.LoadJson(newData, content, path, FirearmsSettings.saveFolderName + "\\Saves");
             File.WriteAllText(path, content);
             SetupCategoryList();
         }
@@ -127,9 +127,9 @@ namespace GhettosFirearmSDKv2
         private void DeleteSave(string saveId)
         {
             GunLockerSaveData data = Catalog.GetData<GunLockerSaveData>(saveId);
-            string path = FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, "GhettosFirearmSDKv2Saves\\Saves\\" + data.id + ".json");
+            string path = FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, FirearmsSettings.saveFolderName + "\\Saves\\" + data.id + ".json");
             if (File.Exists(path)) File.Delete(path);
-            Catalog.data[(int)Catalog.GetCategory(data.GetType())].Remove(data);
+            Catalog.data[(int)Catalog.GetCategory(data.GetType())].catalogDatas.Remove(data);
             SetCategory(currentCategory);
         }
     }
