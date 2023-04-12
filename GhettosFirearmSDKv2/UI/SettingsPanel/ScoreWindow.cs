@@ -13,10 +13,10 @@ namespace GhettosFirearmSDKv2.UI
 
         private void Update()
         {
-            shotsFired.text = Settings_LevelModule.localScore.shotsFired.ToString();
-            hits.text = Settings_LevelModule.localScore.shotsHit.ToString();
-            headshots.text = Settings_LevelModule.localScore.headshots.ToString();
-            accuracy.text = Settings_LevelModule.localScore.CalculateAccuracy() + "%";
+            shotsFired.text = FirearmsScore.local.shotsFired.ToString();
+            hits.text = FirearmsScore.local.shotsHit.ToString();
+            headshots.text = FirearmsScore.local.headshots.ToString();
+            accuracy.text = FirearmsScore.local.CalculateAccuracy() + "%";
         }
     }
 }

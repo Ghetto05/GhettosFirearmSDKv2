@@ -14,49 +14,79 @@ namespace GhettosFirearmSDKv2.UI
         public Toggle disableMagazineCollisionsButton;
 
         [Header("Forced casing despawn")]
-        public Toggle forceDespawnCasingsButton;
         public Text despawnCasingsTimeDisplay;
         public UnityEngine.UI.Slider despawnCasingsTimeSlider;
-
-        [Header("Fire sound volume")]
-        public Text fireSoundVolumeDisplay;
-        public UnityEngine.UI.Slider fireSoundsVolumeSlider;
 
         [Header("HUD scale")]
         public Text hudScaleDisplay;
 
+        [Header("Long press time")]
+        public Text longPressTimeDisplay;
+
+        [Header("Revolver trigger deadzone")]
+        public Text revolverTriggerDeadzoneDisplay;
+        public UnityEngine.UI.Slider revolverTriggerDeadzoneSlider;
+
         void Awake()
         {
-            Settings_LevelModule.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
+            FirearmsSettings.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
+            despawnCasingsTimeSlider.onValueChanged.AddListener(UpdateCartridgeDespawnTime);
             Settings_LevelModule_OnValueChangedEvent();
         }
 
         private void Settings_LevelModule_OnValueChangedEvent()
         {
             //damage multiplier
-            damageMultiplierValue.text = "Damage times " + Settings_LevelModule.local.damageMultiplier;
+            damageMultiplierValue.text = "Damage times " + FirearmsSettings.values.damageMultiplier;
             //no phys mags
-            disableMagazineCollisionsButton.isOn = Settings_LevelModule.local.magazinesHaveNoCollision;
+            disableMagazineCollisionsButton.isOn = FirearmsSettings.values.magazinesHaveNoCollision;
             //hud scale
-            hudScaleDisplay.text = "HUD Scale: " + Settings_LevelModule.local.hudScale;
+            hudScaleDisplay.text = "HUD Scale: " + FirearmsSettings.values.hudScale;
+
+            despawnCasingsTimeSlider.value = FirearmsSettings.values.cartridgeDespawnTime;
+            bool flag = !Mathf.Approximately(FirearmsSettings.values.cartridgeDespawnTime, 0f);
+            string s = flag ? "after " + FirearmsSettings.values.cartridgeDespawnTime.ToString() + " second(s)" : "disabled";
+            despawnCasingsTimeDisplay.text = "Force despawn casings:\n" + s;
+
+
+            revolverTriggerDeadzoneSlider.value = FirearmsSettings.values.revolverTriggerDeadzone;
+            revolverTriggerDeadzoneDisplay.text = "Revolver trigger deadzone:\n" + FirearmsSettings.values.revolverTriggerDeadzone;
         }
 
         public void ChangeDamageMultiplier(float value)
         {
-            Settings_LevelModule.local.damageMultiplier += value;
-            Settings_LevelModule.local.SendUpdate();
+            FirearmsSettings.values.damageMultiplier += value;
+            FirearmsSettings.local.SendUpdate();
         }
 
         public void ToggleDisableMagazineCollisions()
         {
-            Settings_LevelModule.local.magazinesHaveNoCollision = disableMagazineCollisionsButton.isOn;
-            Settings_LevelModule.local.SendUpdate();
+            FirearmsSettings.values.magazinesHaveNoCollision = disableMagazineCollisionsButton.isOn;
+            FirearmsSettings.local.SendUpdate();
         }
 
         public void ChangeHUDScale(float value)
         {
-            Settings_LevelModule.local.hudScale += value;
-            Settings_LevelModule.local.SendUpdate();
+            FirearmsSettings.values.hudScale += value;
+            FirearmsSettings.local.SendUpdate();
+        }
+
+        public void UpdateCartridgeDespawnTime(float value)
+        {
+            FirearmsSettings.values.cartridgeDespawnTime = value;
+            FirearmsSettings.local.SendUpdate();
+        }
+
+        public void UpdateRevolverTriggerDeadzone(float value)
+        {
+            FirearmsSettings.values.revolverTriggerDeadzone = value;
+            FirearmsSettings.local.SendUpdate();
+        }
+
+        public void ChangeLongPressTime(float value)
+        {
+            FirearmsSettings.values.longPressTime += value;
+            FirearmsSettings.local.SendUpdate();
         }
     }
 }
