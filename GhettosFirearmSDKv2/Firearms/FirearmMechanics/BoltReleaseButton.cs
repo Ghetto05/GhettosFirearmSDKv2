@@ -47,7 +47,7 @@ namespace GhettosFirearmSDKv2
             if (release == null) return;
             if (collision.contacts[0].thisCollider == release)
             {
-                OnReleaseEvent?.Invoke();
+                OnReleaseEvent?.Invoke(true);
             }
         }
 
