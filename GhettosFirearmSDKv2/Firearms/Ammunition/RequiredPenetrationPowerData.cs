@@ -24,7 +24,7 @@ namespace GhettosFirearmSDKv2
             return ProjectileData.PenetrationLevels.None;
         }
 
-        public override IEnumerator LoadAddressableAssetsCoroutine()
+        public override void OnCatalogRefresh()
         {
             if (penetrationPower.Equals("None")) level = ProjectileData.PenetrationLevels.None;
             else if (penetrationPower.Equals("Leather")) level = ProjectileData.PenetrationLevels.Leather;
@@ -34,7 +34,7 @@ namespace GhettosFirearmSDKv2
             else if (penetrationPower.Equals("World")) level = ProjectileData.PenetrationLevels.World;
             Debug.Log($"[Firearm SDK v2] Adding entry for physics material {materialID}: required power {(int)level} which is equals to {level}");
 
-            return base.LoadAddressableAssetsCoroutine();
+            base.OnCatalogRefresh();
         }
 
         public override int GetCurrentVersion()

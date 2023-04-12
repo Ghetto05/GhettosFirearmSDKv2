@@ -60,7 +60,7 @@ namespace GhettosFirearmSDKv2
                 body.SetParent(null);
                 body.rotation = endPosition.rotation;
                 body.position = endPosition.position;
-                rb.velocity = grenadeItem.rb.velocity;
+                rb.velocity = grenadeItem.physicBody.velocity;
                 rb.useGravity = true;
                 StartCoroutine(DelayedAddForce(rb));
             }

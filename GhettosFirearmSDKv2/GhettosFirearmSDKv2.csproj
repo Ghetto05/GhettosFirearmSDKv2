@@ -35,6 +35,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\chabuk.manikinmono.dll</HintPath>
     </Reference>
+    <Reference Include="EasyButtons">
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\EasyButtons.dll</HintPath>
+    </Reference>
     <Reference Include="GhettosFirearmSDKv2.Hitscan">
       <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\GhettosFirearmFrameworkV2\GhettosFirearmSDKv2.Hitscan.dll</HintPath>
     </Reference>
@@ -68,8 +71,29 @@
     <Reference Include="ThunderRoad">
       <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.dll</HintPath>
     </Reference>
+    <Reference Include="ThunderRoad.EventLinker">
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.EventLinker.dll</HintPath>
+    </Reference>
+    <Reference Include="ThunderRoad.Manikin">
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.Manikin.dll</HintPath>
+    </Reference>
+    <Reference Include="ThunderRoad.MaterialInstance">
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.MaterialInstance.dll</HintPath>
+    </Reference>
     <Reference Include="ThunderRoad.Plugins">
       <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.Plugins.dll</HintPath>
+    </Reference>
+    <Reference Include="ThunderRoad.PointCache">
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.PointCache.dll</HintPath>
+    </Reference>
+    <Reference Include="ThunderRoad.Reflection">
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.Reflection.dll</HintPath>
+    </Reference>
+    <Reference Include="ThunderRoad.Reveal">
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.Reveal.dll</HintPath>
+    </Reference>
+    <Reference Include="ThunderRoad.Utilities">
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.Utilities.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Addressables">
       <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\Unity.Addressables.dll</HintPath>
@@ -386,6 +410,7 @@
     <Compile Include="Firearms\BoltAssemblies\MultiChamberMuzzleLoadedBolt.cs" />
     <Compile Include="Firearms\BoltAssemblies\BreakAction.cs" />
     <Compile Include="Firearms\BoltAssemblies\BreakActionMuzzleOverride.cs" />
+    <Compile Include="Firearms\BoltAssemblies\Revolver.cs" />
     <Compile Include="Firearms\BoltAssemblies\SelfLoadingBolt.cs" />
     <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs" />
     <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
@@ -401,11 +426,13 @@
     <Compile Include="Clothing\NVGs\NVGOnlyRendererMeshModule.cs" />
     <Compile Include="Clothing\NVGs\NVGOnlyRenderer.cs" />
     <Compile Include="Firearms\FirearmMechanics\Hammer.cs" />
+    <Compile Include="Firearms\FirearmMechanics\RevolverEjectorRod.cs" />
     <Compile Include="LevelModules\GunGame\GunGameWeaponData.cs" />
     <Compile Include="LevelModules\GunGame\GunGame.cs" />
+    <Compile Include="Other\GhettoHandle.cs" />
     <Compile Include="Other\CollisionRelay.cs" />
     <Compile Include="SaveData\HammerSaveData.cs" />
-    <Compile Include="LevelModules\Score_LevelModule.cs" />
+    <Compile Include="LevelModules\FirearmsScore.cs" />
     <Compile Include="Other\Switches\SwitchRelation.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltBase.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearm.cs" />
@@ -486,14 +513,14 @@
     <Compile Include="Firearms\Ammunition\Magazine.cs" />
     <Compile Include="Firearms\Ammunition\ProjectileData.cs" />
     <Compile Include="Explosives\ExplosiveData.cs" />
-    <Compile Include="LevelModules\Settings_LevelModule.cs" />
+    <Compile Include="LevelModules\FirearmsSettings.cs" />
     <Compile Include="FireMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WTFInator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).pdb" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\$(TargetName)\$(TargetName).pdb"
-copy /Y "$(TargetPath)" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\$(TargetName)\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).pdb" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\!$(TargetName)\$(TargetName).pdb"
+copy /Y "$(TargetPath)" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\!$(TargetName)\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

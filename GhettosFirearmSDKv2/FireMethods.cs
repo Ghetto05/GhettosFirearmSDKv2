@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using ThunderRoad;
-using RainyReignGames.RevealMask;
+using ThunderRoad.Reveal;
 using System.Collections;
 using GhettosFirearmSDKv2.Explosives;
 
@@ -64,7 +64,7 @@ namespace GhettosFirearmSDKv2
 
         private static Creature Hitscan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 hitpoint, float damageMultiplier)
         {
-            Settings_LevelModule.localScore.shotsFired++;
+            FirearmsScore.local.shotsFired++;
 
             #region physics toggle
             foreach (RaycastHit hit1 in Physics.RaycastAll(muzzle.position, muzzle.forward, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion")))
@@ -81,11 +81,11 @@ namespace GhettosFirearmSDKv2
                         {
                             if (cr.equipment.GetHeldItem(Side.Left) != null)
                             {
-                                cr.equipment.GetHeldItem(Side.Left).SetPhysicsState(true);
+                                cr.equipment.GetHeldItem(Side.Left).SetColliders(true);
                             }
                             if (cr.equipment.GetHeldItem(Side.Right) != null)
                             {
-                                cr.equipment.GetHeldItem(Side.Right).SetPhysicsState(true);
+                                cr.equipment.GetHeldItem(Side.Right).SetColliders(true);
                             }
                         }
                     }
@@ -147,9 +147,9 @@ namespace GhettosFirearmSDKv2
                     {
                         Creature cr = rag.creature;
                         RagdollPart ragdollPart = hit.collider.gameObject.GetComponentInParent<RagdollPart>();
-                        Settings_LevelModule.localScore.shotsHit++;
+                        FirearmsScore.local.shotsHit++;
 
-                        bool penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= data.penetrationPower;
+                        bool penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= (int)data.penetrationPower;
 
                         #region impact effect
                         if (data.hasBodyImpactEffect)
@@ -168,7 +168,7 @@ namespace GhettosFirearmSDKv2
                         {
                             case RagdollPart.Type.Head: //damage = infinity, remove voice, push(3)
                                 {
-                                    Settings_LevelModule.localScore.headshots++;
+                                    FirearmsScore.local.headshots++;
                                     if (penetrated && data.lethalHeadshot) damageModifier = Mathf.Infinity;
                                     else damageModifier = 2;
                                     if (penetrated && WouldCreatureBeKilled(data.damagePerProjectile * damageModifier, cr) && !cr.isPlayer) cr.brain.instance.GetModule<BrainModuleSpeak>().Unload();
@@ -185,7 +185,7 @@ namespace GhettosFirearmSDKv2
                                 break;
                             case RagdollPart.Type.Torso: //damage = damage, push(2)
                                 {
-                                    if (penetrated && Settings_LevelModule.local.incapitateOnTorsoShot && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
+                                    if (penetrated && FirearmsSettings.values.incapitateOnTorsoShot && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
                                     {
                                         cr.brain.AddNoStandUpModifier(gunItem);
                                         cr.ragdoll.SetState(Ragdoll.State.Destabilized);
@@ -250,14 +250,14 @@ namespace GhettosFirearmSDKv2
                                 }
                                 break;
                         }
-                        if (penetrated && data.slicesBodyParts && !cr.isPlayer && ragdollPart.sliceAllowed) ragdollPart.TrySlice();
+                        if (penetrated && data.slicesBodyParts && !cr.isPlayer && Slice(ragdollPart)) ragdollPart.TrySlice();
                         if (!penetrated) damageModifier /= 4;
                         #endregion Damage level determination
 
                         #region Damaging
                         CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damagePerProjectile));
                         coll.damageStruct.damage = EvaluateDamage(data.damagePerProjectile * damageModifier, cr);
-                        coll.damageStruct.damageType = DamageType.Pierce;
+                        coll.damageStruct.damageType = DamageType.Blunt;
                         coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
                         coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
                         coll.targetColliderGroup = ragdollPart.colliderGroup;
@@ -321,9 +321,10 @@ namespace GhettosFirearmSDKv2
                             ei.SetIntensity(100f);
                             ei.Play();
                         }
-                        if (hit.collider.GetComponentInParent<Item>() is Item hitItem && hitItem.handlers.Count > 0)
+                        if (hit.collider.GetComponentInParent<Item>() is Item hitItem)
                         {
                             hit.rigidbody.AddForce(muzzle.forward * (data.forcePerProjectile / 10), ForceMode.Impulse);
+                            if (hitItem.GetComponentInChildren<Breakable>() is Breakable b) b.Break();
                         }
                         else
                         {
@@ -345,6 +346,8 @@ namespace GhettosFirearmSDKv2
             else hitpoint = Vector3.zero;
             return null;
         }
+
+        public static bool Slice(RagdollPart part) => part.sliceAllowed || part.name.Equals("Spine");
 
         private static void DrawDecal(RagdollPart rp, RaycastHit hit, string customDecal)
         {
@@ -386,16 +389,16 @@ namespace GhettosFirearmSDKv2
 
         private static IEnumerator FireItemCoroutine(Item projectilItem, Item gunItem, Vector3 pos, Quaternion rot, Vector3 dir, float velocity)
         {
-            projectilItem.rb.isKinematic = true;
+            projectilItem.physicBody.rigidBody.isKinematic = true;
             Util.IgnoreCollision(projectilItem.gameObject, gunItem.gameObject, true);
             Util.IgnoreCollision(projectilItem.gameObject, Player.local.gameObject, true);
             projectilItem.transform.rotation = rot;
             projectilItem.transform.position = pos;
             yield return new WaitForFixedUpdate();
             yield return new WaitForFixedUpdate();
-            projectilItem.rb.isKinematic = false;
+            projectilItem.physicBody.rigidBody.isKinematic = false;
             projectilItem.Throw();
-            projectilItem.rb.velocity = dir * velocity;
+            projectilItem.physicBody.rigidBody.velocity = dir * velocity;
         }
 
         public static IEnumerator TemporaryKnockout(float duration, Creature creature)
@@ -445,7 +448,7 @@ namespace GhettosFirearmSDKv2
 
             foreach (Creature hitCreature in hitCreatures)
             {
-                CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damage * Settings_LevelModule.local.damageMultiplier));
+                CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damage * FirearmsSettings.values.damageMultiplier));
                 coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
                 coll.damageStruct.damageType = DamageType.Energy;
                 coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
@@ -456,13 +459,13 @@ namespace GhettosFirearmSDKv2
                 coll.damageStruct.penetration = DamageStruct.Penetration.Hit;
                 coll.damageStruct.penetrationDepth = 10;
                 coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
-                coll.intensity = data.damage * Settings_LevelModule.local.damageMultiplier;
+                coll.intensity = data.damage * FirearmsSettings.values.damageMultiplier;
                 try { hitCreature.Damage(coll); } catch (System.Exception) { }
 
                 hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
                 foreach (RagdollPart rp in hitCreature.ragdoll.parts)
                 {
-                    rp.rb.AddForce((rp.rb.position - point).normalized * data.force * 3f);
+                    rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 3f);
                 }
             }
 
@@ -473,7 +476,7 @@ namespace GhettosFirearmSDKv2
 
             foreach (Item hitItem in hitItems)
             {
-                hitItem.rb.AddExplosionForce(data.force * 200, point, data.radius * 3, data.upwardsModifier);
+                hitItem.physicBody.rigidBody.AddExplosionForce(data.force * 200, point, data.radius * 3, data.upwardsModifier);
             }
 
             if (!string.IsNullOrWhiteSpace(data.effectId))
@@ -485,7 +488,7 @@ namespace GhettosFirearmSDKv2
 
         public static float EvaluateDamage(float perfifty, Creature c)
         {
-            float perFiftyDamage = perfifty * Settings_LevelModule.local.damageMultiplier;
+            float perFiftyDamage = perfifty * FirearmsSettings.values.damageMultiplier;
             float aspect = perFiftyDamage / 50;
             float damageToBeDone = c.maxHealth * aspect;
 
@@ -497,7 +500,7 @@ namespace GhettosFirearmSDKv2
             return EvaluateDamage(perfifty, c) >= c.currentHealth;
         }
 
-        public static ProjectileData.PenetrationLevels GetRequiredPenetrationLevel(RaycastHit hit, Vector3 direction, Item handler)
+        public static int GetRequiredPenetrationLevel(RaycastHit hit, Vector3 direction, Item handler)
         {
             int hitMaterialHash = -1;
             ColliderGroup colliderGroup = hit.collider.GetComponentInParent<ColliderGroup>();
@@ -505,13 +508,14 @@ namespace GhettosFirearmSDKv2
             handler.mainCollisionHandler.MeshRaycast(colliderGroup, hit.point, hit.normal, direction, ref hitMaterialHash);
             if (hitMaterialHash == -1) hitMaterialHash = Animator.StringToHash(hit.collider.material.name);
             TryGetMaterial(hitMaterialHash, out MaterialData matDat);
-            return RequiredPenetrationPowerData.GetRequiredLevel(matDat.id);
+            //Debug.Log(matDat.id + ", requires " + RequiredPenetrationPowerData.GetRequiredLevel(matDat.id) + " which is equal to " + (int)RequiredPenetrationPowerData.GetRequiredLevel(matDat.id));
+            return (int)RequiredPenetrationPowerData.GetRequiredLevel(matDat.id);
         }
 
         public static bool TryGetMaterial(int targetPhysicMaterialHash, out MaterialData targetMaterial)
         {
             targetMaterial = null;
-            List<CatalogData> list = Catalog.GetDataList(Catalog.Category.Material);
+            List<CatalogData> list = Catalog.GetDataList(Category.Material);
             int count = list.Count;
             for (int i = 0; i < count; i++)
             {

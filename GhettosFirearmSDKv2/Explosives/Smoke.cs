@@ -22,7 +22,6 @@ namespace GhettosFirearmSDKv2.Explosives
             if (item != null)
             {
                 item.disallowDespawn = true;
-                item.disallowRoomDespawn = true;
             }
         }
 
@@ -62,7 +61,6 @@ namespace GhettosFirearmSDKv2.Explosives
                 if (item != null)
                 {
                     item.disallowDespawn = false;
-                    item.disallowRoomDespawn = false;
                 }
             }
         }

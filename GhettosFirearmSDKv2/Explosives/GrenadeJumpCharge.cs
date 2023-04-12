@@ -12,8 +12,8 @@ namespace GhettosFirearmSDKv2
 
         public override void ActualDetonate()
         {
-            item.rb.velocity = Vector3.zero;
-            item.rb.velocity = Vector3.up * jumpForce;
+            item.physicBody.velocity = Vector3.zero;
+            item.physicBody.velocity = Vector3.up * jumpForce;
             //item.rb.AddForce(impactNormal * jumpForce);
             //item.rb.AddForce(Vector3.up * jumpForce);
             base.ActualDetonate();
