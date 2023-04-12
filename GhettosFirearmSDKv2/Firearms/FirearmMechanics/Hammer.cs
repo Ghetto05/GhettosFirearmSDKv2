@@ -8,6 +8,7 @@ namespace GhettosFirearmSDKv2
     public class Hammer : MonoBehaviour
     {
         public Item item;
+        public Firearm firearm;
         public Transform hammer;
         public Transform idlePosition;
         public Transform cockedPosition;
@@ -23,6 +24,8 @@ namespace GhettosFirearmSDKv2
         private IEnumerator DelayedLoad()
         {
             yield return new WaitForSeconds(0.03f);
+            if (firearm == null && item.gameObject.TryGetComponent(out Firearm f)) firearm = f;
+            if (firearm != null) firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
             if (item.TryGetCustomData(out data))
             {
                 if (data.cocked) Cock();
@@ -36,6 +39,12 @@ namespace GhettosFirearmSDKv2
                 item.AddCustomData(data);
             }
             yield break;
+        }
+
+        private void Firearm_OnCockActionEvent()
+        {
+            if (cocked) Fire(true);
+            else Cock();
         }
 
         public void Cock()
