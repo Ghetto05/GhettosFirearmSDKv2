@@ -33,35 +33,6 @@ namespace GhettosFirearmSDKv2
         {
             moveStartTime = Time.time;
             state = States.GoingBack;
-            //StartCoroutine(CycleIE());
-        }
-
-        private IEnumerator CycleIE()
-        {
-            //atFront = false;
-            //while (Util.AbsDist(pivot.position, rear.position) > 0.04)
-            //{
-            //    pivot.localPosition = Vector3.Lerp(rear.localPosition, front.localPosition, Lerp(moveStartTime));
-            //    yield return null;
-            //}
-            yield return new WaitForSeconds(pauseTime);
-            //if (lockBoltBack)
-            //{
-            //    bolt.EjectRound();
-            //    bolt.TryLoadRound();
-            //}
-            //moveStartTime = Time.time;
-            //while (Util.AbsDist(pivot.position, front.position) > 0.04)
-            //{
-            //    pivot.localPosition = Vector3.Lerp(front.localPosition, rear.localPosition, Lerp(moveStartTime));
-            //    yield return null;
-            //}
-            //atFront = true;
-
-            //if (lockBoltBack)
-            //{
-            //    bolt.TryRelease();
-            //}
         }
 
         public bool AllowBoltReturn()
@@ -93,8 +64,11 @@ namespace GhettosFirearmSDKv2
                 {
                     moveStartTime = Time.time;
                     state = States.GoingFront;
-                    bolt.EjectRound();
-                    bolt.TryLoadRound();
+                    if (lockBoltBack)
+                    {
+                        bolt.EjectRound();
+                        bolt.TryLoadRound();
+                    }
                 }
             }
 
