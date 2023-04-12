@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using UnityEngine;
 using ThunderRoad;
 using UnityEngine.Events;
+using System.Collections;
 
 namespace GhettosFirearmSDKv2
 {
     public class Cartridge : MonoBehaviour
     {
+        public bool disallowDespawn = false;
         public bool keepRotationAtZero;
         public GameObject firedOnlyObject;
         public GameObject unfiredOnlyObject;
@@ -26,43 +28,24 @@ namespace GhettosFirearmSDKv2
         public List<Collider> colliders;
         public Transform cartridgeFirePoint;
         public UnityEvent onFireEvent;
-        private List<Renderer> renderers;
-        private Item currentRendererSource;
 
         private void Awake()
         {
             item = this.GetComponent<Item>();
             if (firedOnlyObject != null) firedOnlyObject.SetActive(false);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
-            renderers = GetComponentsInChildren<Renderer>().ToList();
-            currentRendererSource = item;
-            //item.OnDespawnEvent += Item_OnDespawnEvent;
         }
 
         private void Update()
         {
-            if (loaded && transform.localEulerAngles != Vector3.zero) transform.localEulerAngles = Vector3.zero;
+            if (keepRotationAtZero && loaded && transform.localEulerAngles != Vector3.zero) transform.localEulerAngles = Vector3.zero;
+            if (!disallowDespawn && !loaded && fired && !Mathf.Approximately(FirearmsSettings.values.cartridgeDespawnTime, 0f)) StartCoroutine(Despawn());
         }
 
-        //private void Item_OnDespawnEvent(EventTime eventTime)
-        //{
-        //    if (eventTime == EventTime.OnStart)
-        //    {
-        //        SetRenderersTo(item);
-        //        item.OnDespawnEvent -= Item_OnDespawnEvent;
-        //    }
-        //}
-
-        public void SetRenderersTo(Item newItem)
+        IEnumerator Despawn()
         {
-            //foreach (Renderer r in renderers)
-            //{
-            //    currentRendererSource.renderers.Remove(r);
-            //}
-            //currentRendererSource.lightVolumeReceiver.SetRenderers(currentRendererSource.renderers);
-            //newItem.renderers.AddRange(renderers);
-            //newItem.lightVolumeReceiver.SetRenderers(newItem.renderers);
-            //currentRendererSource = newItem;
+            yield return new WaitForSeconds(FirearmsSettings.values.cartridgeDespawnTime);
+            item.Despawn();
         }
 
         public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle)
@@ -70,6 +53,7 @@ namespace GhettosFirearmSDKv2
             fired = true;
             if (firedOnlyObject != null) firedOnlyObject.SetActive(true);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(false);
+            ToggleHandles(false);
             onFireEvent?.Invoke();
             OnFiredWithHitPointsAndMuzzle?.Invoke(hits, directions, muzzle);
             if (destroyOnFire) item.Despawn();
@@ -79,7 +63,7 @@ namespace GhettosFirearmSDKv2
         {
             FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories, 1f);
             if (detonationParticle != null) detonationParticle.Play();
-            if (item != null) FireMethods.ApplyRecoil(this.transform, this.item.rb, data.recoil, 0f, 1f, null);
+            if (item != null) FireMethods.ApplyRecoil(this.transform, this.item.physicBody.rigidBody, data.recoil, 0f, 1f, null);
             Util.PlayRandomAudioSource(detonationSounds);
             Fire(hits, trajectories, cartridgeFirePoint);
         }
@@ -100,11 +84,11 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void ToggleHandles(bool active)
+        public void ToggleHandles(bool active, bool forced = false)
         {
             foreach (Handle handle in item.handles)
             {
-                handle.SetTouch(active);
+                handle.SetTouch(active && (!fired || forced));
             }
         }
 
