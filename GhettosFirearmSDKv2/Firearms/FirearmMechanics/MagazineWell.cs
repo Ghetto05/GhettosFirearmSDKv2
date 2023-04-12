@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
             if (spawnMagazineOnAwake) StartCoroutine(delayedLoad());
             else
             {
-                if (currentMagazine != null && mountCurrentMagazine) StartCoroutine(currentMagazine.DelayedMount(this, this.firearm.item.rb, 0.05f));
+                if (currentMagazine != null && mountCurrentMagazine) StartCoroutine(currentMagazine.DelayedMount(this, this.firearm.item.physicBody.rigidBody, 0.05f));
                 else allowLoad = true;
             }
         }
@@ -79,7 +79,7 @@ namespace GhettosFirearmSDKv2
         {
             yield return new WaitForSeconds(delay);
             if (initialLoad) allowLoad = true;
-            mag.Mount(this, firearm.item.rb);
+            mag.Mount(this, firearm.item.physicBody.rigidBody, true);
         }
 
         public virtual void TryMount(Collision collision)
@@ -88,7 +88,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this))
                 {
-                    mag.Mount(this, firearm.item.rb);
+                    mag.Mount(this, firearm.item.physicBody.rigidBody);
                 }
             }
         }
