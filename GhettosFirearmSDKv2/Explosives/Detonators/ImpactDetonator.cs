@@ -15,12 +15,15 @@ namespace GhettosFirearmSDKv2
         public float minimumImpactForce;
         public float selfDestructDelay;
         bool armed = false;
+        Vector3 startPoint;
+        float clearance = 0.3f;
 
         private float startTime;
 
         private void Awake()
         {
             if (startAtAwake) StartArming();
+            startPoint = transform.position;
         }
 
         public override void ActualDetonate()
@@ -49,7 +52,7 @@ namespace GhettosFirearmSDKv2
 
         public bool IsArmed()
         {
-            return armed && Time.time - startTime >= minimumArmingTime;
+            return armed && Time.time - startTime >= minimumArmingTime && Vector3.Distance(startPoint, transform.position) > clearance;
         }
 
         private bool TriggerColliderHit(Collision collision)
