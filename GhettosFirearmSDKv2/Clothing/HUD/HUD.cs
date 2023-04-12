@@ -21,7 +21,7 @@ namespace GhettosFirearmSDKv2
 
         private void Settings_LevelModule_OnValueChangedEvent()
         {
-            try { scaleRoot.localScale = Vector3.one * Settings_LevelModule.local.hudScale; } catch (Exception e) { }
+            try { scaleRoot.localScale = Vector3.one * FirearmsSettings.values.hudScale; } catch (Exception) { }
         }
 
         private IEnumerator Delayed()
@@ -36,7 +36,7 @@ namespace GhettosFirearmSDKv2
             }
             else
             {
-                Settings_LevelModule.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
+                FirearmsSettings.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
                 Settings_LevelModule_OnValueChangedEvent();
 
                 hudObject.transform.SetParent(Player.local.head.cam.transform);
