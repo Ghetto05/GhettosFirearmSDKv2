@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (Settings_LevelModule.local.magazinesHaveNoCollision && currentWell != null) ToggleCollision(false);
+            if (FirearmsSettings.values.magazinesHaveNoCollision && currentWell != null) ToggleCollision(false);
             //UpdateCartridgePositions();
             if (currentWell != null && currentWell.firearm != null && canBeGrabbedInWell)
             {
@@ -114,7 +114,6 @@ namespace GhettosFirearmSDKv2
             {
                 Util.PlayRandomAudioSource(roundEjectSounds);
                 c = cartridges[0];
-                c.SetRenderersTo(c.item);
                 c.ToggleCollision(true);
                 c.ToggleHandles(true);
                 cartridges.RemoveAt(0);
@@ -124,7 +123,6 @@ namespace GhettosFirearmSDKv2
                 c.transform.rotation = roundEjectPoint.rotation;
                 c.GetComponent<Rigidbody>().isKinematic = false;
                 c.item.disallowDespawn = false;
-                c.item.disallowRoomDespawn = false;
                 c.transform.parent = null;
             }
             UpdateCartridgePositions();
@@ -136,9 +134,7 @@ namespace GhettosFirearmSDKv2
         {
             if ((cartridges.Count < maximumCapacity || forced) && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, this) && !c.loaded)
             {
-                c.SetRenderersTo(currentWell == null ? item : currentWell.firearm.item);
                 c.item.disallowDespawn = true;
-                c.item.disallowRoomDespawn = true;
                 c.loaded = true;
                 c.ToggleHandles(false);
                 c.ToggleCollision(false);
@@ -163,7 +159,7 @@ namespace GhettosFirearmSDKv2
                 c = cartridges[0];
                 Util.IgnoreCollision(c.gameObject, gameObject, false);
                 cartridges.RemoveAt(0);
-                if (infinite || Settings_LevelModule.local.infiniteAmmo)
+                if (infinite || FirearmsSettings.values.infiniteAmmo)
                 {
                     Catalog.GetData<ItemData>(c.item.itemId).SpawnAsync(car =>
                     {
@@ -183,10 +179,9 @@ namespace GhettosFirearmSDKv2
             Mount(well, rb);
         }
 
-        public void Mount(MagazineWell well, Rigidbody rb)
+        public void Mount(MagazineWell well, Rigidbody rb, bool silent = false)
         {
             item.disallowDespawn = true;
-            item.disallowRoomDespawn = true;
 
             //renderers reassignment to fix dungeon lighting
             if (originalRenderers == null) originalRenderers = item.renderers.ToList();
@@ -198,12 +193,7 @@ namespace GhettosFirearmSDKv2
             well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
             item.lightVolumeReceiver.SetRenderers(item.renderers);
 
-            foreach (Cartridge c in cartridges)
-            {
-                c.SetRenderersTo(well.firearm.item);
-            }
-
-            if (Settings_LevelModule.local.magazinesHaveNoCollision) ToggleCollision(false);
+            if (FirearmsSettings.values.magazinesHaveNoCollision) ToggleCollision(false);
             currentWell = well;
             currentWell.currentMagazine = this;
             RagdollHand[] hands = item.handlers.ToArray();
@@ -215,13 +205,13 @@ namespace GhettosFirearmSDKv2
             {
                 Util.IgnoreCollision(c.gameObject, currentWell.firearm.gameObject, true);
             }
-            Util.PlayRandomAudioSource(magazineInsertSounds);
+            if (!silent) Util.PlayRandomAudioSource(magazineInsertSounds);
             Util.IgnoreCollision(this.gameObject, currentWell.firearm.gameObject, true);
             this.transform.position = well.mountPoint.position;
             this.transform.rotation = well.mountPoint.rotation;
             joint = this.gameObject.AddComponent<FixedJoint>();
             joint.connectedBody = rb;
-            if (Settings_LevelModule.local.magazinesHaveNoCollision) joint.massScale = 99999f;
+            if (FirearmsSettings.values.magazinesHaveNoCollision) joint.massScale = 99999f;
             foreach (Handle handle in handles)
             {
                 if (!canBeGrabbedInWell)
@@ -249,7 +239,6 @@ namespace GhettosFirearmSDKv2
             if (joint != null)
             {
                 item.disallowDespawn = false;
-                item.disallowRoomDespawn = false;
 
                 //Revert dungeon lighting fix
                 foreach (Renderer ren in originalRenderers)
@@ -259,11 +248,6 @@ namespace GhettosFirearmSDKv2
                 }
                 currentWell.firearm.item.lightVolumeReceiver.SetRenderers(currentWell.firearm.item.renderers);
                 item.lightVolumeReceiver.SetRenderers(item.renderers);
-
-                foreach (Cartridge c in cartridges)
-                {
-                    c.SetRenderersTo(item);
-                }
 
                 Util.PlayRandomAudioSource(magazineEjectSounds);
                 Util.DelayIgnoreCollision(this.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
@@ -280,9 +264,9 @@ namespace GhettosFirearmSDKv2
                     handle.SetTelekinesis(true);
                 }
                 Destroy(joint);
-                item.rb.WakeUp();
+                item.physicBody.rigidBody.WakeUp();
                 if (destroyOnEject) item.Despawn();
-                if (Settings_LevelModule.local.magazinesHaveNoCollision) ToggleCollision(true);
+                if (FirearmsSettings.values.magazinesHaveNoCollision) ToggleCollision(true);
             }
             UpdateCartridgePositions();
         }
