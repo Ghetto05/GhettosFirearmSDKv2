@@ -5,6 +5,8 @@ using ThunderRoad;
 using ThunderRoad.Reveal;
 using System.Collections;
 using GhettosFirearmSDKv2.Explosives;
+using System;
+using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2
 {
@@ -52,7 +54,7 @@ namespace GhettosFirearmSDKv2
                 Transform tempMuz = new GameObject().transform;
                 tempMuz.parent = muzzle;
                 tempMuz.localPosition = Vector3.zero;
-                tempMuz.localEulerAngles = new Vector3(UnityEngine.Random.Range(-data.projectileSpread, data.projectileSpread), UnityEngine.Random.Range(-data.projectileSpread, data.projectileSpread), 0);
+                tempMuz.localEulerAngles = new Vector3(Random.Range(-data.projectileSpread, data.projectileSpread), Random.Range(-data.projectileSpread, data.projectileSpread), 0);
                 Creature cr = Hitscan(tempMuz, data, item, out Vector3 hit, damageMultiplier);
                 returnedHitpoints.Add(hit);
                 returnedTrajectories.Add(tempMuz.forward);
@@ -185,7 +187,7 @@ namespace GhettosFirearmSDKv2
                                 break;
                             case RagdollPart.Type.Torso: //damage = damage, push(2)
                                 {
-                                    if (penetrated && FirearmsSettings.values.incapitateOnTorsoShot && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
+                                    if (penetrated && FirearmsSettings.incapitateOnTorsoShot && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
                                     {
                                         cr.brain.AddNoStandUpModifier(gunItem);
                                         cr.ragdoll.SetState(Ragdoll.State.Destabilized);
@@ -328,7 +330,7 @@ namespace GhettosFirearmSDKv2
                         }
                         else
                         {
-                            hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
+                            try { hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse); } catch (Exception) { }
                         }
                     }
                     #endregion non-creature hit
@@ -384,6 +386,7 @@ namespace GhettosFirearmSDKv2
             Catalog.GetData<ItemData>(data.projectileItemId, true).SpawnAsync(thisSpawnedItem =>
             {
                 item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, firePoint, fireRotation, fireDir, data.muzzleVelocity));
+                if (data.destroyTime != 0f) item.Despawn(data.destroyTime);
             }, firePoint, fireRotation);
         }
 
@@ -448,7 +451,7 @@ namespace GhettosFirearmSDKv2
 
             foreach (Creature hitCreature in hitCreatures)
             {
-                CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damage * FirearmsSettings.values.damageMultiplier));
+                CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damage * FirearmsSettings.damageMultiplier));
                 coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
                 coll.damageStruct.damageType = DamageType.Energy;
                 coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
@@ -459,7 +462,7 @@ namespace GhettosFirearmSDKv2
                 coll.damageStruct.penetration = DamageStruct.Penetration.Hit;
                 coll.damageStruct.penetrationDepth = 10;
                 coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
-                coll.intensity = data.damage * FirearmsSettings.values.damageMultiplier;
+                coll.intensity = data.damage * FirearmsSettings.damageMultiplier;
                 try { hitCreature.Damage(coll); } catch (System.Exception) { }
 
                 hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
@@ -488,7 +491,7 @@ namespace GhettosFirearmSDKv2
 
         public static float EvaluateDamage(float perfifty, Creature c)
         {
-            float perFiftyDamage = perfifty * FirearmsSettings.values.damageMultiplier;
+            float perFiftyDamage = perfifty * FirearmsSettings.damageMultiplier;
             float aspect = perFiftyDamage / 50;
             float damageToBeDone = c.maxHealth * aspect;
 
@@ -508,7 +511,6 @@ namespace GhettosFirearmSDKv2
             handler.mainCollisionHandler.MeshRaycast(colliderGroup, hit.point, hit.normal, direction, ref hitMaterialHash);
             if (hitMaterialHash == -1) hitMaterialHash = Animator.StringToHash(hit.collider.material.name);
             TryGetMaterial(hitMaterialHash, out MaterialData matDat);
-            //Debug.Log(matDat.id + ", requires " + RequiredPenetrationPowerData.GetRequiredLevel(matDat.id) + " which is equal to " + (int)RequiredPenetrationPowerData.GetRequiredLevel(matDat.id));
             return (int)RequiredPenetrationPowerData.GetRequiredLevel(matDat.id);
         }
 

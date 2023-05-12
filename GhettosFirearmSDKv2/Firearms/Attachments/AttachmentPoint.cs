@@ -14,6 +14,7 @@ namespace GhettosFirearmSDKv2
         public Attachment currentAttachment;
         public string defaultAttachment;
         public GameObject disableOnAttach;
+        public Attachment attachment;
 
         private void Awake()
         {
@@ -58,7 +59,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!string.IsNullOrEmpty(defaultAttachment))
             {
-                Catalog.GetData<AttachmentData>(defaultAttachment).SpawnAndAttach(this);
+                Catalog.GetData<AttachmentData>(defaultAttachment).SpawnAndAttach(this, null);
             }
         }
 

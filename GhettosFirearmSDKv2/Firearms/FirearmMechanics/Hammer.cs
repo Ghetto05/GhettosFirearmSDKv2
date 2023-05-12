@@ -13,8 +13,9 @@ namespace GhettosFirearmSDKv2
         public Transform idlePosition;
         public Transform cockedPosition;
         public List<AudioSource> hitSounds;
-        private HammerSaveData data;
+        public List<AudioSource> cockSounds;
         public bool cocked;
+        SaveNodeValueBool hammerState;
 
         private void Awake()
         {
@@ -23,21 +24,12 @@ namespace GhettosFirearmSDKv2
 
         private IEnumerator DelayedLoad()
         {
-            yield return new WaitForSeconds(0.03f);
+            yield return new WaitForSeconds(1.03f);
             if (firearm == null && item.gameObject.TryGetComponent(out Firearm f)) firearm = f;
-            if (firearm != null) firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
-            if (item.TryGetCustomData(out data))
-            {
-                if (data.cocked) Cock();
-                else Fire(true);
-            }
-            else
-            {
-                data = new HammerSaveData();
-                data.cocked = false;
-                Fire(true);
-                item.AddCustomData(data);
-            }
+            firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
+            hammerState = firearm.saveData.firearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
+            if (hammerState.value) Cock(true);
+            else Fire(true);
             yield break;
         }
 
@@ -47,20 +39,23 @@ namespace GhettosFirearmSDKv2
             else Cock();
         }
 
-        public void Cock()
+        public void Cock(bool silent = false)
         {
-            data.cocked = true;
+            if (cocked) return;
+            hammerState.value = true;
+            cocked = true;
             if (hammer != null)
             {
                 hammer.localPosition = cockedPosition.localPosition;
                 hammer.localEulerAngles = cockedPosition.localEulerAngles;
             }
-            cocked = true;
+            if (!silent) Util.PlayRandomAudioSource(cockSounds);
         }
 
         public void Fire(bool silent = false)
         {
-            data.cocked = false;
+            if (!cocked) return;
+            hammerState.value = false;
             cocked = false;
             if (hammer != null)
             {

@@ -9,7 +9,8 @@ namespace GhettosFirearmSDKv2
         public FirearmBase source;
         public FirearmBase target;
         public AttachmentPoint targetPoint;
-        public bool disableTriggerHandle;
+        public bool onlyFireWithSpecficFiremode;
+        public FirearmBase.FireModes firemode;
 
         private void Awake()
         {
@@ -20,7 +21,7 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (target != null) target.Item_OnHeldActionEvent(ragdollHand, handle, action);
+            if (target != null && (!onlyFireWithSpecficFiremode || source.fireMode == firemode)) target.Item_OnHeldActionEvent(ragdollHand, handle, action);
         }
 
         private IEnumerator Delayed(AttachmentFirearm targetFire)

@@ -12,9 +12,11 @@ namespace GhettosFirearmSDKv2
         public Transform SemiPosition;
         public Transform BurstPosition;
         public Transform AutoPosition;
+        public Transform AttachmentFirearmPosition;
         public AudioSource switchSound;
         public FirearmBase.FireModes[] firemodes;
         private int currentIndex = 0;
+        SaveNodeValueInt fireModeIndex;
 
         private void Awake()
         {
@@ -24,25 +26,14 @@ namespace GhettosFirearmSDKv2
             UpdatePosition();
         }
 
-        private void SaveFiremode()
-        {
-            firearm.item.RemoveCustomData<FiremodeSaveData>();
-            FiremodeSaveData data = new FiremodeSaveData();
-            data.fireMode = firearm.fireMode;
-            data.index = currentIndex;
-            firearm.item.AddCustomData(data);
-        }
-
         private IEnumerator delayedLoad()
         {
-            yield return new WaitForSeconds(0.05f);
-            if (firearm.item.TryGetCustomData(out FiremodeSaveData data))
-            {
-                firearm.SetFiremode(data.fireMode);
-                currentIndex = data.index;
-                onFiremodeChanged?.Invoke(data.fireMode);
-                UpdatePosition();
-            }
+            yield return new WaitForSeconds(1.05f);
+            fireModeIndex = FirearmSaveData.GetNode(firearm).GetOrAddValue("Firemode", new SaveNodeValueInt());
+            firearm.SetFiremode(firemodes[fireModeIndex.value]);
+            currentIndex = fireModeIndex.value;
+            onFiremodeChanged?.Invoke(firearm.fireMode);
+            UpdatePosition();
             onFiremodeChanged?.Invoke(firearm.fireMode);
         }
 
@@ -60,7 +51,7 @@ namespace GhettosFirearmSDKv2
             else currentIndex = 0;
             firearm.SetFiremode(firemodes[currentIndex]);
             if (switchSound != null) switchSound.Play();
-            SaveFiremode();
+            fireModeIndex.value = currentIndex;
             UpdatePosition();
             onFiremodeChanged?.Invoke(firearm.fireMode);
         }
@@ -91,6 +82,11 @@ namespace GhettosFirearmSDKv2
             {
                 SafetySwitch.position = AutoPosition.position;
                 SafetySwitch.rotation = AutoPosition.rotation;
+            }
+            else if (mode == FirearmBase.FireModes.AttachmentFirearm && AttachmentFirearmPosition != null)
+            {
+                SafetySwitch.position = AttachmentFirearmPosition.position;
+                SafetySwitch.rotation = AttachmentFirearmPosition.rotation;
             }
         }
 

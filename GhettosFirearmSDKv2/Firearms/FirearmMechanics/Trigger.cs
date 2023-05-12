@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -33,6 +34,20 @@ namespace GhettosFirearmSDKv2
                 trigger.localPosition = idlePosition.localPosition;
                 trigger.localRotation = idlePosition.localRotation;
                 if (resetSound != null) resetSound.Play();
+            }
+        }
+
+        private void Update()
+        {
+            if (firearm.setUpForHandPose)
+            {
+                foreach (Handle h in firearm.AllTriggerHandles())
+                {
+                    if (h.handlers.Count > 0)
+                    {
+                        h.handlers[0].poser.SetTargetWeight(Player.local.GetHand(h.handlers[0].side).controlHand.useAxis);
+                    }
+                }
             }
         }
     }

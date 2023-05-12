@@ -16,7 +16,11 @@ namespace GhettosFirearmSDKv2
 
         private void Recurve(int index, Magazine mag)
         {
-            if (index < 0) return;
+            if (index < 0)
+            {
+                mag.loadable = true;
+                return;
+            }
             Catalog.GetData<ItemData>(ids[index]).SpawnAsync(item =>
             {
                 mag.InsertRound(item.GetComponent<Cartridge>(), true, true);

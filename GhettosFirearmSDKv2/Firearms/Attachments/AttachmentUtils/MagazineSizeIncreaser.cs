@@ -19,7 +19,7 @@ namespace GhettosFirearmSDKv2
             attachment.OnDetachEvent += Attachment_OnDetachEvent;
         }
 
-        private void Attachment_OnDetachEvent()
+        private void Attachment_OnDetachEvent(bool despawnDetach)
         {
             if (magazine != null) Revert();
         }

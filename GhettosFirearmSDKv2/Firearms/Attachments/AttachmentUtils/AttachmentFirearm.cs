@@ -4,7 +4,6 @@ using UnityEngine;
 using ThunderRoad;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using GhettosFirearmSDKv2.SaveData;
 
 namespace GhettosFirearmSDKv2
 {
@@ -13,12 +12,13 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         public Handle fireHandle;
 
-        public override void Awake()
+        public void Start()
         {
             base.Awake();
             mainFireHandle = fireHandle;
             item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
-            attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.OnCollisionEvent += OnCollisionEnter;
+            attachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;
+            attachment.attachmentPoint.parentFirearm.item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
@@ -26,18 +26,36 @@ namespace GhettosFirearmSDKv2
             CalculateMuzzle();
         }
 
+        public override void Update()
+        {
+            base.Update();
+            if (fireHandle != null && fireHandle.handlers.Count > 0 && setUpForHandPose)
+            {
+                fireHandle.handlers[0].poser.SetTargetWeight(Player.local.GetHand(fireHandle.handlers[0].side).controlHand.useAxis);
+            }
+        }
+
         private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
         {
             if (handle == fireHandle && bolt != null) bolt.Initialize();
         }
 
-        public override void PlayMuzzleFlash()
+        public override void PlayMuzzleFlash(Cartridge cartridge)
         {
             if (defaultMuzzleFlash is ParticleSystem mf)
             {
                 mf.Play();
-                StartCoroutine(PlayMuzzleFlashLight());
+                StartCoroutine(PlayMuzzleFlashLight(cartridge));
             }
+        }
+
+        public override List<Handle> AllTriggerHandles()
+        {
+            List<Handle> hs = new List<Handle>();
+            hs.AddRange(additionalTriggerHandles);
+            if (fireHandle == null) return hs;
+            hs.Add(fireHandle);
+            return hs;
         }
 
         public override bool isSuppressed()

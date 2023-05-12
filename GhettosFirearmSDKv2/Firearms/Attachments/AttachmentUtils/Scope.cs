@@ -17,7 +17,7 @@ namespace GhettosFirearmSDKv2
         public float noZoomMagnification;
         public bool hasZoom;
         public Handle controllingHandle;
-        public Item connectedItem;
+        public Firearm connectedFirearm;
         public Attachment connectedAtatchment;
         public List<float> MagnificationLevels;
         public Transform Selector;
@@ -27,17 +27,18 @@ namespace GhettosFirearmSDKv2
         public AudioSource CycleDownSound;
         int currentIndex;
         float baseFov;
+        SaveNodeValueInt zoomIndex;
 
         public static void SetX1FOV(float fov)
         {
-            FirearmsSettings.values.scopeX1MagnificationFOV = fov;
+            FirearmsSettings.scopeX1MagnificationFOV = fov;
             FirearmsSettings.local.SendUpdate();
         }
 
         private void Awake()
         {
             DebugLogConsole.AddCommand<float>("SetScopeX1FOV", "Sets scope default zoom", SetX1FOV);
-            baseFov = overrideX1CameraFOV? cam.fieldOfView : FirearmsSettings.values.scopeX1MagnificationFOV;
+            baseFov = overrideX1CameraFOV? cam.fieldOfView : FirearmsSettings.scopeX1MagnificationFOV;
             RenderTexture rt = new RenderTexture(512, 512, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
             rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
             cam.targetTexture = rt;
@@ -50,7 +51,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!overrideX1CameraFOV)
             {
-                baseFov = FirearmsSettings.values.scopeX1MagnificationFOV;
+                baseFov = FirearmsSettings.scopeX1MagnificationFOV;
                 if (hasZoom) SetZoom();
                 else SetZoomNoZoomer(noZoomMagnification);
             }
@@ -58,25 +59,25 @@ namespace GhettosFirearmSDKv2
 
         IEnumerator delayedLoad()
         {
-            yield return new WaitForSeconds(0.05f);
-            if (hasZoom && connectedItem != null)
+            yield return new WaitForSeconds(1.05f);
+            if (hasZoom && connectedFirearm != null)
             {
-                connectedItem.OnHeldActionEvent += Item_OnHeldActionEvent;
+                connectedFirearm.item.OnHeldActionEvent += Item_OnHeldActionEvent;
+                zoomIndex = connectedFirearm.saveData.firearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
             }
             else if (hasZoom && connectedAtatchment != null)
             {
-                connectedItem = connectedAtatchment.attachmentPoint.parentFirearm.item;
-                connectedItem.OnHeldActionEvent += Item_OnHeldActionEvent;
+                connectedAtatchment.OnHeldActionEvent += Item_OnHeldActionEvent;
+                zoomIndex = connectedAtatchment.node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
             }
             else SetZoomNoZoomer(noZoomMagnification);
 
-            if (connectedItem != null && connectedItem.TryGetCustomData(out ZoomSaveData data))
+            if (hasZoom)
             {
-                currentIndex = data.index;
+                currentIndex = zoomIndex.value;
+                SetZoom();
+                UpdatePosition();
             }
-            else currentIndex = 0;
-            SetZoom();
-            UpdatePosition();
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -102,6 +103,7 @@ namespace GhettosFirearmSDKv2
                 if (currentIndex == 0) currentIndex = MagnificationLevels.Count;
                 currentIndex--;
             }
+            zoomIndex.value = currentIndex;
             SetZoom();
             UpdatePosition();
         }

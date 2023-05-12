@@ -101,6 +101,11 @@ namespace GhettosFirearmSDKv2
                 RefreshBoltHandles();
             }
             //SetStateOnAllHandlers(lockJoint != null);
+            if (loadedCartridge != null && roundReparent != null)
+            {
+                currentRoundRemounted = true;
+                loadedCartridge.transform.SetParent(roundReparent);
+            }
         }
 
         private void UpdateChamberedRound()
@@ -185,12 +190,15 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.hitscanMuzzle);
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
-            firearm.PlayFireSound();
-            firearm.PlayMuzzleFlash();
+            firearm.PlayFireSound(loadedCartridge);
+            firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
-            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
-            Lock(false);
+            if (!FirearmsSettings.infiniteAmmo || (FirearmsSettings.infiniteAmmo && firearm.magazineWell != null))
+            {
+                loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
+                Lock(false);
+            }
         }
 
         private IEnumerator DelayedUnlock()
@@ -254,7 +262,11 @@ namespace GhettosFirearmSDKv2
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Locked;
-                    if (loadedCartridge != null) currentRoundRemounted = true;
+                    if (loadedCartridge != null && roundReparent != null)
+                    {
+                        currentRoundRemounted = true;
+                        loadedCartridge.transform.SetParent(roundReparent);
+                    }
                     if (wentToFrontSinceLastLock) Lock(true);
                     Util.PlayRandomAudioSource(rackSounds);
                 }
@@ -293,9 +305,9 @@ namespace GhettosFirearmSDKv2
                 }
             }
             //firing
-            if (state == BoltState.Locked && firearm.triggerState && firearm.fireMode != Firearm.FireModes.Safe)
+            if (state == BoltState.Locked && firearm.triggerState && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == Firearm.FireModes.Semi && (slamFire || shotsSinceTriggerReset == 0)) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && (slamFire || shotsSinceTriggerReset == 0)) TryFire();
             }
         }
 

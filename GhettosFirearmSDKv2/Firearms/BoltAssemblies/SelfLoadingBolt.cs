@@ -45,8 +45,8 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.hitscanMuzzle);
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
-            firearm.PlayFireSound();
-            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
+            firearm.PlayFireSound(loadedCartridge);
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
@@ -86,7 +86,7 @@ namespace GhettosFirearmSDKv2
         {
             if (c == null) return;
             Util.PlayRandomAudioSource(ejectSounds);
-            firearm.item.RemoveCustomData<ChamberSaveData>();
+            if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.value = "";
             if (roundEjectPoint != null)
             {
                 c.transform.position = roundEjectPoint.position;

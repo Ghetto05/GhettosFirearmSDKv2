@@ -152,7 +152,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void LockBoltOnLockPoint(bool locked)
+        public void CatchBolt(bool locked)
         {
             caught = locked;
             state = BoltState.LockedBack;
@@ -185,8 +185,8 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.hitscanMuzzle);
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
-            firearm.PlayFireSound();
-            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
+            firearm.PlayFireSound(loadedCartridge);
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
@@ -203,7 +203,7 @@ namespace GhettosFirearmSDKv2
         public override void TryRelease(bool forced = false)
         {
             if (!hasBoltCatchReleaseControl && !forced) return;
-            if (caught) LockBoltOnLockPoint(false);
+            if (caught) CatchBolt(false);
         }
 
         private bool BoltHeld()
@@ -254,6 +254,7 @@ namespace GhettosFirearmSDKv2
                 //Racked
                 if (Util.AbsDist(bolt.position, startPoint.position) < pointTreshold && state == BoltState.Moving)
                 {
+                    bolt.localPosition = startPoint.localPosition;
                     letGoBeforeClosed = false;
                     closingAfterRelease = false;
                     laststate = BoltState.Moving;
@@ -273,11 +274,11 @@ namespace GhettosFirearmSDKv2
 
                     if (firearm.magazineWell.IsEmptyAndHasMagazine() && !caught && hasBoltcatch)
                     {
-                        LockBoltOnLockPoint(true);
+                        CatchBolt(true);
                     }
                     else if (!firearm.magazineWell.IsEmptyAndHasMagazine() && caught && hasBoltcatch)
                     {
-                        LockBoltOnLockPoint(false);
+                        CatchBolt(false);
                     }
                     closingAfterRelease = false;
 
@@ -337,7 +338,7 @@ namespace GhettosFirearmSDKv2
                     if ((firearm.magazineWell.IsEmptyAndHasMagazine() && !caught && hasBoltcatch) || (reciprocatingBarrel != null && !reciprocatingBarrel.AllowBoltReturn()))
                     {
                         isClosing = false;
-                        LockBoltOnLockPoint(true);
+                        CatchBolt(true);
                         state = BoltState.LockedBack;
                         bolt.localPosition = catchPoint.localPosition;
                     }
@@ -381,7 +382,7 @@ namespace GhettosFirearmSDKv2
         public override void EjectRound()
         {
             if (loadedCartridge == null) return;
-            firearm.item.RemoveCustomData<ChamberSaveData>();
+            if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.value = "";
             Cartridge c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
@@ -437,7 +438,7 @@ namespace GhettosFirearmSDKv2
             SoftJointLimit limit = new SoftJointLimit();
             if (boltActionLocked)
             {
-                joint.anchor = GrandparentLocalPosition(rigidBody.transform, firearm.item.transform);
+                joint.anchor = GrandparentLocalPosition(caught? catchPoint : rigidBody.transform, firearm.item.transform);
                 limit.limit = 0;
             }
             //default, start to back movement

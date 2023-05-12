@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
             if (spawnMagazineOnAwake) StartCoroutine(delayedLoad());
             else
             {
-                if (currentMagazine != null && mountCurrentMagazine) StartCoroutine(currentMagazine.DelayedMount(this, this.firearm.item.physicBody.rigidBody, 0.05f));
+                if (currentMagazine != null && mountCurrentMagazine) StartCoroutine(currentMagazine.DelayedMount(this, firearm.item.physicBody.rigidBody, 2.5f));
                 else allowLoad = true;
             }
         }
@@ -62,14 +62,19 @@ namespace GhettosFirearmSDKv2
         public virtual IEnumerator delayedLoad()
         {
             yield return new WaitForSeconds(1.5f);
-            if (firearm.item.TryGetCustomData(out MagazineSaveData data))
+            if (FirearmSaveData.GetNode(firearm).TryGetValue("MagazineSaveData", out SaveNodeValueMagazineContents data))
             {
                 List<ContentCustomData> cdata = new List<ContentCustomData>();
-                cdata.Add(data);
-                Catalog.GetData<ItemData>(data.itemID).SpawnAsync(magItem =>
+                cdata.Add(data.value.CloneJson());
+                if (data.value == null || data.value.itemID == null || data.value.itemID.IsNullOrEmptyOrWhitespace())
+                {
+                    allowLoad = true;
+                    yield break;
+                }
+                Catalog.GetData<ItemData>(data.value.itemID).SpawnAsync(magItem =>
                 {
                     Magazine mag = magItem.gameObject.GetComponent<Magazine>();
-                    StartCoroutine(delayedInsert(mag, 1f, true));
+                    StartCoroutine(delayedInsert(mag, 1.2f, true));
                 }, mountPoint.position + Vector3.up * 3, null, null, true, cdata);
             }
             else allowLoad = true;
@@ -86,7 +91,7 @@ namespace GhettosFirearmSDKv2
         {
             if (allowLoad && collision.collider.GetComponentInParent<Magazine>() is Magazine mag && collision.contacts[0].thisCollider == loadingCollider)
             {
-                if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this))
+                if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this) && mag.loadable)
                 {
                     mag.Mount(this, firearm.item.physicBody.rigidBody);
                 }

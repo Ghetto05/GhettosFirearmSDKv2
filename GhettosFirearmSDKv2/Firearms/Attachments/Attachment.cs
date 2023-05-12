@@ -9,6 +9,7 @@ namespace GhettosFirearmSDKv2
 {
     public class Attachment : MonoBehaviour
     {
+        public FirearmSaveData.AttachmentTreeNode node;
         public List<Handle> additionalTriggerHandles;
         public AttachmentPoint attachmentPoint;
         public List<AttachmentPoint> attachmentPoints;
@@ -27,7 +28,7 @@ namespace GhettosFirearmSDKv2
         public ParticleSystem newFlash;
         public Transform minimumMuzzlePosition;
         public List<Damager> damagers;
-        public List<String> damagerIds;
+        public List<string> damagerIds;
         public List<Renderer> nonLightVolumeRenderers;
 
         public List<UnityEvent> OnAttachEvents;
@@ -49,8 +50,9 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void Initialize(SaveData.AttachmentTree.Node thisNode = null, bool initialSetup = false)
+        public void Initialize(FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
+            if (thisNode != null) node = thisNode;
             renderers = new List<Renderer>();
             foreach (Renderer ren in this.gameObject.GetComponentsInChildren<Renderer>(true))
             {
@@ -58,13 +60,13 @@ namespace GhettosFirearmSDKv2
                 if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.parentFirearm.item.renderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
             }
             try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); };
-            this.transform.parent = attachmentPoint.transform;
-            this.transform.localPosition = Vector3.zero;
-            this.transform.localEulerAngles = Vector3.zero;
+            transform.parent = attachmentPoint.transform;
+            transform.localPosition = Vector3.zero;
+            transform.localEulerAngles = Vector3.zero;
             foreach (AttachmentPoint ap in attachmentPoints)
             {
                 ap.parentFirearm = attachmentPoint.parentFirearm;
-                if (thisNode == null) ap.SpawnDefaultAttachment();
+                ap.attachment = this;
             }
             StartCoroutine(delayed());
             attachmentPoint.parentFirearm.UpdateAttachments(initialSetup);
@@ -73,19 +75,19 @@ namespace GhettosFirearmSDKv2
             {
                 icon = tex;
             }, "Attachment_" + data.id);
-            if (thisNode != null) ApplyNode(thisNode);
+            if (thisNode != null) ApplyNode();
             foreach (UnityEvent eve in OnAttachEvents)
             {
                 eve.Invoke();
             }
         }
 
-        private void ApplyNode(SaveData.AttachmentTree.Node thisNode)
+        private void ApplyNode()
         {
-            foreach (SaveData.AttachmentTree.Node node in thisNode.childs)
+            foreach (FirearmSaveData.AttachmentTreeNode n in node.childs)
             {
-                AttachmentPoint point = GetSlotFromId(node.slot);
-                Catalog.GetData<AttachmentData>(node.attachmentId).SpawnAndAttach(point, node);
+                AttachmentPoint point = GetSlotFromId(n.slot);
+                Catalog.GetData<AttachmentData>(n.attachmentId).SpawnAndAttach(point, n);
             }
         }
 
@@ -142,6 +144,15 @@ namespace GhettosFirearmSDKv2
             attachmentPoint.parentFirearm.item.OnHeldActionEvent += InvokeHeldAction;
             OnDelayedAttachEvent?.Invoke();
             attachmentPoint.parentFirearm.InvokeAttachmentAdded(this, attachmentPoint);
+
+            if (FirearmsSettings.debugMode)
+            {
+                foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
+                {
+                    if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on attachment " + gameObject.name + " is not of type GhettoHandle!");
+                    if (!handles.Contains(h)) Debug.LogWarning("Handle " + h.gameObject.name + " is not in the handle list of the attachment " + gameObject.name + "!");
+                }
+            }
         }
 
         private void InvokeHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -161,8 +172,10 @@ namespace GhettosFirearmSDKv2
         public void Detach(bool despawnDetach = false)
         {
             if (attachmentPoint != null && attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.item.OnHeldActionEvent -= InvokeHeldAction;
-            OnDetachEvent?.Invoke();
+            OnDetachEvent?.Invoke(despawnDetach);
             if (despawnDetach) return;
+            if (attachmentPoint.attachment != null) attachmentPoint.attachment.node.childs.Remove(node);
+            else if (attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.saveData.firearmNode.childs.Remove(node);
             foreach (UnityEvent eve in OnDetachEvents)
             {
                 eve.Invoke();
@@ -178,7 +191,6 @@ namespace GhettosFirearmSDKv2
             {
                 if (point.currentAttachment != null) point.currentAttachment.Detach();
             }
-
             foreach (Handle han in handles)
             {
                 firearm.item.handles.Remove(han);
@@ -216,7 +228,7 @@ namespace GhettosFirearmSDKv2
         public delegate void OnDelayedAttach();
         public event OnDelayedAttach OnDelayedAttachEvent;
 
-        public delegate void OnDetach();
+        public delegate void OnDetach(bool despawnDetach);
         public event OnDetach OnDetachEvent;
 
         public delegate void OnHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action);

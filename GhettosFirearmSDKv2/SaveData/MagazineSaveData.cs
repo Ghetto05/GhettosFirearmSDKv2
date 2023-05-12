@@ -15,18 +15,37 @@ namespace GhettosFirearmSDKv2
 
         public void ApplyToMagazine(Magazine magazine)
         {
-            if (contents == null) return;
-            ApplyToMagazineRecurve(contents.Length - 1, magazine);
+            if (contents == null || contents.Length == 0)
+            {
+                magazine.loadable = true;
+                return;
+            }
+            ApplyToMagazineRecurve(contents.Length - 1, magazine, contents.CloneJson());
         }
 
-        private void ApplyToMagazineRecurve(int index, Magazine mag)
+        private void ApplyToMagazineRecurve(int index, Magazine mag, string[] con)
         {
-            if (index < 0) return;
-            Catalog.GetData<ItemData>(contents[index]).SpawnAsync(cartridge =>
+            if (index < 0)
             {
-                mag.InsertRound(cartridge.GetComponent<Cartridge>(), true, true);
-                ApplyToMagazineRecurve(index - 1, mag);
-            }, mag.transform.position + Vector3.up * 3, null, null, false);
+                mag.loadable = true;
+                return;
+            }
+            try
+            {
+                Catalog.GetData<ItemData>(con[index]).SpawnAsync(cartridge =>
+                {
+                    mag.InsertRound(cartridge.GetComponent<Cartridge>(), true, true);
+                    ApplyToMagazineRecurve(index - 1, mag, con);
+                }, mag.transform.position + Vector3.up * 3, null, null, false);
+            }
+            catch (Exception)
+            {
+                Debug.Log("Error mag: " + mag);
+                Debug.Log($"Contents: {con}");
+                Debug.Log($"Index: {index}");
+                Debug.Log($"Contents length: {con.Length}");
+                Debug.Log($"Cartridge: {Catalog.GetData<ItemData>(con[index]).id}");
+            }
         }
 
         public void GetContentsFromMagazine(Magazine magazine)

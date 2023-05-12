@@ -29,63 +29,67 @@ namespace GhettosFirearmSDKv2.UI
 
         void Awake()
         {
-            FirearmsSettings.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
-            despawnCasingsTimeSlider.onValueChanged.AddListener(UpdateCartridgeDespawnTime);
-            Settings_LevelModule_OnValueChangedEvent();
+            DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData("All settings panel options were moved to the settings book. Please open the book and go to Mods > Ghetto's Firearm Framework.", "", "", "", 100));
+            GetComponentInParent<Item>().Despawn();
+
+            //FirearmsSettings.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
+            //despawnCasingsTimeSlider.onValueChanged.AddListener(UpdateCartridgeDespawnTime);
+            //revolverTriggerDeadzoneSlider.onValueChanged.AddListener(UpdateRevolverTriggerDeadzone);
+            //Settings_LevelModule_OnValueChangedEvent();
         }
 
         private void Settings_LevelModule_OnValueChangedEvent()
         {
             //damage multiplier
-            damageMultiplierValue.text = "Damage times " + FirearmsSettings.values.damageMultiplier;
+            damageMultiplierValue.text = "Damage times " + FirearmsSettings.damageMultiplier;
             //no phys mags
-            disableMagazineCollisionsButton.isOn = FirearmsSettings.values.magazinesHaveNoCollision;
+            disableMagazineCollisionsButton.isOn = FirearmsSettings.magazinesHaveNoCollision;
             //hud scale
-            hudScaleDisplay.text = "HUD Scale: " + FirearmsSettings.values.hudScale;
+            hudScaleDisplay.text = "HUD Scale: " + FirearmsSettings.hudScale;
 
-            despawnCasingsTimeSlider.value = FirearmsSettings.values.cartridgeDespawnTime;
-            bool flag = !Mathf.Approximately(FirearmsSettings.values.cartridgeDespawnTime, 0f);
-            string s = flag ? "after " + FirearmsSettings.values.cartridgeDespawnTime.ToString() + " second(s)" : "disabled";
+            despawnCasingsTimeSlider.value = FirearmsSettings.cartridgeDespawnTime;
+            bool flag = !Mathf.Approximately(FirearmsSettings.cartridgeDespawnTime, 0f);
+            string s = flag ? "after " + FirearmsSettings.cartridgeDespawnTime.ToString() + " second(s)" : "disabled";
             despawnCasingsTimeDisplay.text = "Force despawn casings:\n" + s;
 
 
-            revolverTriggerDeadzoneSlider.value = FirearmsSettings.values.revolverTriggerDeadzone;
-            revolverTriggerDeadzoneDisplay.text = "Revolver trigger deadzone:\n" + FirearmsSettings.values.revolverTriggerDeadzone;
+            revolverTriggerDeadzoneSlider.value = FirearmsSettings.revolverTriggerDeadzone;
+            revolverTriggerDeadzoneDisplay.text = "Revolver trigger deadzone:\n" + FirearmsSettings.revolverTriggerDeadzone;
         }
 
         public void ChangeDamageMultiplier(float value)
         {
-            FirearmsSettings.values.damageMultiplier += value;
+            FirearmsSettings.damageMultiplier += value;
             FirearmsSettings.local.SendUpdate();
         }
 
         public void ToggleDisableMagazineCollisions()
         {
-            FirearmsSettings.values.magazinesHaveNoCollision = disableMagazineCollisionsButton.isOn;
+            FirearmsSettings.magazinesHaveNoCollision = disableMagazineCollisionsButton.isOn;
             FirearmsSettings.local.SendUpdate();
         }
 
         public void ChangeHUDScale(float value)
         {
-            FirearmsSettings.values.hudScale += value;
+            FirearmsSettings.hudScale += value;
             FirearmsSettings.local.SendUpdate();
         }
 
         public void UpdateCartridgeDespawnTime(float value)
         {
-            FirearmsSettings.values.cartridgeDespawnTime = value;
+            FirearmsSettings.cartridgeDespawnTime = value;
             FirearmsSettings.local.SendUpdate();
         }
 
         public void UpdateRevolverTriggerDeadzone(float value)
         {
-            FirearmsSettings.values.revolverTriggerDeadzone = value;
+            FirearmsSettings.revolverTriggerDeadzone = value;
             FirearmsSettings.local.SendUpdate();
         }
 
         public void ChangeLongPressTime(float value)
         {
-            FirearmsSettings.values.longPressTime += value;
+            FirearmsSettings.longPressTime += value;
             FirearmsSettings.local.SendUpdate();
         }
     }

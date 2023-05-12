@@ -35,10 +35,14 @@ namespace GhettosFirearmSDKv2
         public Item overrideItem;
         public List<Collider> colliders;
         private List<Renderer> originalRenderers;
+        MagazineSaveData saveData;
+        SaveNodeValueMagazineContents firearmSave;
+        public List<GameObject> feederObjects;
+        public bool loadable = false;
 
         private void Update()
         {
-            if (FirearmsSettings.values.magazinesHaveNoCollision && currentWell != null) ToggleCollision(false);
+            if (FirearmsSettings.magazinesHaveNoCollision && currentWell != null) ToggleCollision(false);
             //UpdateCartridgePositions();
             if (currentWell != null && currentWell.firearm != null && canBeGrabbedInWell)
             {
@@ -48,6 +52,9 @@ namespace GhettosFirearmSDKv2
                     handle.SetTelekinesis(currentWell == null);
                 }
             }
+
+            foreach (GameObject obj in feederObjects) obj.SetActive(false);
+            if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count] != null) feederObjects[cartridges.Count].SetActive(true);
         }
 
         private void Awake()
@@ -74,15 +81,33 @@ namespace GhettosFirearmSDKv2
 
         IEnumerator DelayedLoad()
         {
-            yield return new WaitForSeconds(0.03f);
-            if (item.TryGetCustomData(out MagazineSaveData data))
+            yield return new WaitForSeconds(0.6f);
+            if (overrideItem == null)
             {
-                data.ApplyToMagazine(this);
+                if (item.TryGetCustomData(out saveData))
+                {
+                    saveData.ApplyToMagazine(this);
+                }
+                else
+                {
+                    saveData = new MagazineSaveData();
+                    item.AddCustomData(saveData);
+                    if (defaultLoad == null) yield break;
+                    defaultLoad.Load(this);
+                }
             }
-            else
+            else if (overrideItem != null)
             {
-                if (defaultLoad == null) yield break;
-                defaultLoad.Load(this);
+                if (overrideItem.TryGetComponent(out Firearm f))
+                {
+                    firearmSave = f.saveData.firearmNode.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents());
+                    if (defaultLoad != null)
+                    {
+                        defaultLoad.Load(this);
+                        yield break;
+                    }
+                    firearmSave.value.ApplyToMagazine(this);
+                }
             }
         }
 
@@ -159,7 +184,7 @@ namespace GhettosFirearmSDKv2
                 c = cartridges[0];
                 Util.IgnoreCollision(c.gameObject, gameObject, false);
                 cartridges.RemoveAt(0);
-                if (infinite || FirearmsSettings.values.infiniteAmmo)
+                if (infinite || FirearmsSettings.infiniteAmmo)
                 {
                     Catalog.GetData<ItemData>(c.item.itemId).SpawnAsync(car =>
                     {
@@ -181,7 +206,7 @@ namespace GhettosFirearmSDKv2
 
         public void Mount(MagazineWell well, Rigidbody rb, bool silent = false)
         {
-            item.disallowDespawn = true;
+            if (overrideItem == null) item.disallowDespawn = true;
 
             //renderers reassignment to fix dungeon lighting
             if (originalRenderers == null) originalRenderers = item.renderers.ToList();
@@ -193,7 +218,7 @@ namespace GhettosFirearmSDKv2
             well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
             item.lightVolumeReceiver.SetRenderers(item.renderers);
 
-            if (FirearmsSettings.values.magazinesHaveNoCollision) ToggleCollision(false);
+            if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(false);
             currentWell = well;
             currentWell.currentMagazine = this;
             RagdollHand[] hands = item.handlers.ToArray();
@@ -211,7 +236,7 @@ namespace GhettosFirearmSDKv2
             this.transform.rotation = well.mountPoint.rotation;
             joint = this.gameObject.AddComponent<FixedJoint>();
             joint.connectedBody = rb;
-            if (FirearmsSettings.values.magazinesHaveNoCollision) joint.massScale = 99999f;
+            if (FirearmsSettings.magazinesHaveNoCollision) joint.massScale = 99999f;
             foreach (Handle handle in handles)
             {
                 if (!canBeGrabbedInWell)
@@ -221,14 +246,12 @@ namespace GhettosFirearmSDKv2
                 handle.SetTelekinesis(false);
             }
 
-            //Saving firearm's magazine 
-            if (currentWell.firearm.GetType() != typeof(AttachmentFirearm))
+            if (overrideItem == null)
             {
-                currentWell.firearm.item.RemoveCustomData<MagazineSaveData>();
-                MagazineSaveData data = new MagazineSaveData();
-                data.GetContentsFromMagazine(this);
-                data.itemID = item.itemId;
-                currentWell.firearm.item.AddCustomData(data);
+                //Saving firearm's magazine
+                firearmSave = FirearmSaveData.GetNode(currentWell.firearm).GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents());
+                firearmSave.value.GetContentsFromMagazine(this);
+                firearmSave.value.itemID = item.itemId;
             }
 
             UpdateCartridgePositions();
@@ -238,7 +261,7 @@ namespace GhettosFirearmSDKv2
         {
             if (joint != null)
             {
-                item.disallowDespawn = false;
+                if (overrideItem == null) item.disallowDespawn = false;
 
                 //Revert dungeon lighting fix
                 foreach (Renderer ren in originalRenderers)
@@ -253,9 +276,9 @@ namespace GhettosFirearmSDKv2
                 Util.DelayIgnoreCollision(this.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
                 foreach (Cartridge c in cartridges)
                 {
-                    Util.DelayIgnoreCollision(c.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
+                    if (c != null && currentWell != null && currentWell.firearm != null) Util.DelayIgnoreCollision(c.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
                 }
-                currentWell.firearm.item.RemoveCustomData<MagazineSaveData>();
+                firearmSave.value.Clear();
                 currentWell.currentMagazine = null;
                 currentWell = null;
                 foreach (Handle handle in handles)
@@ -266,7 +289,7 @@ namespace GhettosFirearmSDKv2
                 Destroy(joint);
                 item.physicBody.rigidBody.WakeUp();
                 if (destroyOnEject) item.Despawn();
-                if (FirearmsSettings.values.magazinesHaveNoCollision) ToggleCollision(true);
+                if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(true);
             }
             UpdateCartridgePositions();
         }
@@ -311,21 +334,19 @@ namespace GhettosFirearmSDKv2
 
         public void SaveCustomData()
         {
-            MagazineSaveData data = new MagazineSaveData();
-            data.itemID = item.itemId;
-            data.GetContentsFromMagazine(this);
-            item.RemoveCustomData<MagazineSaveData>();
-            item.AddCustomData(data);
-
-            if (overrideItem == null && currentWell != null && currentWell.firearm.GetType() != typeof(AttachmentFirearm))
+            if (overrideItem == null)
             {
-                bool flag = currentWell.firearm.item.TryGetCustomData(out MagazineSaveData magadata);
-                if (!flag)
+                saveData.itemID = item.itemId;
+                saveData.GetContentsFromMagazine(this);
+
+                if (firearmSave != null)
                 {
-                    magadata = new MagazineSaveData();
-                    currentWell.firearm.item.AddCustomData(magadata);
+                    saveData.CloneTo(firearmSave.value);
                 }
-                data.CloneTo(magadata);
+            }
+            else
+            {
+                firearmSave.value.GetContentsFromMagazine(this);
             }
         }
     }

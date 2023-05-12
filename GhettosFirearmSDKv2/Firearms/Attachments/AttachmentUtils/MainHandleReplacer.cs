@@ -17,7 +17,7 @@ namespace GhettosFirearmSDKv2
             attachment.OnDetachEvent += Attachment_OnDetachEvent;
         }
 
-        private void Attachment_OnDetachEvent()
+        private void Attachment_OnDetachEvent(bool despawnDetach)
         {
             oldMainHandle.SetTouch(true);
             oldMainHandle.SetTelekinesis(true);

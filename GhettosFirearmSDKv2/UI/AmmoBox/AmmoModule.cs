@@ -81,10 +81,5 @@ namespace GhettosFirearmSDKv2
             }
             return string.Empty;
         }
-
-        public static string GetDescription(string itemId)
-        {
-            return Catalog.GetData<ItemData>(itemId).GetModule<AmmoModule>().description;
-        }
     }
 }

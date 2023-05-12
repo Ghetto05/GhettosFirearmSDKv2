@@ -43,9 +43,8 @@ namespace GhettosFirearmSDKv2
 
         void OnCollisionEnter(Collision collision)
         {
-            // && collision.contacts[0].otherCollider.GetComponentInParent<Creature>() != null
             if (release == null) return;
-            if (collision.contacts[0].thisCollider == release)
+            if (collision.contacts[0].thisCollider == release && collision.contacts[0].otherCollider.GetComponentInParent<Player>() != null)
             {
                 OnReleaseEvent?.Invoke(true);
             }

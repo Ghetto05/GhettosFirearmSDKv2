@@ -10,8 +10,27 @@ namespace GhettosFirearmSDKv2
     {
         public Transform axis;
         public List<Handle> handles;
+        public List<string> handleNames;
         public Transform defaultPosition;
         public List<Transform> positions;
+
+        private void Awake()
+        {
+            if (handleNames.Count > 0)
+            {
+                Debug.Log("Trying to find handles");
+                handles = new List<Handle>();
+                for (int i = 0; i < handleNames.Count; i++)
+                {
+                    Item it = GetComponentInParent<Item>();
+                    for (int x = 0; x < it.handles.Count; x++)
+                    {
+                        Debug.Log(it.handles[x].gameObject.name);
+                        if (it.handles[x].gameObject.name.Equals(handleNames[i])) handles.Add(it.handles[x]);
+                    }
+                }
+            }
+        }
 
         private void Update()
         {

@@ -39,12 +39,12 @@ namespace GhettosFirearmSDKv2
         private void Update()
         {
             if (keepRotationAtZero && loaded && transform.localEulerAngles != Vector3.zero) transform.localEulerAngles = Vector3.zero;
-            if (!disallowDespawn && !loaded && fired && !Mathf.Approximately(FirearmsSettings.values.cartridgeDespawnTime, 0f)) StartCoroutine(Despawn());
+            if (!disallowDespawn && !loaded && fired && !Mathf.Approximately(FirearmsSettings.cartridgeDespawnTime, 0f)) StartCoroutine(Despawn());
         }
 
         IEnumerator Despawn()
         {
-            yield return new WaitForSeconds(FirearmsSettings.values.cartridgeDespawnTime);
+            yield return new WaitForSeconds(FirearmsSettings.cartridgeDespawnTime);
             item.Despawn();
         }
 
@@ -53,7 +53,7 @@ namespace GhettosFirearmSDKv2
             fired = true;
             if (firedOnlyObject != null) firedOnlyObject.SetActive(true);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(false);
-            ToggleHandles(false);
+            ToggleTK(false);
             onFireEvent?.Invoke();
             OnFiredWithHitPointsAndMuzzle?.Invoke(hits, directions, muzzle);
             if (destroyOnFire) item.Despawn();
@@ -81,6 +81,14 @@ namespace GhettosFirearmSDKv2
             foreach (RagdollHand hand in hands)
             {
                 hand.UnGrab(false);
+            }
+        }
+
+        public void ToggleTK(bool active)
+        {
+            foreach (Handle handle in item.handles)
+            {
+                handle.SetTelekinesis(active);
             }
         }
 

@@ -104,7 +104,7 @@ namespace GhettosFirearmSDKv2
                 else currentCaliber = sped.calibers[0];
                 currentCategory = AmmoModule.GetCaliberCategory(currentCaliber).Remove(0, 5);
                 List<string> varis = AmmoModule.AllVariantsOfCaliber(currentCaliber);
-                varis.Sort();
+                varis.Sort(new FirstFourNumbersCompare());
                 currentVariant = varis[0].Remove(0, 5);
 
                 SetupCategories();
@@ -247,7 +247,7 @@ namespace GhettosFirearmSDKv2
             }
 
             List<string> list = AmmoModule.AllCategories();
-            list.Sort();
+            list.Sort(new FirstFourNumbersCompare());
             foreach (string s in list)
             {
                 AddCategory(s.Remove(0, 5));
@@ -274,7 +274,7 @@ namespace GhettosFirearmSDKv2
             }
 
             List<string> list = AmmoModule.AllCalibersOfCategory(category);
-            list.Sort();
+            list.Sort(new FirstFourNumbersCompare());
             foreach (string s in list)
             {
                 AddCaliber(s.Remove(0, 5));
@@ -293,7 +293,7 @@ namespace GhettosFirearmSDKv2
             }
 
             List<string> list = AmmoModule.AllVariantsOfCaliber(caliber);
-            list.Sort();
+            list.Sort(new FirstFourNumbersCompare());
             foreach (string s in list)
             {
                 AddVariant(s.Remove(0, 5));
@@ -306,7 +306,7 @@ namespace GhettosFirearmSDKv2
             if (!ContainsName(category, categories))
             {
                 GameObject obj = Instantiate(categoryPref);
-                obj.name = category;
+                obj.gameObject.name = category;
                 obj.transform.SetParent(categoriesContent);
                 obj.transform.localScale = Vector3.one;
                 obj.transform.localEulerAngles = Vector3.zero;
@@ -325,7 +325,7 @@ namespace GhettosFirearmSDKv2
             if (!ContainsName(caliber, calibers))
             {
                 GameObject obj = Instantiate(caliberPref);
-                obj.name = caliber;
+                obj.gameObject.name = caliber;
                 obj.transform.SetParent(calibersContent);
                 obj.transform.localScale = Vector3.one;
                 obj.transform.localEulerAngles = Vector3.zero;
@@ -344,7 +344,7 @@ namespace GhettosFirearmSDKv2
             if (!ContainsName(variant, variants))
             {
                 GameObject obj = Instantiate(variantPref);
-                obj.name = variant;
+                obj.gameObject.name = variant;
                 obj.transform.SetParent(variantContent);
                 obj.transform.localScale = Vector3.one;
                 obj.transform.localEulerAngles = Vector3.zero;
@@ -371,22 +371,65 @@ namespace GhettosFirearmSDKv2
         public void SetCategory(string category)
         {
             currentCategory = category;
-            SetupCategories();
+            currentCaliber = "";
+            currentVariant = "";
+            description.text = "";
+            //SetupCategories();
             SetupCaliberList(category);
+
+            if (categories != null)
+            {
+                foreach (Transform button in categories)
+                {
+                    if (button.gameObject.name.Equals(currentCategory)) button.GetChild(0).gameObject.SetActive(true);
+                    else button.GetChild(0).gameObject.SetActive(false);
+                }
+            }
+            DestroyAllOfList(variants);
         }
 
         public void SetCaliber(string caliber)
         {
             currentCaliber = caliber;
-            SetupCaliberList(currentCategory);
+            currentVariant = "";
+            description.text = "";
+            //SetupCaliberList(currentCategory);
             SetupVariantList(caliber);
+
+            if (calibers != null)
+            {
+                foreach (Transform button in calibers)
+                {
+                    if (button.gameObject.name.Equals(currentCaliber)) button.GetChild(0).gameObject.SetActive(true);
+                    else button.GetChild(0).gameObject.SetActive(false);
+                }
+            }
+        }
+
+        public static void DestroyAllOfList(List<Transform> list)
+        {
+            if (list == null) return;
+            foreach (Transform t in list.ToArray())
+            {
+                Destroy(t.gameObject);
+            }
+            list.Clear();
         }
 
         public void SetVariant(string variant)
         {
             currentVariant = variant;
             currentItemId = AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant);
-            SetupVariantList(currentCaliber);
+            //SetupVariantList(currentCaliber);
+
+            if (variants != null)
+            {
+                foreach (Transform button in variants)
+                {
+                    if (button.gameObject.name.Equals(currentVariant)) button.GetChild(0).gameObject.SetActive(true);
+                    else button.GetChild(0).gameObject.SetActive(false);
+                }
+            }
 
             Addressables.LoadAssetAsync<GameObject>(Catalog.GetData<ItemData>(currentItemId).prefabLocation).Completed += (handle =>
             {
@@ -443,5 +486,25 @@ namespace GhettosFirearmSDKv2
             });
         }
         #endregion Updates
+
+        public class FirstFourNumbersCompare : IComparer<string>
+        {
+            public int Compare(string x, string y)
+            {
+                int intX = int.Parse(x.Substring(0, 4));
+                int intY = int.Parse(y.Substring(0, 4));
+
+                int result;
+                if (intX == intY)
+                {
+                    Debug.Log("Duplicate position found! " + x + ", " + y);
+                    result = 0;
+                }
+                else if (intX < intY) result = -1;
+                else result = 1;
+
+                return result;
+            }
+        }
     }
 }

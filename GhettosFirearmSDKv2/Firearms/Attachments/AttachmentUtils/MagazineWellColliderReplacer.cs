@@ -18,7 +18,7 @@ namespace GhettosFirearmSDKv2
             attachment.OnDetachEvent += Attachment_OnDetachEvent;
         }
 
-        private void Attachment_OnDetachEvent()
+        private void Attachment_OnDetachEvent(bool despawnDetach)
         {
             oldCollider.enabled = true;
             attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = oldCollider;

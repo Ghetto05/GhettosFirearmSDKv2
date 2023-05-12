@@ -4,7 +4,6 @@ using UnityEngine;
 using ThunderRoad;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using GhettosFirearmSDKv2.SaveData;
 
 namespace GhettosFirearmSDKv2
 {
@@ -12,9 +11,19 @@ namespace GhettosFirearmSDKv2
     {
         public List<AttachmentPoint> attachmentPoints;
         public List<Attachment> allAttachments;
-        public AttachmentTree attachmentTree;
         public Texture icon;
         public List<Handle> preSnapActiveHandles;
+        public FirearmSaveData saveData;
+        public string defaultAmmoItem;
+
+        public override List<Handle> AllTriggerHandles()
+        {
+            List<Handle> hs = new List<Handle>();
+            hs.AddRange(additionalTriggerHandles);
+            if (disableMainFireHandle) return hs;
+            hs.Add(item.mainHandleLeft);
+            return hs;
+        }
 
         public override float CalculateDamageMultiplier()
         {
@@ -39,17 +48,19 @@ namespace GhettosFirearmSDKv2
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnSnapEvent += Item_OnSnapEvent2;
             item.OnUnSnapEvent += Item_OnUnSnapEvent2;
+            item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             allAttachments = new List<Attachment>();
             OnAIFire = new FireableEvent(AIFire);
             foreach (AttachmentPoint ap in attachmentPoints)
             {
                 ap.parentFirearm = this;
             }
-            StartCoroutine(DelayedLoadAttachments());
+            StartCoroutine(DelayedLoad());
         }
 
-        private void Update()
+        public override void Update()
         {
+            base.Update();
             RefreshRecoilModifiers();
         }
 
@@ -79,13 +90,6 @@ namespace GhettosFirearmSDKv2
             allAttachments = new List<Attachment>();
             AddAttachments(attachmentPoints);
             CalculateMuzzle();
-            if (!initialSetup)
-            {
-                attachmentTree = new SaveData.AttachmentTree();
-                attachmentTree.GetFromFirearm(this);
-                item.RemoveCustomData<SaveData.AttachmentTree>();
-                item.AddCustomData(attachmentTree);
-            }
         }
 
         public void AddAttachments(List<AttachmentPoint> points)
@@ -100,11 +104,20 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public IEnumerator DelayedLoadAttachments()
+        public IEnumerator DelayedLoad()
         {
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.4f);
 
-            Addressables.LoadAssetAsync<Texture>(item.data.iconAddress).Completed += (System.Action<AsyncOperationHandle<Texture>>)(handle =>
+            if (!item.TryGetCustomData(out saveData))
+            {
+                saveData = new FirearmSaveData();
+                saveData.firearmNode = new FirearmSaveData.AttachmentTreeNode();
+                item.AddCustomData(saveData);
+            }
+
+            saveData.ApplyToFirearm(this);
+
+            Addressables.LoadAssetAsync<Texture>(item.data.iconAddress).Completed += (handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
@@ -112,26 +125,21 @@ namespace GhettosFirearmSDKv2
                 }
                 else
                 {
-                    Debug.LogWarning((object)("Unable to load icon texture from location " + item.data.iconAddress));
-                    Addressables.Release<Texture>(handle);
+                    Debug.LogWarning(("Unable to load icon texture from location " + item.data.iconAddress));
+                    Addressables.Release(handle);
                 }
             });
+            CalculateMuzzle();
 
-            item.TryGetCustomData(out SaveData.AttachmentTree tree);
-            if (tree != null)
+            if (FirearmsSettings.debugMode)
             {
-                attachmentTree = tree;
-                tree.ApplyToFirearm(this);
-            }
-            else
-            {
-                foreach (AttachmentPoint ap in attachmentPoints)
+                foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
                 {
-                    ap.SpawnDefaultAttachment();
+                    if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on firearm " + gameObject.name + " is not of type GhettoHandle!");
                 }
             }
-            CalculateMuzzle();
-            yield return new WaitForSeconds(3f);
+
+            yield return new WaitForSeconds(2.3f);
             if (item.holder != null)
             {
                 Holder h = item.holder;
@@ -149,7 +157,7 @@ namespace GhettosFirearmSDKv2
             return null;
         }
 
-        public override void PlayMuzzleFlash()
+        public override void PlayMuzzleFlash(Cartridge cartridge)
         {
             bool overridden = false;
             foreach (Attachment at in allAttachments)
@@ -160,7 +168,7 @@ namespace GhettosFirearmSDKv2
                     if (at.newFlash != null)
                     {
                         at.newFlash.Play();
-                        StartCoroutine(PlayMuzzleFlashLight());
+                        StartCoroutine(PlayMuzzleFlashLight(cartridge));
                     }
                 }
             }
@@ -169,7 +177,7 @@ namespace GhettosFirearmSDKv2
             if (!overridden && defaultMuzzleFlash is ParticleSystem mf)
             {
                 mf.Play();
-                StartCoroutine(PlayMuzzleFlashLight());
+                StartCoroutine(PlayMuzzleFlashLight(cartridge));
             }
         }
 
@@ -193,11 +201,6 @@ namespace GhettosFirearmSDKv2
             }
             actualHitscanMuzzle = t;
             base.CalculateMuzzle();
-        }
-
-        public override bool SaveChamber()
-        {
-            return true;
         }
 
         public bool AIFire(AIFireable fireable, RagdollHand hand, bool finished)

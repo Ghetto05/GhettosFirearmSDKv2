@@ -54,7 +54,7 @@ namespace GhettosFirearmSDKv2
                         Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(1f);
                 UpdateCartridges();
             }
             else
@@ -201,15 +201,18 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.transform.SetParent(muzzle);
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
-            firearm.PlayFireSound();
+            firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
             {
                 if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > ca && actualMuzzleFlashes[ca] != null && muzzles.Count > 1) actualMuzzleFlashes[ca].Play(); 
-                else firearm.PlayMuzzleFlash();
+                else firearm.PlayMuzzleFlash(loadedCartridge);
             }
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
-            loadedCartridge.Fire(hits, trajectories, muzzle);
+            if (!FirearmsSettings.infiniteAmmo)
+            {
+                loadedCartridge.Fire(hits, trajectories, muzzle);
+            }
             InvokeFireEvent();
         }
 

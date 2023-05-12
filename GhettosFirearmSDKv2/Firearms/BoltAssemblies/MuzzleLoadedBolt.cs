@@ -17,6 +17,8 @@ namespace GhettosFirearmSDKv2
         public bool ejectOnFire;
         int shotsSinceTriggerReset = 0;
 
+        public Hammer hammer;
+
         public override bool LoadChamber(Cartridge c, bool forced)
         {
             if (loadedCartridge == null && !c.loaded)
@@ -45,8 +47,15 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if (loadedCartridge == null || loadedCartridge.fired) return;
             shotsSinceTriggerReset++;
+            if (hammer != null)
+            {
+                bool f = hammer.cocked;
+                hammer.Fire();
+                if (!f) return;
+            }
+
+            if (loadedCartridge == null || loadedCartridge.fired) return;
             foreach (RagdollHand hand in firearm.item.handlers)
             {
                 if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
@@ -59,12 +68,15 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.hitscanMuzzle);
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
-            firearm.PlayFireSound();
-            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
+            firearm.PlayFireSound(loadedCartridge);
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
-            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
-            if (ejectOnFire) EjectRound();
+            if (!FirearmsSettings.infiniteAmmo)
+            {
+                loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
+                if (ejectOnFire) EjectRound();
+            }
             InvokeFireEvent();
         }
 
@@ -106,7 +118,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null) return;
             Util.PlayRandomAudioSource(ejectSounds);
-            firearm.item.RemoveCustomData<ChamberSaveData>();
+            if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.value = "";
             Cartridge c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)

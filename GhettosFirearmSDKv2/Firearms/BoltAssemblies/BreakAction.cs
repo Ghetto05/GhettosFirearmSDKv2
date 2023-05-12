@@ -49,6 +49,8 @@ namespace GhettosFirearmSDKv2
 
         private MagazineSaveData data;
 
+        int currentChamber = 0;
+
         public enum Axes
         {
             X,
@@ -258,49 +260,48 @@ namespace GhettosFirearmSDKv2
             return angle <= 2f;
         }
 
-        private int GetFirstFireableChamber()
-        {
-            int car = -1;
-            for (int i = loadedCartridges.Length - 1; i >= 0; i--)
-            {
-                bool hammerCocked = hammers.Count - 1 < i || hammers[i] == null || hammers[i].cocked;
-                bool cartridge = loadedCartridges[i] != null && !loadedCartridges[i].fired;
-                if (hammerCocked && cartridge) car = i;
-            }
-            return car;
-        }
-
         public override void TryFire()
         {
-            if (state != BoltState.Locked) return;
-            int ca = GetFirstFireableChamber();
-            if (ca == -1) return;
+            if (state == BoltState.Locked)
+            {
+                bool hammerCocked = hammers.Count - 1 < currentChamber || hammers[currentChamber] == null || hammers[currentChamber].cocked;
+                bool cartridge = loadedCartridges[currentChamber] != null && !loadedCartridges[currentChamber].fired;
 
-            shotsSinceTriggerReset++;
-            if (hammers.Count > ca && hammers[ca] != null) hammers[ca].Fire();
-            foreach (RagdollHand hand in firearm.item.handlers)
-            {
-                if (hand.playerHand != null || hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
+                if (hammerCocked && cartridge)
+                {
+                    shotsSinceTriggerReset++;
+                    if (hammers.Count > currentChamber && hammers[currentChamber] != null) hammers[currentChamber].Fire();
+                    foreach (RagdollHand hand in firearm.item.handlers)
+                    {
+                        if (hand.playerHand != null || hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
+                    }
+                    Transform muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[currentChamber];
+                    Cartridge loadedCartridge = loadedCartridges[currentChamber];
+                    if (loadedCartridge.additionalMuzzleFlash != null)
+                    {
+                        loadedCartridge.additionalMuzzleFlash.transform.position = muzzle.position;
+                        loadedCartridge.additionalMuzzleFlash.transform.rotation = muzzle.rotation;
+                        loadedCartridge.additionalMuzzleFlash.transform.SetParent(muzzle);
+                        StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
+                    }
+                    firearm.PlayFireSound(loadedCartridge);
+                    if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
+                    {
+                        if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > currentChamber && actualMuzzleFlashes[currentChamber] != null && muzzles.Count > 1) actualMuzzleFlashes[currentChamber].Play();
+                        else firearm.PlayMuzzleFlash(loadedCartridge);
+                    }
+                    FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+                    FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
+                    if (!FirearmsSettings.infiniteAmmo)
+                    {
+                        loadedCartridge.Fire(hits, trajectories, muzzle);
+                    }
+                    InvokeFireEvent();
+                }
             }
-            Transform muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[ca];
-            Cartridge loadedCartridge = loadedCartridges[ca];
-            if (loadedCartridge.additionalMuzzleFlash != null)
-            {
-                loadedCartridge.additionalMuzzleFlash.transform.position = muzzle.position;
-                loadedCartridge.additionalMuzzleFlash.transform.rotation = muzzle.rotation;
-                loadedCartridge.additionalMuzzleFlash.transform.SetParent(muzzle);
-                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-            }
-            firearm.PlayFireSound();
-            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
-            {
-                if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > ca && actualMuzzleFlashes[ca] != null && muzzles.Count > 1) actualMuzzleFlashes[ca].Play(); 
-                else firearm.PlayMuzzleFlash();
-            }
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
-            loadedCartridge.Fire(hits, trajectories, muzzle);
-            InvokeFireEvent();
+
+            currentChamber++;
+            if (currentChamber >= mountPoints.Count) currentChamber = 0;
         }
 
         public override void TryRelease(bool forced = false)

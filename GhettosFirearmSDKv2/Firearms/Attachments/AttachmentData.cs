@@ -36,9 +36,9 @@ namespace GhettosFirearmSDKv2
             return dataList;
         }
 
-        public void SpawnAndAttach(AttachmentPoint point, SaveData.AttachmentTree.Node thisNode = null, bool initialSetup = false)
+        public void SpawnAndAttach(AttachmentPoint point, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
-            Addressables.InstantiateAsync(prefabAddress, point.transform.position, point.transform.rotation, point.transform, false).Completed += (System.Action<AsyncOperationHandle<GameObject>>)(handle =>
+            Addressables.InstantiateAsync(prefabAddress, point.transform.position, point.transform.rotation, point.transform, false).Completed += (handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
@@ -46,6 +46,15 @@ namespace GhettosFirearmSDKv2
                     point.currentAttachment = attachment;
                     attachment.data = this;
                     attachment.attachmentPoint = point;
+                    if (thisNode == null)
+                    {
+                        attachment.node = new FirearmSaveData.AttachmentTreeNode();
+                        attachment.node.attachmentId = id;
+                        attachment.node.slot = point.id;
+                    }
+                    else attachment.node = thisNode;
+                    if (point.attachment != null && thisNode == null) point.attachment.node.childs.Add(attachment.node);
+                    else if (thisNode == null) point.parentFirearm.saveData.firearmNode.childs.Add(attachment.node);
                     attachment.Initialize(thisNode, initialSetup);
                     point.InvokeAttachmentAdded(attachment);
                 }

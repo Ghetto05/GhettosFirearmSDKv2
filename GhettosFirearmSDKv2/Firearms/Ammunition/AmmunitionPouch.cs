@@ -27,13 +27,13 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_UnSnapped(Item item)
         {
-            SpawnSavedItemV2();
+            SpawnSavedItem();
             Util.IgnoreCollision(gameObject, item.gameObject, false);
         }
 
         private void Holder_Snapped(Item item)
         {
-            if (string.IsNullOrEmpty(savedData.itemID)) SaveItemV2();
+            if (string.IsNullOrEmpty(savedData.itemID)) SaveItem();
             Util.IgnoreCollision(gameObject, item.gameObject, true);
         }
 
@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
             yield return new WaitForSeconds(0.5f);
             if (pouchItem.TryGetCustomData(out savedData))
             {
-                SpawnSavedItemV2();
+                SpawnSavedItem();
             }
             else
             {
@@ -63,25 +63,6 @@ namespace GhettosFirearmSDKv2
             savedData = new PouchSaveData();
             if (holder.items.Count < 1)
             {
-                savedData.itemID = null;
-                savedData.savedMagazineData = null;
-                return;
-            }
-            savedData.itemID = holder.items[0].data.id;
-            if (holder.items[0].TryGetComponent(out Magazine mag))
-            {
-                savedData.savedMagazineData = new MagazineSaveData();
-                savedData.savedMagazineData.GetContentsFromMagazine(mag);
-            }
-            pouchItem.AddCustomData(savedData);
-        }
-
-        public void SaveItemV2()
-        {
-            pouchItem.RemoveCustomData<PouchSaveData>();
-            savedData = new PouchSaveData();
-            if (holder.items.Count < 1)
-            {
                 return;
             }
             savedData.itemID = holder.items[0].data.id;
@@ -90,21 +71,6 @@ namespace GhettosFirearmSDKv2
         }
 
         public void SpawnSavedItem()
-        {
-            if (savedData == null || string.IsNullOrEmpty(savedData.itemID)) return;
-            Catalog.GetData<ItemData>(savedData.itemID).SpawnAsync(newItem =>
-            {
-                if (newItem.TryGetComponent(out Magazine mag) && savedData.savedMagazineData != null)
-                {
-                    MagazineSaveData magSave = new MagazineSaveData();
-                    magSave.contents = savedData.savedMagazineData.contents;
-                    newItem.AddCustomData(magSave);
-                }
-                StartCoroutine(DelayedSnap(newItem));
-            }, transform.position, transform.rotation);
-        }
-
-        public void SpawnSavedItemV2()
         {
             if (savedData == null || string.IsNullOrEmpty(savedData.itemID)) return;
             Catalog.GetData<ItemData>(savedData.itemID)?.SpawnAsync(newItem =>

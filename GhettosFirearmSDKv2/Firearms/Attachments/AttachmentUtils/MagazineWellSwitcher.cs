@@ -37,7 +37,7 @@ namespace GhettosFirearmSDKv2
             attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
         }
 
-        private void Attachment_OnDetachEvent()
+        private void Attachment_OnDetachEvent(bool despawnDetach)
         {
             attachment.OnDetachEvent -= Attachment_OnDetachEvent;
 

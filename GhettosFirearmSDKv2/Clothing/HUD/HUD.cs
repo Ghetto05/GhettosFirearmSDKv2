@@ -16,12 +16,11 @@ namespace GhettosFirearmSDKv2
         private void Awake()
         {
             StartCoroutine(Delayed());
-            //Debug.Log("Creature on HUD: " + GetComponentInParent<Creature>().creatureId);
         }
 
         private void Settings_LevelModule_OnValueChangedEvent()
         {
-            try { scaleRoot.localScale = Vector3.one * FirearmsSettings.values.hudScale; } catch (Exception) { }
+            try { scaleRoot.localScale = Vector3.one * FirearmsSettings.hudScale; } catch (Exception) { }
         }
 
         private IEnumerator Delayed()

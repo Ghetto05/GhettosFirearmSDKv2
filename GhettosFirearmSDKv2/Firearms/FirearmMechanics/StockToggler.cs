@@ -11,9 +11,10 @@ namespace GhettosFirearmSDKv2
         public Handle toggleHandle;
         public Transform pivot;
         public Transform[] positions;
-        public Item connectedItem;
+        public Firearm connectedFirearm;
         public Attachment connectedAttachment;
         public int currentIndex = 0;
+        SaveNodeValueInt stockPosition;
 
         void Awake()
         {
@@ -22,16 +23,19 @@ namespace GhettosFirearmSDKv2
 
         IEnumerator delayedLoad()
         {
-            yield return new WaitForSeconds(0.1f);
-            if (connectedItem != null)
+            yield return new WaitForSeconds(1.1f);
+            if (connectedFirearm != null)
             {
-                connectedItem.OnHeldActionEvent += OnAction;
+                connectedFirearm.item.OnHeldActionEvent += OnAction;
+                stockPosition = connectedFirearm.saveData.firearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
             }
             else if (connectedAttachment != null)
             {
                 connectedAttachment.OnHeldActionEvent += OnAction;
+                stockPosition = connectedAttachment.node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
             }
-            ApplyPosition(0, false);
+            currentIndex = stockPosition.value;
+            ApplyPosition(stockPosition.value, false);
         }
 
         private void OnAction(RagdollHand hand, Handle handle, Interactable.Action action)
@@ -48,6 +52,7 @@ namespace GhettosFirearmSDKv2
                 else currentIndex--;
                 ApplyPosition(currentIndex);
             }
+            stockPosition.value = currentIndex;
         }
 
         public void ApplyPosition(int index, bool playSound = true)
@@ -62,7 +67,7 @@ namespace GhettosFirearmSDKv2
             catch (System.Exception)
             {
                 if (connectedAttachment != null) Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.parentFirearm.name}: Index {index}, list is {positions.Length} entires long!");
-                else if (connectedItem != null) Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedItem.name}: Index {index}, list is {positions.Length} entires long!");
+                else if (connectedFirearm != null) Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedFirearm.name}: Index {index}, list is {positions.Length} entires long!");
             }
         }
 

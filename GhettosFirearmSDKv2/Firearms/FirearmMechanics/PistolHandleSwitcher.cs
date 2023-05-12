@@ -13,6 +13,12 @@ namespace GhettosFirearmSDKv2
 
         public void Update()
         {
+            if (FirearmsSettings.debugMode && (firearm == null || mainHandle == null || secondaryHandle == null))
+            {
+                Debug.Log("Handle switcher on " + GetComponentInParent<Item>().itemId + " is not set up!");
+                return;
+            }
+
             mainHandle.SetTouch(mainHandle.handlers.Count == 0);
             secondaryHandle.SetTouch(mainHandle.handlers.Count != 0);
 

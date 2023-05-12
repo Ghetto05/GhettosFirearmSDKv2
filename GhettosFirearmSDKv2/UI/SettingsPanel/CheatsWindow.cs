@@ -22,33 +22,33 @@ namespace GhettosFirearmSDKv2.UI
 
         private void Settings_LevelModule_OnValueChangedEvent()
         {
-            infiniteAmmoButton.isOn = FirearmsSettings.values.infiniteAmmo;
-            doCaliberChecksButton.isOn = !FirearmsSettings.values.doCaliberChecks;
-            doMagazineChecksButton.isOn = !FirearmsSettings.values.doMagazineTypeChecks;
-            incapitateOnTorsoShotButton.isOn = FirearmsSettings.values.incapitateOnTorsoShot;
+            infiniteAmmoButton.isOn = FirearmsSettings.infiniteAmmo;
+            doCaliberChecksButton.isOn = !FirearmsSettings.doCaliberChecks;
+            doMagazineChecksButton.isOn = !FirearmsSettings.doMagazineTypeChecks;
+            incapitateOnTorsoShotButton.isOn = FirearmsSettings.incapitateOnTorsoShot;
         }
 
         public void SetInfiniteAmmo()
         {
-            FirearmsSettings.values.infiniteAmmo = infiniteAmmoButton.isOn;
+            FirearmsSettings.infiniteAmmo = infiniteAmmoButton.isOn;
             FirearmsSettings.local.SendUpdate();
         }
 
         public void SetIncapitateOnTorsoShot()
         {
-            FirearmsSettings.values.incapitateOnTorsoShot = incapitateOnTorsoShotButton.isOn;
+            FirearmsSettings.incapitateOnTorsoShot = incapitateOnTorsoShotButton.isOn;
             FirearmsSettings.local.SendUpdate();
         }
 
         public void SetIgnoreCaliberChecks()
         {
-            FirearmsSettings.values.doCaliberChecks = !doCaliberChecksButton.isOn;
+            FirearmsSettings.doCaliberChecks = !doCaliberChecksButton.isOn;
             FirearmsSettings.local.SendUpdate();
         }
 
         public void SetIgnoreMagazineTypeChecks()
         {
-            FirearmsSettings.values.doMagazineTypeChecks = !doMagazineChecksButton.isOn;
+            FirearmsSettings.doMagazineTypeChecks = !doMagazineChecksButton.isOn;
             FirearmsSettings.local.SendUpdate();
         }
     }

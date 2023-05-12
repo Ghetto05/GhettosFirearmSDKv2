@@ -9,7 +9,7 @@ namespace GhettosFirearmSDKv2
     public class Speedloader : MonoBehaviour
     {
         public Item item;
-
+        public bool deleteIfEmpty = false;
         public List<Transform> mountPoints;
         public List<Collider> loadColliders;
         public List<string> calibers;
@@ -126,8 +126,21 @@ namespace GhettosFirearmSDKv2
         {
             for (int i = 0; i < loadedCartridges.Length; i++)
             {
-                if (startRemoving && loadedCartridges[i] != null && (loadedCartridges[i].fired || loadedCartridges[i].transform.parent != mountPoints[i])) loadedCartridges[i] = null;
+                if (startRemoving && loadedCartridges[i] != null && (loadedCartridges[i].fired || loadedCartridges[i].transform.parent != mountPoints[i]))
+                {
+                    loadedCartridges[i] = null;
+                    if (Empty() && deleteIfEmpty) item.Despawn();
+                }
             }
+        }
+
+        private bool Empty()
+        {
+            for (int i = 0; i < loadedCartridges.Length; i++)
+            {
+                if (loadedCartridges[i] != null) return false;
+            }
+            return true;
         }
 
         public void SaveCartridges()

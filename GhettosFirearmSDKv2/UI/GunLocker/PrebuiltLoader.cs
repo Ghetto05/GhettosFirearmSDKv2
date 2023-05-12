@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using ThunderRoad;
-using GhettosFirearmSDKv2.SaveData;
 
 namespace GhettosFirearmSDKv2
 {

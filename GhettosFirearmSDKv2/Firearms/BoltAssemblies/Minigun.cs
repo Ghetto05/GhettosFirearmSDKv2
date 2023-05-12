@@ -127,8 +127,8 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.transform.SetParent(null);
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
-            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash();
-            firearm.PlayFireSound();
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash(loadedCartridge);
+            firearm.PlayFireSound(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             Util.PlayRandomAudioSource(firearm.fireSounds);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
@@ -167,6 +167,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryLoadRound()
         {
+            Debug.Log(firearm.magazineWell + ", " + firearm.magazineWell.currentMagazine);
             if (loadedCartridge == null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
                 loadedCartridge = c;

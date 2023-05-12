@@ -43,7 +43,7 @@ namespace GhettosFirearmSDKv2
 
         public static void AddTorqueToCartridge(Cartridge c)
         {
-            float f = FirearmsSettings.values.cartridgeEjectionTorque;
+            float f = FirearmsSettings.cartridgeEjectionTorque;
             Vector3 torque = new Vector3
             {
                 x = Random.Range(-f, f),
@@ -55,7 +55,7 @@ namespace GhettosFirearmSDKv2
 
         public static void AddForceToCartridge(Cartridge c, Transform direction, float force)
         {
-            float f = FirearmsSettings.values.cartridgeEjectionForceRandomizationDevision;
+            float f = FirearmsSettings.cartridgeEjectionForceRandomizationDevision;
             c.item.physicBody.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
         }
 
@@ -66,10 +66,11 @@ namespace GhettosFirearmSDKv2
 
         public IEnumerator delayedGetChamber()
         {
-            yield return new WaitForSeconds(1f);
-            if (firearm.GetType() == typeof(Firearm) && firearm.item.TryGetCustomData(out ChamberSaveData data))
+            yield return new WaitForSeconds(1.1f);
+
+            if (FirearmSaveData.GetNode(firearm) != null && FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber))
             {
-                Catalog.GetData<ItemData>(data.itemId).SpawnAsync(carItem =>
+                Catalog.GetData<ItemData>(chamber.value)?.SpawnAsync(carItem =>
                 {
                     Cartridge car = carItem.gameObject.GetComponent<Cartridge>();
                     firearm.item.StartCoroutine(delayedLoadChamber(car, 1f));
@@ -86,11 +87,22 @@ namespace GhettosFirearmSDKv2
 
         public void SaveChamber(string id)
         {
-            if (!firearm.SaveChamber()) return;
-            firearm.item.RemoveCustomData<ChamberSaveData>();
-            ChamberSaveData data = new ChamberSaveData();
-            data.itemId = id;
-            firearm.item.AddCustomData(data);
+            FirearmSaveData.AttachmentTreeNode node;
+            if (firearm.GetType() == typeof(Firearm))
+            {
+                Firearm f = (Firearm)firearm;
+                node = f.saveData.firearmNode;
+            }
+            else
+            {
+                AttachmentFirearm f = (AttachmentFirearm)firearm;
+                node = f.attachment.node;
+            }
+
+            if (node != null)
+            {
+                node.GetOrAddValue("ChamberSaveData", new SaveNodeValueString()).value = id;
+            }
         }
 
         public virtual void Initialize()

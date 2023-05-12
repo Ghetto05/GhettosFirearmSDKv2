@@ -8,6 +8,7 @@ namespace GhettosFirearmSDKv2
 {
     public class FirearmBase : AIFireable
     {
+        public bool setUpForHandPose = false;
         public bool disableMainFireHandle = false;
         public List<Handle> additionalTriggerHandles;
         public bool triggerState;
@@ -32,9 +33,10 @@ namespace GhettosFirearmSDKv2
         public List<RecoilModifier> recoilModifiers = new List<RecoilModifier>();
         public Light muzzleLight;
 
+        public FirearmSaveData.AttachmentTreeNode GetFirearmNode;
+
         public virtual void Awake()
         {
-            longPressTime = FirearmsSettings.values.longPressTime;
             fireSoundsPitch = new float[fireSounds.Length];
             suppressedFireSoundsPitch = new float[suppressedFireSounds.Length];
             for (int i = 0; i < fireSounds.Length; i++)
@@ -50,12 +52,22 @@ namespace GhettosFirearmSDKv2
             muzzleLight.type = LightType.Point;
             muzzleLight.range = 5f;
             muzzleLight.intensity = 3f;
-            muzzleLight.color = RandomColor();
         }
 
-        private Color RandomColor()
+        public virtual void Update()
         {
-            return Color.Lerp(new Color(1.0f, 0.3843f, 0.0f), new Color(1.0f, 0.5294f, 0.0f), Random.Range(0f, 1f));
+            longPressTime = FirearmsSettings.longPressTime;
+        }
+
+        public virtual List<Handle> AllTriggerHandles()
+        {
+            return null;
+        }
+
+        private Color RandomColor(Cartridge cartridge)
+        {
+            if (cartridge.data.overrideMuzzleFlashLightColor) return Color.Lerp(cartridge.data.muzzleFlashLightColorOne, cartridge.data.muzzleFlashLightColorTwo, Random.Range(0f, 1f));
+            else return Color.Lerp(new Color(1.0f, 0.3843f, 0.0f), new Color(1.0f, 0.5294f, 0.0f), Random.Range(0f, 1f));
         }
 
         public virtual float CalculateDamageMultiplier()
@@ -68,12 +80,8 @@ namespace GhettosFirearmSDKv2
             Safe,
             Semi,
             Burst,
-            Auto
-        }
-
-        public virtual bool SaveChamber()
-        {
-            return false;
+            Auto,
+            AttachmentFirearm
         }
 
         public void Item_OnUnSnapEvent(Holder holder)
@@ -172,43 +180,49 @@ namespace GhettosFirearmSDKv2
             return false;
         }
 
-        public void PlayFireSound(bool overrideSuppressedbool = false, bool suppressed = false)
+        public void PlayFireSound(Cartridge cartridge, bool overrideSuppressedbool = false, bool suppressed = false)
         {
             bool supp = isSuppressed();
             if (overrideSuppressedbool) supp = suppressed;
+            if (cartridge.data.alwaysSuppressed) supp = true;
             AudioSource source;
             if (!supp)
             {
-                source = Util.GetRandomFromList(fireSounds);
+                if (cartridge.data.overrideFireSounds) source = Util.GetRandomFromList(cartridge.data.fireSounds);
+                else source = Util.GetRandomFromList(fireSounds);
             }
             else
             {
-                source = Util.GetRandomFromList(suppressedFireSounds);
+                if (cartridge.data.overrideFireSounds) source = Util.GetRandomFromList(cartridge.data.suppressedFireSounds);
+                else source = Util.GetRandomFromList(suppressedFireSounds);
             }
 
             if (source == null) return;
-            float pitch;
+            float pitch = 1f;
             if (!supp)
             {
                 NoiseManager.AddNoise(actualHitscanMuzzle.position, 600f);
                 Util.AlertAllCreaturesInRange(hitscanMuzzle.position, 50);
-                pitch = fireSoundsPitch[fireSounds.ToList().IndexOf(source)];
+                if (!cartridge.data.overrideFireSounds) pitch = fireSoundsPitch[fireSounds.ToList().IndexOf(source)];
             }
             else
             {
-                pitch = suppressedFireSoundsPitch[suppressedFireSounds.ToList().IndexOf(source)];
+                if (!cartridge.data.overrideFireSounds) pitch = suppressedFireSoundsPitch[suppressedFireSounds.ToList().IndexOf(source)];
             }
-            float deviation =  FirearmsSettings.values.firingSoundDeviation / pitch;
+
+            float deviation =  FirearmsSettings.firingSoundDeviation / pitch;
             source.pitch = pitch += Random.Range(-deviation, deviation);
             source.Play();
+            source.transform.SetParent(transform);
+            if (cartridge.data.overrideFireSounds) StartCoroutine(Explosives.Explosive.delayedDestroy(source.gameObject, source.clip.length + 1f)); 
         }
 
-        public virtual void PlayMuzzleFlash()
+        public virtual void PlayMuzzleFlash(Cartridge cartridge)
         { }
 
-        public IEnumerator PlayMuzzleFlashLight()
+        public IEnumerator PlayMuzzleFlashLight(Cartridge cartridge)
         {
-            muzzleLight.color = RandomColor();
+            muzzleLight.color = RandomColor(cartridge);
             muzzleLight.transform.position = actualHitscanMuzzle.position + (actualHitscanMuzzle.forward * 0.04f);
             muzzleLight.enabled = true;
             yield return new WaitForEndOfFrame();
@@ -292,6 +306,8 @@ namespace GhettosFirearmSDKv2
             }
         }
 
+        public void InvokeCollisionTR(CollisionInstance collisionInstance) => OnCollisionEventTR?.Invoke(collisionInstance);
+
         public class RecoilModifier
         {
             public float modifier;
@@ -305,6 +321,9 @@ namespace GhettosFirearmSDKv2
 
         public delegate void OnCollision(Collision collision);
         public event OnCollision OnCollisionEvent;
+
+        public delegate void OnCollisionTR(CollisionInstance collisionInstance);
+        public event OnCollisionTR OnCollisionEventTR;
 
         public delegate void OnAction(Interactable.Action action);
         public event OnAction OnActionEvent;

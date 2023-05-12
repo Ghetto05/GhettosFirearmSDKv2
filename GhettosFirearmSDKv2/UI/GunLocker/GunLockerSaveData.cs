@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using ThunderRoad;
-using GhettosFirearmSDKv2.SaveData;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
@@ -44,7 +43,7 @@ namespace GhettosFirearmSDKv2
                     itemData = itemData
                 };
                 itemData.modules.Add(loader);
-                Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FileManager.GetFullPath(FileManager.Type.JSONCatalog, FileManager.Source.Mods, FirearmsSettings.saveFolderName + "\\Saves\\" + "Item" + id + ".json"), "!GhettosFirearmSDKv2_Saves");
+                Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + "Item" + id + ".json", "!GhettosFirearmSDKv2_Saves");
             }
             base.OnCatalogRefresh();
         }
