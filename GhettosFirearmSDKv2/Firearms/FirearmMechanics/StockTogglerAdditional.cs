@@ -12,7 +12,7 @@ namespace GhettosFirearmSDKv2
         public Transform pivot;
         public Transform[] positions;
 
-        void Awake()
+        void Start()
         {
             parent.OnToggleEvent += ApplyPosition;
         }

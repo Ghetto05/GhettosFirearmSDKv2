@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
         private ConfigurableJoint joint;
         private bool ejectedSinceLastOpen = false;
 
-        private void Awake()
+        private void Start()
         {
             InitializeJoint();
             revolver.firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;

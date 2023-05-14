@@ -18,17 +18,12 @@ namespace GhettosFirearmSDKv2
         private int currentIndex = 0;
         SaveNodeValueInt fireModeIndex;
 
-        private void Awake()
+        private void Start()
         {
             firearm.OnAltActionEvent += Firearm_OnAltActionEvent;
             firearm.fireMode = firemodes[currentIndex];
-            StartCoroutine(delayedLoad());
             UpdatePosition();
-        }
 
-        private IEnumerator delayedLoad()
-        {
-            yield return new WaitForSeconds(1.05f);
             fireModeIndex = FirearmSaveData.GetNode(firearm).GetOrAddValue("Firemode", new SaveNodeValueInt());
             firearm.SetFiremode(firemodes[fireModeIndex.value]);
             currentIndex = fireModeIndex.value;

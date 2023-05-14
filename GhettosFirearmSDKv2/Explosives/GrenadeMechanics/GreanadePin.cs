@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
         public Joint joint;
         public float breakForce;
 
-        void Awake()
+        void Start()
         {
             parentItem.OnGrabEvent += ParentItem_OnGrabEvent;
             parentItem.OnUngrabEvent += ParentItem_OnUngrabEvent;

@@ -13,7 +13,7 @@ namespace GhettosFirearmSDKv2
         public UnityEvent onBurst;
         public UnityEvent onAuto;
 
-        private void Awake()
+        private void Start()
         {
             selector.onFiremodeChanged += Selector_onFiremodeChanged;
         }

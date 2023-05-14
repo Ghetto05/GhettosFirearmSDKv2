@@ -28,13 +28,14 @@ namespace GhettosFirearmSDKv2
             if (index < 0)
             {
                 mag.loadable = true;
+                mag.InvokeLoadFinished();
                 return;
             }
             try
             {
                 Catalog.GetData<ItemData>(con[index]).SpawnAsync(cartridge =>
                 {
-                    mag.InsertRound(cartridge.GetComponent<Cartridge>(), true, true);
+                    mag.InsertRound(cartridge.GetComponent<Cartridge>(), true, true, false);
                     ApplyToMagazineRecurve(index - 1, mag, con);
                 }, mag.transform.position + Vector3.up * 3, null, null, false);
             }

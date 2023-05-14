@@ -12,9 +12,9 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         public Handle fireHandle;
 
-        public void Start()
+        public override void Start()
         {
-            base.Awake();
+            base.Start();
             mainFireHandle = fireHandle;
             item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
             attachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;

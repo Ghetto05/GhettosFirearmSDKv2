@@ -36,7 +36,7 @@ namespace GhettosFirearmSDKv2
         public List<Transform> calibers;
         public List<Transform> variants;
 
-        private void Awake()
+        private void Start()
         {
             description.text = "";
             if (!alwaysFrozen)

@@ -23,7 +23,7 @@ namespace GhettosFirearmSDKv2
         bool moving = false;
         bool triggered = false;
 
-        private void Awake()
+        private void Start()
         {
             grenadeItem.OnUngrabEvent += GrenadeItem_OnUngrabEvent;
             grenadeItem.OnHeldActionEvent += GrenadeItem_OnHeldActionEvent;

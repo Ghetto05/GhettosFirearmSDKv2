@@ -55,16 +55,36 @@ namespace GhettosFirearmSDKv2
         private bool allowLoad = false;
         MagazineSaveData data;
 
-        private void Awake()
+        private void Start()
         {
             loadedCartridges = new Cartridge[mountPoints.Length];
-            StartCoroutine(Delayed());
             UpdateEjector();
             firearm.OnCockActionEvent += Cock;
             firearm.OnCollisionEvent += Firearm_OnCollisionEvent;
             firearm.OnAltActionEvent += Firearm_OnAltActionEvent;
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.OnCollisionEventTR += Firearm_OnCollisionEventTR;
+
+            if (firearm.item.TryGetCustomData(out data))
+            {
+                for (int i = 0; i < data.contents.Length; i++)
+                {
+                    if (data.contents[i] != null)
+                    {
+                        int index = i;
+                        Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                    }
+                }
+                UpdateCartridges();
+            }
+            else
+            {
+                firearm.item.AddCustomData(new MagazineSaveData());
+                firearm.item.TryGetCustomData(out data);
+                data.contents = new string[loadedCartridges.Length];
+            }
+            allowLoad = true;
+            UpdateCartridges();
         }
 
         private void Firearm_OnCollisionEventTR(CollisionInstance collisionInstance)
@@ -344,33 +364,6 @@ namespace GhettosFirearmSDKv2
         public void ApplyChamber()
         {
             cylinderAxis.localEulerAngles = loadMode ? cylinderLoadRotations[currentChamber] : cylinderRotations[currentChamber];
-        }
-
-        private IEnumerator Delayed()
-        {
-            yield return new WaitForSeconds(0.3f);
-            if (firearm.item.TryGetCustomData(out data))
-            {
-                for (int i = 0; i < data.contents.Length; i++)
-                {
-                    if (data.contents[i] != null)
-                    {
-                        int index = i;
-                        Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
-                    }
-                }
-                yield return new WaitForSeconds(0.1f);
-                UpdateCartridges();
-            }
-            else
-            {
-                firearm.item.AddCustomData(new MagazineSaveData());
-                firearm.item.TryGetCustomData(out data);
-                data.contents = new string[loadedCartridges.Length];
-            }
-            allowLoad = true;
-            yield return new WaitForSeconds(3f);
-            UpdateCartridges();
         }
     }
 }

@@ -41,7 +41,7 @@ namespace GhettosFirearmSDKv2
         private List<List<RagdollHand>> handlers;
         private List<List<Vector3>> handlerAnchors;
 
-        public void Awake()
+        public void Start()
         {
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.item.OnGrabEvent += Item_OnGrabEvent;
@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
             handlers = new List<List<RagdollHand>>();
             handlerAnchors = new List<List<Vector3>>();
             RefreshBoltHandles();
-            StartCoroutine(delayedGetChamber());
+            ChamberSaved();
             Lock(true);
         }
 

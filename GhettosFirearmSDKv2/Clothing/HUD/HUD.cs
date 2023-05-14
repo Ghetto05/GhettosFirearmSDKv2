@@ -13,19 +13,8 @@ namespace GhettosFirearmSDKv2
         public GameObject hudObject;
         public Transform scaleRoot;
 
-        private void Awake()
+        private void Start()
         {
-            StartCoroutine(Delayed());
-        }
-
-        private void Settings_LevelModule_OnValueChangedEvent()
-        {
-            try { scaleRoot.localScale = Vector3.one * FirearmsSettings.hudScale; } catch (Exception) { }
-        }
-
-        private IEnumerator Delayed()
-        {
-            yield return new WaitForSeconds(0.5f);
             Creature cr = GetComponentInParent<Creature>();
             if (!cr.brain.instance.id.Equals("Player"))
             {
@@ -42,6 +31,11 @@ namespace GhettosFirearmSDKv2
                 hudObject.transform.localPosition = Vector3.zero;
                 hudObject.transform.localEulerAngles = Vector3.zero;
             }
+        }
+
+        private void Settings_LevelModule_OnValueChangedEvent()
+        {
+            try { scaleRoot.localScale = Vector3.one * FirearmsSettings.hudScale; } catch (Exception) { }
         }
 
         private void OnDestroy()

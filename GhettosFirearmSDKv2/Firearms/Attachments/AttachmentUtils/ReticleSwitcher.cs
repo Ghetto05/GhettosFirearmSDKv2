@@ -13,7 +13,7 @@ namespace GhettosFirearmSDKv2
         public GameObject defaultReticle;
         public AudioSource switchSound;
 
-        private void Awake()
+        private void Start()
         {
             if (defaultReticle == null && reticles != null && reticles.Count > 0) defaultReticle = reticles[0];
             foreach (GameObject reti in reticles)

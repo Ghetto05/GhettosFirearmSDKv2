@@ -76,10 +76,10 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void Awake()
+        public void Start()
         {
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
-            StartCoroutine(delayedGetChamber());
+            ChamberSaved();
         }
 
         private void EjectRound(Cartridge c)

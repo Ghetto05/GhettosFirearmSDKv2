@@ -12,12 +12,21 @@ namespace GhettosFirearmSDKv2
         public Item pouchItem;
         public PouchSaveData savedData;
 
-        private void Awake()
+        private void Start()
         {
-            StartCoroutine(DelayedLoad());
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
             pouchItem.OnHeldActionEvent += PouchItem_OnHeldActionEvent;
+
+            if (pouchItem.TryGetCustomData(out savedData))
+            {
+                SpawnSavedItem();
+            }
+            else
+            {
+                savedData = new PouchSaveData();
+                pouchItem.AddCustomData(savedData);
+            }
         }
 
         private void PouchItem_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -33,28 +42,9 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_Snapped(Item item)
         {
+            if (item.GetComponent<Firearm>()) holder.UnSnap(item);
             if (string.IsNullOrEmpty(savedData.itemID)) SaveItem();
             Util.IgnoreCollision(gameObject, item.gameObject, true);
-        }
-
-        IEnumerator DelayedLoad()
-        {
-            yield return new WaitForSeconds(0.5f);
-            if (pouchItem.TryGetCustomData(out savedData))
-            {
-                SpawnSavedItem();
-            }
-            else
-            {
-                savedData = new PouchSaveData();
-                pouchItem.AddCustomData(savedData);
-            }
-        }
-
-        IEnumerator DelayedSnap(Item item)
-        {
-            yield return new WaitForSeconds(0.05f);
-            holder.Snap(item, true);
         }
 
         public void SaveItem()
@@ -75,8 +65,17 @@ namespace GhettosFirearmSDKv2
             if (savedData == null || string.IsNullOrEmpty(savedData.itemID)) return;
             Catalog.GetData<ItemData>(savedData.itemID)?.SpawnAsync(newItem =>
             {
-                StartCoroutine(DelayedSnap(newItem));
+                if (newItem.TryGetComponent(out Magazine mag))
+                {
+                    mag.onLoadFinished += Mag_onLoadFinished;
+                }
+                else holder.Snap(newItem);
             }, transform.position, transform.rotation, null, true, savedData.dataList.CloneJson());
+        }
+
+        private void Mag_onLoadFinished(Magazine mag)
+        {
+            holder.Snap(mag.item);
         }
 
         public void Reset()

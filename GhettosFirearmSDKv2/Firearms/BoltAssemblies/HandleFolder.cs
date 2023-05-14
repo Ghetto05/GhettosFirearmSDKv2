@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
         public Transform defaultPosition;
         public List<Transform> positions;
 
-        private void Awake()
+        private void Start()
         {
             if (handleNames.Count > 0)
             {

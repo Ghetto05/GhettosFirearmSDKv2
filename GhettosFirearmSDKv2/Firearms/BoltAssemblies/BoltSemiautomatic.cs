@@ -56,7 +56,7 @@ namespace GhettosFirearmSDKv2
         private bool lastFrameHeld = false;
         public Hammer hammer;
 
-        public void Awake()
+        public void Start()
         {
             foreach (BoltReleaseButton releaseButton in releaseButtons)
             {
@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
             else if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe) InitializeJoint(false, true);
             else InitializeJoint(false);
             UpdateBoltHandles();
-            StartCoroutine(delayedGetChamber());
+            ChamberSaved();
         }
 
         public override List<Handle> GetNoInfluenceHandles()

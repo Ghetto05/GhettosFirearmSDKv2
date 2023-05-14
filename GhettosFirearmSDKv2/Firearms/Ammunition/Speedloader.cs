@@ -20,13 +20,28 @@ namespace GhettosFirearmSDKv2
         private bool allowInsert = false;
         private bool startRemoving = false;
 
-        private void Awake()
+        private void Start()
         {
             loadedCartridges = new Cartridge[mountPoints.Count];
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
-            StartCoroutine(Delayed());
+
+            if (item.TryGetCustomData(out data))
+            {
+                for (int i = 0; i < loadedCartridges.Length; i++)
+                {
+                    int i2 = i;
+                    if (data.contents[i2] != null) Catalog.GetData<ItemData>(data.contents[i]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadSlot(i2, c, false); }, transform.position + Vector3.up * 3);
+                }
+            }
+            else
+            {
+                item.AddCustomData(new MagazineSaveData());
+                item.TryGetCustomData(out data);
+            }
+            allowInsert = true;
+            if (item.holder != null) Item_OnSnapEvent(item.holder);
         }
 
         private void Item_OnUnSnapEvent(Holder holder)
@@ -49,27 +64,6 @@ namespace GhettosFirearmSDKv2
         {
             UpdateCartridges();
             startRemoving = true;
-        }
-
-        private IEnumerator Delayed()
-        {
-            yield return new WaitForSeconds(0.03f);
-            if (item.TryGetCustomData(out data))
-            {
-                for (int i = 0; i < loadedCartridges.Length; i++)
-                {
-                    int i2 = i;
-                    if (data.contents[i2] != null) Catalog.GetData<ItemData>(data.contents[i]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadSlot(i2, c, false); }, transform.position + Vector3.up * 3);
-                }
-            }
-            else
-            {
-                item.AddCustomData(new MagazineSaveData());
-                item.TryGetCustomData(out data);
-            }
-            allowInsert = true;
-            yield return new WaitForSeconds(0.1f);
-            if (item.holder != null) Item_OnSnapEvent(item.holder);
         }
 
         private void OnCollisionEnter(Collision collision)

@@ -19,11 +19,15 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         private Item actualItem;
 
-        private void Awake()
+        private void Start()
         {
             active = activeByDefault;
             if (item != null) actualItem = item;
-            else if (attachment != null) attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            else if (attachment != null)
+            {
+                if (attachment.initialized) Attachment_OnDelayedAttachEvent();
+                else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            }
             else actualItem = null;
         }
 

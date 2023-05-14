@@ -15,7 +15,8 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
-            attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            if (attachment.initialized) Attachment_OnDelayedAttachEvent();
+            else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
         }
 
         private void Attachment_OnDelayedAttachEvent()

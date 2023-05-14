@@ -10,7 +10,7 @@ namespace GhettosFirearmSDKv2
         public float speed;
         public GameObject tracerObject;
 
-        public void Awake()
+        public void Start()
         {
             cartridge.OnFiredWithHitPointsAndMuzzle += Fire;
         }

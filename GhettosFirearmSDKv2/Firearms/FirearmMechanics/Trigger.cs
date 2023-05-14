@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         public AudioSource pullSound;
         public AudioSource resetSound;
 
-        void Awake()
+        void Start()
         {
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
         }

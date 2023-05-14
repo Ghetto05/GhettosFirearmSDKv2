@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
 
         public FirearmSaveData.AttachmentTreeNode GetFirearmNode;
 
-        public virtual void Awake()
+        public virtual void Start()
         {
             fireSoundsPitch = new float[fireSounds.Length];
             suppressedFireSoundsPitch = new float[suppressedFireSounds.Length];

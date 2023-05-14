@@ -16,14 +16,8 @@ namespace GhettosFirearmSDKv2
         bool restock = true;
         bool setup = false;
 
-        private void Awake()
+        private void Start()
         {
-            StartCoroutine(DelayedSetup());
-        }
-
-        private IEnumerator DelayedSetup()
-        {
-            yield return new WaitForSeconds(0.03f);
             spawnedItems = new List<Item>();
             containedItems = new List<string>();
 

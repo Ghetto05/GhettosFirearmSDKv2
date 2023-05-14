@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
             FirearmsSettings.local.SendUpdate();
         }
 
-        private void Awake()
+        private void Start()
         {
             DebugLogConsole.AddCommand<float>("SetScopeX1FOV", "Sets scope default zoom", SetX1FOV);
             baseFov = overrideX1CameraFOV? cam.fieldOfView : FirearmsSettings.scopeX1MagnificationFOV;

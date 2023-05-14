@@ -31,7 +31,7 @@ namespace GhettosFirearmSDKv2
         private bool revvingDown = false;
 
 
-        private void Awake()
+        private void Start()
         {
             firearm.item.OnHeldActionEvent += Item_OnHeldActionEvent;
         }

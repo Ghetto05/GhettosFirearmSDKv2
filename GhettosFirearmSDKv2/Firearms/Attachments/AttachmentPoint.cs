@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         public GameObject disableOnAttach;
         public Attachment attachment;
 
-        private void Awake()
+        private void Start()
         {
             StartCoroutine(Alert());
         }

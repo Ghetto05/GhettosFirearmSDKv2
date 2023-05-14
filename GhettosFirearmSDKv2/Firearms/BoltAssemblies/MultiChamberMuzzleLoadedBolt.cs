@@ -31,19 +31,13 @@ namespace GhettosFirearmSDKv2
 
         private MagazineSaveData data;
 
-        private void Awake()
+        private void Start()
         {
             loadedCartridges = new Cartridge[mountPoints.Count];
             actualMuzzles = muzzles;
             firearm.OnMuzzleCalculatedEvent += Firearm_OnMuzzleCalculatedEvent;
             firearm.OnCollisionEvent += OnCollisionEvent;
             Initialize();
-            StartCoroutine(Delayed());
-        }
-
-        private IEnumerator Delayed()
-        {
-            yield return new WaitForSeconds(0.3f);
             if (firearm.item.TryGetCustomData(out data))
             {
                 for (int i = 0; i < data.contents.Length; i++)
@@ -54,7 +48,6 @@ namespace GhettosFirearmSDKv2
                         Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
-                yield return new WaitForSeconds(1f);
                 UpdateCartridges();
             }
             else

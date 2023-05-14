@@ -36,6 +36,8 @@ namespace GhettosFirearmSDKv2
 
         private List<Renderer> renderers;
 
+        public bool initialized = false;
+
         private void Update()
         {
             if (attachmentPoint != null && attachmentPoint.parentFirearm != null && attachmentPoint.parentFirearm.item != null) Hide(!attachmentPoint.parentFirearm.item.renderers[0].enabled);
@@ -68,7 +70,6 @@ namespace GhettosFirearmSDKv2
                 ap.parentFirearm = attachmentPoint.parentFirearm;
                 ap.attachment = this;
             }
-            StartCoroutine(delayed());
             attachmentPoint.parentFirearm.UpdateAttachments(initialSetup);
             attachmentPoint.parentFirearm.item.OnDespawnEvent += Item_OnDespawnEvent;
             Catalog.LoadAssetAsync<Texture2D>(data.iconAddress, tex =>
@@ -80,25 +81,7 @@ namespace GhettosFirearmSDKv2
             {
                 eve.Invoke();
             }
-        }
 
-        private void ApplyNode()
-        {
-            foreach (FirearmSaveData.AttachmentTreeNode n in node.childs)
-            {
-                AttachmentPoint point = GetSlotFromId(n.slot);
-                Catalog.GetData<AttachmentData>(n.attachmentId).SpawnAndAttach(point, n);
-            }
-        }
-
-        private void Item_OnDespawnEvent(EventTime eventTime)
-        {
-            if (eventTime == EventTime.OnStart) Detach(true);
-        }
-
-        IEnumerator delayed()
-        {
-            yield return new WaitForSeconds(0.1f);
             if (colliderGroup != null)
             {
                 colliderGroup.Load(Catalog.GetData<ColliderGroupData>(ColliderGroupId));
@@ -144,6 +127,7 @@ namespace GhettosFirearmSDKv2
             attachmentPoint.parentFirearm.item.OnHeldActionEvent += InvokeHeldAction;
             OnDelayedAttachEvent?.Invoke();
             attachmentPoint.parentFirearm.InvokeAttachmentAdded(this, attachmentPoint);
+            initialized = true;
 
             if (FirearmsSettings.debugMode)
             {
@@ -153,6 +137,20 @@ namespace GhettosFirearmSDKv2
                     if (!handles.Contains(h)) Debug.LogWarning("Handle " + h.gameObject.name + " is not in the handle list of the attachment " + gameObject.name + "!");
                 }
             }
+        }
+
+        private void ApplyNode()
+        {
+            foreach (FirearmSaveData.AttachmentTreeNode n in node.childs)
+            {
+                AttachmentPoint point = GetSlotFromId(n.slot);
+                Catalog.GetData<AttachmentData>(n.attachmentId).SpawnAndAttach(point, n);
+            }
+        }
+
+        private void Item_OnDespawnEvent(EventTime eventTime)
+        {
+            if (eventTime == EventTime.OnStart) Detach(true);
         }
 
         private void InvokeHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)

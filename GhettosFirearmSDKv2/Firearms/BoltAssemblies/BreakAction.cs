@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             Z,
         }
 
-        private void Awake()
+        private void Start()
         {
             loadedCartridges = new Cartridge[mountPoints.Count];
             actualMuzzles = muzzles;
@@ -66,12 +66,6 @@ namespace GhettosFirearmSDKv2
             rb.gameObject.AddComponent<CollisionRelay>().onCollisionEnterEvent += OnCollisionEvent;
             firearm.OnMuzzleCalculatedEvent += Firearm_OnMuzzleCalculatedEvent;
             Initialize();
-            StartCoroutine(Delayed());
-        }
-
-        private IEnumerator Delayed()
-        {
-            yield return new WaitForSeconds(0.3f);
             if (firearm.item.TryGetCustomData(out data))
             {
                 for (int i = 0; i < data.contents.Length; i++)
@@ -82,7 +76,6 @@ namespace GhettosFirearmSDKv2
                         Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
-                yield return new WaitForSeconds(0.1f);
                 UpdateCartridges();
             }
             else
@@ -92,7 +85,6 @@ namespace GhettosFirearmSDKv2
                 data.contents = new string[loadedCartridges.Length];
             }
             allowInsert = true;
-            yield return new WaitForSeconds(0.7f);
             UpdateCartridges();
         }
 

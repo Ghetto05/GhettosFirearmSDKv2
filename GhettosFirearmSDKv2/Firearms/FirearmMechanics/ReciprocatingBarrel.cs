@@ -23,7 +23,7 @@ namespace GhettosFirearmSDKv2
             GoingFront
         }
 
-        private void Awake()
+        private void Start()
         {
             bolt.OnFireEvent += Bolt_OnFireEvent;
             state = States.Front;

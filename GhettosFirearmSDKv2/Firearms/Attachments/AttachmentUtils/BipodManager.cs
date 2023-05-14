@@ -17,7 +17,7 @@ namespace GhettosFirearmSDKv2
         private bool lastFrameOverriden = false;
         private bool active = false;
 
-        private void Awake()
+        private void Start()
         {
             if (firearm == null && attachment != null) attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
             else if (firearm != null) active = true;

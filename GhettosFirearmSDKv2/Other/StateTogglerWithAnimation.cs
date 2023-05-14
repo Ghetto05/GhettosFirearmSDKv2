@@ -27,9 +27,8 @@ namespace GhettosFirearmSDKv2
         public AudioSource[] toState1Sounds;
         public AudioSource[] toState2Sounds;
 
-        void Awake()
+        void Start()
         {
-            StartCoroutine(delayed());
             if (toggleAction == Actions.TriggerPull)
             {
                 toggleActionBAS = Interactable.Action.UseStart;
@@ -46,11 +45,7 @@ namespace GhettosFirearmSDKv2
             {
                 toggleActionBAS = Interactable.Action.AlternateUseStop;
             }
-        }
 
-        IEnumerator delayed()
-        {
-            yield return new WaitForSeconds(0.05f);
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
         }
 

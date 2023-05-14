@@ -13,7 +13,7 @@ namespace GhettosFirearmSDKv2
         public FirearmBase firearm;
         public AudioSource[] insertSounds;
 
-        private void Awake()
+        private void Start()
         {
             firearm.OnCollisionEvent += OnCollisionEnter;
         }

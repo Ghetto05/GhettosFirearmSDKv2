@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
         public Transform caughtPosition;
         public Collider release;
 
-        void Awake()
+        void Start()
         {
             firearm.OnCollisionEvent += Firearm_OnCollisionEvent;
         }

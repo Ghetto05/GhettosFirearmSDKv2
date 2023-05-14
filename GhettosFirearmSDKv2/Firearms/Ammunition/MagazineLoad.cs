@@ -19,6 +19,7 @@ namespace GhettosFirearmSDKv2
             if (index < 0)
             {
                 mag.loadable = true;
+                mag.InvokeLoadFinished();
                 return;
             }
             Catalog.GetData<ItemData>(ids[index]).SpawnAsync(item =>

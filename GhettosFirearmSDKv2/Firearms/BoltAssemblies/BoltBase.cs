@@ -64,23 +64,20 @@ namespace GhettosFirearmSDKv2
             return false;
         }
 
-        public IEnumerator delayedGetChamber()
+        public void ChamberSaved()
         {
-            yield return new WaitForSeconds(1.1f);
-
             if (FirearmSaveData.GetNode(firearm) != null && FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber))
             {
                 Catalog.GetData<ItemData>(chamber.value)?.SpawnAsync(carItem =>
                 {
                     Cartridge car = carItem.gameObject.GetComponent<Cartridge>();
-                    firearm.item.StartCoroutine(delayedLoadChamber(car, 1f));
+                    LoadChamber(car);
                 }, this.transform.position + Vector3.up * 3);
             }
         }
 
-        IEnumerator delayedLoadChamber(Cartridge c, float delay)
+        void LoadChamber(Cartridge c)
         {
-            yield return new WaitForSeconds(delay);
             bool succ = LoadChamber(c, true);
             if (!succ) c.item.Despawn();
         }

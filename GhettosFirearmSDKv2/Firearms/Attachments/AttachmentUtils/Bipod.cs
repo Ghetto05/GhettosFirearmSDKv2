@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         public AudioSource toggleSound;
         public int index = 0;
 
-        private void Awake()
+        private void Start()
         {
             if (item != null) item.OnHeldActionEvent += OnHeldActionEvent;
             else if (attachment != null) attachment.OnHeldActionEvent += OnHeldActionEvent;

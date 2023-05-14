@@ -57,31 +57,18 @@ namespace GhettosFirearmSDKv2
             if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count] != null) feederObjects[cartridges.Count].SetActive(true);
         }
 
-        private void Awake()
+        public void InvokeLoadFinished() => onLoadFinished?.Invoke(this);
+
+        private void Start()
         {
             cartridges = new List<Cartridge>();
-            if (overrideItem == null) item = this.GetComponent<Item>();
+            if (overrideItem == null) item = GetComponent<Item>();
             else item = overrideItem;
             if (item == null) return;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnDespawnEvent += Item_OnDespawnEvent;
-            if (overrideItem != null) overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
-            StartCoroutine(DelayedLoad());
-        }
-
-        private void Item_OnUnSnapEvent(Holder holder)
-        {
-            foreach (Cartridge car in cartridges)
-            {
-                car.DisableCull();
-            }
-        }
-
-        IEnumerator DelayedLoad()
-        {
-            yield return new WaitForSeconds(0.6f);
             if (overrideItem == null)
             {
                 if (item.TryGetCustomData(out saveData))
@@ -92,22 +79,32 @@ namespace GhettosFirearmSDKv2
                 {
                     saveData = new MagazineSaveData();
                     item.AddCustomData(saveData);
-                    if (defaultLoad == null) yield break;
-                    defaultLoad.Load(this);
+                    if (defaultLoad != null) defaultLoad.Load(this);
+                    else InvokeLoadFinished();
                 }
             }
             else if (overrideItem != null)
             {
+                overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
                 if (overrideItem.TryGetComponent(out Firearm f))
                 {
                     firearmSave = f.saveData.firearmNode.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents());
                     if (defaultLoad != null)
                     {
                         defaultLoad.Load(this);
-                        yield break;
+                        return;
                     }
                     firearmSave.value.ApplyToMagazine(this);
                 }
+                else InvokeLoadFinished();
+            }
+        }
+
+        private void Item_OnUnSnapEvent(Holder holder)
+        {
+            foreach (Cartridge car in cartridges)
+            {
+                car.DisableCull();
             }
         }
 
@@ -155,7 +152,7 @@ namespace GhettosFirearmSDKv2
             return c;
         }
 
-        public void InsertRound(Cartridge c, bool silent, bool forced)
+        public void InsertRound(Cartridge c, bool silent, bool forced, bool save = true)
         {
             if ((cartridges.Count < maximumCapacity || forced) && !cartridges.Contains(c) && Util.AllowLoadCatridge(c, this) && !c.loaded)
             {
@@ -173,7 +170,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
             }
             UpdateCartridgePositions();
-            SaveCustomData();
+            if (save) SaveCustomData();
         }
 
         public Cartridge ConsumeRound()
@@ -349,5 +346,8 @@ namespace GhettosFirearmSDKv2
                 firearmSave.value.GetContentsFromMagazine(this);
             }
         }
+
+        public delegate void LoadFinished(Magazine mag);
+        public event LoadFinished onLoadFinished;
     }
 }

@@ -22,15 +22,15 @@ namespace GhettosFirearmSDKv2
         public string roundCounterMessage;
         public bool allowLoad = false;
 
-        public virtual void Awake()
+        public virtual void Start()
         {
             firearm.OnCollisionEvent += TryMount;
             firearm.OnColliderToggleEvent += Firearm_OnColliderToggleEvent;
             firearm.item.OnDespawnEvent += Item_OnDespawnEvent;
-            if (spawnMagazineOnAwake) StartCoroutine(delayedLoad());
+            if (spawnMagazineOnAwake) Load();
             else
             {
-                if (currentMagazine != null && mountCurrentMagazine) StartCoroutine(currentMagazine.DelayedMount(this, firearm.item.physicBody.rigidBody, 2.5f));
+                if (currentMagazine != null && mountCurrentMagazine) currentMagazine.onLoadFinished += Mag_onLoadFinished;
                 else allowLoad = true;
             }
         }
@@ -59,9 +59,8 @@ namespace GhettosFirearmSDKv2
             if (currentMagazine != null) currentMagazine.ToggleCollision(active);
         }
 
-        public virtual IEnumerator delayedLoad()
+        public virtual void Load()
         {
-            yield return new WaitForSeconds(1.5f);
             if (FirearmSaveData.GetNode(firearm).TryGetValue("MagazineSaveData", out SaveNodeValueMagazineContents data))
             {
                 List<ContentCustomData> cdata = new List<ContentCustomData>();
@@ -69,22 +68,21 @@ namespace GhettosFirearmSDKv2
                 if (data.value == null || data.value.itemID == null || data.value.itemID.IsNullOrEmptyOrWhitespace())
                 {
                     allowLoad = true;
-                    yield break;
+                    return;
                 }
                 Catalog.GetData<ItemData>(data.value.itemID).SpawnAsync(magItem =>
                 {
                     Magazine mag = magItem.gameObject.GetComponent<Magazine>();
-                    StartCoroutine(delayedInsert(mag, 1.2f, true));
+                    mag.onLoadFinished += Mag_onLoadFinished;
                 }, mountPoint.position + Vector3.up * 3, null, null, true, cdata);
             }
             else allowLoad = true;
         }
 
-        public virtual IEnumerator delayedInsert(Magazine mag, float delay, bool initialLoad = false)
+        private void Mag_onLoadFinished(Magazine mag)
         {
-            yield return new WaitForSeconds(delay);
-            if (initialLoad) allowLoad = true;
             mag.Mount(this, firearm.item.physicBody.rigidBody, true);
+            allowLoad = true;
         }
 
         public virtual void TryMount(Collision collision)

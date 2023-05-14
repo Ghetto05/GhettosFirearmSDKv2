@@ -38,9 +38,9 @@ namespace GhettosFirearmSDKv2
             return multiply;
         }
 
-        public override void Awake()
+        public override void Start()
         {
-            base.Awake();
+            base.Start();
             if (item == null) item = this.GetComponent<Item>();
             if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
@@ -56,6 +56,40 @@ namespace GhettosFirearmSDKv2
                 ap.parentFirearm = this;
             }
             StartCoroutine(DelayedLoad());
+            
+            if (!item.TryGetCustomData(out saveData))
+            {
+                saveData = new FirearmSaveData();
+                saveData.firearmNode = new FirearmSaveData.AttachmentTreeNode();
+                item.AddCustomData(saveData);
+            }
+
+            saveData.ApplyToFirearm(this);
+            CalculateMuzzle();
+
+            #region load icon
+            Addressables.LoadAssetAsync<Texture>(item.data.iconAddress).Completed += (handle =>
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    icon = handle.Result;
+                }
+                else
+                {
+                    Debug.LogWarning(("Unable to load icon texture from location " + item.data.iconAddress));
+                    Addressables.Release(handle);
+                }
+            });
+            #endregion load icon
+            #region handle type validation
+            if (FirearmsSettings.debugMode)
+            {
+                foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
+                {
+                    if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on firearm " + gameObject.name + " is not of type GhettoHandle!");
+                }
+            }
+            #endregion handle type validation
         }
 
         public override void Update()
@@ -106,39 +140,6 @@ namespace GhettosFirearmSDKv2
 
         public IEnumerator DelayedLoad()
         {
-            yield return new WaitForSeconds(0.4f);
-
-            if (!item.TryGetCustomData(out saveData))
-            {
-                saveData = new FirearmSaveData();
-                saveData.firearmNode = new FirearmSaveData.AttachmentTreeNode();
-                item.AddCustomData(saveData);
-            }
-
-            saveData.ApplyToFirearm(this);
-
-            Addressables.LoadAssetAsync<Texture>(item.data.iconAddress).Completed += (handle =>
-            {
-                if (handle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    icon = handle.Result;
-                }
-                else
-                {
-                    Debug.LogWarning(("Unable to load icon texture from location " + item.data.iconAddress));
-                    Addressables.Release(handle);
-                }
-            });
-            CalculateMuzzle();
-
-            if (FirearmsSettings.debugMode)
-            {
-                foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
-                {
-                    if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on firearm " + gameObject.name + " is not of type GhettoHandle!");
-                }
-            }
-
             yield return new WaitForSeconds(2.3f);
             if (item.holder != null)
             {

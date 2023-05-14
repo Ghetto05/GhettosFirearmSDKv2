@@ -16,24 +16,26 @@ namespace GhettosFirearmSDKv2
         public int currentIndex = 0;
         SaveNodeValueInt stockPosition;
 
-        void Awake()
+        void Start()
         {
-            StartCoroutine(delayedLoad());
-        }
-
-        IEnumerator delayedLoad()
-        {
-            yield return new WaitForSeconds(1.1f);
             if (connectedFirearm != null)
             {
                 connectedFirearm.item.OnHeldActionEvent += OnAction;
                 stockPosition = connectedFirearm.saveData.firearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
+                currentIndex = stockPosition.value;
+                ApplyPosition(stockPosition.value, false);
             }
             else if (connectedAttachment != null)
             {
-                connectedAttachment.OnHeldActionEvent += OnAction;
-                stockPosition = connectedAttachment.node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
+                if (!connectedAttachment.initialized) connectedAttachment.OnDelayedAttachEvent += ConnectedAttachment_OnDelayedAttachEvent;
+                else ConnectedAttachment_OnDelayedAttachEvent();
             }
+        }
+
+        private void ConnectedAttachment_OnDelayedAttachEvent()
+        {
+            connectedAttachment.OnHeldActionEvent += OnAction;
+            stockPosition = connectedAttachment.node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
             currentIndex = stockPosition.value;
             ApplyPosition(stockPosition.value, false);
         }

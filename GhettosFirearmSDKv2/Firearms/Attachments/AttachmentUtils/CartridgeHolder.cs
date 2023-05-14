@@ -19,20 +19,8 @@ namespace GhettosFirearmSDKv2
 
         public Cartridge loadedCartridge;
 
-        private void Awake()
+        private void Start()
         {
-            StartCoroutine(DelayedLoad());
-        }
-
-        private void Firearm_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
-        {
-            UpdateCartridgePositions();
-        }
-
-        private IEnumerator DelayedLoad()
-        {
-            yield return new WaitForSeconds(0.6f);
-
             if (firearm != null)
             {
                 firearm.OnCollisionEvent += OnCollisionEvent;
@@ -53,7 +41,6 @@ namespace GhettosFirearmSDKv2
             {
                 id = value2.value;
             }
-            Debug.Log(firearm + " " + id);
 
             if (!id.Equals(""))
             {
@@ -62,6 +49,11 @@ namespace GhettosFirearmSDKv2
                     InsertRound(cartridge.GetComponent<Cartridge>(), true);
                 }, transform.position + Vector3.up * 3);
             }
+        }
+
+        private void Firearm_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
+        {
+            UpdateCartridgePositions();
         }
 
         private void OnCollisionEvent(Collision collision)

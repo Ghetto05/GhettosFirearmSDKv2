@@ -9,7 +9,7 @@ namespace GhettosFirearmSDKv2
         public FirearmBase firearm;
         public List<Collider> triggers;
 
-        public void Awake()
+        public void Start()
         {
             firearm.OnCollisionEvent += Firearm_OnCollisionEvent;
         }

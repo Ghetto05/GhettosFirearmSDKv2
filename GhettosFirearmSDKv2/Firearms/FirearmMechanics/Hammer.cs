@@ -17,20 +17,13 @@ namespace GhettosFirearmSDKv2
         public bool cocked;
         SaveNodeValueBool hammerState;
 
-        private void Awake()
+        private void Start()
         {
-            StartCoroutine(DelayedLoad());
-        }
-
-        private IEnumerator DelayedLoad()
-        {
-            yield return new WaitForSeconds(1.03f);
             if (firearm == null && item.gameObject.TryGetComponent(out Firearm f)) firearm = f;
             firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
             hammerState = firearm.saveData.firearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
             if (hammerState.value) Cock(true);
             else Fire(true);
-            yield break;
         }
 
         private void Firearm_OnCockActionEvent()
