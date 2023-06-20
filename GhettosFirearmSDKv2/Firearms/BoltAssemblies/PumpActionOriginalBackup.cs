@@ -122,7 +122,7 @@
 //                {
 //                    Handle h = hand.grabbedHandle;
 //                    hand.UnGrab(false);
-//                    hand.Grab(h, false);
+//                    hand.Grab(h, true);
 //                }
 //            }
 //            //if (locked)
