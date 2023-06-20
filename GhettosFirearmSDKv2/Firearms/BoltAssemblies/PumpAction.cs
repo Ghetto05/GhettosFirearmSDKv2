@@ -44,12 +44,8 @@ namespace GhettosFirearmSDKv2
             Invoke("InvokedStart", FirearmsSettings.invokeTime);
         }
 
-        CapsuleCollider stabilizer;
         public void InvokedStart()
         {
-            stabilizer = rb.gameObject.AddComponent<CapsuleCollider>();
-            stabilizer.radius = 0.03f;
-            stabilizer.gameObject.layer = LayerMask.NameToLayer("UI");
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.item.OnGrabEvent += Item_OnGrabEvent;
             firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
@@ -235,8 +231,6 @@ namespace GhettosFirearmSDKv2
         private void FixedUpdate()
         {
             if (!ready) return;
-            stabilizer.gameObject.layer = LayerMask.NameToLayer("UI");
-            stabilizer.gameObject.SetActive(isHeld);
 
             //UpdateChamberedRound();
             isHeld = BoltHandleHeld();
@@ -292,7 +286,7 @@ namespace GhettosFirearmSDKv2
                 {
                     nonHeldLockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
                     nonHeldLockJoint.connectedBody = rb;
-                    //nonHeldLockJoint.connectedMassScale = 100f;
+                    nonHeldLockJoint.connectedMassScale = 100f;
                 }
             }
 
@@ -351,7 +345,7 @@ namespace GhettosFirearmSDKv2
             joint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
             joint.connectedBody = rb;
             //pJoint.massScale = 0.00001f;
-            //joint.connectedMassScale = 100f;
+            joint.connectedMassScale = 100f;
             SoftJointLimit limit = new SoftJointLimit();
             joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
             limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
