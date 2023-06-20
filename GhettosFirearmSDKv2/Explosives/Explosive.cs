@@ -40,7 +40,7 @@ namespace GhettosFirearmSDKv2.Explosives
         public IEnumerator Delay(float delay)
         {
             yield return new WaitForSeconds(delay);
-            ActualDetonate();
+            Detonate(0f);
         }
     }
 }
