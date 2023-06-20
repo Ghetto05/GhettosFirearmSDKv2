@@ -10,7 +10,7 @@ namespace GhettosFirearmSDKv2
     {
         public string id;
         public RawImage icon;
-        public Text attachmentName;
+        public TextMeshProUGUI attachmentName;
         public Button button;
         public Image background;
         public Image rim;

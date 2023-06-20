@@ -4,6 +4,7 @@ using UnityEngine;
 using ThunderRoad;
 using UnityEngine.UI;
 using UnityEngine.AddressableAssets;
+using TMPro;
 
 namespace GhettosFirearmSDKv2
 {
@@ -28,7 +29,7 @@ namespace GhettosFirearmSDKv2
         public GameObject caliberPref;
         public GameObject variantPref;
         [Space]
-        public Text description;
+        public TextMeshProUGUI description;
 
         public bool locked;
 
@@ -313,7 +314,7 @@ namespace GhettosFirearmSDKv2
                 obj.transform.localPosition = Vector3.zero;
                 obj.SetActive(true);
                 obj.GetComponent<Button>().onClick.AddListener(delegate { SetCategory(obj.name); });
-                obj.GetComponentInChildren<Text>().text = category;
+                obj.GetComponentInChildren<TextMeshProUGUI>().text = category;
                 if (category.Equals(currentCategory)) obj.transform.GetChild(0).gameObject.SetActive(true);
                 categories.Add(obj.transform);
             }
@@ -334,7 +335,7 @@ namespace GhettosFirearmSDKv2
                 obj.GetComponent<Button>().onClick.AddListener(delegate { SetCaliber(obj.name); });
                 if (caliber.Equals(currentCaliber)) obj.transform.GetChild(0).gameObject.SetActive(true);
                 calibers.Add(obj.transform);
-                obj.GetComponentInChildren<Text>().text = caliber;
+                obj.GetComponentInChildren<TextMeshProUGUI>().text = caliber;
             }
         }
 
@@ -353,7 +354,7 @@ namespace GhettosFirearmSDKv2
                 obj.GetComponent<Button>().onClick.AddListener(delegate { SetVariant(obj.name); });
                 if (variant.Equals(currentVariant)) obj.transform.GetChild(0).gameObject.SetActive(true);
                 variants.Add(obj.transform);
-                obj.GetComponentInChildren<Text>().text = variant;
+                obj.GetComponentInChildren<TextMeshProUGUI>().text = variant;
             }
         }
 

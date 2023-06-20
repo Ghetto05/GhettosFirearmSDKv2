@@ -25,7 +25,7 @@ namespace GhettosFirearmSDKv2.UI
             infiniteAmmoButton.isOn = FirearmsSettings.infiniteAmmo;
             doCaliberChecksButton.isOn = !FirearmsSettings.doCaliberChecks;
             doMagazineChecksButton.isOn = !FirearmsSettings.doMagazineTypeChecks;
-            incapitateOnTorsoShotButton.isOn = FirearmsSettings.incapitateOnTorsoShot;
+            //incapitateOnTorsoShotButton.isOn = FirearmsSettings.incapitateOnTorsoShot;
         }
 
         public void SetInfiniteAmmo()
@@ -36,7 +36,7 @@ namespace GhettosFirearmSDKv2.UI
 
         public void SetIncapitateOnTorsoShot()
         {
-            FirearmsSettings.incapitateOnTorsoShot = incapitateOnTorsoShotButton.isOn;
+            //FirearmsSettings.incapitateOnTorsoShot = incapitateOnTorsoShotButton.isOn;
             FirearmsSettings.local.SendUpdate();
         }
 

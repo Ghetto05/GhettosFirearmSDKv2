@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using ThunderRoad;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using TMPro;
 
 namespace GhettosFirearmSDKv2
 {
@@ -92,7 +93,7 @@ namespace GhettosFirearmSDKv2
             cat.localPosition = Vector3.zero;
             cat.gameObject.SetActive(true);
             cat.name = id;
-            cat.GetChild(1).GetChild(0).GetComponent<Text>().text = id;
+            cat.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text = id;
             if (id.Equals("Default"))
             {
                 cat.SetAsFirstSibling();

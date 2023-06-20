@@ -22,6 +22,11 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             loadedCartridges = new Cartridge[mountPoints.Count];
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
@@ -120,7 +125,7 @@ namespace GhettosFirearmSDKv2
         {
             for (int i = 0; i < loadedCartridges.Length; i++)
             {
-                if (startRemoving && loadedCartridges[i] != null && (loadedCartridges[i].fired || loadedCartridges[i].transform.parent != mountPoints[i]))
+                if (startRemoving && loadedCartridges[i] != null && loadedCartridges[i].loaded)
                 {
                     loadedCartridges[i] = null;
                     if (Empty() && deleteIfEmpty) item.Despawn();

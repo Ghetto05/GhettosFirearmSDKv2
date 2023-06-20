@@ -168,5 +168,16 @@ namespace GhettosFirearmSDKv2
         {
             return Mathf.Abs(Vector3.Distance(v1, v2));
         }
+
+        public static void DelayedExecute(float delay, System.Action action, MonoBehaviour handler)
+        {
+            handler.StartCoroutine(DelayedExecuteIE(delay, action));
+        }
+
+        private static IEnumerator DelayedExecuteIE(float delay, System.Action action)
+        {
+            yield return new WaitForSeconds(delay);
+            action.Invoke();
+        }
     }
 }

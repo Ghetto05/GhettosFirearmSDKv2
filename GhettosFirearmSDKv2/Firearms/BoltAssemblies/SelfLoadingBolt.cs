@@ -27,6 +27,8 @@ namespace GhettosFirearmSDKv2
             return false;
         }
 
+        Cartridge loadedCartridge;
+
         public override void TryFire()
         {
             if (firearm.magazineWell.IsEmpty()) return;
@@ -37,7 +39,7 @@ namespace GhettosFirearmSDKv2
                 if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
                 hand.playerHand.controlHand.HapticShort(50f);
             }
-            Cartridge loadedCartridge = firearm.magazineWell.ConsumeRound();
+            loadedCartridge = firearm.magazineWell.ConsumeRound();
             if (loadedCartridge.additionalMuzzleFlash != null)
             {
                 loadedCartridge.additionalMuzzleFlash.transform.position = firearm.hitscanMuzzle.position;
@@ -50,6 +52,7 @@ namespace GhettosFirearmSDKv2
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
+            EjectRound();
             InvokeFireEvent();
         }
 
@@ -58,7 +61,7 @@ namespace GhettosFirearmSDKv2
             return null;
         }
 
-        private void UpdateChamberedRound()
+        public override void UpdateChamberedRounds()
         {
         }
 
@@ -78,31 +81,37 @@ namespace GhettosFirearmSDKv2
 
         public void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             ChamberSaved();
         }
 
-        private void EjectRound(Cartridge c)
+        public override void EjectRound()
         {
-            if (c == null) return;
+            if (loadedCartridge == null) return;
             Util.PlayRandomAudioSource(ejectSounds);
             if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.value = "";
             if (roundEjectPoint != null)
             {
-                c.transform.position = roundEjectPoint.position;
-                c.transform.rotation = roundEjectPoint.rotation;
+                loadedCartridge.transform.position = roundEjectPoint.position;
+                loadedCartridge.transform.rotation = roundEjectPoint.rotation;
             }
-            Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
-            c.ToggleCollision(true);
-            Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = c.GetComponent<Rigidbody>();
-            c.item.disallowDespawn = false;
-            c.transform.parent = null;
+            Util.IgnoreCollision(loadedCartridge.gameObject, firearm.gameObject, true);
+            loadedCartridge.ToggleCollision(true);
+            Util.DelayIgnoreCollision(loadedCartridge.gameObject, firearm.gameObject, false, 3f, firearm.item);
+            Rigidbody rb = loadedCartridge.GetComponent<Rigidbody>();
+            loadedCartridge.item.disallowDespawn = false;
+            loadedCartridge.transform.parent = null;
             rb.isKinematic = false;
-            c.loaded = false;
+            loadedCartridge.loaded = false;
             rb.WakeUp();
             if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
-            c.ToggleHandles(true);
+            loadedCartridge.ToggleHandles(true);
+            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired) firearm.magazineWell.Eject();
         }
     }
 }

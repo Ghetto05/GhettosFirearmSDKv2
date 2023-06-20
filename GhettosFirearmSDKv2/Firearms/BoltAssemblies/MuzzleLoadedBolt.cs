@@ -85,7 +85,7 @@ namespace GhettosFirearmSDKv2
             return loadedCartridge;
         }
 
-        private void UpdateChamberedRound()
+        public override void UpdateChamberedRounds()
         {
             if (loadedCartridge == null) return;
             loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
@@ -110,8 +110,14 @@ namespace GhettosFirearmSDKv2
 
         public void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             ChamberSaved();
+            UpdateChamberedRounds();
         }
 
         public override void EjectRound()

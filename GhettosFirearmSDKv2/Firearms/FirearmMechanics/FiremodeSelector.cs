@@ -20,6 +20,11 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             firearm.OnAltActionEvent += Firearm_OnAltActionEvent;
             firearm.fireMode = firemodes[currentIndex];
             UpdatePosition();

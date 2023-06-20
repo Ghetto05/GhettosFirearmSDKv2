@@ -14,6 +14,11 @@ namespace GhettosFirearmSDKv2
 
         public override void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             base.Start();
             mainFireHandle = fireHandle;
             item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
@@ -24,6 +29,11 @@ namespace GhettosFirearmSDKv2
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
             CalculateMuzzle();
+
+            if (attachment.node.TryGetValue("Ammo item", out SaveNodeValueString value))
+            {
+                defaultAmmoItem = value.value;
+            }
         }
 
         public override void Update()

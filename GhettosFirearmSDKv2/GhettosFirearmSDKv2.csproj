@@ -60,6 +60,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\RainyReignGames.Reveal.dll</HintPath>
     </Reference>
+    <Reference Include="SteamVR, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\Managed\SteamVR.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -434,6 +438,7 @@
     <Compile Include="LevelModules\GunGame\GunGame.cs" />
     <Compile Include="Other\GhettoHandle.cs" />
     <Compile Include="Other\CollisionRelay.cs" />
+    <Compile Include="Other\Switches\FireModeBasedSwitch.cs" />
     <Compile Include="SaveData\SaveNodeValueMagazineContents.cs" />
     <Compile Include="SaveData\SaveNodeValueBool.cs" />
     <Compile Include="SaveData\SaveNodeValueString.cs" />

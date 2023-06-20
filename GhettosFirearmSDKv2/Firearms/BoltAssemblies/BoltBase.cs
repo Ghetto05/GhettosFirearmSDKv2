@@ -16,6 +16,14 @@ namespace GhettosFirearmSDKv2
         public bool fireOnTriggerPress = true;
         public ReciprocatingBarrel reciprocatingBarrel;
 
+        private void Awake()
+        {
+            Util.DelayedExecute(3f, UpdateChamberedRounds, this);
+        }
+
+        public virtual void UpdateChamberedRounds()
+        { }
+
         public virtual List<Handle> GetNoInfluenceHandles()
         {
             return new List<Handle>();
@@ -72,7 +80,7 @@ namespace GhettosFirearmSDKv2
                 {
                     Cartridge car = carItem.gameObject.GetComponent<Cartridge>();
                     LoadChamber(car);
-                }, this.transform.position + Vector3.up * 3);
+                }, transform.position + Vector3.up * 3);
             }
         }
 

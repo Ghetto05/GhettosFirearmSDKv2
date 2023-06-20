@@ -21,6 +21,11 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             if (firearm != null)
             {
                 firearm.OnCollisionEvent += OnCollisionEvent;
@@ -66,7 +71,7 @@ namespace GhettosFirearmSDKv2
 
         public Cartridge EjectRound()
         {
-            if (this.loadedCartridge != null)
+            if (loadedCartridge != null)
             {
                 Util.PlayRandomAudioSource(roundEjectSounds);
                 loadedCartridge.ToggleCollision(true);
@@ -94,7 +99,7 @@ namespace GhettosFirearmSDKv2
                 c.ToggleCollision(false);
                 loadedCartridge = c;
                 c.UngrabAll();
-                Util.IgnoreCollision(c.gameObject, this.gameObject, true);
+                Util.IgnoreCollision(c.gameObject, gameObject, true);
                 if (!silent) Util.PlayRandomAudioSource(roundInsertSounds);
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = transform;

@@ -14,6 +14,11 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
             pouchItem.OnHeldActionEvent += PouchItem_OnHeldActionEvent;

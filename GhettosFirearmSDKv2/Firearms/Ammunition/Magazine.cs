@@ -8,6 +8,7 @@ namespace GhettosFirearmSDKv2
 {
     public class Magazine : MonoBehaviour
     {
+        public bool ejectOnLastRoundFired = false;
         public bool infinite = false;
         public string magazineType;
         public string caliber;
@@ -39,6 +40,7 @@ namespace GhettosFirearmSDKv2
         SaveNodeValueMagazineContents firearmSave;
         public List<GameObject> feederObjects;
         public bool loadable = false;
+        public float lastEjectTime = 0f;
 
         private void Update()
         {
@@ -60,6 +62,11 @@ namespace GhettosFirearmSDKv2
         public void InvokeLoadFinished() => onLoadFinished?.Invoke(this);
 
         private void Start()
+        {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
         {
             cartridges = new List<Cartridge>();
             if (overrideItem == null) item = GetComponent<Item>();
@@ -162,7 +169,7 @@ namespace GhettosFirearmSDKv2
                 c.ToggleCollision(false);
                 cartridges.Insert(0, c);
                 c.UngrabAll();
-                Util.IgnoreCollision(c.gameObject, this.gameObject, true);
+                Util.IgnoreCollision(c.gameObject, gameObject, true);
                 if (!silent) Util.PlayRandomAudioSource(roundInsertSounds);
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = nullCartridgePosition;
@@ -228,10 +235,10 @@ namespace GhettosFirearmSDKv2
                 Util.IgnoreCollision(c.gameObject, currentWell.firearm.gameObject, true);
             }
             if (!silent) Util.PlayRandomAudioSource(magazineInsertSounds);
-            Util.IgnoreCollision(this.gameObject, currentWell.firearm.gameObject, true);
-            this.transform.position = well.mountPoint.position;
-            this.transform.rotation = well.mountPoint.rotation;
-            joint = this.gameObject.AddComponent<FixedJoint>();
+            Util.IgnoreCollision(gameObject, currentWell.firearm.gameObject, true);
+            transform.position = well.mountPoint.position;
+            transform.rotation = well.mountPoint.rotation;
+            joint = gameObject.AddComponent<FixedJoint>();
             joint.connectedBody = rb;
             if (FirearmsSettings.magazinesHaveNoCollision) joint.massScale = 99999f;
             foreach (Handle handle in handles)
@@ -270,7 +277,7 @@ namespace GhettosFirearmSDKv2
                 item.lightVolumeReceiver.SetRenderers(item.renderers);
 
                 Util.PlayRandomAudioSource(magazineEjectSounds);
-                Util.DelayIgnoreCollision(this.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
+                Util.DelayIgnoreCollision(gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
                 foreach (Cartridge c in cartridges)
                 {
                     if (c != null && currentWell != null && currentWell.firearm != null) Util.DelayIgnoreCollision(c.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
@@ -287,13 +294,14 @@ namespace GhettosFirearmSDKv2
                 item.physicBody.rigidBody.WakeUp();
                 if (destroyOnEject) item.Despawn();
                 if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(true);
+                lastEjectTime = Time.time;
             }
             UpdateCartridgePositions();
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge car && Util.CheckForCollisionWithThisCollider(collision, roundInsertCollider))
+            if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge car && Util.CheckForCollisionWithThisCollider(collision, roundInsertCollider) && Time.time - lastEjectTime > 1f)
             {
                 InsertRound(car, false, false);
             }

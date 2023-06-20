@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
+using UnityEngine.XR;
+using Unity.XR;
+using Valve.VR;
 
 namespace GhettosFirearmSDKv2
 {
@@ -15,6 +18,10 @@ namespace GhettosFirearmSDKv2
 
         public AudioSource pullSound;
         public AudioSource resetSound;
+
+        public float onTriggerWeight = 0.8f;
+
+        public float lastTriggerPull = 0f;
 
         void Start()
         {
@@ -45,7 +52,16 @@ namespace GhettosFirearmSDKv2
                 {
                     if (h.handlers.Count > 0)
                     {
-                        h.handlers[0].poser.SetTargetWeight(Player.local.GetHand(h.handlers[0].side).controlHand.useAxis);
+                        float weight;
+                        if (PlayerControl.GetHand(h.handlers[0].side).usePressed)
+                        {
+                            weight = 1f;
+                            lastTriggerPull = Time.time;
+                        }
+                        else if (Time.time - lastTriggerPull <= FirearmsSettings.triggerDisciplineTime) weight = onTriggerWeight;
+                        else weight = 0f;
+
+                        h.handlers[0].poser.SetTargetWeight(weight);
                     }
                 }
             }

@@ -14,7 +14,6 @@ namespace GhettosFirearmSDKv2
         public Texture icon;
         public List<Handle> preSnapActiveHandles;
         public FirearmSaveData saveData;
-        public string defaultAmmoItem;
 
         public override List<Handle> AllTriggerHandles()
         {
@@ -40,8 +39,13 @@ namespace GhettosFirearmSDKv2
 
         public override void Start()
         {
+            if (item == null) item = GetComponent<Item>();
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             base.Start();
-            if (item == null) item = this.GetComponent<Item>();
             if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
@@ -59,9 +63,15 @@ namespace GhettosFirearmSDKv2
             
             if (!item.TryGetCustomData(out saveData))
             {
+                Debug.Log("no save data found " + item.name);
                 saveData = new FirearmSaveData();
                 saveData.firearmNode = new FirearmSaveData.AttachmentTreeNode();
                 item.AddCustomData(saveData);
+            }
+
+            if (saveData.firearmNode.TryGetValue("Ammo item", out SaveNodeValueString value))
+            {
+                defaultAmmoItem = value.value;
             }
 
             saveData.ApplyToFirearm(this);

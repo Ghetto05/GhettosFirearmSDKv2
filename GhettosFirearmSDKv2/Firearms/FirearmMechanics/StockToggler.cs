@@ -18,6 +18,11 @@ namespace GhettosFirearmSDKv2
 
         void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             if (connectedFirearm != null)
             {
                 connectedFirearm.item.OnHeldActionEvent += OnAction;

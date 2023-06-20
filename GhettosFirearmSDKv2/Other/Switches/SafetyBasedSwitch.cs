@@ -16,6 +16,12 @@ namespace GhettosFirearmSDKv2
         private void Start()
         {
             selector.onFiremodeChanged += Selector_onFiremodeChanged;
+            Util.DelayedExecute(1f, Init, this);
+        }
+
+        private void Init()
+        {
+            Selector_onFiremodeChanged(selector.firearm.fireMode);
         }
 
         private void Selector_onFiremodeChanged(FirearmBase.FireModes newMode)

@@ -162,6 +162,7 @@ namespace GhettosFirearmSDKv2
                 AddForceToCartridge(c, roundEjectDir, roundEjectForce);
             }
             c.ToggleHandles(true);
+            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired) firearm.magazineWell.Eject();
             InvokeEjectRound(c);
         }
 

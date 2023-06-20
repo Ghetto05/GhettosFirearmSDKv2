@@ -70,40 +70,117 @@ namespace GhettosFirearmSDKv2
         #region Values
         #region Static
         public static bool magazinesHaveNoCollision = true;
-        public static float scopeX1MagnificationFOV = 28.5f;
+        public static float scopeX1MagnificationFOV = 13f; //28.5f
         public static float cartridgeEjectionTorque = 1f;
         public static float cartridgeEjectionForceRandomizationDevision = 3f;
         public static float firingSoundDeviation = 0.2f;
+        public static float invokeTime = 0.05f;
         #endregion Static
 
         #region PureSettings
-        //[ModOption(name = "HUD scale", tooltip = "Scales HUDs.", category = "Settings", categoryOrder = 4, saveValue = true)]
+        //[ModOption(name = "HUD scale", tooltip = "Scales HUDs.", saveValue = true)]
         public static float hudScale = 1f;
-        [ModOption(name = "Cartridge despawn time", tooltip = "Despawns spent casings after set time. Disabled if set to 0.", category = "Settings", categoryOrder = 3, saveValue = true)]
+
+        [ModOptionOrder(1)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Cartridge despawn time", tooltip = "Despawns spent casings after set time. Disabled if set to 0.", saveValue = true)]
         public static float cartridgeDespawnTime = 0f;
-        [ModOption(name = "Long press (safety switch) time", tooltip = "Defines the amount of time you need to hold alternate use to switch fire modes.", category = "Settings", categoryOrder = 1, saveValue = true, defaultValueIndex = 5)]
+
+        [ModOptionOrder(2)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Long press (safety switch) time", tooltip = "Defines the amount of time you need to hold alternate use to switch fire modes.", saveValue = true, defaultValueIndex = 5)]
         public static float longPressTime = 0.5f;
-        [ModOption(name = "Revolver trigger deadzone", tooltip = "Lowers the trigger threshold for revolvers. Helpful if your revolver does not fire.", category = "Settings", categoryOrder = 2, saveValue = true)]
+
+        [ModOptionOrder(3)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Revolver trigger deadzone", tooltip = "Lowers the trigger threshold for revolvers. Helpful if your revolver does not fire double action.", saveValue = true)]
         public static float revolverTriggerDeadzone = 0f;
+
+        [ModOptionOrder(4)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, defaultValueIndex = 4, valueSourceName = nameof(tdt))]
+        public static float triggerDisciplineTime = 3f;
+
+        [ModOptionOrder(5)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like headbreaker. Has no impact on damage.", defaultValueIndex = 0, saveValue = true)]
+        public static bool bulletsAreBlunt = false;
+        public static ModOptionFloat[] tdt =
+        {
+            new ModOptionFloat("0.1", 0.1f),
+            new ModOptionFloat("0.5", 0.5f),
+            new ModOptionFloat("1", 1),
+            new ModOptionFloat("2", 2),
+            new ModOptionFloat("3", 3),
+            new ModOptionFloat("5", 5),
+            new ModOptionFloat("7.5", 7.5f),
+            new ModOptionFloat("10", 10),
+            new ModOptionFloat("30", 30),
+            new ModOptionFloat("Never", 999999)
+        };
+
         #endregion PureSettings
 
         #region Debug
-        [ModOption(name = "Display debug messages", tooltip = "Only for debugging use.", category = "Debug", defaultValueIndex = 0, categoryOrder = 9, saveValue = true)]
+        [ModOptionOrder(1)]
+        [ModOptionCategory("Debug", 3)]
+        [ModOption(name = "Display debug messages", tooltip = "Only for debugging use.", defaultValueIndex = 0, saveValue = true)]
         public static bool debugMode;
-        [ModOption(name = "Spawn Liam", tooltip = "Spawn the blue guy. Requires map reload to take effect.", category = "Debug", defaultValueIndex = 0, categoryOrder = 10, saveValue = true)]
+
+        [ModOptionOrder(2)]
+        [ModOptionCategory("Debug", 3)]
+        [ModOption(name = "Spawn Liam", tooltip = "Spawn the blue guy. Requires map reload to take effect.", defaultValueIndex = 0, saveValue = true)]
         public static bool spawnLiam;
         #endregion Debug
 
         #region Cheats
-        [ModOption(name = "Incapitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", category = "Cheats", categoryOrder = 6, defaultValueIndex = 0, saveValue = true)]
-        public static bool incapitateOnTorsoShot = false;
-        [ModOption(name = "Infinite ammo", tooltip = "If enabled, magazines will refill as they are used and chamber loaders will not use up the loaded cartridge.", category = "Cheats", categoryOrder = 4, defaultValueIndex = 0, saveValue = true)]
+        [ModOptionOrder(1)]
+        [ModOptionCategory("Cheats", 2)]
+        [ModOption(name = "Incapitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", defaultValueIndex = 3, saveValue = true, valueSourceName = nameof(iots))]
+        public static float incapitateOnTorsoShot;
+        public static ModOptionFloat[] iots =
+        {
+            new ModOptionFloat("Disabled", 0.0f),
+            new ModOptionFloat("10 Seconds", 10),
+            new ModOptionFloat("20 Seconds", 20),
+            new ModOptionFloat("30 Seconds", 30),
+            new ModOptionFloat("40 Seconds", 40),
+            new ModOptionFloat("50 Seconds", 50),
+            new ModOptionFloat("1 Minute", 60),
+            new ModOptionFloat("2 Minutes", 120),
+            new ModOptionFloat("3 Minutes", 180),
+            new ModOptionFloat("4 Minutes", 240),
+            new ModOptionFloat("5 Minutes", 300),
+            new ModOptionFloat("10 Minutes", 600),
+            new ModOptionFloat("Permanent", -1f),
+            new ModOptionFloat("1 Day", 1440),
+            new ModOptionFloat("1 Week", 10080),
+            new ModOptionFloat("1 Year", 525600),
+            new ModOptionFloat("1 Decade", 5256000),
+            new ModOptionFloat("1 Century", 52560000),
+            new ModOptionFloat("1 Millenia", 525600000),
+            new ModOptionFloat("Till Battle State Games adds the Colt M16A4 to EFT", Mathf.Infinity),
+            new ModOptionFloat("Till our LORD AND SAVIOUR, JESUS CHIRST arrives", 3610558080)
+        };
+
+        [ModOptionOrder(2)]
+        [ModOptionCategory("Cheats", 2)]
+        [ModOption(name = "Infinite ammo", tooltip = "If enabled, magazines will refill as they are used and chamber loaders will not use up the loaded cartridge.", defaultValueIndex = 0, saveValue = true)]
         public static bool infiniteAmmo = false;
-        [ModOption(name = "Caliber checks", tooltip = "If disabled, any magazine or chamber can be loaded with any caliber.", category = "Cheats", categoryOrder = 7, defaultValueIndex = 1, saveValue = true)]
+
+        [ModOptionOrder(3)]
+        [ModOptionCategory("Cheats", 2)]
+        [ModOption(name = "Caliber checks", tooltip = "If disabled, any magazine or chamber can be loaded with any caliber.", defaultValueIndex = 1, saveValue = true)]
         public static bool doCaliberChecks = true;
-        [ModOption(name = "Magazine type checks", tooltip = "If disabled, magazine can be loaded into any firearm.", category = "Cheats", categoryOrder = 8, defaultValueIndex = 1, saveValue = true)]
+
+        [ModOptionOrder(4)]
+        [ModOptionCategory("Cheats", 2)]
+        [ModOption(name = "Magazine type checks", tooltip = "If disabled, magazine can be loaded into any firearm.", defaultValueIndex = 1, saveValue = true)]
         public static bool doMagazineTypeChecks = true;
-        [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", category = "Cheats", categoryOrder = 5, saveValue = true, defaultValueIndex = 10)]
+
+        [ModOptionOrder(5)]
+        [ModOptionCategory("Cheats", 2)]
+        [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true, defaultValueIndex = 10)]
         public static float damageMultiplier = 1f;
         #endregion Cheats
         #endregion Values

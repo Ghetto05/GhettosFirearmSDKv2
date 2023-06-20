@@ -32,6 +32,7 @@ namespace GhettosFirearmSDKv2
         public bool countingForLongpress = false;
         public List<RecoilModifier> recoilModifiers = new List<RecoilModifier>();
         public Light muzzleLight;
+        public string defaultAmmoItem;
 
         public FirearmSaveData.AttachmentTreeNode GetFirearmNode;
 
@@ -48,6 +49,7 @@ namespace GhettosFirearmSDKv2
                 suppressedFireSoundsPitch[i] = suppressedFireSounds[i].pitch;
             }
             muzzleLight = new GameObject("MuzzleFlashLight").AddComponent<Light>();
+            muzzleLight.transform.SetParent(transform);
             muzzleLight.enabled = false;
             muzzleLight.type = LightType.Point;
             muzzleLight.range = 5f;
@@ -225,6 +227,7 @@ namespace GhettosFirearmSDKv2
             muzzleLight.color = RandomColor(cartridge);
             muzzleLight.transform.position = actualHitscanMuzzle.position + (actualHitscanMuzzle.forward * 0.04f);
             muzzleLight.enabled = true;
+            yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
             muzzleLight.enabled = false;
         }

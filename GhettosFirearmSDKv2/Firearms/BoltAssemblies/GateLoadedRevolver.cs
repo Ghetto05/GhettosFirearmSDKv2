@@ -57,6 +57,11 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             loadedCartridges = new Cartridge[mountPoints.Length];
             UpdateEjector();
             firearm.OnCockActionEvent += Cock;
@@ -75,7 +80,7 @@ namespace GhettosFirearmSDKv2
                         Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
-                UpdateCartridges();
+                UpdateChamberedRounds();
             }
             else
             {
@@ -84,7 +89,7 @@ namespace GhettosFirearmSDKv2
                 data.contents = new string[loadedCartridges.Length];
             }
             allowLoad = true;
-            UpdateCartridges();
+            UpdateChamberedRounds();
         }
 
         private void Firearm_OnCollisionEventTR(CollisionInstance collisionInstance)
@@ -168,7 +173,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private void UpdateCartridges()
+        public override void UpdateChamberedRounds()
         {
             for (int i = 0; i < mountPoints.Length; i++)
             {
@@ -200,7 +205,7 @@ namespace GhettosFirearmSDKv2
                 cartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 if (overrideSave) SaveCartridges();
             }
-            UpdateCartridges();
+            UpdateChamberedRounds();
         }
 
         public int LoadModeChamber()
@@ -293,7 +298,7 @@ namespace GhettosFirearmSDKv2
         [EasyButtons.Button]
         public void TriggerPress()
         {
-            if (loadMode)
+            if (loadMode && Vector3.Distance(ejectorRB.transform.localPosition, ejectorRoot.localPosition) <= 0.004f)
             {
                 currentChamber++;
                 if (currentChamber >= cylinderRotations.Length) currentChamber = 0;

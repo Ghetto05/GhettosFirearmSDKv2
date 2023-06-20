@@ -28,10 +28,29 @@ namespace GhettosFirearmSDKv2
         public List<SwitchRelation> switches;
         public float lastSwitchTime;
 
-        private void Awake()
+        private void Start()
+        {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
         {
             if (parentItem != null) parentItem.OnHeldActionEvent += OnHeldActionEvent;
             else if (parentAttachment != null) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
+
+            if (parentAttachment != null && parentAttachment.node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
+            {
+                current = value.value;
+            }
+            else if (parentItem != null && parentItem.TryGetComponent(out Firearm firearm) && firearm.saveData.firearmNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value2))
+            {
+                current = value2.value;
+            }
+            Util.DelayedExecute(1f, Delay, this);
+        }
+
+        public void Delay()
+        {
             events[current]?.Invoke();
             foreach (SwitchRelation swi in switches)
             {
@@ -69,6 +88,9 @@ namespace GhettosFirearmSDKv2
             {
                 if (swi != null) AlignSwitch(swi, current);
             }
+
+            if (parentAttachment != null) parentAttachment.node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).value = current;
+            else if (parentItem != null && parentItem.TryGetComponent(out Firearm firearm)) firearm.saveData.firearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).value = current;
         }
 
         public void AlignSwitch(SwitchRelation swi, int index)

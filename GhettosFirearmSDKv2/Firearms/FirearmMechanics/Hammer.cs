@@ -19,6 +19,11 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             if (firearm == null && item.gameObject.TryGetComponent(out Firearm f)) firearm = f;
             firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
             hammerState = firearm.saveData.firearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());

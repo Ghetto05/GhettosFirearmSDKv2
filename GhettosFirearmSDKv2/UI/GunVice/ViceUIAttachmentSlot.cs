@@ -9,7 +9,7 @@ namespace GhettosFirearmSDKv2
     public class ViceUIAttachmentSlot : MonoBehaviour
     {
         public RawImage image;
-        public Text slotName;
+        public TextMeshProUGUI slotName;
         public Button button;
         public Image selectedAttachmentBackground;
         public RawImage selectedAttachmentIcon;

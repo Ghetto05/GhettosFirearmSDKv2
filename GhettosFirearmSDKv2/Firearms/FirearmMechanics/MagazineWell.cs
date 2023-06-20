@@ -21,8 +21,20 @@ namespace GhettosFirearmSDKv2
         public bool spawnMagazineOnAwake;
         public string roundCounterMessage;
         public bool allowLoad = false;
+        public bool onlyAllowEjectionWhenBoltIsPulled = false;
+        public BoltBase.BoltState lockedState;
+
+        public Transform ejectDir;
+        public float ejectForce = 0.3f;
+
+        public bool tryReleasingBoltIfMagazineIsInserted = false;
 
         public virtual void Start()
+        {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
         {
             firearm.OnCollisionEvent += TryMount;
             firearm.OnColliderToggleEvent += Firearm_OnColliderToggleEvent;
@@ -92,6 +104,7 @@ namespace GhettosFirearmSDKv2
                 if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this) && mag.loadable)
                 {
                     mag.Mount(this, firearm.item.physicBody.rigidBody);
+                    if (tryReleasingBoltIfMagazineIsInserted && firearm.bolt != null) firearm.bolt.TryRelease(true);
                 }
             }
         }
@@ -115,10 +128,22 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Eject(bool forced = false)
         {
-            if ((canEject || forced) && currentMagazine != null)
+            if ((canEject || forced || (onlyAllowEjectionWhenBoltIsPulled && firearm.bolt != null && firearm.bolt.state != lockedState)) && currentMagazine != null)
             {
-                currentMagazine.Eject();
+                Magazine mag = currentMagazine;
+                mag.Eject();
+                if (ejectDir != null)
+                {
+                    StartCoroutine(DelayedApplyForce(mag));
+                }
             }
+        }
+
+        private IEnumerator DelayedApplyForce(Magazine mag)
+        {
+            yield return new WaitForSeconds(0.03f);
+            mag.item.physicBody.velocity = Vector3.zero;
+            mag.item.physicBody.AddForce(ejectDir.forward * ejectForce, ForceMode.Impulse);
         }
 
         public virtual bool IsEmptyAndHasMagazine()

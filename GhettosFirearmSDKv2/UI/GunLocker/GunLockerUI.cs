@@ -8,6 +8,7 @@ using IngameDebugConsole;
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using TMPro;
 
 namespace GhettosFirearmSDKv2
 {

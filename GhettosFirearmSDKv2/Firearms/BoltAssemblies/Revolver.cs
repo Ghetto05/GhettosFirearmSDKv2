@@ -89,6 +89,11 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+        }
+
+        public void InvokedStart()
+        {
             Lock(true);
             rotateBody.gameObject.AddComponent<CollisionRelay>().onCollisionEnterEvent += OnCollisionEvent;
             loadedCartridges = new Cartridge[mountPoints.Count];
@@ -105,7 +110,7 @@ namespace GhettosFirearmSDKv2
                         Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
-                UpdateCartridges();
+                UpdateChamberedRounds();
             }
             else
             {
@@ -114,7 +119,7 @@ namespace GhettosFirearmSDKv2
                 data.contents = new string[loadedCartridges.Length];
             }
             allowInsert = true;
-            UpdateCartridges();
+            UpdateChamberedRounds();
         }
 
         private void Firearm_OnCollisionEventTR(CollisionInstance collisionInstance)
@@ -169,7 +174,7 @@ namespace GhettosFirearmSDKv2
                 cartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 if (overrideSave) SaveCartridges();
             }
-            UpdateCartridges();
+            UpdateChamberedRounds();
         }
 
         private void FixedUpdate()
@@ -523,7 +528,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private void UpdateCartridges()
+        public override void UpdateChamberedRounds()
         {
             for (int i = 0; i < mountPoints.Count; i++)
             {
