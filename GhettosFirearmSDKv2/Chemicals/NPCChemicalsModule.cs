@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2.Chemicals
 
         void Awake()
         {
-            creature = this.gameObject.GetComponent<Creature>();
+            creature = gameObject.GetComponent<Creature>();
             gasMasks = new List<GameObject>();
             det = creature.brain.instance.GetModule<BrainModuleDetection>();
             horFov = det.sightDetectionHorizontalFov;

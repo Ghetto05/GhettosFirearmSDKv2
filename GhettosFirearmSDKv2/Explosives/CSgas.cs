@@ -36,11 +36,11 @@ namespace GhettosFirearmSDKv2.Explosives
             zoneObj.layer = LayerMask.NameToLayer("Zone");
             zone = zoneObj.AddComponent<CapsuleCollider>();
             zone.isTrigger = true;
-            zoneObj.transform.parent = this.transform;
+            zoneObj.transform.parent = transform;
             zone.radius = range;
             zoneObj.transform.localPosition = Vector3.zero;
-            loop.Play();
-            particle.Play();
+            loop?.Play();
+            particle?.Play();
             timestamp = Time.time;
             if (gameObject.GetComponentInParent<Rigidbody>() is Rigidbody rb) rb.velocity = Vector3.zero;
             ready = true;
@@ -53,22 +53,22 @@ namespace GhettosFirearmSDKv2.Explosives
 
             if (Time.time >= timestamp + emissionDuration && loop.isPlaying)
             {
-                loop.Stop();
+                loop?.Stop();
             }
 
             if (!active) return;
-            volume.SetActive(!PlayerEffectsAndChemicalsModule.local.WearingGasMask());
+            volume?.SetActive(!PlayerEffectsAndChemicalsModule.local.WearingGasMask());
 
             if (Time.time >= timestamp + duration)
             {
                 active = false;
                 Destroy(zoneObj);
-                volume.SetActive(false);
+                volume?.SetActive(false);
                 if (item != null)
                 {
                     item.disallowDespawn = false;
                 }
-                else Destroy(this.gameObject);
+                else Destroy(gameObject);
             }
         }
     }

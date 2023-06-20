@@ -47,8 +47,8 @@ namespace GhettosFirearmSDKv2
             broken = true;
             InvokeChange();
             Util.PlayRandomAudioSource(pullSounds);
-            this.GetComponent<Rigidbody>().useGravity = true;
-            this.transform.SetParent(null);
+            GetComponent<Rigidbody>().useGravity = true;
+            transform.SetParent(null);
         }
     }
 }

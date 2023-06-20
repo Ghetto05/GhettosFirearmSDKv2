@@ -26,13 +26,13 @@ namespace GhettosFirearmSDKv2.Explosives
             }
             
             Util.PlayRandomAudioSource(audioEffects);
-            Util.AlertAllCreaturesInRange(this.transform.position, 50);
+            Util.AlertAllCreaturesInRange(transform.position, 50);
             foreach (AudioSource s in audioEffects)
             {
                 s.gameObject.transform.SetParent(null);
                 Player.local.StartCoroutine(delayedDestroy(s.gameObject, s.clip.length + 1f));
             }
-            FireMethods.HitscanExplosion(this.transform.position, data, item, out List<Creature> hc, out List<Item> hi);
+            FireMethods.HitscanExplosion(transform.position, data, item, out List<Creature> hc, out List<Item> hi);
             if (item != null && destroyItem)
             {
                 item.Despawn();

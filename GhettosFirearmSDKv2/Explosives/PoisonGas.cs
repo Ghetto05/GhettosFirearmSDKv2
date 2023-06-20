@@ -36,7 +36,7 @@ namespace GhettosFirearmSDKv2.Explosives
             obj.layer = 28;
             zone = obj.AddComponent<CapsuleCollider>();
             zone.isTrigger = true;
-            obj.transform.parent = this.transform;
+            obj.transform.parent = transform;
             zone.radius = range;
             obj.transform.localPosition = Vector3.zero;
             loop.Play();
@@ -67,7 +67,7 @@ namespace GhettosFirearmSDKv2.Explosives
                 {
                     item.disallowDespawn = false;
                 }
-                else Destroy(this.gameObject);
+                else Destroy(gameObject);
             }
         }
     }

@@ -26,19 +26,19 @@ namespace GhettosFirearmSDKv2.Explosives
             }
             
             Util.PlayRandomAudioSource(audioEffects);
-            Util.AlertAllCreaturesInRange(this.transform.position, 50);
+            Util.AlertAllCreaturesInRange(transform.position, 50);
             foreach (AudioSource s in audioEffects)
             {
                 s.gameObject.transform.SetParent(null);
                 Player.local.StartCoroutine(delayedDestroy(s.gameObject, s.clip.length + 1f));
             }
             
-            if (Vector3.Distance(this.transform.position, Player.local.head.cam.transform.position) < range && !Raycast(Player.currentCreature)) Chemicals.PlayerEffectsAndChemicalsModule.Flashbang(time);
+            if (Vector3.Distance(transform.position, Player.local.head.cam.transform.position) < range && !Raycast(Player.currentCreature)) Chemicals.PlayerEffectsAndChemicalsModule.Flashbang(time);
             
             foreach (Creature cr in Creature.allActive)
             {
                 Transform t = cr.animator.GetBoneTransform(HumanBodyBones.Head);
-                if (!cr.isPlayer && !cr.isKilled && Vector3.Distance(t.position, this.transform.position) < range && !Raycast(cr))
+                if (!cr.isPlayer && !cr.isKilled && Vector3.Distance(t.position, transform.position) < range && !Raycast(cr))
                 {
                     cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                     StartCoroutine(FireMethods.TemporaryKnockout(time, cr));

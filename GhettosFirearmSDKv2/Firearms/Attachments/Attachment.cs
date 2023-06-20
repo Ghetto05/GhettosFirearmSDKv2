@@ -56,7 +56,7 @@ namespace GhettosFirearmSDKv2
         {
             if (thisNode != null) node = thisNode;
             renderers = new List<Renderer>();
-            foreach (Renderer ren in this.gameObject.GetComponentsInChildren<Renderer>(true))
+            foreach (Renderer ren in gameObject.GetComponentsInChildren<Renderer>(true))
             {
                 if (!renderers.Contains(ren)) renderers.Add(ren);
                 if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.parentFirearm.item.renderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
@@ -210,8 +210,8 @@ namespace GhettosFirearmSDKv2
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.lightVolumeReceiver.renderers.Remove(ren);
             }
             try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); };
-            if (this == null || this.gameObject == null) return;
-            Destroy(this.gameObject);
+            if (this == null || gameObject == null) return;
+            Destroy(gameObject);
         }
 
         public AttachmentPoint GetSlotFromId(string id)

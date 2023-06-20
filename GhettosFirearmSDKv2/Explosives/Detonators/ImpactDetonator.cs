@@ -69,7 +69,7 @@ namespace GhettosFirearmSDKv2
             if (selfDestructDelay > 0.2f && Time.time > startTime + selfDestructDelay)
             {
                 explosive.Detonate(delay);
-                explosive.impactNormal = this.transform.forward;
+                explosive.impactNormal = transform.forward;
             }
         }
     }

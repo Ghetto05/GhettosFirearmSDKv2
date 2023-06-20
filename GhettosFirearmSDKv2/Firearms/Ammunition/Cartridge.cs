@@ -31,7 +31,7 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
-            item = this.GetComponent<Item>();
+            item = GetComponent<Item>();
             if (firedOnlyObject != null) firedOnlyObject.SetActive(false);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
         }
@@ -63,7 +63,7 @@ namespace GhettosFirearmSDKv2
         {
             FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories, 1f);
             if (detonationParticle != null) detonationParticle.Play();
-            if (item != null) FireMethods.ApplyRecoil(this.transform, this.item.physicBody.rigidBody, data.recoil, 0f, 1f, null);
+            if (item != null) FireMethods.ApplyRecoil(transform, item.physicBody.rigidBody, data.recoil, 0f, 1f, null);
             Util.PlayRandomAudioSource(detonationSounds);
             Fire(hits, trajectories, cartridgeFirePoint);
         }

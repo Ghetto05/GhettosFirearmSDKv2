@@ -45,34 +45,34 @@ namespace GhettosFirearmSDKv2
 
         private void AddMaskPlayer()
         {
-            if (!PlayerEffectsAndChemicalsModule.local.gasMasks.Contains(this.gameObject))
+            if (!PlayerEffectsAndChemicalsModule.local.gasMasks.Contains(gameObject))
             {
-                PlayerEffectsAndChemicalsModule.local.gasMasks.Add(this.gameObject);
+                PlayerEffectsAndChemicalsModule.local.gasMasks.Add(gameObject);
             }
         }
 
         private void RemoveMaskPlayer()
         {
-            if (PlayerEffectsAndChemicalsModule.local.gasMasks.Contains(this.gameObject))
+            if (PlayerEffectsAndChemicalsModule.local.gasMasks.Contains(gameObject))
             {
-                PlayerEffectsAndChemicalsModule.local.gasMasks.Remove(this.gameObject);
+                PlayerEffectsAndChemicalsModule.local.gasMasks.Remove(gameObject);
             }
         }
 
         private void AddMask()
         {
-            if (!npcModule.gasMasks.Contains(this.gameObject))
+            if (!npcModule.gasMasks.Contains(gameObject))
             {
-                npcModule.gasMasks.Add(this.gameObject);
+                npcModule.gasMasks.Add(gameObject);
             }
         }
 
         private void RemoveMask()
         {
             if (npcModule == null) return;
-            if (npcModule.gasMasks.Contains(this.gameObject))
+            if (npcModule.gasMasks.Contains(gameObject))
             {
-                npcModule.gasMasks.Remove(this.gameObject);
+                npcModule.gasMasks.Remove(gameObject);
             }
         }
     }
