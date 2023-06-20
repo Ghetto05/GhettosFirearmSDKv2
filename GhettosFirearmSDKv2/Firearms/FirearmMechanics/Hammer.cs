@@ -15,6 +15,7 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> hitSounds;
         public List<AudioSource> cockSounds;
         public bool cocked;
+        public bool hasDecocker = false;
         SaveNodeValueBool hammerState;
 
         private void Start()
@@ -25,10 +26,16 @@ namespace GhettosFirearmSDKv2
         public void InvokedStart()
         {
             if (firearm == null && item.gameObject.TryGetComponent(out Firearm f)) firearm = f;
+            firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
             firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
             hammerState = firearm.saveData.firearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
             if (hammerState.value) Cock(true);
             else Fire(true);
+        }
+
+        private void Firearm_OnFiremodeChangedEvent()
+        {
+            if (hasDecocker && firearm.fireMode == FirearmBase.FireModes.Safe) Fire();
         }
 
         private void Firearm_OnCockActionEvent()
