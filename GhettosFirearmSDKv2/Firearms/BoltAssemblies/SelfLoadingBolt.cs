@@ -63,6 +63,7 @@ namespace GhettosFirearmSDKv2
 
         public override void UpdateChamberedRounds()
         {
+            base.UpdateChamberedRounds();
         }
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)

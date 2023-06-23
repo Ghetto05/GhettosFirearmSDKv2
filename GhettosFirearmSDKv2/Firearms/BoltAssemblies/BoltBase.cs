@@ -22,7 +22,9 @@ namespace GhettosFirearmSDKv2
         }
 
         public virtual void UpdateChamberedRounds()
-        { }
+        {
+            //Debug.Log("Updated chambered round");
+        }
 
         public virtual List<Handle> GetNoInfluenceHandles()
         {

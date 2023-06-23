@@ -175,6 +175,7 @@ namespace GhettosFirearmSDKv2
 
         public override void UpdateChamberedRounds()
         {
+            base.UpdateChamberedRounds();
             for (int i = 0; i < mountPoints.Length; i++)
             {
                 if (loadedCartridges[i] != null)

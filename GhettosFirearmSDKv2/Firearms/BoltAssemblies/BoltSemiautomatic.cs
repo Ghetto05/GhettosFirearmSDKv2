@@ -149,6 +149,7 @@ namespace GhettosFirearmSDKv2
 
         public override void UpdateChamberedRounds()
         {
+            base.UpdateChamberedRounds();
             if (loadedCartridge == null) return;
             loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
             loadedCartridge.transform.parent = roundMount;
