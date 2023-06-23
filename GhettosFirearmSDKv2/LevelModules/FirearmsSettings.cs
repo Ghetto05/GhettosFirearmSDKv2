@@ -74,7 +74,7 @@ namespace GhettosFirearmSDKv2
         public static float cartridgeEjectionTorque = 1f;
         public static float cartridgeEjectionForceRandomizationDevision = 3f;
         public static float firingSoundDeviation = 0.2f;
-        public static float invokeTime = 0.05f;
+        public static float invokeTime = 0.1f;
         #endregion Static
 
         #region PureSettings
