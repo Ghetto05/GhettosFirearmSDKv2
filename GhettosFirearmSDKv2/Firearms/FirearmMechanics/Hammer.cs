@@ -29,8 +29,8 @@ namespace GhettosFirearmSDKv2
             firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
             firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
             hammerState = firearm.saveData.firearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
-            if (hammerState.value) Cock(true);
-            else Fire(true);
+            if (hammerState.value) Cock(true, true);
+            else Fire(true, true);
         }
 
         private void Firearm_OnFiremodeChangedEvent()
@@ -44,9 +44,9 @@ namespace GhettosFirearmSDKv2
             else Cock();
         }
 
-        public void Cock(bool silent = false)
+        public void Cock(bool silent = false, bool forced = false)
         {
-            if (cocked) return;
+            if (cocked && !forced) return;
             hammerState.value = true;
             cocked = true;
             if (hammer != null)
@@ -57,9 +57,9 @@ namespace GhettosFirearmSDKv2
             if (!silent) Util.PlayRandomAudioSource(cockSounds);
         }
 
-        public void Fire(bool silent = false)
+        public void Fire(bool silent = false, bool forced = false)
         {
-            if (!cocked) return;
+            if (!cocked && !forced) return;
             hammerState.value = false;
             cocked = false;
             if (hammer != null)
