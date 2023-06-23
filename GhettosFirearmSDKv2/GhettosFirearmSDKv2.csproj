@@ -410,6 +410,8 @@
     <Compile Include="Firearms\Ammunition\Speedloader.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\BipodManager.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\CartridgeHolder.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\TacticalDevice.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\PressureSwitch.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellColliderReplacer.cs" />
     <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs" />
@@ -417,6 +419,8 @@
     <Compile Include="Firearms\BoltAssemblies\MultiChamberMuzzleLoadedBolt.cs" />
     <Compile Include="Firearms\BoltAssemblies\BreakAction.cs" />
     <Compile Include="Firearms\BoltAssemblies\BreakActionMuzzleOverride.cs" />
+    <Compile Include="Firearms\BoltAssemblies\PumpActionOriginalBackup.cs" />
+    <Compile Include="Firearms\BoltAssemblies\PumpActionNewBackup.cs" />
     <Compile Include="Firearms\BoltAssemblies\Revolver.cs" />
     <Compile Include="Firearms\BoltAssemblies\SelfLoadingBolt.cs" />
     <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs" />

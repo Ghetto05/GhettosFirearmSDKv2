@@ -5,7 +5,7 @@ using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
-    public class Laser : MonoBehaviour
+    public class Laser : TacticalDevice
     {
         public GameObject sourceObject;
         public Transform source;
@@ -13,7 +13,6 @@ namespace GhettosFirearmSDKv2
         public Transform cylinderRoot;
         public float range;
         public bool activeByDefault;
-        bool active = false;
         public Text distanceDisplay;
         public Item item;
         public Attachment attachment;
@@ -21,7 +20,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            active = activeByDefault;
+            physicalSwitch = activeByDefault;
             if (item != null) actualItem = item;
             else if (attachment != null)
             {
@@ -38,7 +37,7 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (!active || (actualItem != null && actualItem.holder != null))
+            if (!tacSwitch || !physicalSwitch || (actualItem != null && actualItem.holder != null))
             {
                 if (cylinderRoot != null) cylinderRoot.localScale = Vector3.zero;
                 if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
@@ -73,13 +72,13 @@ namespace GhettosFirearmSDKv2
         public void SetActive()
         {
             if (sourceObject != null) sourceObject.SetActive(true);
-            active = true;
+            physicalSwitch = true;
         }
 
         public void SetNotActive()
         {
             if (sourceObject != null) sourceObject.SetActive(false);
-            active = false;
+            physicalSwitch = false;
         }
     }
 }

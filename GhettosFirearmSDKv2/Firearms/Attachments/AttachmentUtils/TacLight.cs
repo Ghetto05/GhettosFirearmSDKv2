@@ -5,14 +5,12 @@ using System.Collections;
 namespace GhettosFirearmSDKv2
 {
     [AddComponentMenu("Firearm SDK v2/Attachments/Systems/Illuminators/Tactical Light")]
-    public class TacLight : MonoBehaviour
+    public class TacLight : TacticalDevice
     {
         public GameObject lights;
         public Item item;
         public Attachment attachment;
-
         private Item actualItem;
-        private bool switchActive;
 
         public void Start()
         {
@@ -32,17 +30,17 @@ namespace GhettosFirearmSDKv2
 
         public void SetActive()
         {
-            switchActive = true;
+            physicalSwitch = true;
         }
 
         public void SetNotActive()
         {
-            switchActive = false;
+            physicalSwitch = false;
         }
 
         private void Update()
         {
-            lights.SetActive(switchActive && (actualItem == null || actualItem.holder == null));
+            lights.SetActive(tacSwitch && physicalSwitch && (actualItem == null || actualItem.holder == null));
         }
     }
 }
