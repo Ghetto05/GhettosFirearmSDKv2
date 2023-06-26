@@ -31,10 +31,13 @@ namespace GhettosFirearmSDKv2.Chemicals
 
         void Update()
         {
+            if (PlayerEffectsAndChemicalsModule.local == null) return;
+
             bool foundCSgas = false;
             bool foundSmoke = false;
             bool foundPoisonGas = false;
             float highestPoisonGasDamage = 0f;
+
             foreach (Collider c in Physics.OverlapSphere(creature.animator.GetBoneTransform(HumanBodyBones.Head) != null ? creature.animator.GetBoneTransform(HumanBodyBones.Head).position : creature.brain.transform.position, 0.1f))
             {
                 if (c.gameObject.name.Equals("CSgas_Zone"))
