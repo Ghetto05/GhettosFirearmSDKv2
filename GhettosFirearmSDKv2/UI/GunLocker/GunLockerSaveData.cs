@@ -14,6 +14,8 @@ namespace GhettosFirearmSDKv2
         public string category;
         public List<ContentCustomData> dataList;
 
+        public static List<ItemData> allPrebuilts = new List<ItemData>();
+
         public static List<string> GetAllCategories()
         {
             List<string> list = new List<string>();
@@ -44,6 +46,7 @@ namespace GhettosFirearmSDKv2
                 };
                 itemData.modules.Add(loader);
                 Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + "Item" + id + ".json", "!GhettosFirearmSDKv2_Saves");
+                allPrebuilts.Add(itemData);
             }
             base.OnCatalogRefresh();
         }
