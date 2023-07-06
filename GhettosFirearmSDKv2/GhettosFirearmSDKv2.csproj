@@ -399,6 +399,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chemicals\DartBehavoirs.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs" />
     <Compile Include="Clothing\HUD\HUD.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
@@ -420,7 +421,7 @@
     <Compile Include="Firearms\BoltAssemblies\BreakAction.cs" />
     <Compile Include="Firearms\BoltAssemblies\BreakActionMuzzleOverride.cs" />
     <Compile Include="Firearms\BoltAssemblies\PumpActionOriginalBackup.cs" />
-    <Compile Include="Firearms\BoltAssemblies\PumpAction.cs" />
+    <Compile Include="Firearms\BoltAssemblies\PumpActionNew.cs" />
     <Compile Include="Firearms\BoltAssemblies\Revolver.cs" />
     <Compile Include="Firearms\BoltAssemblies\SelfLoadingBolt.cs" />
     <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs" />
@@ -515,7 +516,7 @@
     <Compile Include="Firearms\FirearmMechanics\StockToggler.cs" />
     <Compile Include="UI\CanvasCamAssigner.cs" />
     <Compile Include="UI\SettingsPanel\CheatsWindow.cs" />
-    <Compile Include="Firearms\BoltAssemblies\PumpActionOriginal.cs" />
+    <Compile Include="Firearms\BoltAssemblies\PumpAction.cs" />
     <Compile Include="Firearms\FirearmMechanics\Trigger.cs" />
     <Compile Include="UI\SettingsPanel\SettingsWindow.cs" />
     <Compile Include="UI\GunVice\ViceUI.cs" />
