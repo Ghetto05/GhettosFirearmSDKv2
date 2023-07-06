@@ -2,7 +2,6 @@
 //using System.Collections.Generic;
 //using UnityEngine;
 //using ThunderRoad;
-//using System.Linq;
 
 //namespace GhettosFirearmSDKv2
 //{
@@ -42,19 +41,25 @@
 
 //        public void Start()
 //        {
-//            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+//            Invoke("InvokedStart", FirearmsSettings.invokeTime + 0.01f);
 //        }
 
+//        CapsuleCollider stabilizer;
 //        public void InvokedStart()
 //        {
+//            //InitializeJoint();
+//            RefreshBoltHandles();
+//            Lock(true);
+//            stabilizer = rb.gameObject.AddComponent<CapsuleCollider>();
+//            stabilizer.radius = 0.03f;
+//            stabilizer.gameObject.layer = LayerMask.NameToLayer("UI");
+
 //            firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
 //            firearm.item.OnGrabEvent += Item_OnGrabEvent;
 //            firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
 //            firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
-//            RefreshBoltHandles();
 //            ChamberSaved();
 //            if (loadedCartridge != null) Invoke("DelayedReparent", 0.03f);
-//            Lock(true);
 //            ready = true;
 //        }
 
@@ -99,6 +104,7 @@
 //            {
 //                RefreshBoltHandles();
 //            }
+//            //SetStateOnAllHandlers(lockJoint != null);
 //            if (loadedCartridge != null && roundReparent != null && currentRoundRemounted)
 //            {
 //                loadedCartridge.transform.SetParent(roundReparent);
@@ -107,7 +113,6 @@
 
 //        public override void UpdateChamberedRounds()
 //        {
-//            base.UpdateChamberedRounds();
 //            if (loadedCartridge == null) return;
 //            loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
 //            loadedCartridge.transform.parent = currentRoundRemounted && roundReparent != null ? roundReparent : roundMount;
@@ -119,13 +124,11 @@
 //        {
 //            foreach (Handle handle in boltHandles)
 //            {
-//                List<RagdollHand> hands = handle.handlers.ToList();
+//                RagdollHand[] hands = handle.handlers.ToArray();
 //                handle.Release();
-//                handle.customRigidBody = locked ? firearm.item.physicBody.rigidBody : rb;
-
 //                foreach (RagdollHand hand in hands)
 //                {
-//                    hand.Grab(handle, false);
+//                    hand.Grab(handle, true);
 //                }
 //            }
 //        }
@@ -172,19 +175,27 @@
 //            if (locked)
 //            {
 //                bolt.localPosition = startPoint.localPosition;
-//                rb.transform.localPosition = startPoint.localPosition;
+//                //rb.transform.localPosition = startPoint.localPosition;
 //                if (lockJoint == null) lockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
 //                lockJoint.connectedBody = rb;
-//                lockJoint.connectedMassScale = 100f;
+//                //lockJoint.connectedMassScale = 100f;
 //                closedSinceLastEject = true;
 //                wentToFrontSinceLastLock = false;
-//                SetStateOnAllHandlers(true);
+//                foreach (Handle h in boltHandles)
+//                {
+//                    h.customRigidBody = firearm.item.physicBody.rigidBody;
+//                }
 //                Destroy(joint);
+//                SetStateOnAllHandlers(true);
 //            }
 //            else if (lockJoint != null)
 //            {
-//                InitializeJoint();
+//                foreach (Handle h in boltHandles)
+//                {
+//                    h.customRigidBody = rb;
+//                }
 //                Destroy(lockJoint);
+//                InitializeJoint();
 //                SetStateOnAllHandlers(false);
 //            }
 //        }
@@ -202,6 +213,8 @@
 //        private void FixedUpdate()
 //        {
 //            if (!ready) return;
+//            stabilizer.gameObject.layer = LayerMask.NameToLayer("UI");
+//            stabilizer.gameObject.SetActive(isHeld);
 
 //            //UpdateChamberedRound();
 //            isHeld = BoltHandleHeld();
@@ -257,7 +270,7 @@
 //                {
 //                    nonHeldLockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
 //                    nonHeldLockJoint.connectedBody = rb;
-//                    nonHeldLockJoint.connectedMassScale = 100f;
+//                    //nonHeldLockJoint.connectedMassScale = 100f;
 //                }
 //            }
 
@@ -315,8 +328,6 @@
 //        {
 //            joint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
 //            joint.connectedBody = rb;
-//            //pJoint.massScale = 0.00001f;
-//            joint.connectedMassScale = 100f;
 //            SoftJointLimit limit = new SoftJointLimit();
 //            joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
 //            limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
