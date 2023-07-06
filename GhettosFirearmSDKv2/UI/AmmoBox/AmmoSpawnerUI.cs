@@ -451,25 +451,28 @@ namespace GhettosFirearmSDKv2
                         }
                         else
                         {
-                            if (data.projectileCount == 1)
+                            if (data.projectileCount > 0)
                             {
-                                descriptionText += "Damage: " + (data.damagePerProjectile / 50) * 100 + "%\n";
-                                descriptionText += "Force: " + data.forcePerProjectile + "\n";
+                                if (data.projectileCount == 1)
+                                {
+                                    descriptionText += "Damage: " + (data.damagePerProjectile / 50) * 100 + "%\n";
+                                    descriptionText += "Force: " + data.forcePerProjectile + "\n";
+                                }
+                                else if (data.projectileCount > 1)
+                                {
+                                    descriptionText += "Projectile count: " + data.projectileCount + "\n";
+                                    descriptionText += "Damage per projectile: " + (data.damagePerProjectile / 50) * 100 + "%\n";
+                                    descriptionText += "Force per projectile: " + data.forcePerProjectile + "\n";
+                                }
+                                descriptionText += "Range: " + data.projectileRange + "\n";
+                                descriptionText += "Penetration level: " + data.penetrationPower.ToString();
+                                if (handle.Result.GetComponentInChildren<TracerModule>() != null) descriptionText += "\nHas tracer function";
+                                if (data.forceDestabilize && !data.knocksOutTemporarily) descriptionText += "\nAlways destabilizes hit target";
+                                if (data.forceIncapitate) descriptionText += $"\nIncapacitates hit target permanently";
+                                else if (data.knocksOutTemporarily) descriptionText += $"\nincapacitates hit target for {data.temporaryKnockoutTime} seconds";
+                                if (data.isElectrifying) descriptionText += $"\nElectrifies targets for {data.tasingDuration} with a force of {data.tasingForce}";
+                                if (data.isExplosive) descriptionText += $"\nExplodes: {data.explosiveData.radius} meters radius, {data.explosiveData.force} force, {data.explosiveData.damage} damage";
                             }
-                            else
-                            {
-                                descriptionText += "Projectile count: " + data.projectileCount + "\n";
-                                descriptionText += "Damage per projectile: " + (data.damagePerProjectile / 50) * 100 + "%\n";
-                                descriptionText += "Force per projectile: " + data.forcePerProjectile + "\n";
-                            }
-                            descriptionText += "Range: " + data.projectileRange + "\n";
-                            descriptionText += "Penetration level: " + data.penetrationPower.ToString();
-                            if (handle.Result.GetComponentInChildren<TracerModule>() != null) descriptionText += "\nHas tracer function";
-                            if (data.forceDestabilize && !data.knocksOutTemporarily) descriptionText += "\nAlways destabilizes hit target";
-                            if (data.forceIncapitate) descriptionText += $"\nIncapacitates hit target permanently";
-                            else if (data.knocksOutTemporarily) descriptionText += $"\nincapacitates hit target for {data.temporaryKnockoutTime} seconds";
-                            if (data.isElectrifying) descriptionText += $"\nElectrifies targets for {data.tasingDuration} with a force of {data.tasingForce}";
-                            if (data.isExplosive) descriptionText += $"\nExplodes: {data.explosiveData.radius} meters radius, {data.explosiveData.force} force, {data.explosiveData.damage} damage";
                             if (!string.IsNullOrWhiteSpace(data.additionalInformation))
                             {
                                 descriptionText += "\n" + data.additionalInformation;
