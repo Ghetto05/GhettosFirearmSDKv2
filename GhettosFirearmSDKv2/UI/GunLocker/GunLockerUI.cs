@@ -25,16 +25,85 @@ namespace GhettosFirearmSDKv2
         public List<string> saves;
         private List<GameObject> saveButtons;
 
+        public List<Button> keys;
+        public TextMeshProUGUI typingField;
+        public GameObject typingPanel;
+        public Button cancelButton;
+        public Button confirmButton;
+
         public Holder holder;
+
+        private bool typing = false;
+        private string typingName = "";
+
+        private void Awake()
+        {
+            SetupCategoryList();
+
+            foreach (Button b in keys)
+            {
+                b.onClick.AddListener(delegate { Type(b.GetComponentInChildren<TextMeshProUGUI>().text); });
+            }
+            Cancel();
+
+            cancelButton.onClick.AddListener(delegate { Cancel(); });
+            confirmButton.onClick.AddListener(delegate { SaveWeaponWithName(typingName); });
+        }
+
+        #region Saving
+        public void Type(string key)
+        {
+            if (typing)
+            {
+                if (key.Equals("BACKSPACE") && typingName.Length > 0) typingName.Remove(typingName.Length - 1);
+                else typingName += key;
+                typingField.text = typingName;
+            }
+        }
+
+        public void OpenTypingPanel()
+        {
+            typingName = "Type here...";
+            typingField.text = typingName;
+            typingPanel.SetActive(true);
+            typing = true;
+        }
+
+        public void Cancel()
+        {
+            typingName = "Type here...";
+            typingField.text = typingName;
+            typingPanel.SetActive(false);
+            typing = false;
+        }
 
         public void SaveWeapon()
         {
-            if (holder.items.Count == 0) return; 
-            DateTime today = DateTime.Now;
+            if (holder.items.Count == 0 || typing) return;
+            OpenTypingPanel();
+        }
+
+        public void SaveWeaponWithName(string name)
+        {
+            if (!typing) return;
+            if (holder.items.Count == 0)
+            {
+                Cancel();
+                return;
+            }
+
+            string idString = name.Replace(" ", "");
+            idString = idString.Replace(",", "");
+            idString = idString.Replace(".", "");
+            idString = idString.Replace("-", "");
+            idString = idString.Replace("_", "");
+            idString = idString.Replace("/", "");
+            idString = idString.Replace("#", "");
+
             GunLockerSaveData newData = new GunLockerSaveData
             {
-                id = ((DateTimeOffset)today).ToUnixTimeSeconds().ToString(),
-                displayName = today.ToString(),
+                id = idString,
+                displayName = name,
                 itemId = holder.items[0].itemId,
                 category = holder.items[0].data.displayName,
                 dataList = holder.items[0].contentCustomData.ToList()
@@ -45,13 +114,11 @@ namespace GhettosFirearmSDKv2
             Catalog.LoadJson(newData, content, path, FirearmsSettings.saveFolderName + "\\Saves");
             File.WriteAllText(path, content);
             SetupCategoryList();
+            Cancel();
         }
+        #endregion
 
-        private void Awake()
-        {
-            SetupCategoryList();
-        }
-
+        #region Locker Actions
         [EasyButtons.Button]
         public void SetupCategoryList()
         {
@@ -133,5 +200,6 @@ namespace GhettosFirearmSDKv2
             Catalog.data[(int)Catalog.GetCategory(data.GetType())].catalogDatas.Remove(data);
             SetCategory(currentCategory);
         }
+        #endregion
     }
 }
