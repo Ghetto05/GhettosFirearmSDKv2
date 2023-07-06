@@ -87,10 +87,14 @@ namespace GhettosFirearmSDKv2
                     saveData = new MagazineSaveData();
                     item.AddCustomData(saveData);
                     if (defaultLoad != null) defaultLoad.Load(this);
-                    else InvokeLoadFinished();
+                    else
+                    {
+                        InvokeLoadFinished();
+                        loadable = true;
+                    }
                 }
             }
-            else if (overrideItem != null)
+            else
             {
                 overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
                 if (overrideItem.TryGetComponent(out Firearm f))
