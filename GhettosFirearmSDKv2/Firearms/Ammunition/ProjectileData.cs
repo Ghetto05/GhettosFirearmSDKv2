@@ -60,6 +60,7 @@ namespace GhettosFirearmSDKv2
         //temporary knockout
         public bool knocksOutTemporarily = false;
         public float temporaryKnockoutTime = 0f;
+        public float kockoutDelay = 0f;
 
         //hitscan explosive
         public ExplosiveData explosiveData;
@@ -69,6 +70,7 @@ namespace GhettosFirearmSDKv2
         //hitscan electrification
         public float tasingDuration = 5;
         public float tasingForce = 1;
+        public bool playTasingEffect = true;
 
         //physical
         public string projectileItemId;

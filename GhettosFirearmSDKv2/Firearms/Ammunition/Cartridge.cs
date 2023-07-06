@@ -48,24 +48,25 @@ namespace GhettosFirearmSDKv2
             item.Despawn();
         }
 
-        public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle)
+        public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle, List<Creature> hitCreatures, bool fire)
         {
-            fired = true;
+            fired = fire;
             if (firedOnlyObject != null) firedOnlyObject.SetActive(true);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(false);
             ToggleTK(false);
             onFireEvent?.Invoke();
             OnFiredWithHitPointsAndMuzzle?.Invoke(hits, directions, muzzle);
+            OnFiredWithHitPointsAndMuzzleAndCreatures?.Invoke(hits, directions, hitCreatures, muzzle);
             if (destroyOnFire) item.Despawn();
         }
 
         public void Detonate()
         {
-            FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories, 1f);
+            FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, 1f);
             if (detonationParticle != null) detonationParticle.Play();
             if (item != null) FireMethods.ApplyRecoil(transform, item.physicBody.rigidBody, data.recoil, 0f, 1f, null);
             Util.PlayRandomAudioSource(detonationSounds);
-            Fire(hits, trajectories, cartridgeFirePoint);
+            Fire(hits, trajectories, cartridgeFirePoint, hitCreatures, true);
         }
 
         public void Reset()
@@ -116,5 +117,8 @@ namespace GhettosFirearmSDKv2
 
         public delegate void OnFired(List<Vector3> hitPoints, List<Vector3> trajectories, Transform muzzle);
         public event OnFired OnFiredWithHitPointsAndMuzzle;
+
+        public delegate void OnFiredWithCreatures(List<Vector3> hitPoints, List<Vector3> trajectories, List<Creature> hitCreatures, Transform muzzle);
+        public event OnFiredWithCreatures OnFiredWithHitPointsAndMuzzleAndCreatures;
     }
 }

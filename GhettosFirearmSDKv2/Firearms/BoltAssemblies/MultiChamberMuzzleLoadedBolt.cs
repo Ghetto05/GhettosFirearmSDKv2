@@ -206,11 +206,8 @@ namespace GhettosFirearmSDKv2
                 else firearm.PlayMuzzleFlash(loadedCartridge);
             }
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
-            if (!FirearmsSettings.infiniteAmmo)
-            {
-                loadedCartridge.Fire(hits, trajectories, muzzle);
-            }
+            FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
+            loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, !FirearmsSettings.infiniteAmmo);
             InvokeFireEvent();
         }
 
