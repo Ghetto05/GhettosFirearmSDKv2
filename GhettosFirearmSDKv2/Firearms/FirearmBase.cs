@@ -34,8 +34,6 @@ namespace GhettosFirearmSDKv2
         public Light muzzleLight;
         public string defaultAmmoItem;
 
-        public FirearmSaveData.AttachmentTreeNode GetFirearmNode;
-
         public virtual void Start()
         {
             fireSoundsPitch = new float[fireSounds.Length];
