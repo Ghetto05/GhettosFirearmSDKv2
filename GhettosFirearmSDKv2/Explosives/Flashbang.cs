@@ -11,6 +11,7 @@ namespace GhettosFirearmSDKv2.Explosives
         public ParticleSystem effect;
         public float range;
         public float time;
+        public string effectId;
 
         private void Awake()
         {
@@ -24,6 +25,8 @@ namespace GhettosFirearmSDKv2.Explosives
                 Player.local.StartCoroutine(delayedDestroy(effect.gameObject, effect.main.duration + 1f));
                 effect.Play();
             }
+
+            if (!string.IsNullOrWhiteSpace(effectId)) Catalog.GetData<EffectData>(effectId).Spawn(transform).Play();
             
             Util.PlayRandomAudioSource(audioEffects);
             Util.AlertAllCreaturesInRange(transform.position, 50);
@@ -41,7 +44,7 @@ namespace GhettosFirearmSDKv2.Explosives
                 if (!cr.isPlayer && !cr.isKilled && Vector3.Distance(t.position, transform.position) < range && !Raycast(cr))
                 {
                     cr.ragdoll.SetState(Ragdoll.State.Destabilized);
-                    StartCoroutine(FireMethods.TemporaryKnockout(time, cr));
+                    StartCoroutine(FireMethods.TemporaryKnockout(time, 0, cr));
                 }
             }
             base.ActualDetonate();
