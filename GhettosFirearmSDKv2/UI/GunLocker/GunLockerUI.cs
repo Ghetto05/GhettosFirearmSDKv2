@@ -55,6 +55,7 @@ namespace GhettosFirearmSDKv2
         {
             if (typing)
             {
+                if (typingName.Equals("Type here...")) typingName = "";
                 if (key.Equals("BACKSPACE") && typingName.Length > 0) typingName.Remove(typingName.Length - 1);
                 else typingName += key;
                 typingField.text = typingName;
