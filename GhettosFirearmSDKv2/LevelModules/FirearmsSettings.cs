@@ -136,7 +136,7 @@ namespace GhettosFirearmSDKv2
         #region Cheats
         [ModOptionOrder(1)]
         [ModOptionCategory("Cheats", 2)]
-        [ModOption(name = "Incapitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", defaultValueIndex = 3, saveValue = true, valueSourceName = nameof(iots))]
+        [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", defaultValueIndex = 3, saveValue = true, valueSourceName = nameof(iots))]
         public static float incapitateOnTorsoShot;
         public static ModOptionFloat[] iots =
         {
