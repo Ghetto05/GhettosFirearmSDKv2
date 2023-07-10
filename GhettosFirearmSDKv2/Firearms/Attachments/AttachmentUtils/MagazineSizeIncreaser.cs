@@ -52,9 +52,14 @@ namespace GhettosFirearmSDKv2
         {
             if (magazine == null) return;
             magazine.maximumCapacity = previousSize;
-            foreach (Cartridge c in magazine.cartridges)
+            //foreach (Cartridge c in magazine.cartridges)
+            //{
+            //    if (magazine.cartridges.IndexOf(c) >= previousSize && c.item != null) c.item.Despawn();
+            //}
+            while (magazine.cartridges.Count > magazine.maximumCapacity)
             {
-                if (magazine.cartridges.IndexOf(c) >= previousSize) c.item.Despawn();
+                Cartridge c = magazine.ConsumeRound();
+                c.item.Despawn();
             }
         }
     }
