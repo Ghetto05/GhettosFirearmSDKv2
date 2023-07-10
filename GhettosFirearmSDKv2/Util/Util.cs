@@ -23,7 +23,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadCatridge(Cartridge cartridge, Magazine magazine)
         {
-            if (!FirearmsSettings.doCaliberChecks) return true;
+            if (!FirearmsSettings.doCaliberChecks && !magazine.forceCorrectCaliber) return true;
             if (cartridge.caliber.Equals("DEBUG UNIVERSAL")) return true;
             bool correctCaliber = cartridge.caliber.Equals(magazine.caliber) || ListContainsString(magazine.alternateCalibers, cartridge.caliber);
             bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridge.caliber);
