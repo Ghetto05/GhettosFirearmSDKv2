@@ -190,6 +190,7 @@ namespace GhettosFirearmSDKv2
             Catalog.GetData<ItemData>(data.itemId).SpawnAsync(gun => 
             {
                 holder.Snap(gun);
+                gun.data.displayName = data.displayName;
             }, holder.transform.position, holder.transform.rotation, null, true, data.dataList.CloneJson());
         }
 
