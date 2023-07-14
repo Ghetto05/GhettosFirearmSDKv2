@@ -101,7 +101,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (Lock l in locks)
             {
-                if (!l.isUnlocked()) return false;
+                if (!l.IsUnlocked()) return false;
             }
             return true;
         }

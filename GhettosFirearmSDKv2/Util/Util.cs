@@ -179,5 +179,14 @@ namespace GhettosFirearmSDKv2
             yield return new WaitForSeconds(delay);
             action.Invoke();
         }
+
+        public static bool AllLocksUnlocked(List<Lock> locks)
+        {
+            foreach (Lock l in locks)
+            {
+                if (!l.IsUnlocked()) return false;
+            }
+            return true;
+        }
     }
 }

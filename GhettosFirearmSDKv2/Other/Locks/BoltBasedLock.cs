@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         public BoltBase.BoltState requiredState;
         public BoltBase bolt;
 
-        public override bool isUnlocked()
+        public override bool GetState()
         {
             if (filter == Filters.LockAlwaysExcept)
             {

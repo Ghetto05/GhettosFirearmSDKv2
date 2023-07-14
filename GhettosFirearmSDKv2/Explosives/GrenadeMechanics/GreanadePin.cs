@@ -37,7 +37,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public override bool isUnlocked()
+        public override bool GetState()
         {
             return broken;
         }

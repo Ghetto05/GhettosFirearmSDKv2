@@ -6,7 +6,14 @@ namespace GhettosFirearmSDKv2
 {
     public class Lock : MonoBehaviour
     {
-        public virtual bool isUnlocked()
+        public bool inverted = false;
+
+        public bool IsUnlocked()
+        {
+            return !inverted? GetState() : !GetState();
+        }
+
+        public virtual bool GetState()
         {
             return false;
         }
