@@ -169,6 +169,11 @@ namespace GhettosFirearmSDKv2
             return Mathf.Abs(Vector3.Distance(v1, v2));
         }
 
+        public static float AbsDist(Transform v1, Transform v2)
+        {
+            return Mathf.Abs(Vector3.Distance(v1.position, v2.position));
+        }
+
         public static void DelayedExecute(float delay, System.Action action, MonoBehaviour handler)
         {
             handler.StartCoroutine(DelayedExecuteIE(delay, action));
@@ -187,6 +192,19 @@ namespace GhettosFirearmSDKv2
                 if (!l.IsUnlocked()) return false;
             }
             return true;
+        }
+
+        public static Transform RecursiveFindChild(Transform parent, string childName)
+        {
+            foreach (Transform parent1 in parent)
+            {
+                if (parent1.name == childName)
+                    return parent1;
+                Transform child = RecursiveFindChild(parent1, childName);
+                if (child != null)
+                    return child;
+            }
+            return null;
         }
     }
 }

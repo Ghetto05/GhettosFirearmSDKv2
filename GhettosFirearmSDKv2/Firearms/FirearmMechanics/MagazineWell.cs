@@ -99,7 +99,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void TryMount(Collision collision)
         {
-            if (allowLoad && collision.collider.GetComponentInParent<Magazine>() is Magazine mag && collision.contacts[0].thisCollider == loadingCollider)
+            if (allowLoad && collision.collider.GetComponentInParent<Magazine>() is Magazine mag && collision.contacts[0].thisCollider == loadingCollider && BoltExistsAndIsPulled())
             {
                 if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this) && mag.loadable)
                 {
@@ -126,17 +126,16 @@ namespace GhettosFirearmSDKv2
             return currentMagazine.cartridges.Count < 1;
         }
 
+        private bool BoltExistsAndIsPulled() => !onlyAllowEjectionWhenBoltIsPulled || firearm.bolt == null || firearm.bolt.state == BoltBase.BoltState.Back || firearm.bolt.state == BoltBase.BoltState.LockedBack;
+
         public virtual void Eject(bool forced = false)
         {
-            if ((canEject || forced || (onlyAllowEjectionWhenBoltIsPulled && firearm.bolt != null && firearm.bolt.state != lockedState)) && currentMagazine != null)
-            {
-                Magazine mag = currentMagazine;
-                mag.Eject();
-                if (ejectDir != null)
-                {
-                    StartCoroutine(DelayedApplyForce(mag));
-                }
-            }
+            if (currentMagazine == null || !forced && !BoltExistsAndIsPulled() || !(canEject | forced) && currentMagazine.canBeGrabbedInWell)
+                return;
+            Magazine mag = currentMagazine;
+            currentMagazine.Eject();
+            if (ejectDir != null)
+                StartCoroutine(DelayedApplyForce(mag));
         }
 
         private IEnumerator DelayedApplyForce(Magazine mag)

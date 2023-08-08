@@ -593,7 +593,6 @@ namespace GhettosFirearmSDKv2
             float distanceStartBolt = Util.AbsDist(bolt, startPoint);
             float totalDistance = Util.AbsDist(startPoint, endPoint);
             cyclePercentage = Mathf.Clamp01(distanceStartBolt / totalDistance);
-            Debug.Log(cyclePercentage);
         }
     }
 }
