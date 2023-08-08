@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
                 itemData.modules = itemData.modules.CloneJson();
                 itemData.id = "Item" + id;
                 itemData.description = "Prebuilt version of the " + itemData.displayName + ".";
-                itemData.displayName = displayName;
+                //itemData.displayName = displayName;
                 itemData.category = "Firearm Prebuilts";
                 //itemData.iconAddress = id + ".Icon";
                 PrebuiltLoader loader = new PrebuiltLoader

@@ -26,6 +26,8 @@ namespace GhettosFirearmSDKv2
         private List<GameObject> saveButtons;
 
         public List<Button> keys;
+        public List<Button> keysCaps;
+        public List<Button> keysNonCaps;
         public TextMeshProUGUI typingField;
         public GameObject typingPanel;
         public Button cancelButton;
@@ -35,6 +37,7 @@ namespace GhettosFirearmSDKv2
 
         private bool typing = false;
         private string typingName = "";
+        public bool shift = true;
 
         private void Awake()
         {
@@ -57,8 +60,26 @@ namespace GhettosFirearmSDKv2
             {
                 if (typingName.Equals("Type here...")) typingName = "";
                 if (key.Equals("BACKSPACE") && typingName.Length > 0) typingName = typingName.Remove(typingName.Length - 1);
-                else typingName += key;
+                else if (key.Equals("SHIFT")) shift = !shift;
+                else
+                {
+                    typingName += key;
+                    shift = false;
+                }
                 typingField.text = typingName;
+                UpdateShift();
+            }
+        }
+
+        public void UpdateShift()
+        {
+            foreach (Button capsKey in keysCaps)
+            {
+                capsKey.gameObject.SetActive(shift);
+            }
+            foreach (Button nonCapsKey in keysNonCaps)
+            {
+                nonCapsKey.gameObject.SetActive(!shift);
             }
         }
 
@@ -68,6 +89,8 @@ namespace GhettosFirearmSDKv2
             typingField.text = typingName;
             typingPanel.SetActive(true);
             typing = true;
+            shift = true;
+            UpdateShift();
         }
 
         public void Cancel()
@@ -107,7 +130,7 @@ namespace GhettosFirearmSDKv2
                 displayName = name,
                 itemId = holder.items[0].itemId,
                 category = holder.items[0].data.displayName,
-                dataList = holder.items[0].contentCustomData.ToList()
+                dataList = holder.items[0].contentCustomData.CloneJson()
             };
             FirearmsSettings.CreateSaveFolder();
             string path = FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + newData.id + ".json";
@@ -190,7 +213,7 @@ namespace GhettosFirearmSDKv2
             Catalog.GetData<ItemData>(data.itemId).SpawnAsync(gun => 
             {
                 holder.Snap(gun);
-                gun.data.displayName = data.displayName;
+                //gun.data.displayName = data.displayName;
             }, holder.transform.position, holder.transform.rotation, null, true, data.dataList.CloneJson());
         }
 
