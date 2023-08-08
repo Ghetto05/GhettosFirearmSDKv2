@@ -8,10 +8,23 @@ namespace GhettosFirearmSDKv2
 {
     public class Scope : MonoBehaviour
     {
+        public enum LensSizes
+        {
+            _10mm = 10,
+            _20mm = 20,
+            _25mm = 25,
+            _30mm = 30,
+            _35mm = 35,
+            _40mm = 40,
+            _50mm = 50
+        }
+
         [Header("Lens")]
         public MeshRenderer lens;
         public int materialIndex = 0;
         public Camera cam;
+        public List<Camera> additionalCameras;
+        public LensSizes size;
         [Header("Zoom")]
         public bool overrideX1CameraFOV = false;
         public float noZoomMagnification;
@@ -26,40 +39,21 @@ namespace GhettosFirearmSDKv2
         public AudioSource CycleUpSound;
         public AudioSource CycleDownSound;
         int currentIndex;
-        float baseFov;
         SaveNodeValueInt zoomIndex;
 
-        public static void SetX1FOV(float fov)
+        public virtual void Start()
         {
-            FirearmsSettings.scopeX1MagnificationFOV = fov;
-            FirearmsSettings.local.SendUpdate();
+            Invoke("InvokedStart", FirearmsSettings.invokeTime);
         }
 
-        private void Start()
+        private void InvokedStart()
         {
-            DebugLogConsole.AddCommand<float>("SetScopeX1FOV", "Sets scope default zoom", SetX1FOV);
-            baseFov = overrideX1CameraFOV? cam.fieldOfView : FirearmsSettings.scopeX1MagnificationFOV;
-            RenderTexture rt = new RenderTexture(512, 512, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
+            RenderTexture rt = new RenderTexture(1024, 1024, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
             rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
             cam.targetTexture = rt;
             lens.materials[materialIndex].SetTexture("_BaseMap", rt);
             FirearmsSettings.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
-            StartCoroutine(delayedLoad());
-        }
 
-        private void Settings_LevelModule_OnValueChangedEvent()
-        {
-            if (!overrideX1CameraFOV)
-            {
-                baseFov = FirearmsSettings.scopeX1MagnificationFOV;
-                if (hasZoom) SetZoom();
-                else SetZoomNoZoomer(noZoomMagnification);
-            }
-        }
-
-        IEnumerator delayedLoad()
-        {
-            yield return new WaitForSeconds(1.05f);
             if (hasZoom && connectedFirearm != null)
             {
                 connectedFirearm.item.OnHeldActionEvent += Item_OnHeldActionEvent;
@@ -78,6 +72,12 @@ namespace GhettosFirearmSDKv2
                 SetZoom();
                 UpdatePosition();
             }
+        }
+
+        private void Settings_LevelModule_OnValueChangedEvent()
+        {
+            if (hasZoom) SetZoom();
+            else SetZoomNoZoomer(noZoomMagnification);
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -110,9 +110,12 @@ namespace GhettosFirearmSDKv2
 
         public void SetZoom()
         {
-            var factor = 2.0f * Mathf.Tan(0.5f * baseFov * Mathf.Deg2Rad);
-            var zoomedFOV = 2.0f * Mathf.Atan(factor / (2.0f * MagnificationLevels[currentIndex])) * Mathf.Rad2Deg;
-            if (cam != null) cam.fieldOfView = zoomedFOV;
+            SetZoomNoZoomer(MagnificationLevels[currentIndex]);
+        }
+
+        public float GetScale()
+        {
+            return (float)size / 100f;
         }
 
         public void UpdatePosition()
@@ -134,9 +137,15 @@ namespace GhettosFirearmSDKv2
 
         public void SetZoomNoZoomer(float zoom)
         {
-            var factor = 2.0f * Mathf.Tan(0.5f * baseFov * Mathf.Deg2Rad);
+            var factor = 2.0f * Mathf.Tan(0.5f * FirearmsSettings.scopeX1MagnificationFOV * Mathf.Deg2Rad);
             var zoomedFOV = 2.0f * Mathf.Atan(factor / (2.0f * zoom)) * Mathf.Rad2Deg;
             cam.fieldOfView = zoomedFOV;
+            foreach (Camera c in additionalCameras)
+            {
+                c.fieldOfView = zoomedFOV;
+            }
+            lens.material.SetTextureScale("_BaseMap", Vector2.one * GetScale());
+            lens.material.SetTextureOffset("_BaseMap", Vector3.one * ((1 - GetScale()) / 2));
         }
     }
 }
