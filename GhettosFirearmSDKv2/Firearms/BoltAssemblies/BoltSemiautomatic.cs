@@ -360,6 +360,11 @@ namespace GhettosFirearmSDKv2
                     else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition)) beforeHammerPoint = true;
                 }
 
+                if (state == BoltState.Moving && caught && Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < pointTreshold)
+                {
+                    state = BoltState.LockedBack;
+                }
+
                 //Charging handle racked
                 if (chargingHandle != null && Util.AbsDist(chargingHandle.position, startPoint.position) < pointTreshold && chargingHandleState == BoltState.Moving)
                 {
@@ -408,10 +413,10 @@ namespace GhettosFirearmSDKv2
                     }
                     else
                     {
+                        state = BoltState.Moving;
+                        startTimeOfMovement = Time.time;
                         isClosing = true;
                     }
-                    state = BoltState.Moving;
-                    startTimeOfMovement = Time.time;
                     if (reciprocatingBarrel == null || !reciprocatingBarrel.lockBoltBack)
                     {
                         EjectRound();
@@ -442,6 +447,7 @@ namespace GhettosFirearmSDKv2
             }
 
             lastFrameHeld = isHeld;
+            CalculatePercentage();
         }
 
         public override void EjectRound()
@@ -580,6 +586,14 @@ namespace GhettosFirearmSDKv2
                 return true;
             }
             return false;
+        }
+
+        public void CalculatePercentage()
+        {
+            float distanceStartBolt = Util.AbsDist(bolt, startPoint);
+            float totalDistance = Util.AbsDist(startPoint, endPoint);
+            cyclePercentage = Mathf.Clamp01(distanceStartBolt / totalDistance);
+            Debug.Log(cyclePercentage);
         }
     }
 }
