@@ -7,6 +7,7 @@ namespace GhettosFirearmSDKv2
 {
     public class GasMask : MonoBehaviour
     {
+        public AudioSource breathingLoop;
         private Creature creature;
         private NPCChemicalsModule npcModule;
         private bool ready = false;
@@ -17,6 +18,9 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
+            if (FirearmsSettings.playGasMaskSound && !breathingLoop.isPlaying) breathingLoop.Play();
+            else if (!FirearmsSettings.playGasMaskSound && breathingLoop.isPlaying) breathingLoop.Stop();
+
             if (creature == null)
             {
                 creature = GetComponentInParent<Creature>();

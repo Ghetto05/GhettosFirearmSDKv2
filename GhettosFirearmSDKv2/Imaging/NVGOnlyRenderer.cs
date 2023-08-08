@@ -11,12 +11,21 @@ namespace GhettosFirearmSDKv2
         public enum Types
         {
             InfraRed,
-            Thermal,
-            FirstPerson
+            FirstPerson,
+            Thermal
+        }
+
+        public enum ThermalTypes
+        {
+            Standard,
+            RedHot,
+            WhiteHot,
+            BlackHot
         }
 
         public Types renderType;
         public Camera renderCamera;
+        public ThermalTypes thermalType;
 
         private void Start()
         {
@@ -42,6 +51,15 @@ namespace GhettosFirearmSDKv2
             }
         }
 
+        private void UpdateThermal()
+        {
+            if (ThermalBody.all == null) return;
+            foreach (ThermalBody t in ThermalBody.all)
+            {
+                t.SetColor(thermalType);
+            }
+        }
+
         private void RenderPipelineManager_beginCameraRendering(ScriptableRenderContext context, Camera cam)
         {
             if (cam == renderCamera)
@@ -54,6 +72,7 @@ namespace GhettosFirearmSDKv2
                         foreach (GameObject obj in module.objects)
                         {
                             obj.SetActive(true);
+                            if (renderType == Types.Thermal) UpdateThermal();
                             foreach (Renderer r in obj.GetComponentsInChildren<Renderer>())
                             {
                                 r.enabled = true;
