@@ -20,14 +20,23 @@ namespace GhettosFirearmSDKv2
 
             #region oldSaveLoader
 
-            Debug.Log("------------> Loaded FirearmSDKv2 settings!");
-            Debug.Log($"-----------------> Incapitate: {incapitateOnTorsoShot}");
-            Debug.Log($"-----------------> Infinite ammo: {infiniteAmmo}");
-            Debug.Log($"-----------------> Caliber checks: {doCaliberChecks}");
-            Debug.Log($"-----------------> Magazine type checks: {doMagazineTypeChecks}");
-            Debug.Log($"-----------------> Damage multiplier: {damageMultiplier}");
-            Debug.Log($"-----------------> Long press time: {longPressTime}");
+            string version = ModManager.TryGetModData(GetType().Assembly, out ModManager.ModData data) ? data.ModVersion : "?";
+
+            string message = $"\n\n" +
+                $"----> Loaded FirearmSDKv2!" +
+                $"----> Version: {version}" +
+                $"\n\n";
+
+            //Debug.Log("------------> Loaded FirearmSDKv2 settings!");
+            //Debug.Log($"-----------------> Incapitate: {incapitateOnTorsoShot}");
+            //Debug.Log($"-----------------> Infinite ammo: {infiniteAmmo}");
+            //Debug.Log($"-----------------> Caliber checks: {doCaliberChecks}");
+            //Debug.Log($"-----------------> Magazine type checks: {doMagazineTypeChecks}");
+            //Debug.Log($"-----------------> Damage multiplier: {damageMultiplier}");
+            //Debug.Log($"-----------------> Long press time: {longPressTime}");
             #endregion oldSaveLoader
+
+            Debug.Log(message);
 
             EventManager.OnPlayerPrefabSpawned += EventManager_OnPlayerSpawned;
             EventManager.onCreatureSpawn += EventManager_onCreatureSpawn;
@@ -42,7 +51,24 @@ namespace GhettosFirearmSDKv2
         private void EventManager_onCreatureSpawn(Creature creature)
         {
             //Chemicals (NPC)
-            if (!creature.isPlayer) creature.gameObject.AddComponent<Chemicals.NPCChemicalsModule>();
+            if (!creature.isPlayer)
+            {
+                creature.gameObject.AddComponent<Chemicals.NPCChemicalsModule>();
+
+                string id = "NoneFound";
+                if (creature.data.id.Equals("HumanMale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Male";
+                else if (creature.data.id.Equals("HumanFemale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Female";
+                else if (creature.data.id.Equals("Chicken")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Chicken";
+
+                if (!id.Equals("NoneFound"))
+                {
+                    Catalog.InstantiateAsync(id, creature.transform.position, creature.transform.rotation, creature.transform, body =>
+                    {
+                        ThermalBody tb = body.GetComponent<ThermalBody>();
+                        tb.ApplyTo(creature);
+                    }, "Thermal Imaging Spawner");
+                }
+            }
         }
 
         private void EventManager_OnPlayerSpawned()
@@ -70,7 +96,7 @@ namespace GhettosFirearmSDKv2
         #region Values
         #region Static
         public static bool magazinesHaveNoCollision = true;
-        public static float scopeX1MagnificationFOV = 13f; //28.5f
+        public static float scopeX1MagnificationFOV = 60f; //13f; //28.5f
         public static float cartridgeEjectionTorque = 1f;
         public static float cartridgeEjectionForceRandomizationDevision = 3f;
         public static float firingSoundDeviation = 0.2f;
@@ -100,11 +126,6 @@ namespace GhettosFirearmSDKv2
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, defaultValueIndex = 4, valueSourceName = nameof(tdt))]
         public static float triggerDisciplineTime = 3f;
-
-        [ModOptionOrder(5)]
-        [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like headbreaker. Has no impact on damage.", defaultValueIndex = 0, saveValue = true)]
-        public static bool bulletsAreBlunt = false;
         public static ModOptionFloat[] tdt =
         {
             new ModOptionFloat("0.1", 0.1f),
@@ -118,6 +139,16 @@ namespace GhettosFirearmSDKv2
             new ModOptionFloat("30", 30),
             new ModOptionFloat("Never", 999999)
         };
+
+        [ModOptionOrder(5)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like headbreaker. Has no impact on damage.", defaultValueIndex = 0, saveValue = true)]
+        public static bool bulletsAreBlunt = false;
+
+        [ModOptionOrder(6)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Play gas mask sounds", tooltip = "If enabled, wearing a gas mask will play a breathing sound", defaultValueIndex = 1, saveValue = true)]
+        public static bool playGasMaskSound = false;
 
         #endregion PureSettings
 
