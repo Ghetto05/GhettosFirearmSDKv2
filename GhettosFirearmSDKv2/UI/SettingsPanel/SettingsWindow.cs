@@ -15,7 +15,7 @@ namespace GhettosFirearmSDKv2.UI
 
         [Header("Forced casing despawn")]
         public Text despawnCasingsTimeDisplay;
-        public UnityEngine.UI.Slider despawnCasingsTimeSlider;
+        public Slider despawnCasingsTimeSlider;
 
         [Header("HUD scale")]
         public Text hudScaleDisplay;
@@ -25,7 +25,7 @@ namespace GhettosFirearmSDKv2.UI
 
         [Header("Revolver trigger deadzone")]
         public Text revolverTriggerDeadzoneDisplay;
-        public UnityEngine.UI.Slider revolverTriggerDeadzoneSlider;
+        public Slider revolverTriggerDeadzoneSlider;
 
         void Awake()
         {

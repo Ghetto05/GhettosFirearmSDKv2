@@ -279,7 +279,7 @@ namespace GhettosFirearmSDKv2
                         coll.intensity = EvaluateDamage(data.damagePerProjectile * damageModifier * damageMultiplier, cr);
                         coll.pressureRelativeVelocity = muzzle.forward * 200;
 
-                        try { cr.Damage(coll); } catch (System.Exception) {}
+                        try { cr.Damage(coll); } catch (Exception) {}
                         #endregion Damaging
 
                         #region Additional Effects
@@ -626,7 +626,7 @@ namespace GhettosFirearmSDKv2
                     coll.intensity = EvaluateDamage(data.damagePerProjectile * damageModifier * damageMultiplier, cr);
                     coll.pressureRelativeVelocity = muzzle.forward * 200;
 
-                    try { cr.Damage(coll); } catch (System.Exception) { }
+                    try { cr.Damage(coll); } catch (Exception) { }
                     #endregion Damaging
 
                     #region Additional Effects
@@ -820,7 +820,7 @@ namespace GhettosFirearmSDKv2
                 coll.damageStruct.penetrationDepth = 10;
                 coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
                 coll.intensity = data.damage * FirearmsSettings.damageMultiplier;
-                try { hitCreature.Damage(coll); } catch (System.Exception) { }
+                try { hitCreature.Damage(coll); } catch (Exception) { }
 
                 hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
                 foreach (RagdollPart rp in hitCreature.ragdoll.parts)

@@ -79,7 +79,7 @@ namespace GhettosFirearmSDKv2.Drone
         private void Awake()
         {
             startHeight = transform.position.y;
-            droneId = $"Drone_{type}_{(int) Random.Range(0, 10)}{(int)Random.Range(0, 10)}{(int)Random.Range(0, 10)}{(int)Random.Range(0, 10)}";
+            droneId = $"Drone_{type}_{ Random.Range(0, 10)}{Random.Range(0, 10)}{Random.Range(0, 10)}{Random.Range(0, 10)}";
         }
 
         public void Move(float leftHandY, float rightHandX, float leftHandX, float rightHandY)

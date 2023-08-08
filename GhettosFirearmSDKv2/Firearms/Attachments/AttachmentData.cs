@@ -60,7 +60,7 @@ namespace GhettosFirearmSDKv2
                 }
                 else
                 {
-                    Debug.LogWarning((object)("Unable to instantiate attachment " + id + " from address " + prefabAddress));
+                    Debug.LogWarning("Unable to instantiate attachment " + id + " from address " + prefabAddress);
                     Addressables.ReleaseInstance(handle);
                 }
             });

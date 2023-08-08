@@ -264,14 +264,14 @@ namespace GhettosFirearmSDKv2
             yield return new WaitForSeconds(3f);
             Vector3 position = new Vector3(41.3f, 2.5f, -43.0f);
             Vector3 rotation = new Vector3(0, 120, 0);
-            Addressables.InstantiateAsync("Ghetto05.FirearmFrameworkV2.Locker", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += (System.Action<AsyncOperationHandle<GameObject>>)(handle =>
+            Addressables.InstantiateAsync("Ghetto05.FirearmFrameworkV2.Locker", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
             {
                 if (handle.Status != AsyncOperationStatus.Succeeded)
                 {
                     Debug.LogWarning(("Unable to instantiate gun locker!"));
                     Addressables.ReleaseInstance(handle);
                 }
-            });
+            };
         }
 
         private IEnumerator DelayedRigEditorSpawn()
@@ -280,14 +280,14 @@ namespace GhettosFirearmSDKv2
             Vector3 position = new Vector3(44.03f, 2.5f, -44.37f);
             Vector3 rotation = new Vector3(0, -36, 0);
             Debug.Log("Blue guy");
-            Addressables.InstantiateAsync("Ghetto05.Firearms.Clothes.Rigs.Editor", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += (System.Action<AsyncOperationHandle<GameObject>>)(handle =>
+            Addressables.InstantiateAsync("Ghetto05.Firearms.Clothes.Rigs.Editor", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
             {
                 if (handle.Status != AsyncOperationStatus.Succeeded)
                 {
                     Debug.LogWarning(("Unable to instantiate rig editor!"));
                     Addressables.ReleaseInstance(handle);
                 }
-            });
+            };
         }
         #endregion Gun Locker
 
