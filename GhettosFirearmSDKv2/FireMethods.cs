@@ -354,17 +354,23 @@ namespace GhettosFirearmSDKv2
             returnedEndpoints = new List<Vector3>();
             returnedTrajectories = new List<Vector3>();
             List<Creature> crs = new List<Creature>();
-            for (int i = 0; i < data.projectileCount; i++)
+            try
             {
-                Transform tempMuz = new GameObject().transform;
-                tempMuz.parent = muzzle;
-                tempMuz.localPosition = Vector3.zero;
-                tempMuz.localEulerAngles = new Vector3(Random.Range(-data.projectileSpread, data.projectileSpread), Random.Range(-data.projectileSpread, data.projectileSpread), 0);
-                List<Creature> cr = HitscanV2(tempMuz, data, item, out Vector3 endpoint, damageMultiplier);
-                returnedEndpoints.Add(endpoint);
-                returnedTrajectories.Add(tempMuz.forward);
-                Destroy(tempMuz.gameObject);
-                crs.AddRange(cr);
+                for (int i = 0; i < data.projectileCount; i++)
+                {
+                    Transform tempMuz = new GameObject().transform;
+                    tempMuz.parent = muzzle;
+                    tempMuz.localPosition = Vector3.zero;
+                    tempMuz.localEulerAngles = new Vector3(Random.Range(-data.projectileSpread, data.projectileSpread), Random.Range(-data.projectileSpread, data.projectileSpread), 0);
+                    List<Creature> cr = HitscanV2(tempMuz, data, item, out Vector3 endpoint, damageMultiplier);
+                    returnedEndpoints.Add(endpoint);
+                    returnedTrajectories.Add(tempMuz.forward);
+                    Destroy(tempMuz.gameObject);
+                    crs.AddRange(cr);
+                }
+            }
+            catch (Exception)
+            {
             }
             return crs;
         }
@@ -445,14 +451,20 @@ namespace GhettosFirearmSDKv2
                 {
                     if (processing)
                     {
-                        Creature c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, gunItem, out bool lowerDamageLevel, out bool cancel);
-                        if (lowerDamageLevel)
+                        try
                         {
-                            if (data.penetrationPower == ProjectileData.PenetrationLevels.None || data.penetrationPower == ProjectileData.PenetrationLevels.Leather) processing = false;
-                            else data.penetrationPower -= 2;
+                            Creature c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, gunItem, out bool lowerDamageLevel, out bool cancel);
+                            if (lowerDamageLevel)
+                            {
+                                if (data.penetrationPower == ProjectileData.PenetrationLevels.None || data.penetrationPower == ProjectileData.PenetrationLevels.Leather) processing = false;
+                                else data.penetrationPower -= 2;
+                            }
+                            if (cancel) processing = false;
+                            if (c != null) hitCreatures.Add(c);
                         }
-                        if (cancel) processing = false;
-                        if (c != null) hitCreatures.Add(c);
+                        catch (Exception)
+                        {
+                        }
                     }
                 }
             }
@@ -669,7 +681,16 @@ namespace GhettosFirearmSDKv2
                 if (hit.collider.GetComponentInParent<Item>() is Item hitItem)
                 {
                     hit.rigidbody.AddForce(muzzle.forward * (data.forcePerProjectile / 10), ForceMode.Impulse);
-                    if (hitItem.GetComponentInChildren<Breakable>() is Breakable b) b.Break();
+                    try
+                    {
+                        foreach (Breakable b in hitItem.GetComponentsInChildren<Breakable>())
+                        {
+                            b.Break();
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
                 else
                 {
@@ -709,7 +730,7 @@ namespace GhettosFirearmSDKv2
             Transform rev = new GameObject().transform;
             rev.position = hit.point;
             rev.rotation = Quaternion.LookRotation(hit.normal);
-            GameManager.local.StartCoroutine(RevealMaskProjection.ProjectAsync(rev.position + rev.forward * rem.offsetDistance, -rev.forward, rev.up, rem.depth, rem.maxSize, rem.maskTexture, rem.maxChannelMultiplier, rmcs, rem.revealData, null));
+            GameManager.local.StartCoroutine(RevealMaskProjection.ProjectAsync(rev.position + rev.forward * rem.offsetDistance, -rev.forward, rev.up, rem.depth, rem.maxSize, rem.textureContainer.GetRandomTexture(), rem.maxChannelMultiplier, rmcs, rem.revealData, null));
         }
 
         public static void FireItem(Transform muzzle, ProjectileData data, Item item)
