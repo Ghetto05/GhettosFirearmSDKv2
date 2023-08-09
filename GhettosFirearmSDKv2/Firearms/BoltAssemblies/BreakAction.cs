@@ -19,7 +19,6 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> ejectSounds;
         public List<AudioSource> insertSounds;
 
-        public List<Handle> foregripHandles;
         public Rigidbody rb;
         public Transform barrel;
         public Transform closedPosition;
@@ -318,7 +317,7 @@ namespace GhettosFirearmSDKv2
                 lockAxis.localEulerAngles = lockLockedPosition.localEulerAngles;
             }
             Util.PlayRandomAudioSource(lockSounds);
-            foreach (Handle h in foregripHandles)
+            foreach (Handle h in barrel.GetComponentsInChildren<Handle>())
             {
                 h.SetTouch(true);
             }
@@ -335,7 +334,7 @@ namespace GhettosFirearmSDKv2
             }
             ejectedSinceOpen = false;
             Util.PlayRandomAudioSource(unlockSounds);
-            foreach (Handle h in foregripHandles)
+            foreach (Handle h in barrel.GetComponentsInChildren<Handle>())
             {
                 foreach (RagdollHand hand in h.handlers.ToArray())
                 {
