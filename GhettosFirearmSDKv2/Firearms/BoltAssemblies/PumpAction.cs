@@ -166,7 +166,7 @@ namespace GhettosFirearmSDKv2
                 fire = false;
                 Lock(false);
             }
-            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, true);
+            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, fire);
         }
 
         private void Lock(bool locked)
