@@ -98,7 +98,7 @@ namespace GhettosFirearmSDKv2
         {
             if (boltHandles.Contains(handle))
             {
-                RefreshBoltHandles();
+                //RefreshBoltHandles();
             }
             if (loadedCartridge != null && roundReparent != null && currentRoundRemounted)
             {
@@ -160,10 +160,10 @@ namespace GhettosFirearmSDKv2
             firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
-            bool fire = true;
+            bool fire = false;
             if (!FirearmsSettings.infiniteAmmo || (FirearmsSettings.infiniteAmmo && firearm.magazineWell != null))
             {
-                fire = false;
+                fire = true;
                 Lock(false);
             }
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, fire);
@@ -171,7 +171,7 @@ namespace GhettosFirearmSDKv2
 
         private void Lock(bool locked)
         {
-            RefreshBoltHandles();
+            //RefreshBoltHandles();
             if (locked)
             {
                 bolt.localPosition = startPoint.localPosition;
@@ -269,6 +269,8 @@ namespace GhettosFirearmSDKv2
             {
                 if (firearm.fireMode == FirearmBase.FireModes.Semi && (slamFire || shotsSinceTriggerReset == 0)) TryFire();
             }
+
+            CalculatePercentage();
         }
 
         public override void EjectRound()
@@ -367,6 +369,13 @@ namespace GhettosFirearmSDKv2
         public override void TryRelease(bool forced = false)
         {
             if (lockJoint != null) Lock(false);
+        }
+
+        public void CalculatePercentage()
+        {
+            float distanceStartBolt = Util.AbsDist(bolt, startPoint);
+            float totalDistance = Util.AbsDist(startPoint, endPoint);
+            cyclePercentage = Mathf.Clamp01(distanceStartBolt / totalDistance);
         }
     }
 }
