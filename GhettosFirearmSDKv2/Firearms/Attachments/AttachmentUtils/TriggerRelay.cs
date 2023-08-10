@@ -32,8 +32,8 @@ namespace GhettosFirearmSDKv2
                 if (target != null)
                 {
                     targetFire.additionalTriggerHandles.Add(source.mainFireHandle);
-                    targetFire.fireHandle.SetTouch(false);
-                    targetFire.fireHandle.SetTelekinesis(false);
+                    targetFire.fireHandle?.SetTouch(false);
+                    targetFire.fireHandle?.SetTelekinesis(false);
                 }
             }
         }
