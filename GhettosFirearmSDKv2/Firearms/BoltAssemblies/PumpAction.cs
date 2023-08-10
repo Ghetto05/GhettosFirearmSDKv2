@@ -98,7 +98,7 @@ namespace GhettosFirearmSDKv2
         {
             if (boltHandles.Contains(handle))
             {
-                //RefreshBoltHandles();
+                RefreshBoltHandles();
             }
             if (loadedCartridge != null && roundReparent != null && currentRoundRemounted)
             {
@@ -171,9 +171,10 @@ namespace GhettosFirearmSDKv2
 
         private void Lock(bool locked)
         {
-            //RefreshBoltHandles();
+            RefreshBoltHandles();
             if (locked)
             {
+                Util.DelayedExecute(0.005f, DelayedReparent, this);
                 bolt.localPosition = startPoint.localPosition;
                 rb.transform.localPosition = startPoint.localPosition;
                 if (lockJoint == null) lockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
@@ -353,7 +354,6 @@ namespace GhettosFirearmSDKv2
                 c.transform.SetParent(roundMount);
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-                Util.DelayedExecute(0.005f, DelayedReparent, this);
                 SaveChamber(c.item.itemId);
                 return true;
             }
@@ -362,6 +362,7 @@ namespace GhettosFirearmSDKv2
 
         public void DelayedReparent()
         {
+            if (loadedCartridge == null) return;
             loadedCartridge.transform.SetParent(roundMount);
             currentRoundRemounted = true;
         }
