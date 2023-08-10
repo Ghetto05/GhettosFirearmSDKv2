@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 
@@ -317,7 +318,7 @@ namespace GhettosFirearmSDKv2
                 lockAxis.localEulerAngles = lockLockedPosition.localEulerAngles;
             }
             Util.PlayRandomAudioSource(lockSounds);
-            foreach (Handle h in barrel.GetComponentsInChildren<Handle>())
+            foreach (Handle h in barrel.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
             {
                 h.SetTouch(true);
             }
@@ -334,7 +335,7 @@ namespace GhettosFirearmSDKv2
             }
             ejectedSinceOpen = false;
             Util.PlayRandomAudioSource(unlockSounds);
-            foreach (Handle h in barrel.GetComponentsInChildren<Handle>())
+            foreach (Handle h in barrel.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
             {
                 foreach (RagdollHand hand in h.handlers.ToArray())
                 {
