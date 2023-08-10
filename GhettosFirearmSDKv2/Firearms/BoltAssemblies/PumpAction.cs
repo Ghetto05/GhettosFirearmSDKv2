@@ -39,6 +39,7 @@ namespace GhettosFirearmSDKv2
         bool wentToFrontSinceLastLock = false;
         bool currentRoundRemounted;
         bool ready = false;
+        bool beforeHammerPoint = true;
 
         public void Start()
         {
@@ -138,7 +139,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if (loadedCartridge == null || loadedCartridge.fired)
+            if (loadedCartridge == null || loadedCartridge.fired || (hammer != null && !hammer.cocked))
             {
                 Lock(false);
                 return;
@@ -149,6 +150,7 @@ namespace GhettosFirearmSDKv2
                 hand.playerHand.controlHand.HapticShort(50f);
             }
             shotsSinceTriggerReset++;
+            if (hammer) hammer.Fire();
             if (loadedCartridge.additionalMuzzleFlash != null)
             {
                 loadedCartridge.additionalMuzzleFlash.transform.position = firearm.hitscanMuzzle.position;
@@ -253,6 +255,15 @@ namespace GhettosFirearmSDKv2
                         behindLoadPoint = false;
                     }
                     else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) behindLoadPoint = true;
+                }
+                //hammer
+                if (state == BoltState.Moving && laststate == BoltState.Locked)
+                {
+                    if (hammer != null && !hammer.cocked && beforeHammerPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition))
+                    {
+                        hammer.Cock();
+                    }
+                    else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition)) beforeHammerPoint = true;
                 }
             }
             else
