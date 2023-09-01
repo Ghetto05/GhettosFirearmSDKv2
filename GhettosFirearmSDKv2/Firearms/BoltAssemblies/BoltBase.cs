@@ -16,6 +16,7 @@ namespace GhettosFirearmSDKv2
         public bool fireOnTriggerPress = true;
         public ReciprocatingBarrel reciprocatingBarrel;
         public float cyclePercentage;
+        public bool externalTriggerState = false;
 
         private void Awake()
         {

@@ -439,7 +439,7 @@ namespace GhettosFirearmSDKv2
             #endregion firing movement
 
             //firing
-            if ((hammer == null || hammer.cocked) && fireOnTriggerPress && state == BoltState.Locked && firearm.triggerState && firearm.fireMode != FirearmBase.FireModes.Safe)
+            if ((hammer == null || hammer.cocked) && ((fireOnTriggerPress && firearm.triggerState) || externalTriggerState) && state == BoltState.Locked && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
                 if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
