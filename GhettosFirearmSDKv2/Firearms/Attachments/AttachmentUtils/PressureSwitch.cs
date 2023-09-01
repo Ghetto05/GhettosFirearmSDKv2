@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
 
         public void InitialSet()
         {
-            item = attachment == null ? item : attachment.attachmentPoint.parentFirearm.item;
+            item = attachment == null ? null : attachment.attachmentPoint.parentFirearm.item;
             if (item == null) return;
 
             foreach (TacticalDevice td in item.GetComponentsInChildren<TacticalDevice>())
