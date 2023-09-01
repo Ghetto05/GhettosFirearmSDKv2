@@ -130,7 +130,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Eject(bool forced = false)
         {
-            if (currentMagazine == null || !forced && !BoltExistsAndIsPulled() || !(canEject | forced) && currentMagazine.canBeGrabbedInWell)
+            if (currentMagazine == null || currentMagazine.overrideItem != null || !forced && !BoltExistsAndIsPulled() || !(canEject | forced) && currentMagazine.canBeGrabbedInWell)
                 return;
             Magazine mag = currentMagazine;
             currentMagazine.Eject();
