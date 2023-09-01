@@ -15,10 +15,36 @@ namespace GhettosFirearmSDKv2
         public string defaultAttachment;
         public GameObject disableOnAttach;
         public Attachment attachment;
+        public List<Collider> attachColliders;
 
         private void Start()
         {
             StartCoroutine(Alert());
+            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+        }
+
+        private void InvokedStart()
+        {
+            parentFirearm.OnCollisionEvent += ParentFirearm_OnCollisionEvent;
+        }
+
+        private void ParentFirearm_OnCollisionEvent(Collision collision)
+        {
+            if (currentAttachment == null && collision.contacts[0].otherCollider.gameObject.GetComponentInParent<AttachableItem>() is AttachableItem ati)
+            {
+                if ((ati.attachmentType.Equals(type) || alternateTypes.Contains(ati.attachmentType)) && Util.CheckForCollisionWithColliders(attachColliders, ati.attachColliders, collision))
+                {
+                    Catalog.GetData<AttachmentData>(ati.attachmentId).SpawnAndAttach(this);
+                    AudioSource s = Util.PlayRandomAudioSource(ati.attachSounds);
+                    if (s != null)
+                    {
+                        s.transform.SetParent(transform);
+                        StartCoroutine(Explosives.Explosive.delayedDestroy(s.gameObject, s.clip.length + 1f));
+                    } 
+                    ati.item.handles.ForEach(h => h.Release());
+                    ati.item.Despawn();
+                }
+            }
         }
 
         public List<Attachment> GetAllChildAttachments()
