@@ -7,6 +7,7 @@ namespace GhettosFirearmSDKv2
 {
     public class MuzzleLoadedBolt : BoltBase
     {
+        public bool ejectCasingOnReleaseButton = true;
         public Cartridge loadedCartridge;
         public Transform roundMount;
         public AudioSource[] ejectSounds;
@@ -42,7 +43,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryRelease(bool forced = false)
         {
-            EjectRound();
+            if (ejectCasingOnReleaseButton) EjectRound();
         }
 
         public override void TryFire()
