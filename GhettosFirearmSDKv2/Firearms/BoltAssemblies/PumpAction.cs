@@ -84,6 +84,11 @@ namespace GhettosFirearmSDKv2
                 {
                     foreach (Handle handle in attachment.handles)
                     {
+                        if (handle.GetType() == typeof(GhettoHandle))
+                        {
+                            GhettoHandle hh = (GhettoHandle)handle;
+                            hh.type = GhettoHandle.HandleType.PumpAction;
+                        }
                         boltHandles.Add(handle);
                     }
                 }
@@ -91,15 +96,15 @@ namespace GhettosFirearmSDKv2
 
             foreach (Handle h in boltHandles)
             {
-                h.customRigidBody = lockJoint == null ? rb : null;
+                h.customRigidBody = lockJoint == null ? rb : firearm.item.physicBody.rigidBody;
             }
         }
 
         private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
         {
+            RefreshBoltHandles();
             if (boltHandles.Contains(handle))
             {
-                RefreshBoltHandles();
             }
             if (loadedCartridge != null && roundReparent != null && currentRoundRemounted)
             {
@@ -122,12 +127,15 @@ namespace GhettosFirearmSDKv2
             foreach (Handle handle in boltHandles)
             {
                 List<RagdollHand> hands = handle.handlers.ToList();
-                handle.Release();
+                //handle.Release();
                 handle.customRigidBody = locked ? firearm.item.physicBody.rigidBody : rb;
 
                 foreach (RagdollHand hand in hands)
                 {
-                    hand.Grab(handle, false);
+                    //hand.Grab(handle, false);
+                    Rigidbody targetRB = locked ? firearm.item.physicBody.rigidBody : rb;
+                    hand.gripInfo.joint.connectedAnchor = targetRB.transform.InverseTransformPoint(hand.gripInfo.transform.position);
+                    hand.gripInfo.joint.connectedBody = targetRB;
                 }
             }
         }

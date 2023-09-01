@@ -154,12 +154,14 @@ namespace GhettosFirearmSDKv2
         public void SetThisDominant()
         {
             Vector2 dominantRotation = new Vector2(handlers.First().creature.data.forceRotationSpringDamper2HMult.x * data.rotationSpring2hMultiplier, handlers.First().creature.data.forceRotationSpringDamper2HMult.y * data.rotationDamper2hMultiplier);
-            SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
+            if (type != HandleType.PumpAction) SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
+            else SetJointConfigV2(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
         }
 
         public void SetOtherDominant()
         {
-            SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, Vector2.zero, data.rotationDrive);
+            if (type != HandleType.PumpAction) SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, Vector2.zero, data.rotationDrive);
+            else SetJointConfigV2(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, Vector2.zero, data.rotationDrive);
         }
 
         public bool IsOtherHandleGhetto(Handle handle, out GhettoHandle ghettoHandle)
@@ -171,6 +173,22 @@ namespace GhettosFirearmSDKv2
                 return true;
             }
             else return false;
+        }
+
+        public virtual void SetJointConfigV2(
+            RagdollHand handler,
+            Vector2 positionMultiplier,
+            Vector2 rotationMultiplier,
+            HandleData.RotationDrive rotationDrive)
+        {
+            if (!handler.creature.player)
+                return;
+            if (handler.gripInfo.joint)
+                SetJointConfig(handler.gripInfo.joint, handler, positionMultiplier, rotationMultiplier, handler.creature.data.forceMaxPosition, handler.creature.data.forceMaxRotation, rotationDrive);
+            if (handler.gripInfo.playerJoint)
+                //Destroy(handler.gripInfo.playerJoint);
+                SetJointConfig(handler.gripInfo.playerJoint, handler, Vector2.zero, Vector2.zero, 0.0f, 0.0f, rotationDrive);
+            playerJointActive = false;
         }
     }
 }
