@@ -92,6 +92,48 @@ namespace GhettosFirearmSDKv2
             //}
         }
 
+        public static bool CheckForCollisionWithColliders(List<Collider> theseColliders, List<Collider> otherColliders, Collision collision)
+        {
+            if (theseColliders != null && otherColliders == null)
+            {
+                foreach (ContactPoint con in collision.contacts)
+                {
+                    foreach (Collider c in theseColliders)
+                    {
+                        if (c == con.thisCollider) return true;
+                    }
+                }
+            }
+            else if (theseColliders == null && otherColliders != null)
+            {
+                foreach (ContactPoint con in collision.contacts)
+                {
+                    foreach (Collider c in otherColliders)
+                    {
+                        if (c == con.otherCollider) return true;
+                    }
+                }
+            }
+            else if (theseColliders != null && otherColliders != null)
+            {
+                foreach (ContactPoint con in collision.contacts)
+                {
+                    bool thisColliderFound = false;
+                    foreach (Collider thisCollider in theseColliders)
+                    {
+                        if (thisCollider == con.thisCollider) thisColliderFound = true;
+                    }
+
+                    foreach (Collider otherCollider in otherColliders)
+                    {
+                        if (otherCollider == con.otherCollider && thisColliderFound) return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public static bool CheckForCollisionWithThisCollider(Collision collision, Collider thisCollider)
         {
             foreach (ContactPoint con in collision.contacts)
@@ -122,13 +164,18 @@ namespace GhettosFirearmSDKv2
         public static void IgnoreCollision(GameObject obj1, GameObject obj2, bool ignore)
         {
             if (obj1 == null || obj2 == null) return;
-            foreach (Collider c1 in obj1.GetComponentsInChildren<Collider>())
+            try
             {
-                foreach (Collider c2 in obj2.GetComponentsInChildren<Collider>())
+                foreach (Collider c1 in obj1.GetComponentsInChildren<Collider>())
                 {
-                    Physics.IgnoreCollision(c1, c2, ignore);
+                    foreach (Collider c2 in obj2.GetComponentsInChildren<Collider>())
+                    {
+                        Physics.IgnoreCollision(c1, c2, ignore);
+                    }
                 }
             }
+            catch (System.Exception)
+            { }
         }
 
         public static void DelayIgnoreCollision(GameObject obj1, GameObject obj2, bool ignore, float delay, Item handler)
@@ -143,13 +190,18 @@ namespace GhettosFirearmSDKv2
             yield break;
         }
 
-        public static void PlayRandomAudioSource(List<AudioSource> sources)
+        public static AudioSource PlayRandomAudioSource(List<AudioSource> sources)
         {
             AudioSource source = GetRandomFromList(sources);
-            if (source != null) source.Play();
+            if (source != null)
+            {
+                source.Play();
+                return source;
+            }
+            return null;
         }
 
-        public static void PlayRandomAudioSource(AudioSource[] sources) => PlayRandomAudioSource(sources.ToList());
+        public static AudioSource PlayRandomAudioSource(AudioSource[] sources) => PlayRandomAudioSource(sources.ToList());
 
         public static T GetRandomFromList<T>(List<T> list)
         {

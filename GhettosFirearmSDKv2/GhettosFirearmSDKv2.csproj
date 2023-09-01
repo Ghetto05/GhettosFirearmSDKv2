@@ -400,6 +400,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Chemicals\DartBehavoirs.cs" />
+    <Compile Include="Clothing\ClothingEditorSpell.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs" />
     <Compile Include="Clothing\HUD\HUD.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
@@ -409,14 +410,17 @@
     <Compile Include="Firearms\Ammunition\LazyPouch.cs" />
     <Compile Include="Firearms\Ammunition\Projectilifier.cs" />
     <Compile Include="Firearms\Ammunition\Speedloader.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachableItem.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\BipodManager.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\CartridgeHolder.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachableItemDetacher.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\TacticalDevice.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\PressureSwitch.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellColliderReplacer.cs" />
     <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltAnimationPlayer.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs" />
+    <Compile Include="Firearms\BoltAssemblies\BoltSemiautomatic.cs" />
     <Compile Include="Firearms\BoltAssemblies\GateLoadedRevolver.cs" />
     <Compile Include="Firearms\BoltAssemblies\MultiChamberMuzzleLoadedBolt.cs" />
     <Compile Include="Firearms\BoltAssemblies\BreakAction.cs" />
@@ -425,6 +429,7 @@
     <Compile Include="Firearms\BoltAssemblies\PumpActionNew.cs" />
     <Compile Include="Firearms\BoltAssemblies\Revolver.cs" />
     <Compile Include="Firearms\BoltAssemblies\SelfLoadingBolt.cs" />
+    <Compile Include="Firearms\FirearmMechanics\GravtiyEjector.cs" />
     <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs" />
     <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
     <Compile Include="Firearms\Ammunition\AmmunitionPouch.cs" />
@@ -444,6 +449,7 @@
     <Compile Include="Imaging\NVGOnlyRendererMeshModule.cs" />
     <Compile Include="Other\GhettoHandle.cs" />
     <Compile Include="Other\CollisionRelay.cs" />
+    <Compile Include="Other\Locks\GateLock.cs" />
     <Compile Include="Other\Switches\FireModeBasedSwitch.cs" />
     <Compile Include="SaveData\SaveNodeValueMagazineContents.cs" />
     <Compile Include="SaveData\SaveNodeValueBool.cs" />
@@ -467,7 +473,7 @@
     <Compile Include="Other\Locks\BoltBasedLock.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltChildPositionLimiter.cs" />
     <Compile Include="Firearms\FirearmMechanics\BoltReleaseButton.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BoltSemiautomatic.cs" />
+    <Compile Include="Firearms\BoltAssemblies\OpenBolt.cs" />
     <Compile Include="Firearms\Ammunition\Cartridge.cs" />
     <Compile Include="Firearms\FirearmMechanics\ChamberLoader.cs" />
     <Compile Include="Chemicals\NPCChemicalsModule.cs" />
