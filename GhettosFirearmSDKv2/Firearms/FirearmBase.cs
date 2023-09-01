@@ -111,7 +111,7 @@ namespace GhettosFirearmSDKv2
 
         public void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (handle == mainFireHandle || Util.ListContainsHandle(additionalTriggerHandles, handle))
+            if ((handle == mainFireHandle && !disableMainFireHandle) || Util.ListContainsHandle(additionalTriggerHandles, handle))
             {
                 if (action == Interactable.Action.UseStart)
                 {
@@ -151,7 +151,7 @@ namespace GhettosFirearmSDKv2
         public void ShortPress()
         {
             OnAltActionEvent?.Invoke(false);
-            if (magazineWell != null && (magazineWell.canEject || (!magazineWell.canEject && magazineWell.currentMagazine != null && !magazineWell.currentMagazine.canBeGrabbedInWell)))
+            if (magazineWell != null && (magazineWell.canEject || (!magazineWell.canEject && magazineWell.currentMagazine != null && !magazineWell.currentMagazine.canBeGrabbedInWell && magazineWell.currentMagazine.overrideItem == null)))
             {
                 if (!bolt.caught || (bolt.caught && magazineWell.IsEmptyAndHasMagazine())) magazineWell.Eject();
                 else if (bolt.caught && !magazineWell.IsEmpty()) bolt.TryRelease();
