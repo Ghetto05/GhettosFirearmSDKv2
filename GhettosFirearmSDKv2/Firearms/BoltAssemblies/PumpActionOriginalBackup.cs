@@ -17,7 +17,6 @@
 //        public List<AttachmentPoint> onBoltPoints;
 //        [HideInInspector]
 //        public List<Handle> boltHandles;
-//        public float pointTreshold = 0.004f;
 //        public AudioSource[] rackSounds;
 //        public AudioSource[] pullSounds;
 //        public bool slamFire;
@@ -241,7 +240,7 @@
 //                if (nonHeldLockJoint != null) Destroy(nonHeldLockJoint);
 
 //                if (lockJoint == null) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
-//                if (Util.AbsDist(bolt.position, startPoint.position) < pointTreshold && state == BoltState.Moving)
+//                if (Util.AbsDist(bolt.position, startPoint.position) < FirearmsSettings.boltPointTreshold && state == BoltState.Moving)
 //                {
 //                    laststate = BoltState.Moving;
 //                    state = BoltState.Locked;
@@ -255,7 +254,7 @@
 //                    if (wentToFrontSinceLastLock) Lock(true);
 //                    Util.PlayRandomAudioSource(rackSounds);
 //                }
-//                else if (Util.AbsDist(bolt.position, endPoint.position) < pointTreshold && state == BoltState.Moving)
+//                else if (Util.AbsDist(bolt.position, endPoint.position) < FirearmsSettings.boltPointTreshold && state == BoltState.Moving)
 //                {
 //                    laststate = BoltState.Moving;
 //                    state = BoltState.Back;
@@ -264,7 +263,7 @@
 //                    if (closedSinceLastEject) EjectRound();
 //                    closedSinceLastEject = false;
 //                }
-//                else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > pointTreshold && Util.AbsDist(bolt.position, startPoint.position) > pointTreshold)
+//                else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > FirearmsSettings.boltPointTreshold && Util.AbsDist(bolt.position, startPoint.position) > FirearmsSettings.boltPointTreshold)
 //                {
 //                    laststate = state;
 //                    state = BoltState.Moving;

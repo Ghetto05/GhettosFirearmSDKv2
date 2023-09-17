@@ -6,26 +6,21 @@ using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
-    public class BoltSemiautomatic : BoltBase
+    public class OpenBolt : BoltBase
     {
         public BoltState chargingHandleState;
         public BoltState previousChargingHandleState;
 
         public List<AttachmentPoint> onBoltPoints;
-        public bool locksWhenSafetyIsOn = false;
-        public bool hasBoltcatch;
-        public bool hasBoltCatchReleaseControl = true;
-        public bool onlyCatchIfManuallyPulled = false;
         public bool lockIfNoMagazineFound = false;
-        public BoltReleaseButton[] releaseButtons;
+        public bool catchBoltIfMagazineIsEmpty = false;
         List<Handle> boltHandles;
         public Rigidbody rigidBody;
         public Transform bolt;
         public Transform chargingHandle;
         public Transform startPoint;
         public Transform endPoint;
-        public Transform catchPoint;
-        public Transform akBoltLockPoint;
+        public Transform searPoint;
         public Transform roundLoadPoint;
         public Transform hammerCockPoint;
         public Transform roundMount;
@@ -69,19 +64,12 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            foreach (BoltReleaseButton releaseButton in releaseButtons)
-            {
-                releaseButton.OnReleaseEvent += TryRelease;
-            }
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
-            firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
             firearm.item.OnHeldActionEvent += BoltSemiautomatic_OnHeldActionEvent;
             firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
             firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
 
-            if (firearm.roundsPerMinute == 0) InitializeJoint(false, false, true);
-            else if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe) InitializeJoint(false, true);
-            else InitializeJoint(false);
+            InitializeJoint(false);
             UpdateBoltHandles();
             ChamberSaved();
             Invoke(nameof(UpdateChamberedRounds), 1f);
@@ -128,23 +116,10 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private void Firearm_OnFiremodeChangedEvent()
-        {
-            if (!locksWhenSafetyIsOn) return;
-            StartCoroutine(DelayedReSetupBolt());
-        }
-
         private IEnumerator DelayedReSetupBolt()
         {
             yield return new WaitForSeconds(0.03f);
-            if (firearm.fireMode == FirearmBase.FireModes.Safe)
-            {
-                InitializeJoint(false, true);
-            }
-            else
-            {
-                InitializeJoint(false, false);
-            }
+            InitializeJoint(false);
         }
 
         public override void UpdateChamberedRounds()
@@ -223,8 +198,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryRelease(bool forced = false)
         {
-            if (!hasBoltCatchReleaseControl && !forced) return;
-            if (caught) CatchBolt(false);
+
         }
 
         private bool BoltHeld()
@@ -238,10 +212,9 @@ namespace GhettosFirearmSDKv2
 
         public bool MoveBoltWithRB()
         {
-            if (!hasBoltcatch) return true;
-            bool behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(catchPoint.localPosition, startPoint.localPosition);
+            bool behindSearpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(searPoint.localPosition, startPoint.localPosition);
             bool hasChargingHandle = chargingHandle != null;
-            return (hasChargingHandle && behindCatchpoint) || !hasChargingHandle || !caught;
+            return (hasChargingHandle && behindSearpoint) || !hasChargingHandle || !caught;
         }
 
         private void FixedUpdate()
@@ -250,10 +223,6 @@ namespace GhettosFirearmSDKv2
 
             //UpdateChamberedRound();
             if (caught && letGoBeforeClosed && chargingHandle != null) chargingHandle.localPosition = startPoint.localPosition;
-            foreach (BoltReleaseButton releaseButton in releaseButtons)
-            {
-                releaseButton.caught = caught;
-            }
 
             isHeld = BoltHeld();
             if (isHeld)
@@ -261,23 +230,12 @@ namespace GhettosFirearmSDKv2
                 isReciprocating = false;
             }
 
-            #region non-held lock
-            if (isHeld && firearm.roundsPerMinute == 0 && !lastFrameHeld)
-            {
-                InitializeJoint(false, false, false);
-            }
-            else if (!isHeld && firearm.roundsPerMinute == 0 && lastFrameHeld)
-            {
-                InitializeJoint(false, false, true);
-            }
-            #endregion non-held lock
-
             #region held movement
             //state check
             if (isHeld || letGoBeforeClosed || closingAfterRelease)
             {
                 if (MoveBoltWithRB()) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rigidBody.transform.localPosition.z);
-                else bolt.localPosition = catchPoint.localPosition;
+                else bolt.localPosition = searPoint.localPosition;
                 if (chargingHandle != null && !closingAfterRelease)
                 {
                     chargingHandle.localPosition = new Vector3(chargingHandle.localPosition.x, chargingHandle.localPosition.y, rigidBody.transform.localPosition.z);
@@ -307,18 +265,18 @@ namespace GhettosFirearmSDKv2
                     Util.PlayRandomAudioSource(pullSoundsHeld);
                     closingAfterRelease = false;
 
-                    if ((firearm.magazineWell.IsEmptyAndHasMagazine() || (lockIfNoMagazineFound && firearm.magazineWell.currentMagazine == null)) && loadedCartridge == null && !caught && hasBoltcatch)
-                    {
-                        CatchBolt(true);
-                    }
-                    else if ((firearm.magazineWell.currentMagazine == null || !firearm.magazineWell.IsEmpty() || loadedCartridge != null) && caught && hasBoltcatch)
+                    if (ReleaseBolt())
                     {
                         CatchBolt(false);
+                    }
+                    else
+                    {
+                        CatchBolt(true);
                     }
 
                     if (closedAfterLoad && firearm.roundsPerMinute != 0) EjectRound();
 
-                    if (lockIfNoMagazineFound && firearm.magazineWell.currentMagazine == null && loadedCartridge == null && !caught && hasBoltcatch)
+                    if (!ReleaseBolt())
                     {
                         CatchBolt(true);
                     }
@@ -359,7 +317,7 @@ namespace GhettosFirearmSDKv2
                     else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition)) beforeHammerPoint = true;
                 }
 
-                if (state == BoltState.Moving && caught && Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < FirearmsSettings.boltPointTreshold)
+                if (state == BoltState.Moving && caught && Util.AbsDist(searPoint.localPosition, bolt.localPosition) < FirearmsSettings.boltPointTreshold)
                 {
                     state = BoltState.LockedBack;
                 }
@@ -403,23 +361,19 @@ namespace GhettosFirearmSDKv2
                 if (Util.AbsDist(bolt.localPosition, endPoint.localPosition) < 0.0001f && isReciprocating)
                 {
                     isReciprocating = false;
-                    if ((firearm.magazineWell.IsEmptyAndHasMagazine() && !caught && hasBoltcatch && !onlyCatchIfManuallyPulled) || (reciprocatingBarrel != null && !reciprocatingBarrel.AllowBoltReturn()))
+                    EjectRound();
+                    if (!ReleaseBolt() || (reciprocatingBarrel != null && !reciprocatingBarrel.AllowBoltReturn()))
                     {
                         isClosing = false;
                         CatchBolt(true);
                         state = BoltState.LockedBack;
-                        bolt.localPosition = catchPoint.localPosition;
+                        bolt.localPosition = searPoint.localPosition;
                     }
                     else
                     {
                         state = BoltState.Moving;
                         startTimeOfMovement = Time.time;
                         isClosing = true;
-                    }
-                    if (reciprocatingBarrel == null || !reciprocatingBarrel.lockBoltBack)
-                    {
-                        EjectRound();
-                        TryLoadRound();
                     }
                     Util.PlayRandomAudioSource(pullSounds);
                     Util.PlayRandomAudioSource(pullSoundsNotHeld);
@@ -438,15 +392,24 @@ namespace GhettosFirearmSDKv2
             #endregion firing movement
 
             //firing
-            if ((hammer == null || hammer.cocked) && ((fireOnTriggerPress && firearm.triggerState) || externalTriggerState) && state == BoltState.Locked && firearm.fireMode != FirearmBase.FireModes.Safe)
+            if (hammer == null || hammer.cocked)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
-                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
-                else if (firearm.fireMode == FirearmBase.FireModes.Auto) TryFire();
+                TryFire();
             }
 
             lastFrameHeld = isHeld;
             CalculatePercentage();
+        }
+
+        private bool ReleaseBolt()
+        {
+            if (firearm.fireMode == FirearmBase.FireModes.Safe) return false;
+            else if ((firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) || (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) || firearm.fireMode == FirearmBase.FireModes.Auto)
+            {
+                if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && catchBoltIfMagazineIsEmpty) return false;
+                if (firearm.magazineWell != null && firearm.magazineWell.currentMagazine == null && lockIfNoMagazineFound) return false;
+            }
+            return true;
         }
 
         public override void EjectRound()
@@ -498,7 +461,7 @@ namespace GhettosFirearmSDKv2
             InitializeJoint(caught);
         }
 
-        private void InitializeJoint(bool lockedBack, bool safetyLocked = false, bool boltActionLocked = false)
+        private void InitializeJoint(bool lockedBack)
         {
             Vector3 oldPos = rigidBody.position;
             if (joint == null)
@@ -508,55 +471,27 @@ namespace GhettosFirearmSDKv2
                 joint.massScale = 0.00001f;
             }
             SoftJointLimit limit = new SoftJointLimit();
-            if (boltActionLocked)
-            {
-                joint.anchor = GrandparentLocalPosition(caught? catchPoint : rigidBody.transform, firearm.item.transform);
-                limit.limit = 0;
-            }
             //default, start to back movement
-            else if (!lockedBack && !safetyLocked)
+            if (!lockedBack)
             {
                 joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
                 limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
             }
             //locked back, between end point and lock point movement
-            else if (lockedBack && !safetyLocked)
+            else if (lockedBack)
             {
-                joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((catchPoint.localPosition.z - endPoint.localPosition.z) / 2));
-                limit.limit = Vector3.Distance(endPoint.position, catchPoint.position) / 2;
-            }
-            else if (safetyLocked && !lockedBack)
-            //locked front by safety, between start and ak lock point movement
-            {
-                joint.anchor = new Vector3(GrandparentLocalPosition(startPoint, firearm.item.transform).x, GrandparentLocalPosition(startPoint, firearm.item.transform).y, GrandparentLocalPosition(startPoint, firearm.item.transform).z + ((akBoltLockPoint.localPosition.z - startPoint.localPosition.z) / 2));
-                limit.limit = Vector3.Distance(startPoint.position, akBoltLockPoint.position) / 2;
+                joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((searPoint.localPosition.z - endPoint.localPosition.z) / 2));
+                limit.limit = Vector3.Distance(endPoint.position, searPoint.position) / 2;
             }
             joint.linearLimit = limit;
             joint.autoConfigureConnectedAnchor = false;
             joint.connectedAnchor = Vector3.zero;
             joint.xMotion = ConfigurableJointMotion.Locked;
             joint.yMotion = ConfigurableJointMotion.Locked;
-            if (boltActionLocked) joint.zMotion = ConfigurableJointMotion.Locked;
-            //else if (!lockedBack) joint.zMotion = ConfigurableJointMotion.Limited;
-            //else joint.zMotion = ConfigurableJointMotion.Free;
-            else joint.zMotion = ConfigurableJointMotion.Limited;
+            joint.zMotion = ConfigurableJointMotion.Limited;
             joint.angularXMotion = ConfigurableJointMotion.Locked;
             joint.angularYMotion = ConfigurableJointMotion.Locked;
             joint.angularZMotion = ConfigurableJointMotion.Locked;
-            //if (lockedBack)
-            //{
-            //    rigidBody.transform.localPosition = catchPoint.localPosition;
-            //    rigidBody.transform.localRotation = catchPoint.localRotation;
-            //}
-            //else if (boltActionLocked) 
-            //{
-            //    rigidBody.position = oldPos;
-            //}
-            //else
-            //{
-            //    rigidBody.transform.localPosition = startPoint.localPosition;
-            //    rigidBody.transform.localRotation = startPoint.localRotation;
-            //}
         }
 
         private float BoltLerp(float startTime, int rpm)
