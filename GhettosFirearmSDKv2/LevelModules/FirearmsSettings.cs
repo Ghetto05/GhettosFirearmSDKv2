@@ -101,6 +101,7 @@ namespace GhettosFirearmSDKv2
         public static float cartridgeEjectionForceRandomizationDevision = 3f;
         public static float firingSoundDeviation = 0.2f;
         public static float invokeTime = 0.1f;
+        public static float boltPointTreshold = 0.003f;
         #endregion Static
 
         #region PureSettings
@@ -114,15 +115,37 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(2)]
         [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0.", saveValue = true, defaultValueIndex = 8, valueSourceName = nameof(firearmDespawnTimeValues))]
+        public static float firearmDespawnTime = 0f;
+        public static ModOptionFloat[] firearmDespawnTimeValues =
+        {
+            new ModOptionFloat("Disabled", 0.0f),
+            new ModOptionFloat("0.01 Seconds", 0.01f),
+            new ModOptionFloat("5 Seconds", 5),
+            new ModOptionFloat("10 Seconds", 10),
+            new ModOptionFloat("20 Seconds", 20),
+            new ModOptionFloat("30 Seconds", 30),
+            new ModOptionFloat("40 Seconds", 40),
+            new ModOptionFloat("50 Seconds", 50),
+            new ModOptionFloat("1 Minute", 60),
+            new ModOptionFloat("2 Minutes", 120),
+            new ModOptionFloat("3 Minutes", 180),
+            new ModOptionFloat("4 Minutes", 240),
+            new ModOptionFloat("5 Minutes", 300),
+            new ModOptionFloat("10 Minutes", 600)
+        };
+
+        [ModOptionOrder(3)]
+        [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Long press (safety switch) time", tooltip = "Defines the amount of time you need to hold alternate use to switch fire modes.", saveValue = true, defaultValueIndex = 5)]
         public static float longPressTime = 0.5f;
 
-        [ModOptionOrder(3)]
+        [ModOptionOrder(4)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Revolver trigger deadzone", tooltip = "Lowers the trigger threshold for revolvers. Helpful if your revolver does not fire double action.", saveValue = true)]
         public static float revolverTriggerDeadzone = 0f;
 
-        [ModOptionOrder(4)]
+        [ModOptionOrder(5)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, defaultValueIndex = 4, valueSourceName = nameof(tdt))]
         public static float triggerDisciplineTime = 3f;
@@ -140,12 +163,12 @@ namespace GhettosFirearmSDKv2
             new ModOptionFloat("Never", 999999)
         };
 
-        [ModOptionOrder(5)]
+        [ModOptionOrder(6)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like headbreaker. Has no impact on damage.", defaultValueIndex = 0, saveValue = true)]
         public static bool bulletsAreBlunt = false;
 
-        [ModOptionOrder(6)]
+        [ModOptionOrder(7)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Play gas mask sounds", tooltip = "If enabled, wearing a gas mask will play a breathing sound", defaultValueIndex = 1, saveValue = true)]
         public static bool playGasMaskSound = false;

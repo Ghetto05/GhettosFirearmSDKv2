@@ -400,14 +400,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Chemicals\DartBehavoirs.cs" />
-    <Compile Include="Clothing\ClothingEditorSpell.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs" />
     <Compile Include="Clothing\HUD\HUD.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
     <Compile Include="Clothing\GasMask.cs" />
     <Compile Include="Clothing\HUD\HUDModuleStats.cs" />
     <Compile Include="Clothing\HUD\HUDToggle.cs" />
-    <Compile Include="Firearms\Ammunition\LazyPouch.cs" />
+    <Compile Include="Firearms\FirearmMechanics\StripperClip.cs" />
+    <Compile Include="Firearms\FirearmMechanics\StripperClipMount.cs" />
+    <Compile Include="LevelModules\FirearmCleaner.cs" />
+    <Compile Include="Other\Pouches\LazyPouch.cs" />
     <Compile Include="Firearms\Ammunition\Projectilifier.cs" />
     <Compile Include="Firearms\Ammunition\Speedloader.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachableItem.cs" />
@@ -432,7 +434,7 @@
     <Compile Include="Firearms\FirearmMechanics\GravtiyEjector.cs" />
     <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs" />
     <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
-    <Compile Include="Firearms\Ammunition\AmmunitionPouch.cs" />
+    <Compile Include="Other\Pouches\AmmunitionPouch.cs" />
     <Compile Include="Firearms\Ammunition\Tracer.cs" />
     <Compile Include="Firearms\Ammunition\TracerModule.cs" />
     <Compile Include="Firearms\Attachments\AttachmentJointConnector.cs" />
@@ -450,6 +452,7 @@
     <Compile Include="Other\GhettoHandle.cs" />
     <Compile Include="Other\CollisionRelay.cs" />
     <Compile Include="Other\Locks\GateLock.cs" />
+    <Compile Include="Other\Pouches\PrebuiltPouch.cs" />
     <Compile Include="Other\Switches\FireModeBasedSwitch.cs" />
     <Compile Include="SaveData\SaveNodeValueMagazineContents.cs" />
     <Compile Include="SaveData\SaveNodeValueBool.cs" />
