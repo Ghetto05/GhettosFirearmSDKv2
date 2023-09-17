@@ -125,6 +125,13 @@ namespace GhettosFirearmSDKv2
         {
             for (int i = 0; i < loadedCartridges.Length; i++)
             {
+                foreach (Cartridge c in loadedCartridges)
+                {
+                    if (c != null && !c.loaded) c.ToggleCollision(item.holder == null);
+                }
+
+                if (loadedCartridges[i] != null && loadedCartridges[i].transform.parent == null) UpdateCartridges();
+
                 if (startRemoving && loadedCartridges[i] != null && loadedCartridges[i].loaded)
                 {
                     loadedCartridges[i] = null;
