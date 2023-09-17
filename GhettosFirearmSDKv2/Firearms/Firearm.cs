@@ -9,6 +9,8 @@ namespace GhettosFirearmSDKv2
 {
     public class Firearm : FirearmBase
     {
+        public static List<Firearm> all = new List<Firearm>();
+
         public List<AttachmentPoint> attachmentPoints;
         public List<Attachment> allAttachments;
         public Texture icon;
@@ -40,7 +42,14 @@ namespace GhettosFirearmSDKv2
         public override void Start()
         {
             if (item == null) item = GetComponent<Item>();
+            item.OnDespawnEvent += Item_OnDespawnEvent;
             Invoke("InvokedStart", FirearmsSettings.invokeTime);
+            all.Add(this);
+        }
+
+        private void Item_OnDespawnEvent(EventTime eventTime)
+        {
+            all.Remove(this);
         }
 
         public void InvokedStart()
