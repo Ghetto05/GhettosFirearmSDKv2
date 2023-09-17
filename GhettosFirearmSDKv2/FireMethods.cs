@@ -808,24 +808,27 @@ namespace GhettosFirearmSDKv2
 
             foreach (Creature hitCreature in hitCreatures)
             {
-                CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, data.damage * FirearmsSettings.damageMultiplier));
-                coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
-                coll.damageStruct.damageType = DamageType.Energy;
-                coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
-                coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
-                coll.targetColliderGroup = hitCreature.ragdoll.parts[0].colliderGroup;
-                coll.sourceColliderGroup = item.colliderGroups[0];
-
-                coll.damageStruct.penetration = DamageStruct.Penetration.Hit;
-                coll.damageStruct.penetrationDepth = 10;
-                coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
-                coll.intensity = data.damage * FirearmsSettings.damageMultiplier;
-                try { hitCreature.Damage(coll); } catch (Exception) { }
-
-                hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
-                foreach (RagdollPart rp in hitCreature.ragdoll.parts)
+                if (CheckExplosionCreatureHit(hitCreature, point))
                 {
-                    rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 3f);
+                    CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, EvaluateDamage(data.damage, hitCreature)));
+                    coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
+                    coll.damageStruct.damageType = DamageType.Energy;
+                    coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
+                    coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
+                    coll.targetColliderGroup = hitCreature.ragdoll.parts[0].colliderGroup;
+                    coll.sourceColliderGroup = item.colliderGroups[0];
+
+                    coll.damageStruct.penetration = DamageStruct.Penetration.Hit;
+                    coll.damageStruct.penetrationDepth = 10;
+                    coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
+                    coll.intensity = EvaluateDamage(data.damage, hitCreature);
+                    try { hitCreature.Damage(coll); } catch (Exception) { }
+
+                    hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
+                    foreach (RagdollPart rp in hitCreature.ragdoll.parts)
+                    {
+                        rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 10);
+                    }
                 }
             }
 
@@ -836,7 +839,7 @@ namespace GhettosFirearmSDKv2
 
             foreach (Item hitItem in hitItems)
             {
-                hitItem.physicBody.rigidBody.AddExplosionForce(data.force * 200, point, data.radius * 3, data.upwardsModifier);
+                hitItem.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius * 3, data.upwardsModifier);
             }
 
             if (!string.IsNullOrWhiteSpace(data.effectId))
@@ -844,6 +847,16 @@ namespace GhettosFirearmSDKv2
                 EffectInstance ei = Catalog.GetData<EffectData>(data.effectId).Spawn(point, Quaternion.Euler(0, 0, 0));
                 ei.Play();
             }
+        }
+
+        public static bool CheckExplosionCreatureHit(Creature c, Vector3 origin)
+        {
+            foreach (RagdollPart b in c.ragdoll.parts)
+            {
+                if (!Physics.Raycast(b.transform.position, origin - b.transform.position, Vector3.Distance(b.transform.position, origin) - 0.1f, LayerMask.GetMask("Default"))) return true;
+            }
+
+            return false;
         }
 
         public static float EvaluateDamage(float perfifty, Creature c)
