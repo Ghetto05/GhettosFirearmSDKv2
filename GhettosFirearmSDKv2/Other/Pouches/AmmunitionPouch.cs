@@ -41,12 +41,14 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_UnSnapped(Item item)
         {
+            item.Hide(false);
             SpawnSavedItem();
             Util.IgnoreCollision(gameObject, item.gameObject, false);
         }
 
         private void Holder_Snapped(Item item)
         {
+            item.Hide(true);
             if (item.GetComponent<Firearm>()) holder.UnSnap(item);
             if (string.IsNullOrEmpty(savedData.itemID)) SaveItem();
             Util.IgnoreCollision(gameObject, item.gameObject, true);

@@ -103,6 +103,7 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_UnSnapped(Item item)
         {
+            item.Hide(false);
             if (!setup) return;
             if (!restock) return;
             item.disallowDespawn = false;
@@ -119,6 +120,7 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_Snapped(Item item)
         {
+            item.Hide(true);
             if (!setup) return;
             Util.IgnoreCollision(gameObject, item.gameObject, true);
         }
