@@ -14,17 +14,22 @@ namespace GhettosFirearmSDKv2
     {
         public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitpoints, out List<Vector3> trajectories, out List<Creature> hitCreatures, float damageMultiplier)
         {
-            if (data.isHitscan)
+            hitpoints = new List<Vector3>();
+            trajectories = new List<Vector3>();
+            hitCreatures = new List<Creature>();
+            try
             {
-                hitCreatures = FireHitscanV2(muzzle, data, gun, out hitpoints, out trajectories, damageMultiplier);
+                if (data.isHitscan)
+                {
+                    hitCreatures = FireHitscanV2(muzzle, data, gun, out hitpoints, out trajectories, damageMultiplier);
+                }
+                else
+                {
+                    FireItem(muzzle, data, gun);
+                }
             }
-            else
-            {
-                FireItem(muzzle, data, gun);
-                hitpoints = new List<Vector3>();
-                trajectories = new List<Vector3>();
-                hitCreatures = new List<Creature>();
-            }
+            catch (Exception)
+            { }
         }
 
         public static void ApplyRecoil(Transform transform, Rigidbody rb, float force, float upwardsModifier, float firearmRecoilModifier, List<FirearmBase.RecoilModifier> modifiers)
