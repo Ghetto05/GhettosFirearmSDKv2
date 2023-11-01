@@ -184,7 +184,23 @@ namespace GhettosFirearmSDKv2
         [ModOptionOrder(2)]
         [ModOptionCategory("Debug", 3)]
         [ModOption(name = "Spawn Liam", tooltip = "Spawn the blue guy. Requires map reload to take effect.", defaultValueIndex = 0, saveValue = true)]
-        public static bool spawnLiam;
+        public static bool spawnLiam
+        {
+            get => _spawnLiam;
+            set
+            {
+                _spawnLiam = value;
+                if (_spawnLiam) SpawnLiam();
+                else if (liam != null) GameObject.Destroy(liam);
+            }
+        }
+        private static bool _spawnLiam;
+        private static GameObject liam;
+
+        [ModOptionOrder(3)]
+        [ModOptionCategory("Debug", 3)]
+        [ModOption(name = "Save guns as prebuilts", tooltip = "Only for development. Saves any gun in the locker with the prebuilt setup.", defaultValueIndex = 0, saveValue = true)]
+        public static bool saveAsPrebuilt;
         #endregion Debug
 
         #region Cheats
@@ -275,7 +291,7 @@ namespace GhettosFirearmSDKv2
         #endregion Other
         #endregion Settings
 
-        #region Gun Locker
+        #region Gun Locker / Liam
         private void SpawnHomeItems()
         {
             Level.current.StartCoroutine(DelayedLockerSpawn());
@@ -300,6 +316,12 @@ namespace GhettosFirearmSDKv2
         private IEnumerator DelayedRigEditorSpawn()
         {
             yield return new WaitForSeconds(3f);
+            SpawnLiam();
+        }
+
+        private static void SpawnLiam()
+        {
+            if (liam != null || !Level.current.data.id.Equals("Home")) return;
             Vector3 position = new Vector3(44.03f, 2.5f, -44.37f);
             Vector3 rotation = new Vector3(0, -36, 0);
             Debug.Log("Blue guy");
@@ -310,9 +332,10 @@ namespace GhettosFirearmSDKv2
                     Debug.LogWarning(("Unable to instantiate rig editor!"));
                     Addressables.ReleaseInstance(handle);
                 }
+                liam = handle.Result;
             };
         }
-        #endregion Gun Locker
+        #endregion
 
         #region General
         public static readonly string saveFolderName = "!GhettosFirearmSDKv2Saves";
