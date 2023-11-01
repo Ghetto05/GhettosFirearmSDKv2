@@ -264,11 +264,11 @@ namespace GhettosFirearmSDKv2
             }
 
             #region non-held lock
-            if (isHeld && firearm.roundsPerMinute == 0 && !lastFrameHeld)
+            if (isHeld && !rigidBody.gameObject.TryGetComponent(out ConstantForce c) && firearm.roundsPerMinute == 0 && !lastFrameHeld)
             {
                 InitializeJoint(false, false, false);
             }
-            else if (!isHeld && firearm.roundsPerMinute == 0 && lastFrameHeld)
+            else if (!isHeld && !rigidBody.gameObject.TryGetComponent(out ConstantForce cf) && firearm.roundsPerMinute == 0 && lastFrameHeld)
             {
                 InitializeJoint(false, false, true);
             }
