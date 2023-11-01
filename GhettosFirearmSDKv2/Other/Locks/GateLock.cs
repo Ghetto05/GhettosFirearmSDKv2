@@ -19,7 +19,7 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> openSounds;
         public List<AudioSource> closeSounds;
 
-        bool state = false;
+        bool state = true;
 
         public override bool GetState()
         {
@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
         {
             if (item != null) item.OnHeldActionEvent += OnHeldActionEvent;
             else if (attachment != null) attachment.OnHeldActionEvent += OnHeldActionEvent;
-            Toggle(false);
+            Toggle(true);
         }
 
         private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -38,12 +38,12 @@ namespace GhettosFirearmSDKv2
             if (handles.Contains(handle) && action == Interactable.Action.AlternateUseStart) Toggle();
         }
 
-        public void Toggle(bool playSound = true)
+        public void Toggle(bool initial = false)
         {
-            if (playSound) state = !state;
-            Transform t = state ? locked : unlocked;
+            if (!initial) state = !state;
+            Transform t = !state ? locked : unlocked;
             gate.SetLocalPositionAndRotation(t.localPosition, t.localRotation);
-            if (playSound) Util.PlayRandomAudioSource(state ? openSounds : closeSounds);
+            if (!initial) Util.PlayRandomAudioSource(state ? openSounds : closeSounds);
         }
     }
 }
