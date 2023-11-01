@@ -56,9 +56,9 @@ namespace GhettosFirearmSDKv2
                 creature.gameObject.AddComponent<Chemicals.NPCChemicalsModule>();
 
                 string id = "NoneFound";
-                if (creature.data.id.Equals("HumanMale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Male";
-                else if (creature.data.id.Equals("HumanFemale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Female";
-                else if (creature.data.id.Equals("Chicken")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Chicken";
+                if (creature.data.prefabAddress.Equals("Bas.Creature.HumanMale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Male";
+                else if (creature.data.prefabAddress.Equals("Bas.Creature.HumanFemale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Female";
+                else if (creature.data.prefabAddress.Equals("Bas.Creature.Chicken")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Chicken";
 
                 if (!id.Equals("NoneFound"))
                 {
