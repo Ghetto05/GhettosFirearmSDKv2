@@ -307,6 +307,8 @@ namespace GhettosFirearmSDKv2
                     Util.PlayRandomAudioSource(pullSoundsHeld);
                     closingAfterRelease = false;
 
+                    if (closedAfterLoad && firearm.roundsPerMinute != 0) EjectRound();
+
                     if ((firearm.magazineWell.IsEmptyAndHasMagazine() || (lockIfNoMagazineFound && firearm.magazineWell.currentMagazine == null)) && loadedCartridge == null && !caught && hasBoltcatch)
                     {
                         CatchBolt(true);
@@ -315,8 +317,6 @@ namespace GhettosFirearmSDKv2
                     {
                         CatchBolt(false);
                     }
-
-                    if (closedAfterLoad && firearm.roundsPerMinute != 0) EjectRound();
 
                     if (lockIfNoMagazineFound && firearm.magazineWell.currentMagazine == null && loadedCartridge == null && !caught && hasBoltcatch)
                     {
