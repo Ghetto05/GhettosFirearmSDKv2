@@ -42,6 +42,8 @@ namespace GhettosFirearmSDKv2
         public List<GameObject> feederObjects;
         public bool loadable = false;
         public float lastEjectTime = 0f;
+        public BoltBase bolt;
+        public bool onlyAllowLoadWhenBoltIsBack;
 
         private void Update()
         {
@@ -164,9 +166,11 @@ namespace GhettosFirearmSDKv2
             return c;
         }
 
+        private bool BoltExistsAndIsPulled() => !onlyAllowLoadWhenBoltIsBack || bolt == null || bolt.state == BoltBase.BoltState.Back || bolt.state == BoltBase.BoltState.LockedBack;
+
         public void InsertRound(Cartridge c, bool silent, bool forced, bool save = true)
         {
-            if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCatridge(c, this) || forced) && !c.loaded)
+            if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCatridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
             {
                 c.item.disallowDespawn = true;
                 c.loaded = true;
