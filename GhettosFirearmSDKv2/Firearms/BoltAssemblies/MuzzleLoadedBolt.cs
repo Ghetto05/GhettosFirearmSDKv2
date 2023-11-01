@@ -17,6 +17,7 @@ namespace GhettosFirearmSDKv2
         public Transform roundEjectDir;
         public bool ejectOnFire;
         int shotsSinceTriggerReset = 0;
+        public List<Lock> locks;
 
         public Hammer hammer;
 
@@ -49,6 +50,7 @@ namespace GhettosFirearmSDKv2
         public override void TryFire()
         {
             shotsSinceTriggerReset++;
+            if (!Util.AllLocksUnlocked(locks)) return;
             if (hammer != null)
             {
                 bool f = hammer.cocked;
