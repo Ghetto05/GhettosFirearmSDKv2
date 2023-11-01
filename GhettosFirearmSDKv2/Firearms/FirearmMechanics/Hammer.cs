@@ -16,6 +16,8 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> cockSounds;
         public bool cocked;
         public bool hasDecocker = false;
+        public bool allowManualCock = false;
+        public bool allowCockUncockWhenSafetyIsOn = true;
         SaveNodeValueBool hammerState;
 
         private void Start()
@@ -40,6 +42,7 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnCockActionEvent()
         {
+            if (!allowManualCock || (!allowCockUncockWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe)) return;
             if (cocked) Fire(true);
             else Cock();
         }
