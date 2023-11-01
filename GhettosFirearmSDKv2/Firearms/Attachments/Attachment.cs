@@ -35,6 +35,7 @@ namespace GhettosFirearmSDKv2
         public List<UnityEvent> OnDetachEvents;
 
         private List<Renderer> renderers;
+        private List<RevealDecal> decals;
 
         public bool initialized = false;
 
@@ -56,10 +57,16 @@ namespace GhettosFirearmSDKv2
         {
             if (thisNode != null) node = thisNode;
             renderers = new List<Renderer>();
+            decals = new List<RevealDecal>();
             foreach (Renderer ren in gameObject.GetComponentsInChildren<Renderer>(true))
             {
                 if (!renderers.Contains(ren)) renderers.Add(ren);
                 if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.parentFirearm.item.renderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
+            }
+            foreach (RevealDecal dec in gameObject.GetComponentsInChildren<RevealDecal>(true))
+            {
+                if (!decals.Contains(dec)) decals.Add(dec);
+                if (!attachmentPoint.parentFirearm.item.revealDecals.Contains(dec)) attachmentPoint.parentFirearm.item.revealDecals.Add(dec);
             }
             try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); };
             transform.parent = attachmentPoint.transform;
@@ -72,6 +79,15 @@ namespace GhettosFirearmSDKv2
             }
             attachmentPoint.parentFirearm.UpdateAttachments(initialSetup);
             attachmentPoint.parentFirearm.item.OnDespawnEvent += Item_OnDespawnEvent;
+
+            if (FirearmsSettings.debugMode)
+            {
+                foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
+                {
+                    if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on attachment " + gameObject.name + " is not of type GhettoHandle!");
+                    if (!handles.Contains(h)) Debug.LogWarning("Handle " + h.gameObject.name + " is not in the handle list of the attachment " + gameObject.name + "!");
+                }
+            }
             Catalog.LoadAssetAsync<Texture2D>(data.iconAddress, tex =>
             {
                 icon = tex;
@@ -129,14 +145,7 @@ namespace GhettosFirearmSDKv2
             attachmentPoint.parentFirearm.InvokeAttachmentAdded(this, attachmentPoint);
             initialized = true;
 
-            if (FirearmsSettings.debugMode)
-            {
-                foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
-                {
-                    if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on attachment " + gameObject.name + " is not of type GhettoHandle!");
-                    if (!handles.Contains(h)) Debug.LogWarning("Handle " + h.gameObject.name + " is not in the handle list of the attachment " + gameObject.name + "!");
-                }
-            }
+            attachmentPoint.parentFirearm.item.UpdateReveal();
         }
 
         private void ApplyNode()
@@ -208,6 +217,10 @@ namespace GhettosFirearmSDKv2
             {
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.renderers.Remove(ren);
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.lightVolumeReceiver.renderers.Remove(ren);
+            }
+            foreach (RevealDecal dec in decals)
+            {
+                firearm.item.revealDecals.Remove(dec);
             }
             try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); };
             if (this == null || gameObject == null) return;
