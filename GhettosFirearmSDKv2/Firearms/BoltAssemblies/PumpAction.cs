@@ -382,7 +382,7 @@ namespace GhettosFirearmSDKv2
         public void DelayedReparent()
         {
             if (loadedCartridge == null) return;
-            loadedCartridge.transform.SetParent(roundMount);
+            loadedCartridge.transform.SetParent(roundReparent != null ? roundReparent : roundMount);
             currentRoundRemounted = true;
         }
 
