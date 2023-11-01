@@ -53,7 +53,7 @@ namespace GhettosFirearmSDKv2
             confirmButton.onClick.AddListener(delegate { SaveWeaponWithName(typingName); });
         }
 
-        #region Saving
+        #region Typing
         public void Type(string key)
         {
             if (typing)
@@ -100,7 +100,9 @@ namespace GhettosFirearmSDKv2
             typingPanel.SetActive(false);
             typing = false;
         }
+        #endregion
 
+        #region Saving
         public void SaveWeapon()
         {
             if (holder.items.Count == 0 || typing) return;
