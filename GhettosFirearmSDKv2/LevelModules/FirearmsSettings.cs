@@ -100,8 +100,8 @@ namespace GhettosFirearmSDKv2
         public static float cartridgeEjectionTorque = 1f;
         public static float cartridgeEjectionForceRandomizationDevision = 3f;
         public static float firingSoundDeviation = 0.2f;
-        public static float invokeTime = 0.1f;
-        public static float boltPointTreshold = 0.003f;
+        public static float invokeTime = 0.3f;
+        public static float boltPointTreshold = 0.004f;
         #endregion Static
 
         #region PureSettings
@@ -115,7 +115,7 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(2)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0.", saveValue = true, defaultValueIndex = 8, valueSourceName = nameof(firearmDespawnTimeValues))]
+        [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0. Note: Firearms will never despawn up until 10 seconds after having spawned in.", saveValue = true, defaultValueIndex = 8, valueSourceName = nameof(firearmDespawnTimeValues))]
         public static float firearmDespawnTime = 0f;
         public static ModOptionFloat[] firearmDespawnTimeValues =
         {
@@ -324,7 +324,6 @@ namespace GhettosFirearmSDKv2
             if (liam != null || !Level.current.data.id.Equals("Home")) return;
             Vector3 position = new Vector3(44.03f, 2.5f, -44.37f);
             Vector3 rotation = new Vector3(0, -36, 0);
-            Debug.Log("Blue guy");
             Addressables.InstantiateAsync("Ghetto05.Firearms.Clothes.Rigs.Editor", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
             {
                 if (handle.Status != AsyncOperationStatus.Succeeded)
