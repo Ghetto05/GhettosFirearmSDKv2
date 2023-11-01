@@ -261,35 +261,6 @@ namespace GhettosFirearmSDKv2
         #endregion Values
 
         #region Other
-        private void OverrideJson()
-        {
-            //CreateSaveFolder();
-            //File.WriteAllText(GetSaveFolderPath() + "\\firearm.settings", JsonConvert.SerializeObject(values, Catalog.jsonSerializerSettings));
-        }
-
-        public void SendUpdate()
-        {
-            //OverrideJson();
-            //OnValueChangedEvent?.Invoke();
-        }
-
-        //public class SettingsWrapper
-        //{
-        //    public bool incapitateOnTorsoShot = false;
-        //    public bool infiniteAmmo = false;
-        //    public bool doCaliberChecks = true;
-        //    public bool doMagazineTypeChecks = true;
-        //    public float damageMultiplier = 1f;
-        //    public bool magazinesHaveNoCollision = true;
-        //    public float scopeX1MagnificationFOV = 28.5f;
-        //    public float cartridgeEjectionTorque = 1f;
-        //    public float cartridgeEjectionForceRandomizationDevision = 3f;
-        //    public float hudScale = 1f;
-        //    public float cartridgeDespawnTime = 0f;
-        //    public float firingSoundDeviation = 0.2f;
-        //    public float longPressTime = 0.5f;
-        //    public float revolverTriggerDeadzone = 0f;
-        //}
 
         public delegate void OnValueChangedDelegate();
         public static event OnValueChangedDelegate OnValueChangedEvent;
