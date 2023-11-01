@@ -30,22 +30,36 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
+            if (!spawning && holder.items.Count > 0 && (holder.items[0] == null || holder.items[0].holder == null))
+            {
+                holder.items.Clear();
+                holder.currentQuantity = 0;
+            }
+
             if (!spawning && holder.HasSlotFree())
             {
                 spawning = true;
                 try
                 {
-                    GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count)].SpawnAsync(item =>
+                    ItemData data = GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count)];
+                    data.SpawnAsync(item =>
                     {
-                        holder.Snap(item);
-                        spawning = false;
-                    });
+                        item.physicBody.rigidBody.isKinematic = true;
+                        StartCoroutine(DelayedSnap(item));
+                    }, holder.transform.position);
                 }
                 catch (System.Exception)
                 {
                     spawning = false;
                 }
             }
+        }
+
+        private IEnumerator DelayedSnap(Item item)
+        {
+            yield return new WaitForSeconds(FirearmsSettings.invokeTime + 0.06f);
+            if (item != null) holder.Snap(item);
+            spawning = false;
         }
     }
 }
