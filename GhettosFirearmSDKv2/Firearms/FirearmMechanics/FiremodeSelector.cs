@@ -17,6 +17,8 @@ namespace GhettosFirearmSDKv2
         public FirearmBase.FireModes[] firemodes;
         private int currentIndex = 0;
         SaveNodeValueInt fireModeIndex;
+        public Hammer hammer;
+        public bool allowSwitchingModeIfHammerIsUncocked = true;
 
         private void Start()
         {
@@ -39,7 +41,7 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnAltActionEvent(bool longPress)
         {
-            if (longPress)
+            if (longPress && (allowSwitchingModeIfHammerIsUncocked || (hammer != null && hammer.cocked)))
             {
                 CycleFiremode();
             }
