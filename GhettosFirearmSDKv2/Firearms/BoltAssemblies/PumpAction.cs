@@ -71,31 +71,37 @@ namespace GhettosFirearmSDKv2
 
         public void RefreshBoltHandles()
         {
-            boltHandles = new List<Handle>();
+            try
+            {
+                boltHandles = new List<Handle>();
 
-            foreach (Handle h in rb.gameObject.GetComponentsInChildren<Handle>())
-            {
-                boltHandles.Add(h);
-            }
-            foreach (AttachmentPoint point in onBoltPoints)
-            {
-                foreach (Attachment attachment in point.GetAllChildAttachments())
+                foreach (Handle h in rb.gameObject.GetComponentsInChildren<Handle>())
                 {
-                    foreach (Handle handle in attachment.handles)
+                    boltHandles.Add(h);
+                }
+                foreach (AttachmentPoint point in onBoltPoints)
+                {
+                    foreach (Attachment attachment in point.GetAllChildAttachments())
                     {
-                        if (handle.GetType() == typeof(GhettoHandle))
+                        foreach (Handle handle in attachment.handles)
                         {
-                            GhettoHandle hh = (GhettoHandle)handle;
-                            hh.type = GhettoHandle.HandleType.PumpAction;
+                            if (handle.GetType() == typeof(GhettoHandle))
+                            {
+                                GhettoHandle hh = (GhettoHandle)handle;
+                                hh.type = GhettoHandle.HandleType.PumpAction;
+                            }
+                            boltHandles.Add(handle);
                         }
-                        boltHandles.Add(handle);
                     }
                 }
-            }
 
-            foreach (Handle h in boltHandles)
+                foreach (Handle h in boltHandles)
+                {
+                    h.customRigidBody = lockJoint == null ? rb : firearm.item.physicBody.rigidBody;
+                }
+            }
+            catch (System.Exception)
             {
-                h.customRigidBody = lockJoint == null ? rb : firearm.item.physicBody.rigidBody;
             }
         }
 
