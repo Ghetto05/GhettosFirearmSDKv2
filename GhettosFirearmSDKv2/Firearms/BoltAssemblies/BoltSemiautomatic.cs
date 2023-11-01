@@ -514,7 +514,7 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeJoint(bool lockedBack, bool safetyLocked = false, bool boltActionLocked = false)
         {
-            Vector3 oldPos = rigidBody.position;
+            rigidBody.transform.rotation = startPoint.rotation;
             if (joint == null)
             {
                 joint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
