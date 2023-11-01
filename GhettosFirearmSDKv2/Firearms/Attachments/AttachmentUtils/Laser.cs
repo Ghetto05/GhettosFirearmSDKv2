@@ -39,21 +39,33 @@ namespace GhettosFirearmSDKv2
         {
             if (!tacSwitch || !physicalSwitch || (actualItem != null && actualItem.holder != null))
             {
-                if (cylinderRoot != null) cylinderRoot.localScale = Vector3.zero;
+                if (cylinderRoot != null)
+                {
+                    cylinderRoot.localScale = Vector3.zero;
+                    cylinderRoot.gameObject.SetActive(false);
+                }
                 if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
                 if (distanceDisplay != null) distanceDisplay.text = "";
                 return;
             }
             if (Physics.Raycast(source.position, source.forward, out RaycastHit hit, range, LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject", "Avatar", "PlayerHandAndFoot")))
             {
-                if (cylinderRoot != null) cylinderRoot.localScale = LengthScale(hit.distance);
+                if (cylinderRoot != null)
+                {
+                    cylinderRoot.localScale = LengthScale(hit.distance);
+                    cylinderRoot.gameObject.SetActive(true);
+                }
                 if (endPointObject != null && !endPointObject.activeInHierarchy) endPointObject.SetActive(true);
                 if (endPointObject != null) endPointObject.transform.localPosition = LengthPosition(hit.distance);
                 if (distanceDisplay != null) distanceDisplay.text = hit.distance.ToString();
             }
             else
             {
-                if (cylinderRoot != null) cylinderRoot.localScale = LengthScale(8000f);
+                if (cylinderRoot != null)
+                {
+                    cylinderRoot.localScale = LengthScale(200);
+                    cylinderRoot.gameObject.SetActive(true);
+                }
                 if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
                 if (distanceDisplay != null) distanceDisplay.text = "---";
             }
