@@ -514,7 +514,7 @@ namespace GhettosFirearmSDKv2
 
                     bool penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= (int)data.penetrationPower;
 
-                    #region impact effect
+                    #region Impact effect
                     if (data.hasBodyImpactEffect)
                     {
                         //Effect
@@ -523,7 +523,7 @@ namespace GhettosFirearmSDKv2
                         ei.Play();
                     }
                     if (data.drawsImpactDecal && penetrated) DrawDecal(ragdollPart, hit, data.customImpactDecalId);
-                    #endregion impact effect
+                    #endregion Impact effect
 
                     #region Damage level determination
                     float damageModifier = 1;
