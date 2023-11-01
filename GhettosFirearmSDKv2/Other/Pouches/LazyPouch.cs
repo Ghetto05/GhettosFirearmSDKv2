@@ -13,8 +13,10 @@ namespace GhettosFirearmSDKv2
         public List<Item> spawnedItems;
         public List<string> containedItems;
         public Handle lastHeldHandle;
-        bool restock = true;
         bool setup = false;
+        bool nextUnsnapIsCleaning = false;
+        FirearmBase lastFirearms;
+        bool spawning = false;
 
         private void Start()
         {
@@ -31,7 +33,7 @@ namespace GhettosFirearmSDKv2
 
             holder.data.maxQuantity = 9999999;
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 holder.slots.Add(holder.transform);
             }
@@ -45,42 +47,46 @@ namespace GhettosFirearmSDKv2
 
             foreach (Item i in holder.items.ToArray())
             {
-                if (!spawnedItems.Contains(i)) holder.UnSnap(i, true);
+                if (!spawnedItems.Contains(i))
+                {
+                    nextUnsnapIsCleaning = true;
+                    holder.UnSnap(i, true);
+                }
             }
 
             Handle h = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
             if (h != null && h.item is Item item)
             {
-                FirearmBase f = null;
                 if (lastHeldHandle != h)
                 {
                     if (h.GetComponentInParent<AttachmentFirearm>() != null)
                     {
-                        f = h.GetComponentInParent<AttachmentFirearm>();
+                        lastFirearms = h.GetComponentInParent<AttachmentFirearm>();
                     }
                     else
                     {
-                        f = item.GetComponent<Firearm>();
+                        lastFirearms = item.GetComponent<Firearm>();
                     }
 
-                    if (f != null && f.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff) f = ff;
+                    if (lastFirearms != null && lastFirearms.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff) lastFirearms = ff;
                 }
 
-                if (f != null)
+                if (lastFirearms != null)
                 {
-                    if (!containedItems.Contains(f.defaultAmmoItem) && !f.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
+                    if (!containedItems.Contains(lastFirearms.defaultAmmoItem) && !lastFirearms.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
                     {
-                        containedItems.Add(f.defaultAmmoItem);
-                        Catalog.GetData<ItemData>(f.defaultAmmoItem).SpawnAsync(newItem =>
+                        containedItems.Add(lastFirearms.defaultAmmoItem);
+                        spawning = true;
+                        Catalog.GetData<ItemData>(lastFirearms.defaultAmmoItem).SpawnAsync(newItem =>
                         {
                             item.disallowDespawn = true;
                             StartCoroutine(DelayedSnap(newItem));
                             spawnedItems.Add(newItem);
                         });
                     }
-                    else if (!f.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
+                    else if (!lastFirearms.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !spawning)
                     {
-                        GetById(f.defaultAmmoItem);
+                        GetById(lastFirearms.defaultAmmoItem);
                     }
                 }
                 lastHeldHandle = h;
@@ -104,12 +110,17 @@ namespace GhettosFirearmSDKv2
         private void Holder_UnSnapped(Item item)
         {
             item.Hide(false);
+            if (nextUnsnapIsCleaning)
+            {
+                nextUnsnapIsCleaning = false;
+                return;
+            }
             if (!setup) return;
-            if (!restock) return;
             item.disallowDespawn = false;
             Util.IgnoreCollision(gameObject, item.gameObject, false);
             spawnedItems.Remove(item);
             if (item.TryGetComponent(out Firearm f)) return;
+            spawning = true;
             Catalog.GetData<ItemData>(item.data.id).SpawnAsync(newItem =>
             {
                 item.disallowDespawn = true;
@@ -129,6 +140,7 @@ namespace GhettosFirearmSDKv2
         {
             yield return new WaitForSeconds(0.05f);
             holder.Snap(item, true);
+            spawning = false;
         }
     }
 }
