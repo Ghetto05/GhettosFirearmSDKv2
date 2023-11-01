@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using System;
+using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
@@ -23,17 +25,7 @@ namespace GhettosFirearmSDKv2
 
         public static List<AttachmentData> AllOfType(string requestedType)
         {
-            List<AttachmentData> dataList = new List<AttachmentData>();
-
-            foreach (AttachmentData d in Catalog.GetDataList<AttachmentData>())
-            {
-                if (d.type.Equals(requestedType))
-                {
-                    dataList.Add(d);
-                }
-            }
-
-            return dataList;
+            return Catalog.GetDataList<AttachmentData>().Where(d => d.type.Equals(requestedType)).OrderBy(d => d.displayName).ToList();
         }
 
         public void SpawnAndAttach(AttachmentPoint point, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
