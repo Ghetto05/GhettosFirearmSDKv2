@@ -409,6 +409,8 @@
     <Compile Include="Firearms\FirearmMechanics\StripperClip.cs" />
     <Compile Include="Firearms\FirearmMechanics\StripperClipMount.cs" />
     <Compile Include="LevelModules\FirearmCleaner.cs" />
+    <Compile Include="Other\GunCaseSaveData.cs" />
+    <Compile Include="Other\GunCase.cs" />
     <Compile Include="Other\Locks\LockInverter.cs" />
     <Compile Include="Other\Pouches\LazyPouch.cs" />
     <Compile Include="Firearms\Ammunition\Projectilifier.cs" />
