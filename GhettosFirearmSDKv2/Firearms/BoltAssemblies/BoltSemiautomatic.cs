@@ -15,6 +15,7 @@ namespace GhettosFirearmSDKv2
         public bool locksWhenSafetyIsOn = false;
         public bool hasBoltcatch;
         public bool hasBoltCatchReleaseControl = true;
+        public bool chargingHandleLocksBack = false;
         public bool onlyCatchIfManuallyPulled = false;
         public bool lockIfNoMagazineFound = false;
         public BoltReleaseButton[] releaseButtons;
@@ -79,7 +80,7 @@ namespace GhettosFirearmSDKv2
             firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
             firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
 
-            if (firearm.roundsPerMinute == 0) InitializeJoint(false, false, true);
+            if (firearm.roundsPerMinute == 0 && !rigidBody.gameObject.TryGetComponent(out ConstantForce c)) InitializeJoint(false, false, true);
             else if (locksWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe) InitializeJoint(false, true);
             else InitializeJoint(false);
             UpdateBoltHandles();
@@ -182,7 +183,7 @@ namespace GhettosFirearmSDKv2
             {
                 //bolt.localPosition = catchPoint.localPosition;
             }
-            InitializeJoint(locked && chargingHandle == null);
+            InitializeJoint(locked && (chargingHandle == null || chargingHandleLocksBack));
         }
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
