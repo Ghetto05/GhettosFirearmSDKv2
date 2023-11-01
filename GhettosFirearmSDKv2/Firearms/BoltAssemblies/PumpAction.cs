@@ -163,6 +163,7 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.transform.position = firearm.hitscanMuzzle.position;
                 loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.hitscanMuzzle.rotation;
                 loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.hitscanMuzzle);
+                loadedCartridge.additionalMuzzleFlash.Play();
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
             firearm.PlayFireSound(loadedCartridge);
