@@ -751,7 +751,7 @@ namespace GhettosFirearmSDKv2
             Catalog.GetData<ItemData>(data.projectileItemId, true).SpawnAsync(thisSpawnedItem =>
             {
                 item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, firePoint, fireRotation, fireDir, data.muzzleVelocity));
-                if (data.destroyTime != 0f) item.Despawn(data.destroyTime);
+                if (data.destroyTime != 0f) thisSpawnedItem.Despawn(data.destroyTime);
             }, firePoint, fireRotation);
         }
 
