@@ -83,13 +83,13 @@ namespace GhettosFirearmSDKv2
 
         public static void AlertAllCreaturesInRange(Vector3 point, float range)
         {
-            //foreach (Creature cr in Creature.allActive)
-            //{
-            //    if (Vector3.Distance(cr.animator.GetBoneTransform(HumanBodyBones.Neck).position, point) <= range)
-            //    {
-            //        cr.brain.SetState(Brain.State.Alert);
-            //    }
-            //}
+            foreach (Creature cr in Creature.allActive)
+            {
+                if (Vector3.Distance(cr.animator.GetBoneTransform(HumanBodyBones.Neck).position, point) <= range)
+                {
+                    cr.brain.SetState(Brain.State.Alert);
+                }
+            }
         }
 
         public static bool CheckForCollisionWithColliders(List<Collider> theseColliders, List<Collider> otherColliders, Collision collision)
