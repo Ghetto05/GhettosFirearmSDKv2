@@ -72,7 +72,6 @@ namespace GhettosFirearmSDKv2
             
             if (!item.TryGetCustomData(out saveData))
             {
-                Debug.Log("no save data found " + item.name);
                 saveData = new FirearmSaveData();
                 saveData.firearmNode = new FirearmSaveData.AttachmentTreeNode();
                 item.AddCustomData(saveData);
@@ -121,7 +120,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (Handle han in preSnapActiveHandles)
             {
-                han.SetTouch(true);
+                if (han != null && han.touchCollider != null) han.SetTouch(true);
             }
         }
 
@@ -130,7 +129,7 @@ namespace GhettosFirearmSDKv2
             preSnapActiveHandles = new List<Handle>();
             foreach (Handle han in item.handles)
             {
-                if (han.enabled && han.touchCollider.enabled && !(han.data.id.Equals("ObjectHandleHeavy") || han.data.id.Equals("ObjectHandleHeavyPistol")))
+                if (han != null && han.enabled && han.touchCollider.enabled && !(han.data.id.Equals("ObjectHandleHeavy") || han.data.id.Equals("ObjectHandleHeavyPistol")))
                 {
                     preSnapActiveHandles.Add(han);
                     han.SetTouch(false);
