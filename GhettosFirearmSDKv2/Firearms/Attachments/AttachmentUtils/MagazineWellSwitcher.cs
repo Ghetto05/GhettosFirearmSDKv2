@@ -13,6 +13,9 @@ namespace GhettosFirearmSDKv2
         private string originalCaliber;
         public string newCaliber;
 
+        private string originalDefaultAmmo;
+        public string newDefaultAmmo;
+
         private void Awake()
         {
             if (attachment.initialized) Attachment_OnDelayedAttachEvent();
@@ -35,6 +38,12 @@ namespace GhettosFirearmSDKv2
                 attachment.attachmentPoint.parentFirearm.magazineWell.caliber = newCaliber;
             }
 
+            if (!string.IsNullOrWhiteSpace(newDefaultAmmo))
+            {
+                originalDefaultAmmo = attachment.attachmentPoint.parentFirearm.defaultAmmoItem;
+                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = newDefaultAmmo;
+            }
+
             attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
         }
 
@@ -50,6 +59,11 @@ namespace GhettosFirearmSDKv2
             if (!string.IsNullOrWhiteSpace(newCaliber))
             {
                 attachment.attachmentPoint.parentFirearm.magazineWell.caliber = originalCaliber;
+            }
+
+            if (!string.IsNullOrWhiteSpace(newDefaultAmmo))
+            {
+                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = originalDefaultAmmo;
             }
         }
     }
