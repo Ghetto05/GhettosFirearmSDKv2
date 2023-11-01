@@ -173,6 +173,11 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "Play gas mask sounds", tooltip = "If enabled, wearing a gas mask will play a breathing sound", defaultValueIndex = 1, saveValue = true)]
         public static bool playGasMaskSound = false;
 
+        [ModOptionOrder(9)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Disable gore", tooltip = "If enabled, there will be no blood effects or dismemberment.", defaultValueIndex = 0, saveValue = true)]
+        public static bool disableGore = false;
+
         #endregion PureSettings
 
         #region Debug

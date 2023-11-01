@@ -709,10 +709,15 @@ namespace GhettosFirearmSDKv2
             #endregion non creature hit
         }
 
-        public static bool Slice(RagdollPart part) => part.sliceAllowed || part.name.Equals("Spine");
-
-        private static void DrawDecal(RagdollPart rp, RaycastHit hit, string customDecal)
+        public static bool Slice(RagdollPart part)
         {
+            return !FirearmsSettings.disableGore && (part.sliceAllowed || part.name.Equals("Spine")) && !part.ragdoll.creature.isPlayer;
+        }
+
+        private static void DrawDecal(RagdollPart rp, RaycastHit hit, string customDecal, bool isGore = true)
+        {
+            if (FirearmsSettings.disableGore && isGore) return;
+
             EffectModuleReveal rem = null;
             if (string.IsNullOrWhiteSpace(customDecal))
             {
