@@ -25,7 +25,7 @@ namespace GhettosFirearmSDKv2
         public FireModes fireMode;
         public ParticleSystem defaultMuzzleFlash;
         public int burstSize = 3;
-        public int roundsPerMinute;
+        public float roundsPerMinute;
         public float lastPressTime = 0f;
         public float longPressTime;
         public float recoilModifier = 1f;

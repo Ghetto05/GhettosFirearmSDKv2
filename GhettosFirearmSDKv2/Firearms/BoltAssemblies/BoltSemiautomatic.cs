@@ -572,7 +572,7 @@ namespace GhettosFirearmSDKv2
             //}
         }
 
-        private float BoltLerp(float startTime, int rpm)
+        private float BoltLerp(float startTime, float rpm)
         {
             float timeThatPassed = Time.time - startTime;
             float timeForOneRound = 60f / rpm;
