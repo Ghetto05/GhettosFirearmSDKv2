@@ -532,7 +532,7 @@ namespace GhettosFirearmSDKv2
                                 if (penetrated && data.lethalHeadshot) damageModifier = Mathf.Infinity;
                                 else damageModifier = 2;
                                 if (penetrated && WouldCreatureBeKilled(data.damagePerProjectile * damageModifier, cr) && !cr.isPlayer) cr.brain.instance.GetModule<BrainModuleSpeak>().Unload();
-                                if (penetrated && data.slicesBodyParts) cr.ragdoll.GetPart(RagdollPart.Type.Head).TrySlice();
+                                if (penetrated && data.slicesBodyParts) ragdollPart.TrySlice();
                             }
                             break;
                         case RagdollPart.Type.Neck: //damage = infinity, push(1)
