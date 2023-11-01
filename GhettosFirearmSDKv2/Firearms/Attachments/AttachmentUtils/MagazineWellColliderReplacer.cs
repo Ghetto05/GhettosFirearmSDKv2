@@ -9,8 +9,11 @@ namespace GhettosFirearmSDKv2
     {
         public Attachment attachment;
         public Collider newCollider;
+        public Transform newMount;
         [HideInInspector]
         public Collider oldCollider;
+        [HideInInspector]
+        public Transform oldMount;
 
         private void Awake()
         {
@@ -21,15 +24,31 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDetachEvent(bool despawnDetach)
         {
-            oldCollider.enabled = true;
-            attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = oldCollider;
+            if (despawnDetach) return;
+            if (newCollider != null)
+            {
+                oldCollider.enabled = true;
+                attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = oldCollider;
+            }
+            if (newMount != null)
+            {
+                attachment.attachmentPoint.parentFirearm.magazineWell.mountPoint = oldMount;
+            }
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            oldCollider = attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider;
-            oldCollider.enabled = false;
-            attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = newCollider;
+            if (newCollider != null)
+            {
+                oldCollider = attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider;
+                oldCollider.enabled = false;
+                attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = newCollider;
+            }
+            if (newMount != null)
+            {
+                oldMount = attachment.attachmentPoint.parentFirearm.magazineWell.mountPoint;
+                attachment.attachmentPoint.parentFirearm.magazineWell.mountPoint = newMount;
+            }
         }
     }
 }
