@@ -12,6 +12,7 @@ namespace GhettosFirearmSDKv2
     public class ViceUI : MonoBehaviour
     {
         public bool AlwaysFrozen;
+        public bool allowFreeze = true;
 
         public Item item;
 
@@ -41,7 +42,7 @@ namespace GhettosFirearmSDKv2
         {
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
-            if (!AlwaysFrozen && item != null) item.OnHeldActionEvent += Item_OnHeldActionEvent;
+            if (!AlwaysFrozen && allowFreeze && item != null) item.OnHeldActionEvent += Item_OnHeldActionEvent;
             if (AlwaysFrozen && item != null)
             {
                 item.physicBody.isKinematic = true;
@@ -51,7 +52,7 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (!AlwaysFrozen && action == Interactable.Action.UseStart || action == Interactable.Action.AlternateUseStart)
+            if (!AlwaysFrozen && item != null && action == Interactable.Action.UseStart || action == Interactable.Action.AlternateUseStart)
             {
                 item.physicBody.isKinematic = !item.physicBody.isKinematic;
                 item.disallowDespawn = item.physicBody.isKinematic;
@@ -333,6 +334,7 @@ namespace GhettosFirearmSDKv2
 
         public void SpawnAttachment(string id)
         {
+            currentSlot.parentFirearm.item.lastInteractionTime = Time.time;
             if (currentSlot.currentAttachment != null) currentSlot.currentAttachment.Detach();
             if (!id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING")) Catalog.GetData<AttachmentData>(id).SpawnAndAttach(currentSlot);
             foreach (ViceUIAttachment att in attachmentButtons)
