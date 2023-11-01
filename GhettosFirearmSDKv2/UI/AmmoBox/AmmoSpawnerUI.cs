@@ -183,7 +183,7 @@ namespace GhettosFirearmSDKv2
             {
                 Catalog.GetData<ItemData>(carId).SpawnAsync(cartr => 
                 {
-                    mag.InsertRound(cartr.GetComponent<Cartridge>(), true, false);
+                    mag.InsertRound(cartr.GetComponent<Cartridge>(), true, true);
                     SpawnAndInsertCar(mag, carId);
                 }, mag.transform.position);
             }
