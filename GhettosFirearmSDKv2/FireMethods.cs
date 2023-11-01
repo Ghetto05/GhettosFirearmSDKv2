@@ -835,10 +835,7 @@ namespace GhettosFirearmSDKv2
                     try { hitCreature.Damage(coll); } catch (Exception) { }
 
                     hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
-                    foreach (RagdollPart rp in hitCreature.ragdoll.parts)
-                    {
-                        rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 10);
-                    }
+                    if (hitCreature.isKilled) hitCreature.StartCoroutine(ExplodeCreature(point, data, hitCreature));
                 }
             }
 
@@ -857,6 +854,24 @@ namespace GhettosFirearmSDKv2
                 EffectInstance ei = Catalog.GetData<EffectData>(data.effectId).Spawn(point, Quaternion.Euler(0, 0, 0));
                 ei.Play();
             }
+        }
+
+        private static IEnumerator ExplodeCreature(Vector3 point, ExplosiveData data, Creature hitCreature)
+        {
+            if (!hitCreature.isPlayer && FirearmsSettings.explosionsDismember && !FirearmsSettings.disableGore)
+            {
+                foreach (RagdollPart rp in hitCreature.ragdoll.parts.ToArray().Reverse())
+                {
+                    yield return new WaitForEndOfFrame();
+                    if (Vector3.Distance(rp.transform.position, point) < (data.radius / 2) && Slice(rp))
+                    {
+                        rp.TrySlice();
+                        rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 2);
+                    }
+                    else rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 10);
+                }
+            }
+            yield break;
         }
 
         public static bool CheckExplosionCreatureHit(Creature c, Vector3 origin)
