@@ -449,27 +449,24 @@ namespace GhettosFirearmSDKv2
             }
             #endregion explosive
 
-            else
+            bool processing = true;
+            foreach (RaycastHit hit in hits)
             {
-                bool processing = true;
-                foreach (RaycastHit hit in hits)
+                if (processing)
                 {
-                    if (processing)
+                    try
                     {
-                        try
+                        Creature c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, gunItem, out bool lowerDamageLevel, out bool cancel);
+                        if (lowerDamageLevel)
                         {
-                            Creature c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, gunItem, out bool lowerDamageLevel, out bool cancel);
-                            if (lowerDamageLevel)
-                            {
-                                if (data.penetrationPower == ProjectileData.PenetrationLevels.None || data.penetrationPower == ProjectileData.PenetrationLevels.Leather) processing = false;
-                                else data.penetrationPower -= 2;
-                            }
-                            if (cancel) processing = false;
-                            if (c != null) hitCreatures.Add(c);
+                            if (data.penetrationPower == ProjectileData.PenetrationLevels.None || data.penetrationPower == ProjectileData.PenetrationLevels.Leather) processing = false;
+                            else data.penetrationPower -= 2;
                         }
-                        catch (Exception)
-                        {
-                        }
+                        if (cancel) processing = false;
+                        if (c != null) hitCreatures.Add(c);
+                    }
+                    catch (Exception)
+                    {
                     }
                 }
             }
