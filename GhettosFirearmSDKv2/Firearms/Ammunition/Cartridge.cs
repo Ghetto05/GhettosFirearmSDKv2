@@ -44,7 +44,10 @@ namespace GhettosFirearmSDKv2
 
         IEnumerator Despawn()
         {
-            yield return new WaitForSeconds(FirearmsSettings.cartridgeDespawnTime);
+            do
+            {
+                yield return new WaitForSeconds(FirearmsSettings.cartridgeDespawnTime);
+            } while (loaded || item.physicBody.rigidBody.isKinematic);
             item.Despawn();
         }
 
