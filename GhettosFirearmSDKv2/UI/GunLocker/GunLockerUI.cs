@@ -38,6 +38,8 @@ namespace GhettosFirearmSDKv2
         private bool typing = false;
         private string typingName = "";
         public bool shift = true;
+        public bool caps = true;
+        private float lastCursorShift = 0.0f; 
 
         private void Awake()
         {
@@ -58,9 +60,11 @@ namespace GhettosFirearmSDKv2
         {
             if (typing)
             {
+                if (typingName.EndsWith("|")) typingName = typingName.Remove(typingName.Length - 1, 1);
                 if (typingName.Equals("Type here...")) typingName = "";
                 if (key.Equals("BACKSPACE") && typingName.Length > 0) typingName = typingName.Remove(typingName.Length - 1);
                 else if (key.Equals("SHIFT")) shift = !shift;
+                else if (key.Equals("CAPS")) caps = !caps;
                 else
                 {
                     typingName += key;
@@ -71,15 +75,32 @@ namespace GhettosFirearmSDKv2
             }
         }
 
+        public void Update()
+        {
+            if (typing && !typingName.Equals("Type here...") && Time.time - lastCursorShift > 0.6f)
+            {
+                lastCursorShift = Time.time;
+                if (typingName.EndsWith("|"))
+                {
+                    typingName = typingName.Remove(typingName.Length - 1, 1);
+                }
+                else
+                {
+                    typingName += "|";
+                }
+                typingField.text = typingName;
+            }
+        }
+
         public void UpdateShift()
         {
             foreach (Button capsKey in keysCaps)
             {
-                capsKey.gameObject.SetActive(shift);
+                capsKey.gameObject.SetActive(shift || caps);
             }
             foreach (Button nonCapsKey in keysNonCaps)
             {
-                nonCapsKey.gameObject.SetActive(!shift);
+                nonCapsKey.gameObject.SetActive(!shift && ! caps);
             }
         }
 
@@ -90,6 +111,7 @@ namespace GhettosFirearmSDKv2
             typingPanel.SetActive(true);
             typing = true;
             shift = true;
+            caps = false;
             UpdateShift();
         }
 
@@ -118,6 +140,7 @@ namespace GhettosFirearmSDKv2
                 return;
             }
 
+            if (name.EndsWith("|")) name = name.Remove(name.Length - 1, 1);
             string idString = name.Replace(" ", "");
             idString = idString.Replace(",", "");
             idString = idString.Replace(".", "");
@@ -125,21 +148,25 @@ namespace GhettosFirearmSDKv2
             idString = idString.Replace("_", "");
             idString = idString.Replace("/", "");
             idString = idString.Replace("#", "");
+            idString = idString.Replace("&", "");
+            idString = idString.Replace("|", "");
 
+            bool preb = FirearmsSettings.saveAsPrebuilt;
             GunLockerSaveData newData = new GunLockerSaveData
             {
-                id = idString,
+                id = preb ? "PREBUILT_" + idString : "SAVE_" + idString,
                 displayName = name,
                 itemId = holder.items[0].itemId,
-                category = holder.items[0].data.displayName,
+                category = preb ? "Prebuilts" : holder.items[0].data.displayName,
                 dataList = holder.items[0].contentCustomData.CloneJson()
             };
+
             FirearmsSettings.CreateSaveFolder();
             string path = FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + newData.id + ".json";
             string content = JsonConvert.SerializeObject(newData, Catalog.jsonSerializerSettings);
             Catalog.LoadJson(newData, content, path, FirearmsSettings.saveFolderName + "\\Saves");
             File.WriteAllText(path, content);
-            SetupCategoryList();
+            SetCategory(currentCategory);
             Cancel();
         }
         #endregion
