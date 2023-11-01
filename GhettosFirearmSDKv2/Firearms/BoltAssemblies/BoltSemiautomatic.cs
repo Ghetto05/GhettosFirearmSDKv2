@@ -481,6 +481,13 @@ namespace GhettosFirearmSDKv2
 
         public override void TryLoadRound()
         {
+            bool originallyInfinite = false;
+            if (HeldByAI() && firearm.magazineWell?.currentMagazine != null)
+            {
+                originallyInfinite = firearm.magazineWell.currentMagazine.infinite;
+                firearm.magazineWell.currentMagazine.infinite = true;
+            }
+
             if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
                 closedAfterLoad = false;
@@ -490,6 +497,11 @@ namespace GhettosFirearmSDKv2
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 SaveChamber(c.item.itemId);
+            }
+
+            if (HeldByAI() && !originallyInfinite && firearm.magazineWell?.currentMagazine != null)
+            {
+                firearm.magazineWell.currentMagazine.infinite = false;
             }
         }
 

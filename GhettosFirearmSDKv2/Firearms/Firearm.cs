@@ -225,8 +225,20 @@ namespace GhettosFirearmSDKv2
 
         public bool AIFire(AIFireable fireable, RagdollHand hand, bool finished)
         {
-            if (bolt != null) bolt.TryFire();
+            if (fireMode == FireModes.Safe && GetComponentInChildren<FiremodeSelector>() is FiremodeSelector fs)
+                fs.CycleFiremode();
+            StartCoroutine(AIFireCoroutine(hand));
             return true;
+        }
+
+        private IEnumerator AIFireCoroutine(RagdollHand hand)
+        {
+            Item_OnHeldActionEvent(hand, item.GetMainHandle(hand.side), Interactable.Action.UseStart);
+            if (fireMode == FireModes.Semi) yield return new WaitForSeconds(0.2f);
+            if (fireMode == FireModes.Burst) yield return new WaitForSeconds(0.4f);
+            if (fireMode == FireModes.Auto) yield return new WaitForSeconds(Random.Range(0.2f, 1.3f));
+            Item_OnHeldActionEvent(hand, item.GetMainHandle(hand.side), Interactable.Action.UseStop);
+            yield break;
         }
     }
 }

@@ -52,6 +52,7 @@ namespace GhettosFirearmSDKv2
             muzzleLight.type = LightType.Point;
             muzzleLight.range = 5f;
             muzzleLight.intensity = 3f;
+            aimTransform = hitscanMuzzle;
         }
 
         public virtual void Update()

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ThunderRoad;
+using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
@@ -120,6 +121,11 @@ namespace GhettosFirearmSDKv2
         public virtual Cartridge GetChamber()
         {
             return null;
+        }
+
+        public bool HeldByAI()
+        {
+            return !firearm?.item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? false;
         }
 
         public enum BoltState
