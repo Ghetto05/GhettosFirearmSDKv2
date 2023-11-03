@@ -1,8 +1,5 @@
 using UnityEngine;
 using ThunderRoad;
-using System.Collections;
-using Chabuk.ManikinMono;
-using System.Linq;
 using System;
 
 namespace GhettosFirearmSDKv2
