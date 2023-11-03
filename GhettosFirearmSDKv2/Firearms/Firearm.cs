@@ -43,7 +43,7 @@ namespace GhettosFirearmSDKv2
         {
             if (item == null) item = GetComponent<Item>();
             item.OnDespawnEvent += Item_OnDespawnEvent;
-            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
             all.Add(this);
         }
 

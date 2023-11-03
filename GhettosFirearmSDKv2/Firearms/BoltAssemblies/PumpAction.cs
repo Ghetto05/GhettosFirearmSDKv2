@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
 
         public void Start()
         {
-            Invoke("InvokedStart", FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
         }
 
         public void InvokedStart()
@@ -53,7 +53,7 @@ namespace GhettosFirearmSDKv2
             firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
             RefreshBoltHandles();
             ChamberSaved();
-            if (loadedCartridge != null) Invoke("DelayedReparent", 0.03f);
+            if (loadedCartridge != null) Invoke(nameof(DelayedReparent), 0.03f);
             Lock(true);
             ready = true;
             Invoke(nameof(UpdateChamberedRounds), 1f);
