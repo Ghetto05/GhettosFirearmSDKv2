@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ThunderRoad;
 using UnityEngine;
 
@@ -257,6 +258,12 @@ namespace GhettosFirearmSDKv2
                     return child;
             }
             return null;
+        }
+        
+        public static void UpdateLightVolumeReceiver(LightVolumeReceiver receiverToBeUpdated, LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
+        {
+            MethodInfo method = receiverToBeUpdated.GetType().GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(receiverToBeUpdated, new object[] { currentLightProbeVolume, lightProbeVolumes });
         }
     }
 }

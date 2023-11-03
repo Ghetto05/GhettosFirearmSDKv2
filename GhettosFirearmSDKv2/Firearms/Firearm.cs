@@ -61,6 +61,7 @@ namespace GhettosFirearmSDKv2
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnSnapEvent += Item_OnSnapEvent2;
             item.OnUnSnapEvent += Item_OnUnSnapEvent2;
+            item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             allAttachments = new List<Attachment>();
             OnAIFire = new FireableEvent(AIFire);
@@ -238,6 +239,14 @@ namespace GhettosFirearmSDKv2
             if (fireMode == FireModes.Auto) yield return new WaitForSeconds(Random.Range(0.2f, 1.3f));
             Item_OnHeldActionEvent(hand, item.GetMainHandle(hand.side), Interactable.Action.UseStop);
             yield break;
+        }
+
+        private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
+        {
+            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>())
+            {
+                Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
+            }
         }
     }
 }
