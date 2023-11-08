@@ -62,6 +62,7 @@ namespace GhettosFirearmSDKv2
 
         private bool lastFrameHeld = false;
         public Hammer hammer;
+        public bool cockHammerOnTriggerPull;
 
         public void Start()
         {
@@ -193,9 +194,13 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if (hammer != null) hammer.Fire();
-            if (loadedCartridge == null || loadedCartridge.fired) return;
+            if (hammer != null)
+            {
+                if (cockHammerOnTriggerPull) hammer.Cock();
+                hammer.Fire();
+            }
             shotsSinceTriggerReset++;
+            if (loadedCartridge == null || loadedCartridge.fired) return;
             foreach (RagdollHand hand in firearm.item.handlers)
             {
                 if (hand.playerHand != null && hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
@@ -440,7 +445,7 @@ namespace GhettosFirearmSDKv2
             #endregion firing movement
 
             //firing
-            if ((hammer == null || hammer.cocked) && ((fireOnTriggerPress && firearm.triggerState) || externalTriggerState) && state == BoltState.Locked && firearm.fireMode != FirearmBase.FireModes.Safe)
+            if ((hammer == null || hammer.cocked || cockHammerOnTriggerPull) && ((fireOnTriggerPress && firearm.triggerState) || externalTriggerState) && state == BoltState.Locked && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
                 if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
