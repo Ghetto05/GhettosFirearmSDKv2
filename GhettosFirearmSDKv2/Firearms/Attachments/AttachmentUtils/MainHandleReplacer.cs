@@ -34,6 +34,8 @@ namespace GhettosFirearmSDKv2
 
         public void Apply()
         {
+            List<RagdollHand> handlers = oldMainHandle.handlers;
+            oldMainHandle.Release();
             oldMainHandle.SetTouch(false);
             oldMainHandle.SetTelekinesis(false);
             oldMainHandle.enabled = false;
@@ -44,6 +46,8 @@ namespace GhettosFirearmSDKv2
             newMainHandle.SetTelekinesis(true);
             newMainHandle.enabled = true;
             newMainHandle.gameObject.SetActive(true);
+            
+            handlers.ForEach(h => h.Grab(newMainHandle));
 
             attachment.attachmentPoint.parentFirearm.item.mainHandleLeft = newMainHandle;
             attachment.attachmentPoint.parentFirearm.item.mainHandleRight = newMainHandle;
