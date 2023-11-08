@@ -79,6 +79,10 @@ namespace GhettosFirearmSDKv2
                 {
                     boltHandles.Add(h);
                 }
+                foreach (Handle h in bolt.gameObject.GetComponentsInChildren<Handle>())
+                {
+                    boltHandles.Add(h);
+                }
                 foreach (AttachmentPoint point in onBoltPoints)
                 {
                     foreach (Attachment attachment in point.GetAllChildAttachments())
