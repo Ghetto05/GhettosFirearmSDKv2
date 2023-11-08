@@ -14,12 +14,12 @@ namespace GhettosFirearmSDKv2
 
         public override void Start()
         {
+            base.Start();
             Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
         }
 
         public void InvokedStart()
         {
-            base.Start();
             if (!disableMainFireHandle) mainFireHandle = fireHandle;
             item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
             attachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;

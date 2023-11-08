@@ -41,6 +41,7 @@ namespace GhettosFirearmSDKv2
 
         public override void Start()
         {
+            base.Start();
             if (item == null) item = GetComponent<Item>();
             item.OnDespawnEvent += Item_OnDespawnEvent;
             Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
@@ -54,7 +55,6 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            base.Start();
             if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
