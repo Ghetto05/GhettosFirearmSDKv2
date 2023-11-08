@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.XR;
@@ -48,7 +50,7 @@ namespace GhettosFirearmSDKv2
         {
             if (firearm.setUpForHandPose)
             {
-                foreach (Handle h in firearm.AllTriggerHandles())
+                foreach (Handle h in firearm.AllTriggerHandles().Where(h => h != null))
                 {
                     if (h.handlers.Count > 0)
                     {
