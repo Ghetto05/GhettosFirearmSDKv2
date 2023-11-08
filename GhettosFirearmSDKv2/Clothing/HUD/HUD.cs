@@ -21,9 +21,6 @@ namespace GhettosFirearmSDKv2
             }
             else
             {
-                FirearmsSettings.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
-                Settings_LevelModule_OnValueChangedEvent();
-
                 hudObject.transform.SetParent(Player.local.head.cam.transform);
                 hudObject.transform.localPosition = Vector3.zero;
                 hudObject.transform.localEulerAngles = Vector3.zero;

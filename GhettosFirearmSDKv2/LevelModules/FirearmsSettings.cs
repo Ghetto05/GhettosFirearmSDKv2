@@ -264,12 +264,6 @@ namespace GhettosFirearmSDKv2
         public static float damageMultiplier = 1f;
         #endregion Cheats
         #endregion Values
-
-        #region Other
-
-        public delegate void OnValueChangedDelegate();
-        public static event OnValueChangedDelegate OnValueChangedEvent;
-        #endregion Other
         #endregion Settings
 
         #region Gun Locker / Liam
