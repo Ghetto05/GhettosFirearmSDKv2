@@ -150,8 +150,10 @@ namespace GhettosFirearmSDKv2
             idString = idString.Replace("#", "");
             idString = idString.Replace("&", "");
             idString = idString.Replace("|", "");
-
             bool preb = FirearmsSettings.saveAsPrebuilt;
+
+            if (!preb) DeleteSave(idString);
+            
             GunLockerSaveData newData = new GunLockerSaveData
             {
                 id = preb ? "PREBUILT_" + idString : "SAVE_" + idString,
@@ -249,6 +251,7 @@ namespace GhettosFirearmSDKv2
         private void DeleteSave(string saveId)
         {
             GunLockerSaveData data = Catalog.GetData<GunLockerSaveData>(saveId);
+            if (data == null) return;
             string path = FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + data.id + ".json";
             if (File.Exists(path)) File.Delete(path);
             Catalog.data[(int)Catalog.GetCategory(data.GetType())].catalogDatas.Remove(data);
