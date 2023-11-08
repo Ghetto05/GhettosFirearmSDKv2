@@ -52,7 +52,6 @@ namespace GhettosFirearmSDKv2
             rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
             cam.targetTexture = rt;
             lens.materials[materialIndex].SetTexture("_BaseMap", rt);
-            FirearmsSettings.OnValueChangedEvent += Settings_LevelModule_OnValueChangedEvent;
 
             if (hasZoom && connectedFirearm != null)
             {
@@ -72,12 +71,6 @@ namespace GhettosFirearmSDKv2
                 SetZoom();
                 UpdatePosition();
             }
-        }
-
-        private void Settings_LevelModule_OnValueChangedEvent()
-        {
-            if (hasZoom) SetZoom();
-            else SetZoomNoZoomer(noZoomMagnification);
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
