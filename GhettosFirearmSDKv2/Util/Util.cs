@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ThunderRoad;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2
 {
@@ -251,7 +253,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (Transform parent1 in parent)
             {
-                if (parent1.name == childName)
+                if (parent1.gameObject.name.Equals(childName))
                     return parent1;
                 Transform child = RecursiveFindChild(parent1, childName);
                 if (child != null)
