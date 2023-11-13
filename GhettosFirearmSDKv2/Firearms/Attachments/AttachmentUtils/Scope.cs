@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using IngameDebugConsole;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2
 {
@@ -22,6 +23,8 @@ namespace GhettosFirearmSDKv2
 
         [Header("Lens")]
         public MeshRenderer lens;
+        [FormerlySerializedAs("additionalLenses")]
+        public List<MeshRenderer> lenses;
         public int materialIndex = 0;
         public Camera cam;
         public List<Camera> additionalCameras;
@@ -44,6 +47,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Start()
         {
+            if (lens != null) lenses.Add(lens);
             Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
         }
 
@@ -53,7 +57,6 @@ namespace GhettosFirearmSDKv2
             rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
             cam.targetTexture = rt;
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
-            lens.materials[materialIndex].SetTexture("_BaseMap", rt);
 
             if (hasZoom && connectedFirearm != null)
             {
@@ -65,7 +68,7 @@ namespace GhettosFirearmSDKv2
                 connectedAtatchment.OnHeldActionEvent += Item_OnHeldActionEvent;
                 zoomIndex = connectedAtatchment.node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
             }
-            else SetZoomNoZoomer(noZoomMagnification);
+            else SetFOVFromMagnification(noZoomMagnification);
 
             if (hasZoom)
             {
@@ -105,7 +108,7 @@ namespace GhettosFirearmSDKv2
 
         public void SetZoom()
         {
-            SetZoomNoZoomer(MagnificationLevels[currentIndex]);
+            SetFOVFromMagnification(MagnificationLevels[currentIndex]);
         }
 
         public float GetScale()
@@ -130,17 +133,27 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void SetZoomNoZoomer(float zoom)
+        public void SetFOVFromMagnification(float magnification)
         {
-            var factor = 2.0f * Mathf.Tan(0.5f * FirearmsSettings.scopeX1MagnificationFOV * Mathf.Deg2Rad);
-            var zoomedFOV = 2.0f * Mathf.Atan(factor / (2.0f * zoom)) * Mathf.Rad2Deg;
-            cam.fieldOfView = zoomedFOV;
+            float factor = 2.0f * Mathf.Tan(0.5f * FirearmsSettings.scopeX1MagnificationFOV * Mathf.Deg2Rad);
+            float fov = 2.0f * Mathf.Atan(factor / (2.0f * magnification)) * Mathf.Rad2Deg;
+            
+            cam.fieldOfView = fov;
             foreach (Camera c in additionalCameras)
             {
-                c.fieldOfView = zoomedFOV;
+                c.fieldOfView = fov;
             }
-            lens.material.SetTextureScale("_BaseMap", Vector2.one * GetScale());
-            lens.material.SetTextureOffset("_BaseMap", Vector3.one * ((1 - GetScale()) / 2));
+            UpdateRenderers();
+        }
+
+        public void UpdateRenderers()
+        {
+            foreach (MeshRenderer l in lenses)
+            {
+                l.materials[materialIndex].SetTexture("_BaseMap", cam.targetTexture);
+                l.materials[materialIndex].SetTextureScale("_BaseMap", Vector2.one * GetScale());
+                l.materials[materialIndex].SetTextureOffset("_BaseMap", Vector3.one * ((1 - GetScale()) / 2));
+            }
         }
     }
 }
