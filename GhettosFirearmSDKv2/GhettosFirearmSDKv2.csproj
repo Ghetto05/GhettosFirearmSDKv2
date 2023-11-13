@@ -38,6 +38,7 @@
     <Compile Include="Clothing\GasMask.cs" />
     <Compile Include="Clothing\HUD\HUDModuleStats.cs" />
     <Compile Include="Clothing\HUD\HUDToggle.cs" />
+    <Compile Include="Clothing\WearableItem.cs" />
     <Compile Include="Firearms\FirearmMechanics\AmmoCounter.cs" />
     <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs" />
     <Compile Include="Firearms\FirearmMechanics\StripperClip.cs" />

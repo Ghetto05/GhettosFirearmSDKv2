@@ -285,7 +285,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (MoveBoltWithRB()) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rigidBody.transform.localPosition.z);
                 else bolt.localPosition = catchPoint.localPosition;
-                if (chargingHandle != null && !closingAfterRelease)
+                if (chargingHandle != null && (!closingAfterRelease || chargingHandleLocksBack))
                 {
                     chargingHandle.localPosition = new Vector3(chargingHandle.localPosition.x, chargingHandle.localPosition.y, rigidBody.transform.localPosition.z);
                 }
