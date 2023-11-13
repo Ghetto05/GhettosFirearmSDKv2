@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 using UnityEngine.AddressableAssets;
@@ -42,6 +43,11 @@ namespace GhettosFirearmSDKv2
         public override void Start()
         {
             base.Start();
+            if (attachmentPoints.Count == 0 || attachmentPoints.Any(a => a == null))
+            {
+                attachmentPoints = GetComponentsInChildren<AttachmentPoint>().ToList();
+            }
+
             if (item == null) item = GetComponent<Item>();
             item.OnDespawnEvent += Item_OnDespawnEvent;
             Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
