@@ -96,7 +96,7 @@ namespace GhettosFirearmSDKv2
         #region Values
         #region Static
         public static bool magazinesHaveNoCollision = true;
-        public static float scopeX1MagnificationFOV = 60f; //13f; //28.5f
+        public static float scopeX1MagnificationFOV = 20f; //45f; //60f; //13f; //28.5f
         public static float cartridgeEjectionTorque = 1f;
         public static float cartridgeEjectionForceRandomizationDevision = 3f;
         public static float firingSoundDeviation = 0.2f;
