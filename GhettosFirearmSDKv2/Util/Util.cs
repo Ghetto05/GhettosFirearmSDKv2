@@ -264,7 +264,8 @@ namespace GhettosFirearmSDKv2
         
         public static void UpdateLightVolumeReceiver(LightVolumeReceiver receiverToBeUpdated, LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            MethodInfo method = receiverToBeUpdated.GetType().GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
+            return;
+            MethodInfo method = typeof(LightVolumeReceiver).GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
             method.Invoke(receiverToBeUpdated, new object[] { currentLightProbeVolume, lightProbeVolumes });
         }
     }
