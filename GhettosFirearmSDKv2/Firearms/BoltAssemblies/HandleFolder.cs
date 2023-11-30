@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
                     axis.localEulerAngles = positions[handles.IndexOf(h)].localEulerAngles;
                 }
             }
-            if (!held)
+            if (!held && defaultPosition != null)
             {
                 axis.localPosition = defaultPosition.localPosition;
                 axis.localEulerAngles = defaultPosition.localEulerAngles;
