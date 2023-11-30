@@ -38,12 +38,14 @@
     <Compile Include="Clothing\GasMask.cs" />
     <Compile Include="Clothing\HUD\HUDModuleStats.cs" />
     <Compile Include="Clothing\HUD\HUDToggle.cs" />
+    <Compile Include="Clothing\NVGAdjuster.cs" />
     <Compile Include="Clothing\WearableItem.cs" />
     <Compile Include="Firearms\FirearmMechanics\AmmoCounter.cs" />
     <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs" />
     <Compile Include="Firearms\FirearmMechanics\StripperClip.cs" />
     <Compile Include="Firearms\FirearmMechanics\StripperClipMount.cs" />
     <Compile Include="LevelModules\FirearmCleaner.cs" />
+    <Compile Include="LevelModules\FirearmsSettingsValues.cs" />
     <Compile Include="Other\ChemLight.cs" />
     <Compile Include="Other\GunCaseSaveData.cs" />
     <Compile Include="Other\GunCase.cs" />
