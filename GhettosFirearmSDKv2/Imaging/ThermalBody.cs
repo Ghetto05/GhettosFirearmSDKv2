@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
+using Unity.Mathematics;
 
 namespace GhettosFirearmSDKv2
 {
@@ -19,18 +21,24 @@ namespace GhettosFirearmSDKv2
         public Material whiteHotMaterial;
         public Material blackHotMaterial;
 
+        private Material _smInst;
+        private Material _rhInst;
+        private Material _whInst;
+        private Material _bhInst;
+
         public void ApplyTo(Creature c)
         {
             cc = c;
             c.OnKillEvent += C_OnKillEvent;
-            Invoke(nameof(Apply), 0.2f);
+            c.OnDespawnEvent += COnDespawnEvent;
+            Invoke(nameof(Apply), 0.1f);
         }
 
-        private void C_OnKillEvent(CollisionInstance collisionInstance, EventTime eventTime)
+        private void COnDespawnEvent(EventTime eventTime)
         {
             try
             {
-                if (eventTime == EventTime.OnEnd)
+                if (eventTime == EventTime.OnStart)
                 {
                     Destroy(rig?.gameObject);
                     foreach (Transform t in bones)
@@ -44,20 +52,32 @@ namespace GhettosFirearmSDKv2
             { }
         }
 
+        private void C_OnKillEvent(CollisionInstance collisionInstance, EventTime eventTime)
+        {
+            try
+            {
+                if (eventTime == EventTime.OnEnd)
+                {
+                    StartCoroutine(Fade());
+                }
+            }
+            catch (System.Exception)
+            { }
+        }
+
         private void Apply()
         {
-            rig.SetParent(cc.ragdoll.animatorRig);
+            rig.SetParent(cc.ragdoll.meshRig);
             rig.localPosition = Vector3.zero;
             rig.localEulerAngles = new Vector3(0, 0, 0);
             rig.localScale = Vector3.one;
 
             foreach (Transform b in bones)
             {
-                if (Util.RecursiveFindChild(cc.ragdoll.animatorRig, b.gameObject.name) is Transform t)
+                if (cc.ragdoll.bones?.FirstOrDefault(cb => cb.mesh.gameObject.name.Equals(b.gameObject.name + "_Mesh"))?.mesh is Transform t)
                 {
                     b.SetParent(t);
-                    b.localPosition = Vector3.zero;
-                    b.localEulerAngles = new Vector3(0, 0, 0);
+                    b.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
                     b.localScale = Vector3.one;
                 }
             }
@@ -70,43 +90,70 @@ namespace GhettosFirearmSDKv2
 
         public void Start()
         {
+            _smInst = new Material(standardMaterial);
+            _rhInst = new Material(redHotMaterial);
+            _bhInst = new Material(blackHotMaterial);
+            _whInst = new Material(whiteHotMaterial);
+            
             if (all == null) all = new List<ThermalBody>();
             all.Add(this);
         }
 
         public void SetColor(NVGOnlyRenderer.ThermalTypes t)
         {
-            if (standardMaterial == null || renderers.Count == 0 || renderers[0] == null) return;
+            if (_smInst == null || renderers.Count == 0 || renderers[0] == null) return;
             Material m = null;
             if (t == NVGOnlyRenderer.ThermalTypes.Standard)
             {
-                m = standardMaterial;
+                m = _smInst;
             }
             else if (t == NVGOnlyRenderer.ThermalTypes.BlackHot)
             {
-                m = blackHotMaterial;
+                m = _bhInst;
             }
             else if (t == NVGOnlyRenderer.ThermalTypes.RedHot)
             {
-                m = redHotMaterial;
+                m = _rhInst;
             }
             else if (t == NVGOnlyRenderer.ThermalTypes.WhiteHot)
             {
-                m = whiteHotMaterial;
+                m = _whInst;
             }
 
-            try
+            foreach (SkinnedMeshRenderer r in renderers)
             {
-                foreach (SkinnedMeshRenderer r in renderers)
-                {
-                    r.material = m;
-                }
+                r.material = m;
             }
-            catch (System.Exception)
-            {
+        }
 
-                throw;
+        private IEnumerator Fade()
+        {
+            float startingTemperature = standardMaterial.GetFloat("_Temperature");
+            float duration = 20f;
+            float elapsedTime = 0f;
+            while (elapsedTime < duration)
+            {
+                float t = Mathf.Clamp01(elapsedTime / duration);
+                float falloffValue = startingTemperature * (1 - Mathf.Pow(t, 2));
+                SetAllMaterialTemperatures(falloffValue);
+                elapsedTime += Time.deltaTime;
+                yield return null;
             }
+            
+            Destroy(rig?.gameObject);
+            foreach (Transform t in bones)
+            {
+                Destroy(t?.gameObject);
+            }
+            if (gameObject != null) Destroy(gameObject);
+        }
+
+        private void SetAllMaterialTemperatures(float temperature)
+        {
+            _smInst.SetFloat("_Temperature", temperature);
+            _rhInst.SetFloat("_Temperature", temperature);
+            _whInst.SetFloat("_Temperature", temperature);
+            _bhInst.SetFloat("_Temperature", temperature);
         }
     }
 }
