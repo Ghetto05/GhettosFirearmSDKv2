@@ -187,13 +187,13 @@ namespace GhettosFirearmSDKv2
 
         #region Debug
         [ModOptionOrder(1)]
-        [ModOptionCategory("Debug", 3)]
+        [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Display debug messages", tooltip = "Only for debugging use.", defaultValueIndex = 0, saveValue = true)]
         public static bool debugMode;
 
         [ModOptionOrder(2)]
-        [ModOptionCategory("Debug", 3)]
-        [ModOption(name = "Spawn Liam", tooltip = "Spawn the blue guy. Requires map reload to take effect.", defaultValueIndex = 0, saveValue = true)]
+        [ModOptionCategory("Debug", 30)]
+        [ModOption(name = "Spawn Liam", tooltip = "Spawn the blue guy.", defaultValueIndex = 0, saveValue = true)]
         public static bool spawnLiam
         {
             get => _spawnLiam;
@@ -208,14 +208,14 @@ namespace GhettosFirearmSDKv2
         private static GameObject liam;
 
         [ModOptionOrder(3)]
-        [ModOptionCategory("Debug", 3)]
+        [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Save guns as prebuilts", tooltip = "Only for development. Saves any gun in the locker with the prebuilt setup.", defaultValueIndex = 0, saveValue = true)]
         public static bool saveAsPrebuilt;
         #endregion Debug
 
         #region Cheats
         [ModOptionOrder(1)]
-        [ModOptionCategory("Cheats", 2)]
+        [ModOptionCategory("Cheats", 10)]
         [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", defaultValueIndex = 3, saveValue = true, valueSourceName = nameof(iots))]
         public static float incapitateOnTorsoShot;
         public static ModOptionFloat[] iots =
@@ -244,22 +244,22 @@ namespace GhettosFirearmSDKv2
         };
 
         [ModOptionOrder(2)]
-        [ModOptionCategory("Cheats", 2)]
+        [ModOptionCategory("Cheats", 10)]
         [ModOption(name = "Infinite ammo", tooltip = "If enabled, magazines will refill as they are used and chamber loaders will not use up the loaded cartridge.", defaultValueIndex = 0, saveValue = true)]
         public static bool infiniteAmmo = false;
 
         [ModOptionOrder(3)]
-        [ModOptionCategory("Cheats", 2)]
+        [ModOptionCategory("Cheats", 10)]
         [ModOption(name = "Caliber checks", tooltip = "If disabled, any magazine or chamber can be loaded with any caliber.", defaultValueIndex = 1, saveValue = true)]
         public static bool doCaliberChecks = true;
 
         [ModOptionOrder(4)]
-        [ModOptionCategory("Cheats", 2)]
+        [ModOptionCategory("Cheats", 10)]
         [ModOption(name = "Magazine type checks", tooltip = "If disabled, magazine can be loaded into any firearm.", defaultValueIndex = 1, saveValue = true)]
         public static bool doMagazineTypeChecks = true;
 
         [ModOptionOrder(5)]
-        [ModOptionCategory("Cheats", 2)]
+        [ModOptionCategory("Cheats", 10)]
         [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true, defaultValueIndex = 10)]
         public static float damageMultiplier = 1f;
         #endregion Cheats
