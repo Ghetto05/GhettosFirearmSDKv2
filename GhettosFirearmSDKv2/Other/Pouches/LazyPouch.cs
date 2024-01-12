@@ -15,7 +15,7 @@ namespace GhettosFirearmSDKv2
         public Handle lastHeldHandle;
         bool setup = false;
         bool nextUnsnapIsCleaning = false;
-        FirearmBase lastFirearms;
+        FirearmBase lastFirearm;
         bool spawning = false;
 
         private void Start()
@@ -61,32 +61,32 @@ namespace GhettosFirearmSDKv2
                 {
                     if (h.GetComponentInParent<AttachmentFirearm>() != null)
                     {
-                        lastFirearms = h.GetComponentInParent<AttachmentFirearm>();
+                        lastFirearm = h.GetComponentInParent<AttachmentFirearm>();
                     }
                     else
                     {
-                        lastFirearms = item.GetComponent<Firearm>();
+                        lastFirearm = item.GetComponent<Firearm>();
                     }
 
-                    if (lastFirearms != null && lastFirearms.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff) lastFirearms = ff;
+                    if (lastFirearm != null && lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff) lastFirearm = ff;
                 }
 
-                if (lastFirearms != null)
+                if (lastFirearm != null)
                 {
-                    if (!containedItems.Contains(lastFirearms.defaultAmmoItem) && !lastFirearms.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
+                    if (!containedItems.Contains(lastFirearm.defaultAmmoItem) && !lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
                     {
-                        containedItems.Add(lastFirearms.defaultAmmoItem);
+                        containedItems.Add(lastFirearm.defaultAmmoItem);
                         spawning = true;
-                        Catalog.GetData<ItemData>(lastFirearms.defaultAmmoItem).SpawnAsync(newItem =>
+                        Catalog.GetData<ItemData>(lastFirearm.defaultAmmoItem).SpawnAsync(newItem =>
                         {
                             item.disallowDespawn = true;
                             StartCoroutine(DelayedSnap(newItem));
                             spawnedItems.Add(newItem);
                         });
                     }
-                    else if (!lastFirearms.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !spawning)
+                    else if (!lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !spawning)
                     {
-                        GetById(lastFirearms.defaultAmmoItem);
+                        GetById(lastFirearm.defaultAmmoItem);
                     }
                 }
                 lastHeldHandle = h;
