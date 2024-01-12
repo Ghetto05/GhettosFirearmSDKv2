@@ -64,6 +64,7 @@ namespace GhettosFirearmSDKv2
             if (joint == null)
             {
                 joint = revolver.rotateBody.gameObject.AddComponent<ConfigurableJoint>();
+                rigidBody.transform.SetLocalPositionAndRotation(root.localPosition, root.localRotation);
                 joint.connectedBody = rigidBody;
                 joint.massScale = 0.00001f;
 

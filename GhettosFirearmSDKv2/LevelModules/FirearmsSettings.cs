@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -16,29 +17,52 @@ namespace GhettosFirearmSDKv2
         public static FirearmsSettings local;
 
         #region Initialization
+        
         public override void ScriptEnable()
         {
             local = this;
 
-            #region oldSaveLoader
+            #region Initial message
 
             string version = ModManager.TryGetModData(GetType().Assembly, out ModManager.ModData data) ? data.ModVersion : "?";
 
-            string message = $"\n\n" +
-                $"----> Loaded FirearmSDKv2!" +
-                $"----> Version: {version}" +
-                $"\n\n";
+            string initialMessage = $"\n\n" +
+                             $"----> Loaded FirearmSDKv2!\n" +
+                             $"----> Version: {version}" +
+                             $"\n\n";
 
-            //Debug.Log("------------> Loaded FirearmSDKv2 settings!");
-            //Debug.Log($"-----------------> Incapitate: {incapitateOnTorsoShot}");
-            //Debug.Log($"-----------------> Infinite ammo: {infiniteAmmo}");
-            //Debug.Log($"-----------------> Caliber checks: {doCaliberChecks}");
-            //Debug.Log($"-----------------> Magazine type checks: {doMagazineTypeChecks}");
-            //Debug.Log($"-----------------> Damage multiplier: {damageMultiplier}");
-            //Debug.Log($"-----------------> Long press time: {longPressTime}");
-            #endregion oldSaveLoader
+            Debug.Log(initialMessage);
 
-            Debug.Log(message);
+            #endregion
+
+            #region HandPose check
+            
+            List<HandPoseData> incompleteData = Catalog.GetDataList<HandPoseData>().Where(x => !x.poses.Any(y => y.creatureName.Equals("HumanMale")) || !x.poses.Any(y => y.creatureName.Equals("HumanFemale"))).ToList();
+            if (incompleteData.Count > 0)
+            {
+                string dataMessage = "\n";
+                dataMessage += "INCOMPLETE HANDLE DATA FOUND! The following hand poses lack a creature:";
+                foreach (HandPoseData pose in incompleteData)
+                {
+                    if (pose.poses.Any(x => x.creatureName.Equals("HumanMale")))
+                        dataMessage += $"\n   ID: {pose.id} - HumanMale";
+                    if (pose.poses.Any(x => x.creatureName.Equals("HumanFemale")))
+                        dataMessage += $"\n   ID: {pose.id} - HumanFemale";
+                }
+                
+                Debug.LogWarning(dataMessage);
+            }
+            
+            #endregion
+            
+            foreach (GunLockerSaveData glsd in Catalog.GetDataList<GunLockerSaveData>())
+            {
+                glsd.GenerateItem();
+            }
+            foreach (LootTableOverride lto in Catalog.GetDataList<LootTableOverride>())
+            {
+                lto.ApplyToTable();
+            }
 
             EventManager.OnPlayerPrefabSpawned += EventManager_OnPlayerSpawned;
             EventManager.onCreatureSpawn += EventManager_onCreatureSpawn;
@@ -60,7 +84,7 @@ namespace GhettosFirearmSDKv2
                 string id = "NoneFound";
                 if (creature.data.prefabAddress.Equals("Bas.Creature.HumanMale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Male";
                 else if (creature.data.prefabAddress.Equals("Bas.Creature.HumanFemale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Female";
-                //else if (creature.data.prefabAddress.Equals("Bas.Creature.Chicken")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Chicken";
+                else if (creature.data.prefabAddress.Equals("Bas.Creature.Chicken")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Chicken";
 
                 if (!id.Equals("NoneFound"))
                 {
@@ -92,11 +116,15 @@ namespace GhettosFirearmSDKv2
             ren.renderCamera = Player.local.head.cam;
             ren.renderType = NVGOnlyRenderer.Types.FirstPerson;
         }
+        
         #endregion Initialization
 
         #region Settings
+        
         #region Values
+        
         #region Static
+        
         public static bool magazinesHaveNoCollision = true;
         public static float scopeX1MagnificationFOV = 20f; //45f; //60f; //13f; //28.5f
         public static float cartridgeEjectionTorque = 1f;
@@ -104,9 +132,12 @@ namespace GhettosFirearmSDKv2
         public static float firingSoundDeviation = 0.2f;
         public static float invokeTime = 0.3f;
         public static float boltPointTreshold = 0.004f;
+        public static float aiFirearmSpread = 0f;
+        
         #endregion Static
 
         #region PureSettings
+        
         //[ModOption(name = "HUD scale", tooltip = "Scales HUDs.", saveValue = true)]
         public static float hudScale = 1f;
 
@@ -188,6 +219,7 @@ namespace GhettosFirearmSDKv2
         #endregion PureSettings
 
         #region Clothing
+        
         #region NVG Offsets
 
         private static float _nvgForwardOffset;
@@ -247,6 +279,7 @@ namespace GhettosFirearmSDKv2
         }
 
         #endregion
+        
         #endregion
         
         #region Debug

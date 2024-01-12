@@ -74,7 +74,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (newItem.TryGetComponent(out Magazine mag))
                 {
-                    mag.onLoadFinished += Mag_onLoadFinished;
+                    mag.OnLoadFinished += Mag_onLoadFinished;
                 }
                 else holder.Snap(newItem);
             }, transform.position, transform.rotation, null, true, savedData.dataList.CloneJson());

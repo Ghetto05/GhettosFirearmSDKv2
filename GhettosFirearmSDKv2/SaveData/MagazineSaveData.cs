@@ -22,6 +22,16 @@ namespace GhettosFirearmSDKv2
             }
             ApplyToMagazineRecurve(contents.Length - 1, magazine, contents.CloneJson());
         }
+        
+        public void ApplyToMagazine(StripperClip clip)
+        {
+            if (contents == null || contents.Length == 0)
+            {
+                clip.loadable = true;
+                return;
+            }
+            ApplyToClipRecurve(contents.Length - 1, clip, contents.CloneJson());
+        }
 
         private void ApplyToMagazineRecurve(int index, Magazine mag, string[] con)
         {
@@ -48,6 +58,31 @@ namespace GhettosFirearmSDKv2
                 Debug.Log($"Cartridge: {Catalog.GetData<ItemData>(con[index]).id}");
             }
         }
+        
+        private void ApplyToClipRecurve(int index, StripperClip clip, string[] con)
+        {
+            if (index < 0)
+            {
+                clip.loadable = true;
+                return;
+            }
+            try
+            {
+                Catalog.GetData<ItemData>(con[index]).SpawnAsync(cartridge =>
+                {
+                    clip.InsertRound(cartridge.GetComponent<Cartridge>(), true, true, false);
+                    ApplyToClipRecurve(index - 1, clip, con);
+                }, clip.transform.position + Vector3.up * 3, null, null, false);
+            }
+            catch (Exception)
+            {
+                Debug.Log("Error clip: " + clip);
+                Debug.Log($"Contents: {con}");
+                Debug.Log($"Index: {index}");
+                Debug.Log($"Contents length: {con.Length}");
+                Debug.Log($"Cartridge: {Catalog.GetData<ItemData>(con[index]).id}");
+            }
+        }
 
         public void GetContentsFromMagazine(Magazine magazine)
         {
@@ -56,6 +91,18 @@ namespace GhettosFirearmSDKv2
             for (int i = 0; i < magazine.cartridges.Count; i++)
             {
                 Cartridge car = magazine.cartridges[i];
+                contents[i] = car.item.itemId;
+            }
+        }
+
+        public void GetContentsFromClip(StripperClip clip)
+        {
+            if (clip == null || clip.loadedCartridges == null)
+                return;
+            contents = new string[clip.loadedCartridges.Count];
+            for (int i = 0; i < clip.loadedCartridges.Count; i++)
+            {
+                Cartridge car = clip.loadedCartridges[i];
                 contents[i] = car.item.itemId;
             }
         }

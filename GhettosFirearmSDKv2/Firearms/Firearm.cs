@@ -79,6 +79,7 @@ namespace GhettosFirearmSDKv2
             
             if (!item.TryGetCustomData(out saveData))
             {
+                Debug.Log($"No data on {item.name}! Modules: {string.Join(", ", item.data.modules.Select(m => m.GetType().ToString()))}");
                 saveData = new FirearmSaveData();
                 saveData.firearmNode = new FirearmSaveData.AttachmentTreeNode();
                 item.AddCustomData(saveData);
@@ -169,7 +170,7 @@ namespace GhettosFirearmSDKv2
             if (item.holder != null)
             {
                 Holder h = item.holder;
-                item.holder.UnSnap(item, true);
+                item.holder.UnSnap(item, true, false);
                 h.Snap(item, true);
             }
         }
@@ -249,7 +250,7 @@ namespace GhettosFirearmSDKv2
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>())
+            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
             {
                 Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
             }

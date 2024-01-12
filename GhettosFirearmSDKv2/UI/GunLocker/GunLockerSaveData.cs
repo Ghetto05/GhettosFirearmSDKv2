@@ -26,16 +26,16 @@ namespace GhettosFirearmSDKv2
             return list;
         }
 
-        public override void OnCatalogRefresh()
+        public void GenerateItem()
         {
             if (category.Equals("Prebuilts"))
             {
                 try
                 {
                     FirearmsSettings.CreateSaveFolder();
-                    ItemData itemData = (ItemData)Catalog.GetData<ItemData>(itemId).Clone();
+                    ItemData itemData = (ItemData)Catalog.GetData<ItemData>(itemId).CloneJson();
                     itemData.modules = itemData.modules.CloneJson();
-                    itemData.id = "Item" + id;
+                    itemData.id = id;
                     itemData.description = "Prebuilt version of the " + itemData.displayName + ".";
                     itemData.displayName = displayName;
                     itemData.category = "Firearm Prebuilts";
@@ -47,7 +47,7 @@ namespace GhettosFirearmSDKv2
                                                 itemData = itemData
                                             };
                     itemData.modules.Add(loader);
-                    Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + "Item" + id + ".json", "!GhettosFirearmSDKv2_Saves");
+                    Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + id + ".json", "!GhettosFirearmSDKv2_Saves");
                     allPrebuilts.Add(itemData);
                 }
                 catch (Exception e)

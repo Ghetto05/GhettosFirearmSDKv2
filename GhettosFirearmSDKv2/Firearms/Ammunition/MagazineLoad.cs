@@ -28,5 +28,12 @@ namespace GhettosFirearmSDKv2
                 Recurve(index - 1, mag);
             }, transform.position + Vector3.up * 3, transform.rotation, null, false);
         }
+
+        public MagazineSaveData ToSaveData()
+        {
+            MagazineSaveData data = new MagazineSaveData();
+            data.contents = ids.CloneJson();
+            return data;
+        }
     }
 }

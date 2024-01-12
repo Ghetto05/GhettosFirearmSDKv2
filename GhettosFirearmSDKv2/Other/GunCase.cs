@@ -8,6 +8,9 @@ namespace GhettosFirearmSDKv2
 {
     public class GunCase : MonoBehaviour
     {
+        public bool isStatic;
+        public List<GameObject> nonStaticObjects;
+        [Space]
         public Item item;
         public Holder holder;
         [Space]
@@ -17,6 +20,8 @@ namespace GhettosFirearmSDKv2
         [Space]
         public UnityEvent openingEvent;
         public UnityEvent closingEvent;
+        public UnityEvent openingStartedEvent;
+        public UnityEvent closingFinishedEvent;
         [Space]
         public List<Handle> freezeHandles;
         public List<Handle> toggleHandles;
@@ -29,6 +34,19 @@ namespace GhettosFirearmSDKv2
         void Start()
         {
             Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            if (isStatic)
+            {
+                item.physicBody.isKinematic = true;
+                foreach (Handle handle in freezeHandles)
+                {
+                    handle.SetTouch(false);
+                    handle.SetTelekinesis(false);
+                }
+                foreach (GameObject obj in nonStaticObjects)
+                {
+                    obj.SetActive(false);
+                }
+            }
         }
 
         public void InvokedStart()
@@ -113,6 +131,7 @@ namespace GhettosFirearmSDKv2
             }
             moving = true;
             animator.Play(openingAnimationName);
+            openingStartedEvent.Invoke();
             yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
             openingEvent.Invoke();
             open = true;
@@ -128,6 +147,7 @@ namespace GhettosFirearmSDKv2
             closingEvent.Invoke();
             animator.Play(closingAnimationName);
             yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+            closingFinishedEvent.Invoke();
             open = false;
             closed = true;
             moving = false;

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
@@ -10,7 +11,8 @@ namespace GhettosFirearmSDKv2
 
         public override void OnItemLoaded(Item item)
         {
-            if (item.contentCustomData == null || item.contentCustomData.Count == 0) item.contentCustomData = Catalog.GetData<GunLockerSaveData>(prebuiltId).dataList.CloneJson();
+            if (!item.TryGetCustomData(out FirearmSaveData fsd))
+                item.AddCustomData(Catalog.GetData<GunLockerSaveData>(prebuiltId).dataList.Where(d => d.GetType() == typeof(FirearmSaveData)).FirstOrDefault()?.CloneJson());
             base.OnItemLoaded(item);
         }
     }

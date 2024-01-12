@@ -44,10 +44,11 @@ namespace GhettosFirearmSDKv2
         public float lastEjectTime = 0f;
         public BoltBase bolt;
         public bool onlyAllowLoadWhenBoltIsBack;
+        private List<ColliderGroup> colliderGroups = new List<ColliderGroup>();
 
         private void Update()
         {
-            if (FirearmsSettings.magazinesHaveNoCollision && currentWell != null) ToggleCollision(false);
+            //if (FirearmsSettings.magazinesHaveNoCollision && currentWell != null) ToggleCollision(false);
             //UpdateCartridgePositions();
             if (currentWell != null && currentWell.firearm != null && canBeGrabbedInWell)
             {
@@ -62,7 +63,7 @@ namespace GhettosFirearmSDKv2
             if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count] != null) feederObjects[cartridges.Count].SetActive(true);
         }
 
-        public void InvokeLoadFinished() => onLoadFinished?.Invoke(this);
+        public void InvokeLoadFinished() => OnLoadFinished?.Invoke(this);
 
         private void Start()
         {
@@ -72,9 +73,12 @@ namespace GhettosFirearmSDKv2
         public void InvokedStart()
         {
             cartridges = new List<Cartridge>();
-            if (overrideItem == null) item = GetComponent<Item>();
-            else item = overrideItem;
-            if (item == null) return;
+            if (overrideItem == null)
+                item = GetComponent<Item>();
+            else
+                item = overrideItem;
+            if (item == null)
+                return;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
@@ -89,7 +93,8 @@ namespace GhettosFirearmSDKv2
                 {
                     saveData = new MagazineSaveData();
                     item.AddCustomData(saveData);
-                    if (defaultLoad != null) defaultLoad.Load(this);
+                    if (defaultLoad != null)
+                        defaultLoad.Load(this);
                     else
                     {
                         InvokeLoadFinished();
@@ -168,7 +173,7 @@ namespace GhettosFirearmSDKv2
 
         private bool BoltExistsAndIsPulled() => !onlyAllowLoadWhenBoltIsBack || bolt == null || bolt.state == BoltBase.BoltState.Back || bolt.state == BoltBase.BoltState.LockedBack;
 
-        public void InsertRound(Cartridge c, bool silent, bool forced, bool save = true)
+        public void InsertRound(Cartridge c, bool silent, bool forced, bool save = true, bool atBottom = false)
         {
             if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCatridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
             {
@@ -176,7 +181,10 @@ namespace GhettosFirearmSDKv2
                 c.loaded = true;
                 c.ToggleHandles(false);
                 c.ToggleCollision(false);
-                cartridges.Insert(0, c);
+                if (!atBottom)
+                    cartridges.Insert(0, c);
+                else
+                    cartridges.Add(c);
                 c.UngrabAll();
                 Util.IgnoreCollision(c.gameObject, gameObject, true);
                 if (!silent) Util.PlayRandomAudioSource(roundInsertSounds);
@@ -195,6 +203,7 @@ namespace GhettosFirearmSDKv2
             if (cartridges.Count > 0)
             {
                 c = cartridges[0];
+                OnConsumeEvent?.Invoke(c);
                 Util.IgnoreCollision(c.gameObject, gameObject, false);
                 cartridges.RemoveAt(0);
                 if (infinite || FirearmsSettings.infiniteAmmo)
@@ -202,7 +211,7 @@ namespace GhettosFirearmSDKv2
                     Catalog.GetData<ItemData>(c.item.itemId).SpawnAsync(car =>
                     {
                         Cartridge newC = car.GetComponent<Cartridge>();
-                        InsertRound(newC, true, true);
+                        InsertRound(newC, true, true, true, true);
                     }, transform.position + Vector3.up * 10, null, null, false);
                 }
             }
@@ -231,10 +240,10 @@ namespace GhettosFirearmSDKv2
             well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
             item.lightVolumeReceiver.SetRenderers(item.renderers);
 
-            if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(false);
+            //if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(false);
             currentWell = well;
             currentWell.currentMagazine = this;
-            RagdollHand[] hands = item.handlers.ToArray();
+            RagdollHand[] hands = item.handlers.Where(h => handles.Contains(h.grabbedHandle)).ToArray();
             foreach (RagdollHand hand in hands)
             {
                 hand.UnGrab(false);
@@ -245,11 +254,23 @@ namespace GhettosFirearmSDKv2
             }
             if (!silent) Util.PlayRandomAudioSource(magazineInsertSounds);
             Util.IgnoreCollision(gameObject, currentWell.firearm.gameObject, true);
+            if (overrideItem == null)
+                item.physicBody.isKinematic = true;
+            
+            transform.SetParent(well.mountPoint);
             transform.position = well.mountPoint.position;
             transform.rotation = well.mountPoint.rotation;
-            joint = gameObject.AddComponent<FixedJoint>();
-            joint.connectedBody = rb;
-            if (FirearmsSettings.magazinesHaveNoCollision) joint.massScale = 99999f;
+            
+            //// Collider fix attempt
+            colliderGroups = item.colliderGroups.ToList();
+            foreach (ColliderGroup group in colliderGroups)
+            {
+                group.transform.SetParent(currentWell.mountPoint);
+            }
+            item.colliderGroups.RemoveAll(x => colliderGroups.Contains(x));
+            currentWell.firearm.item.colliderGroups.AddRange(colliderGroups);
+            currentWell.firearm.item.RefreshCollision();
+            
             foreach (Handle handle in handles)
             {
                 if (!canBeGrabbedInWell)
@@ -268,44 +289,72 @@ namespace GhettosFirearmSDKv2
             }
 
             UpdateCartridgePositions();
+            OnInsertEvent?.Invoke(currentWell);
+            Invoke(nameof(ResetRagdollCollision), 0.2f);
         }
 
         public void Eject()
         {
-            if (joint != null)
+            if (currentWell != null)
             {
+                MagazineWell lastWell = currentWell;
+                OnEjectEvent?.Invoke(lastWell);
+                
                 if (overrideItem == null) item.disallowDespawn = false;
 
                 //Revert dungeon lighting fix
                 foreach (Renderer ren in originalRenderers)
                 {
-                    currentWell.firearm.item.renderers.Remove(ren);
+                    lastWell.firearm.item.renderers.Remove(ren);
                     item.renderers.Add(ren);
                 }
-                currentWell.firearm.item.lightVolumeReceiver.SetRenderers(currentWell.firearm.item.renderers);
+                lastWell.firearm.item.lightVolumeReceiver.SetRenderers(lastWell.firearm.item.renderers);
                 item.lightVolumeReceiver.SetRenderers(item.renderers);
+                
+                //// Collider fix attempt
+                lastWell.firearm.item.colliderGroups.RemoveAll(x => colliderGroups.Contains(x));
+                item.colliderGroups.AddRange(colliderGroups);
+                foreach (ColliderGroup group in colliderGroups)
+                {
+                    group.transform.SetParent(item.transform);
+                }
 
                 Util.PlayRandomAudioSource(magazineEjectSounds);
-                Util.DelayIgnoreCollision(gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
+                Util.DelayIgnoreCollision(gameObject, lastWell.firearm.gameObject, false, 0.5f, item);
                 foreach (Cartridge c in cartridges)
                 {
-                    if (c != null && currentWell != null && currentWell.firearm != null) Util.DelayIgnoreCollision(c.gameObject, currentWell.firearm.gameObject, false, 0.5f, item);
+                    if (c != null && lastWell != null && lastWell.firearm != null)
+                        Util.DelayIgnoreCollision(c.gameObject, lastWell.firearm.gameObject, false, 0.5f, item);
                 }
                 firearmSave.value.Clear();
-                currentWell.currentMagazine = null;
+                lastWell.currentMagazine = null;
                 currentWell = null;
                 foreach (Handle handle in handles)
                 {
                     handle.SetTouch(true);
                     handle.SetTelekinesis(true);
                 }
-                Destroy(joint);
-                item.physicBody.rigidBody.WakeUp();
-                if (destroyOnEject) item.Despawn();
-                if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(true);
+                //Destroy(joint);
+                item.transform.SetParent(null);
+                if (overrideItem == null)
+                {
+                    item.physicBody.isKinematic = false;
+                    item.physicBody.rigidBody.WakeUp();
+                    item.physicBody.velocity = lastWell.firearm.item.physicBody.velocity * 0.7f;
+                    
+                }
+                if (destroyOnEject && overrideItem == null)
+                    item.Despawn();
+                //if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(true);
                 lastEjectTime = Time.time;
             }
             UpdateCartridgePositions();
+        }
+
+        private void ResetRagdollCollision()
+        {
+            if (currentWell != null)
+                currentWell.firearm.item.RefreshCollision();
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -316,7 +365,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private void UpdateCartridgePositions()
+        public void UpdateCartridgePositions()
         {
             foreach (Cartridge c in cartridges)
             {
@@ -365,6 +414,15 @@ namespace GhettosFirearmSDKv2
         }
 
         public delegate void LoadFinished(Magazine mag);
-        public event LoadFinished onLoadFinished;
+        public event LoadFinished OnLoadFinished;
+        
+        public delegate void OnConsume(Cartridge c);
+        public event OnConsume OnConsumeEvent;
+        
+        public delegate void OnEject(MagazineWell well);
+        public event OnEject OnEjectEvent;
+        
+        public delegate void OnInsert(MagazineWell well);
+        public event OnInsert OnInsertEvent;
     }
 }

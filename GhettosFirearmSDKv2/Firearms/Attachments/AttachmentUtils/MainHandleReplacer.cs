@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 
@@ -10,6 +11,7 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         public Handle newMainHandle;
         public Handle oldMainHandle;
+        private bool _applied;
 
         private void Awake()
         {
@@ -34,30 +36,37 @@ namespace GhettosFirearmSDKv2
 
         public void Apply()
         {
-            List<RagdollHand> handlers = oldMainHandle.handlers;
+            if (_applied)
+                return;
+
+            _applied = true;
+            RagdollHand[] handlers = oldMainHandle.handlers.ToArray();
             oldMainHandle.Release();
             oldMainHandle.SetTouch(false);
             oldMainHandle.SetTelekinesis(false);
             oldMainHandle.enabled = false;
             oldMainHandle.gameObject.SetActive(false);
-
-
+            
             newMainHandle.SetTouch(true);
             newMainHandle.SetTelekinesis(true);
             newMainHandle.enabled = true;
             newMainHandle.gameObject.SetActive(true);
-            
-            handlers.ForEach(h => h.Grab(newMainHandle));
 
             attachment.attachmentPoint.parentFirearm.item.mainHandleLeft = newMainHandle;
             attachment.attachmentPoint.parentFirearm.item.mainHandleRight = newMainHandle;
+            
+            //Debug.Log($"FUCK YOU! Handle: {newMainHandle.name}, handlers: {handlers.Length}");
+            foreach (RagdollHand h in handlers)
+            {
+                h.Grab(newMainHandle);
+            }
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
             oldMainHandle = attachment.attachmentPoint.parentFirearm.item.mainHandleLeft;
             attachment.attachmentPoint.parentFirearm.OnAttachmentAddedEvent += OnAttachmentChanged;
-            Apply();
+            Invoke(nameof(Apply), 0.05f);
         }
 
         private void OnAttachmentChanged(Attachment attachment, AttachmentPoint attachmentPoint)

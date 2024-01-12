@@ -9,14 +9,20 @@ namespace GhettosFirearmSDKv2
         public Handle mainHandle;
         public Handle secondaryHandle;
         public Firearm firearm;
+        public Attachment attachment;
         private bool lastFrameDualHeld = false;
 
         public void Update()
         {
-            if (FirearmsSettings.debugMode && (firearm == null || mainHandle == null || secondaryHandle == null))
+            if (firearm == null || mainHandle == null || secondaryHandle == null)
             {
-                Debug.Log("Handle switcher on " + GetComponentInParent<Item>().itemId + " is not set up!");
-                return;
+                if (FirearmsSettings.debugMode && attachment == null)
+                {
+                    Debug.Log("Handle switcher on " + GetComponentInParent<Item>().itemId + " is not set up!");
+                    return;
+                }
+                else if (attachment?.attachmentPoint?.parentFirearm != null)
+                    firearm = attachment.attachmentPoint.parentFirearm;
             }
 
             mainHandle.SetTouch(mainHandle.handlers.Count == 0);
@@ -31,13 +37,9 @@ namespace GhettosFirearmSDKv2
 
             bool dualHeld = mainHandle.handlers.Count > 0 && secondaryHandle.handlers.Count > 0;
             if (!lastFrameDualHeld && dualHeld)
-            {
                 firearm.AddRecoilModifier(0.3f, 1f, this);
-            }
             else if (lastFrameDualHeld && !dualHeld)
-            {
                 firearm.RemoveRecoilModifier(this);
-            }
             lastFrameDualHeld = dualHeld;
         }
     }

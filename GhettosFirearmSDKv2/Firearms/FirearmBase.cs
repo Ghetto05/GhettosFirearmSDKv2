@@ -154,10 +154,10 @@ namespace GhettosFirearmSDKv2
             OnAltActionEvent?.Invoke(false);
             if (magazineWell != null && (magazineWell.canEject || (!magazineWell.canEject && magazineWell.currentMagazine != null && !magazineWell.currentMagazine.canBeGrabbedInWell && magazineWell.currentMagazine.overrideItem == null)))
             {
-                if (!bolt.caught || (bolt.caught && magazineWell.IsEmptyAndHasMagazine())) magazineWell.Eject();
+                if (bolt.disallowRelease || !bolt.caught || (bolt.caught && magazineWell.IsEmptyAndHasMagazine())) magazineWell.Eject();
                 else if (bolt.caught && !magazineWell.IsEmpty()) bolt.TryRelease();
             }
-            else if (bolt != null) bolt.TryRelease();
+            else if (bolt != null && !bolt.disallowRelease) bolt.TryRelease();
         }
 
         public void LongPress()
