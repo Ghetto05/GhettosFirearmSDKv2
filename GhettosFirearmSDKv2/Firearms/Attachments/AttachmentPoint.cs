@@ -14,6 +14,7 @@ namespace GhettosFirearmSDKv2
         public Attachment currentAttachment;
         public string defaultAttachment;
         public GameObject disableOnAttach;
+        public GameObject enableOnAttach;
         public Attachment attachment;
         public List<Collider> attachColliders;
 
@@ -95,6 +96,11 @@ namespace GhettosFirearmSDKv2
             {
                 if (currentAttachment == null && !disableOnAttach.activeInHierarchy) disableOnAttach.SetActive(true);
                 else if (currentAttachment != null && disableOnAttach.activeInHierarchy) disableOnAttach.SetActive(false);
+            }
+            if (enableOnAttach != null)
+            {
+                if (currentAttachment != null && !enableOnAttach.activeInHierarchy) enableOnAttach.SetActive(true);
+                else if (currentAttachment == null && enableOnAttach.activeInHierarchy) enableOnAttach.SetActive(false);
             }
         }
 
