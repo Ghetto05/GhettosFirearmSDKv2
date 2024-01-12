@@ -23,11 +23,11 @@ namespace GhettosFirearmSDKv2
         public bool allowLoad = false;
         public bool onlyAllowEjectionWhenBoltIsPulled = false;
         public BoltBase.BoltState lockedState;
-
         public Transform ejectDir;
         public float ejectForce = 0.3f;
-
         public bool tryReleasingBoltIfMagazineIsInserted = false;
+        public List<Lock> insertionLocks;
+        public Transform beltLinkEjectDir;
 
         public virtual void Start()
         {
@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
             if (spawnMagazineOnAwake) Load();
             else
             {
-                if (currentMagazine != null && mountCurrentMagazine) currentMagazine.onLoadFinished += Mag_onLoadFinished;
+                if (currentMagazine != null && mountCurrentMagazine) currentMagazine.OnLoadFinished += Mag_onLoadFinished;
                 else allowLoad = true;
             }
         }
@@ -85,7 +85,7 @@ namespace GhettosFirearmSDKv2
                 Catalog.GetData<ItemData>(data.value.itemID).SpawnAsync(magItem =>
                 {
                     Magazine mag = magItem.gameObject.GetComponent<Magazine>();
-                    mag.onLoadFinished += Mag_onLoadFinished;
+                    mag.OnLoadFinished += Mag_onLoadFinished;
                 }, mountPoint.position + Vector3.up * 3, null, null, true, cdata);
             }
             else allowLoad = true;
@@ -99,7 +99,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void TryMount(Collision collision)
         {
-            if (allowLoad && collision.collider.GetComponentInParent<Magazine>() is Magazine mag && collision.contacts[0].thisCollider == loadingCollider && BoltExistsAndIsPulled())
+            if (allowLoad && Util.AllLocksUnlocked(insertionLocks) && collision.collider.GetComponentInParent<Magazine>() is Magazine mag && collision.contacts[0].thisCollider == loadingCollider && BoltExistsAndIsPulled())
             {
                 if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this) && mag.loadable)
                 {
