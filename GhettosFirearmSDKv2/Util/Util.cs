@@ -88,7 +88,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (Creature cr in Creature.allActive)
             {
-                if (Vector3.Distance(cr.animator.GetBoneTransform(HumanBodyBones.Neck).position, point) <= range)
+                if (cr.animator.GetBoneTransform(HumanBodyBones.Head) is Transform bone && Vector3.Distance(bone.position, point) <= range)
                 {
                     cr.brain.SetState(Brain.State.Alert);
                 }
@@ -264,9 +264,27 @@ namespace GhettosFirearmSDKv2
         
         public static void UpdateLightVolumeReceiver(LightVolumeReceiver receiverToBeUpdated, LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            return;
+            //return;
             MethodInfo method = typeof(LightVolumeReceiver).GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
-            method.Invoke(receiverToBeUpdated, new object[] { currentLightProbeVolume, lightProbeVolumes });
+            method?.Invoke(receiverToBeUpdated, new object[] { currentLightProbeVolume, lightProbeVolumes });
+        }
+        
+        /*
+         * Function to normalize angles to be within [-180, 180]
+         */
+        public static float NormalizeAngle(float angle)
+        {
+            while (angle > 180f)
+            {
+                angle -= 360f;
+            }
+
+            while (angle < -180f)
+            {
+                angle += 360f;
+            }
+
+            return angle;
         }
     }
 }
