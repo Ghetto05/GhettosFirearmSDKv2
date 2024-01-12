@@ -31,13 +31,17 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if (firearm.magazineWell.IsEmpty()) return;
+            if (firearm.magazineWell.IsEmpty())
+            {
+                InvokeFireLogicFinishedEvent();
+                return;
+            }
             shotsSinceTriggerReset++;
             lastFireTime = Time.time;
             foreach (RagdollHand hand in firearm.item.handlers)
             {
-                if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
-                hand.playerHand.controlHand.HapticShort(50f);
+                if (hand.playerHand != null && hand.playerHand.controlHand != null)
+                    hand.playerHand.controlHand.HapticShort(50f);
             }
             loadedCartridge = firearm.magazineWell.ConsumeRound();
             if (loadedCartridge.additionalMuzzleFlash != null)
@@ -49,12 +53,14 @@ namespace GhettosFirearmSDKv2
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
             firearm.PlayFireSound(loadedCartridge);
-            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash(loadedCartridge);
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
+                firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, true);
             EjectRound();
             InvokeFireEvent();
+            InvokeFireLogicFinishedEvent();
         }
 
         public override Cartridge GetChamber()

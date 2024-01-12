@@ -180,15 +180,25 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if (state != BoltState.Locked) return;
+            if (state != BoltState.Locked)
+            {
+                InvokeFireLogicFinishedEvent();
+                return;
+            }
             int ca = GetFirstFireableChamber();
-            if (ca == -1) return;
+            if (ca == -1)
+            {
+                InvokeFireLogicFinishedEvent();
+                return;
+            }
 
             shotsSinceTriggerReset++;
-            if (hammers.Count > ca && hammers[ca] != null) hammers[ca].Fire();
+            if (hammers.Count > ca && hammers[ca] != null)
+                hammers[ca].Fire();
             foreach (RagdollHand hand in firearm.item.handlers)
             {
-                if (hand.playerHand != null || hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
+                if (hand.playerHand != null || hand.playerHand.controlHand != null)
+                    hand.playerHand.controlHand.HapticShort(50f);
             }
             Transform muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[ca];
             Cartridge loadedCartridge = loadedCartridges[ca];
@@ -203,13 +213,16 @@ namespace GhettosFirearmSDKv2
             firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
             {
-                if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > ca && actualMuzzleFlashes[ca] != null && muzzles.Count > 1) actualMuzzleFlashes[ca].Play(); 
-                else firearm.PlayMuzzleFlash(loadedCartridge);
+                if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > ca && actualMuzzleFlashes[ca] != null && muzzles.Count > 1)
+                    actualMuzzleFlashes[ca].Play(); 
+                else
+                    firearm.PlayMuzzleFlash(loadedCartridge);
             }
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
+            FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, !FirearmsSettings.infiniteAmmo);
             InvokeFireEvent();
+            InvokeFireLogicFinishedEvent();
         }
 
         public override void TryRelease(bool forced = false)

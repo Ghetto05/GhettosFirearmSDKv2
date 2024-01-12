@@ -113,12 +113,16 @@ namespace GhettosFirearmSDKv2
         public override void TryFire()
         {
             TryLoadRound();
-            if (loadedCartridge == null || loadedCartridge.fired) return;
+            if (loadedCartridge == null || loadedCartridge.fired)
+            {
+                InvokeFireLogicFinishedEvent();
+                return;
+            }
             lastShotTime = Time.time;
             foreach (RagdollHand hand in firearm.item.handlers)
             {
-                if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
-                hand.playerHand.controlHand.HapticShort(50f);
+                if (hand.playerHand != null && hand.playerHand.controlHand != null) 
+                    hand.playerHand.controlHand.HapticShort(50f);
             }
             if (loadedCartridge.additionalMuzzleFlash != null)
             {
@@ -128,14 +132,16 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.additionalMuzzleFlash.Play();
                 StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
             }
-            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash) firearm.PlayMuzzleFlash(loadedCartridge);
+            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
+                firearm.PlayMuzzleFlash(loadedCartridge);
             firearm.PlayFireSound(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             Util.PlayRandomAudioSource(firearm.fireSounds);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, true);
             EjectRound();
             InvokeFireEvent();
+            InvokeFireLogicFinishedEvent();
         }
 
         public override void EjectRound()

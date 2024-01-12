@@ -159,15 +159,17 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null || loadedCartridge.fired || (hammer != null && !hammer.cocked))
             {
                 Lock(false);
+                InvokeFireLogicFinishedEvent();
                 return;
             }
             foreach (RagdollHand hand in firearm.item.handlers)
             {
-                if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
-                hand.playerHand.controlHand.HapticShort(50f);
+                if (hand.playerHand != null && hand.playerHand.controlHand != null)
+                    hand.playerHand.controlHand.HapticShort(50f);
             }
             shotsSinceTriggerReset++;
-            if (hammer) hammer.Fire();
+            if (hammer)
+                hammer.Fire();
             if (loadedCartridge.additionalMuzzleFlash != null)
             {
                 loadedCartridge.additionalMuzzleFlash.transform.position = firearm.actualHitscanMuzzle.position;
@@ -179,7 +181,7 @@ namespace GhettosFirearmSDKv2
             firearm.PlayFireSound(loadedCartridge);
             firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             bool fire = false;
             if (!FirearmsSettings.infiniteAmmo || (FirearmsSettings.infiniteAmmo && firearm.magazineWell != null))
             {
@@ -187,6 +189,8 @@ namespace GhettosFirearmSDKv2
                 Lock(false);
             }
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, fire);
+            InvokeFireLogicFinishedEvent();
+            InvokeFireEvent();
         }
 
         private void Lock(bool locked)
@@ -305,7 +309,9 @@ namespace GhettosFirearmSDKv2
 
         public override void EjectRound()
         {
-            if (loadedCartridge == null) return;
+            if (loadedCartridge == null)
+                return;
+            SaveChamber("");
             currentRoundRemounted = false;
             Cartridge c = loadedCartridge;
             loadedCartridge = null;
@@ -317,19 +323,20 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(c.gameObject, firearm.item.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.item.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = c.GetComponent<Rigidbody>();
+            Rigidbody crb = c.item.physicBody.rigidBody;
             c.item.disallowDespawn = false;
             c.transform.parent = null;
             c.loaded = false;
-            rb.isKinematic = false;
-            rb.WakeUp();
+            crb.isKinematic = false;
+            crb.WakeUp();
             if (roundEjectDir != null)
             {
                 AddTorqueToCartridge(c);
                 AddForceToCartridge(c, roundEjectDir, roundEjectForce);
             }
             c.ToggleHandles(true);
-            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired) firearm.magazineWell.Eject();
+            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired)
+                firearm.magazineWell.Eject();
             InvokeEjectRound(c);
         }
 

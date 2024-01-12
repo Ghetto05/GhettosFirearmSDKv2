@@ -317,11 +317,16 @@ namespace GhettosFirearmSDKv2
                 hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
 
                 Cartridge loadedCartridge = loadedCartridges[currentChamber];
-                if (loadedCartridge == null || loadedCartridge.fired) return;
+                if (loadedCartridge == null || loadedCartridge.fired)
+                {
+                    InvokeFireLogicFinishedEvent();
+                    return;
+                }
 
                 foreach (RagdollHand hand in firearm.item.handlers)
                 {
-                    if (hand.playerHand != null || hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
+                    if (hand.playerHand != null || hand.playerHand.controlHand != null)
+                        hand.playerHand.controlHand.HapticShort(50f);
                 }
                 if (loadedCartridge.additionalMuzzleFlash != null)
                 {
@@ -337,10 +342,11 @@ namespace GhettosFirearmSDKv2
                     firearm.PlayMuzzleFlash(loadedCartridge);
                 }
                 FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
+                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                 loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !FirearmsSettings.infiniteAmmo);
                 InvokeFireEvent();
             }
+            InvokeFireLogicFinishedEvent();
         }
 
         [EasyButtons.Button]

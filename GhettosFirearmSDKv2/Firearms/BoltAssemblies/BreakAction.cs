@@ -267,10 +267,12 @@ namespace GhettosFirearmSDKv2
                 if (hammerCocked && cartridge)
                 {
                     shotsSinceTriggerReset++;
-                    if (hammers.Count > currentChamber && hammers[currentChamber] != null) hammers[currentChamber].Fire();
+                    if (hammers.Count > currentChamber && hammers[currentChamber] != null)
+                        hammers[currentChamber].Fire();
                     foreach (RagdollHand hand in firearm.item.handlers)
                     {
-                        if (hand.playerHand != null || hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
+                        if (hand.playerHand != null || hand.playerHand.controlHand != null)
+                            hand.playerHand.controlHand.HapticShort(50f);
                     }
                     Transform muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[currentChamber];
                     Cartridge loadedCartridge = loadedCartridges[currentChamber];
@@ -289,14 +291,16 @@ namespace GhettosFirearmSDKv2
                         else firearm.PlayMuzzleFlash(loadedCartridge);
                     }
                     FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-                    FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
+                    FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                     loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, !FirearmsSettings.infiniteAmmo);
                     InvokeFireEvent();
                 }
             }
 
             currentChamber++;
-            if (currentChamber >= mountPoints.Count) currentChamber = 0;
+            if (currentChamber >= mountPoints.Count)
+                currentChamber = 0;
+            InvokeFireLogicFinishedEvent();
         }
 
         public override void TryRelease(bool forced = false)

@@ -141,6 +141,10 @@ namespace GhettosFirearmSDKv2
         public delegate void OnFire();
         public event OnFire OnFireEvent;
 
+        public void InvokeFireLogicFinishedEvent() => OnFireLogicFinishedEvent?.Invoke();
+        public delegate void OnFireLogicFinished();
+        public event OnFire OnFireLogicFinishedEvent;
+
         public void InvokeEjectRound(Cartridge cartridge) => OnRoundEjectEvent?.Invoke(cartridge);
         public delegate void OnEject(Cartridge cartridge);
         public event OnEject OnRoundEjectEvent;

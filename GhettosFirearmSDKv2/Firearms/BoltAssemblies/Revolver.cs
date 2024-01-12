@@ -313,7 +313,11 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if (state != BoltState.Locked || (!singleActionOnly && shotsSinceTriggerReset > 0) || firearm.fireMode == FirearmBase.FireModes.Safe) return;
+            if (state != BoltState.Locked || (!singleActionOnly && shotsSinceTriggerReset > 0) || firearm.fireMode == FirearmBase.FireModes.Safe)
+            {
+                InvokeFireLogicFinishedEvent();
+                return;
+            }
             if (hammerAxis != null)
             {
                 returnedTriggerSinceHammer = false;
@@ -321,17 +325,27 @@ namespace GhettosFirearmSDKv2
                 cocked = false;
                 Util.PlayRandomAudioSource(hammerHitSounds);
             }
-            else ApplyNextChamber();
+            else
+                ApplyNextChamber();
             shotsSinceTriggerReset++;
 
             int ca = GetCurrentChamber();
-            if (ca == -1) return;
+            if (ca == -1)
+            {
+                InvokeFireLogicFinishedEvent();
+                return;
+            }
             Cartridge loadedCartridge = loadedCartridges[ca];
-            if (loadedCartridge == null || loadedCartridge.fired) return;
+            if (loadedCartridge == null || loadedCartridge.fired)
+            {
+                InvokeFireLogicFinishedEvent();
+                return;
+            }
 
             foreach (RagdollHand hand in firearm.item.handlers)
             {
-                if (hand.playerHand != null || hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
+                if (hand.playerHand != null || hand.playerHand.controlHand != null)
+                    hand.playerHand.controlHand.HapticShort(50f);
             }
             if (loadedCartridge.additionalMuzzleFlash != null)
             {
@@ -347,9 +361,10 @@ namespace GhettosFirearmSDKv2
                 firearm.PlayMuzzleFlash(loadedCartridge);
             }
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !FirearmsSettings.infiniteAmmo);
             InvokeFireEvent();
+            InvokeFireLogicFinishedEvent();
         }
 
         private int GetCurrentChamber()
