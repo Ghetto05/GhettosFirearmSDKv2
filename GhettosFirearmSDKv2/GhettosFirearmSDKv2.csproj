@@ -130,7 +130,6 @@
     <Compile Include="Other\Locks\BoltBasedLock.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltChildPositionLimiter.cs" />
     <Compile Include="Firearms\FirearmMechanics\BoltReleaseButton.cs" />
-    <Compile Include="Firearms\BoltAssemblies\OpenBolt.cs" />
     <Compile Include="Firearms\Ammunition\Cartridge.cs" />
     <Compile Include="Firearms\FirearmMechanics\ChamberLoader.cs" />
     <Compile Include="Chemicals\NPCChemicalsModule.cs" />
