@@ -12,7 +12,8 @@ namespace GhettosFirearmSDKv2
             TriggerPull,
             TriggerRelease,
             AlternateUsePress,
-            AlternateUseRelease
+            AlternateUseRelease,
+            None
         }
 
         public Actions toggleAction;
@@ -26,6 +27,7 @@ namespace GhettosFirearmSDKv2
         public string toState2Anim;
         public AudioSource[] toState1Sounds;
         public AudioSource[] toState2Sounds;
+        public Animator animator;
 
         void Start()
         {
@@ -59,16 +61,18 @@ namespace GhettosFirearmSDKv2
 
         public void TryToggle()
         {
-            if (animationPlayer.isPlaying) return;
+            if (animationPlayer?.isPlaying ?? false) return;
             if (currentState == 1)
             {
-                animationPlayer.Play(toState2Anim);
+                animationPlayer?.Play(toState2Anim);
+                animator?.Play(toState2Anim);
                 Util.PlayRandomAudioSource(toState2Sounds);
                 currentState = 2;
             }
             else if (currentState == 2)
             {
-                animationPlayer.Play(toState1Anim);
+                animationPlayer?.Play(toState1Anim);
+                animator?.Play(toState1Anim);
                 Util.PlayRandomAudioSource(toState1Sounds);
                 currentState = 1;
             }
