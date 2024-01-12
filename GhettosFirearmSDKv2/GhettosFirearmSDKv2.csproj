@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AI\Loot\PrebuiltEquipmentSpawner.cs" />
     <Compile Include="Chemicals\DartBehavoirs.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs" />
     <Compile Include="Clothing\HUD\HUD.cs" />

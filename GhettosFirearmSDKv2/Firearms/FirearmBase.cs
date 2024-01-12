@@ -58,6 +58,11 @@ namespace GhettosFirearmSDKv2
         public virtual void Update()
         {
             longPressTime = FirearmsSettings.longPressTime;
+            if (item.data.moduleAI != null)
+            {
+                item.data.moduleAI.weaponClass =
+                    item.handlers.Count > 0 ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
+            }
         }
 
         public virtual List<Handle> AllTriggerHandles()
