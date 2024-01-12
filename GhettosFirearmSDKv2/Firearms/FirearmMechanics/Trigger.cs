@@ -13,6 +13,7 @@ namespace GhettosFirearmSDKv2
     public class Trigger : MonoBehaviour
     {
         public FirearmBase firearm;
+        public Attachment attachment;
 
         public Transform trigger;
         public Transform idlePosition;
@@ -27,7 +28,8 @@ namespace GhettosFirearmSDKv2
 
         void Start()
         {
-            firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
+            if (firearm != null) 
+                firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
         }
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
@@ -48,7 +50,13 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (firearm.setUpForHandPose)
+            if (firearm == null && attachment?.attachmentPoint?.parentFirearm != null)
+            {
+                firearm = attachment.attachmentPoint.parentFirearm;
+                firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
+            }
+
+            if (firearm != null && firearm.setUpForHandPose)
             {
                 foreach (Handle h in firearm.AllTriggerHandles().Where(h => h != null))
                 {
