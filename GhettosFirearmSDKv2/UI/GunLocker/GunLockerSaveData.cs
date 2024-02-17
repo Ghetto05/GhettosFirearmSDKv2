@@ -33,7 +33,7 @@ namespace GhettosFirearmSDKv2
                 try
                 {
                     FirearmsSettings.CreateSaveFolder();
-                    ItemData itemData = (ItemData)Catalog.GetData<ItemData>(itemId).CloneJson();
+                    ItemData itemData = Catalog.GetData<ItemData>(itemId).CloneJson();
                     itemData.modules = itemData.modules.CloneJson();
                     itemData.id = id;
                     itemData.description = "Prebuilt version of the " + itemData.displayName + ".";

@@ -15,6 +15,11 @@ namespace GhettosFirearmSDKv2
         {
             return new Vector3(0, 0, Random.Range(0f, 360f));
         }
+        
+        public static Vector3 RandomRotation()
+        {
+            return new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
+        }
 
         public static bool AllowLoadCatridge(Cartridge cartridge, string requiredCaliber)
         {

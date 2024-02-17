@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2
 {
@@ -15,10 +16,14 @@ namespace GhettosFirearmSDKv2
         public Transform AttachmentFirearmPosition;
         public AudioSource switchSound;
         public FirearmBase.FireModes[] firemodes;
+        public float[] fireRates;
+        public Transform[] irregularPositions;
         private int currentIndex = 0;
         SaveNodeValueInt fireModeIndex;
         public Hammer hammer;
         public bool allowSwitchingModeIfHammerIsUncocked = true;
+        public bool onlyAllowSwitchingIfBoltHasState;
+        public BoltBase.BoltState switchAllowedState;
 
         private void Start()
         {
@@ -41,7 +46,7 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnAltActionEvent(bool longPress)
         {
-            if (longPress && (allowSwitchingModeIfHammerIsUncocked || (hammer != null && hammer.cocked)))
+            if (longPress && (allowSwitchingModeIfHammerIsUncocked || (hammer != null && hammer.cocked) && (!onlyAllowSwitchingIfBoltHasState || firearm.bolt == null || firearm.bolt.state == switchAllowedState)))
             {
                 CycleFiremode();
             }
@@ -52,9 +57,15 @@ namespace GhettosFirearmSDKv2
             if (currentIndex + 1 < firemodes.Length) currentIndex++;
             else currentIndex = 0;
             firearm.SetFiremode(firemodes[currentIndex]);
-            if (switchSound != null) switchSound.Play();
+            if (fireRates != null && fireRates.Length > currentIndex)
+                firearm.roundsPerMinute = fireRates[currentIndex];
+            if (switchSound != null)
+                switchSound.Play();
+            if (irregularPositions != null && irregularPositions.Length > currentIndex)
+                SafetySwitch.SetPositionAndRotation(irregularPositions[currentIndex].position, irregularPositions[currentIndex].rotation);
+            else
+                UpdatePosition();
             fireModeIndex.value = currentIndex;
-            UpdatePosition();
             onFiremodeChanged?.Invoke(firearm.fireMode);
         }
 

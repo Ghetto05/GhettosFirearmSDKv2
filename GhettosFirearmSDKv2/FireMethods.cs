@@ -757,7 +757,7 @@ namespace GhettosFirearmSDKv2
             int layer = LayerMask.GetMask("Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject");
             if (Physics.Raycast(origin, direction, out RaycastHit hit, force * projectileCount / 30, layer, QueryTriggerInteraction.Ignore))
             {
-                EffectInstance ei = Catalog.GetData<EffectData>("DropBlood").Spawn(hit.point, Quaternion.LookRotation(hit.normal), hit.collider.transform, null, false);
+                EffectInstance ei = Catalog.GetData<EffectData>("DropBlood").Spawn(hit.point, Quaternion.LookRotation(hit.normal), null, null, false);
                 ei.SetIntensity(100f);
 
                 EffectDecal particle = (EffectDecal)ei.effects[0];

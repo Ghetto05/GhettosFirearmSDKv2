@@ -83,6 +83,7 @@ namespace GhettosFirearmSDKv2
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnDespawnEvent += Item_OnDespawnEvent;
+            item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             if (overrideItem == null)
             {
                 if (item.TryGetCustomData(out saveData))
@@ -410,6 +411,14 @@ namespace GhettosFirearmSDKv2
             else
             {
                 firearmSave.value.GetContentsFromMagazine(this);
+            }
+        }
+
+        private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
+        {
+            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
+            {
+                Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
             }
         }
 

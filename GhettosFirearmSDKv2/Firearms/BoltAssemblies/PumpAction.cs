@@ -8,6 +8,7 @@ namespace GhettosFirearmSDKv2
 {
     public class PumpAction : BoltBase
     {
+        public bool actsAsRelay;
         public Rigidbody rb;
         public Transform bolt;
         public Transform startPoint;
@@ -75,11 +76,11 @@ namespace GhettosFirearmSDKv2
             {
                 boltHandles = new List<Handle>();
 
-                foreach (Handle h in rb.gameObject.GetComponentsInChildren<Handle>())
+                foreach (Handle h in rb.gameObject.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
                 {
                     boltHandles.Add(h);
                 }
-                foreach (Handle h in bolt.gameObject.GetComponentsInChildren<Handle>())
+                foreach (Handle h in bolt.gameObject.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
                 {
                     boltHandles.Add(h);
                 }
@@ -156,7 +157,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if (loadedCartridge == null || loadedCartridge.fired || (hammer != null && !hammer.cocked))
+            if (actsAsRelay || loadedCartridge == null || loadedCartridge.fired || (hammer != null && !hammer.cocked))
             {
                 Lock(false);
                 InvokeFireLogicFinishedEvent();
@@ -193,7 +194,7 @@ namespace GhettosFirearmSDKv2
             InvokeFireEvent();
         }
 
-        private void Lock(bool locked)
+        public void Lock(bool locked)
         {
             RefreshBoltHandles();
             if (locked)
@@ -273,13 +274,13 @@ namespace GhettosFirearmSDKv2
                 {
                     if (roundLoadPoint != null && behindLoadPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition))
                     {
-                        if (loadedCartridge == null) TryLoadRound();
+                        if (loadedCartridge == null && !actsAsRelay) TryLoadRound();
                         behindLoadPoint = false;
                     }
                     else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) behindLoadPoint = true;
                 }
                 //hammer
-                if (state == BoltState.Moving && laststate == BoltState.Locked)
+                if (state == BoltState.Moving && laststate == BoltState.Locked && !actsAsRelay)
                 {
                     if (hammer != null && !hammer.cocked && beforeHammerPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition))
                     {
@@ -299,9 +300,9 @@ namespace GhettosFirearmSDKv2
             }
 
             //firing
-            if (state == BoltState.Locked && firearm.triggerState && firearm.fireMode != FirearmBase.FireModes.Safe)
+            if (state == BoltState.Locked && firearm.triggerState && fireOnTriggerPress && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && (slamFire || shotsSinceTriggerReset == 0)) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && (slamFire || shotsSinceTriggerReset == 0 || actsAsRelay)) TryFire();
             }
 
             CalculatePercentage();
@@ -309,7 +310,7 @@ namespace GhettosFirearmSDKv2
 
         public override void EjectRound()
         {
-            if (loadedCartridge == null)
+            if (actsAsRelay || loadedCartridge == null)
                 return;
             SaveChamber("");
             currentRoundRemounted = false;
@@ -342,7 +343,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryLoadRound()
         {
-            if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
+            if (!actsAsRelay && loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
                 loadedCartridge = c;
                 c.GetComponent<Rigidbody>().isKinematic = true;

@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
         public virtual void Update()
         {
             longPressTime = FirearmsSettings.longPressTime;
-            if (item.data.moduleAI != null)
+            if (item != null && item.data.moduleAI != null)
             {
                 item.data.moduleAI.weaponClass =
                     item.handlers.Count > 0 ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
@@ -119,6 +119,8 @@ namespace GhettosFirearmSDKv2
         {
             if ((handle == mainFireHandle && !disableMainFireHandle) || Util.ListContainsHandle(additionalTriggerHandles, handle))
             {
+                OnActionEvent?.Invoke(action);
+                
                 if (action == Interactable.Action.UseStart)
                 {
                     if (!countingForLongpress)

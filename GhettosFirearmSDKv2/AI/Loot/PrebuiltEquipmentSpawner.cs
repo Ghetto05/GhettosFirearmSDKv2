@@ -1,4 +1,8 @@
-﻿using ThunderRoad;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -8,27 +12,44 @@ namespace GhettosFirearmSDKv2
         public string prebuiltId;
 
         private Holder _equipmentSlot;
+        private Item _item;
         
         public override void OnItemLoaded(Item item)
         {
-            if (item.holder != null)
-                _equipmentSlot = item.holder;
+            _item = item;
+            if (_item.holder != null)
+                _equipmentSlot = _item.holder;
             else
-                item.OnSnapEvent += OnSnap;
+                _item.OnSnapEvent += OnSnap;
+            
+            _item.StartCoroutine(Spawn());
         }
 
         private void OnSnap(Holder holder)
         {
-            item.OnSnapEvent -= OnSnap;
+            _item.OnSnapEvent -= OnSnap;
             _equipmentSlot = holder;
-            
-            _equipmentSlot.UnSnap(item, true, false);
-            Catalog.GetData<ItemData>(prebuiltId).SpawnAsync(gun =>
+        }
+
+        private IEnumerator Spawn()
+        {
+            yield return new WaitForSeconds(2f);
+
+            GunLockerSaveData prebuilt = Catalog.GetData<GunLockerSaveData>(prebuiltId);
+            ItemData data = (ItemData)Catalog.GetData<ItemData>(prebuilt.itemId).Clone();
+            PrebuiltLoader loader = (PrebuiltLoader)data.modules.FirstOrDefault(d => d.GetType() == typeof(PrebuiltLoader));
+            if (loader != null)
+                loader.forced = true;
+            data.SpawnAsync(gun =>
             {
-                _equipmentSlot.Snap(gun, true, false);
-            }, _equipmentSlot.transform.position + Vector3.up * 20, null, null, false);
+                Debug.Log("FUCK ME");
+                //if (_equipmentSlot != null)
+                    //_equipmentSlot.Snap(gun, true, false);
+                _item.Despawn(2f);
+            }, _item.transform.position + Vector3.up * 20, null, null, false, prebuilt.dataList.CloneJson());
             
-            item.Despawn();
+            if (_equipmentSlot != null)
+                _equipmentSlot.UnSnap(_item, true, false);
         }
     }
 }

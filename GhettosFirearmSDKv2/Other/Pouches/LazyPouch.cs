@@ -30,6 +30,7 @@ namespace GhettosFirearmSDKv2
 
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
+            pouchItem.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
 
             holder.data.maxQuantity = 9999999;
 
@@ -141,6 +142,14 @@ namespace GhettosFirearmSDKv2
             yield return new WaitForSeconds(0.05f);
             holder.Snap(item, true);
             spawning = false;
+        }
+
+        private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
+        {
+            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != pouchItem.lightVolumeReceiver))
+            {
+                Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
+            }
         }
     }
 }

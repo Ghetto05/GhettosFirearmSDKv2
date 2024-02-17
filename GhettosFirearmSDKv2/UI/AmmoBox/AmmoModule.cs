@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     AmmoModule module = data.GetModule<AmmoModule>();
-                    if (module.category.Remove(0, 5).Equals(wantedCategory) && !list.Contains(module.caliber)) list.Add(module.caliber);
+                    if (module.category.Equals(wantedCategory) && !list.Contains(module.caliber)) list.Add(module.caliber);
                 }
             }
             return list;
@@ -49,8 +49,8 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     AmmoModule module = data.GetModule<AmmoModule>();
-                    if (!module.hidden && module.caliber.Remove(0, 5).Equals(wantedCaliber) && !list.Contains(module.variant)) list.Add(module.variant);
-                    else if (module.caliber.Remove(0, 5).Equals(wantedCaliber)) Debug.Log($"Duplicate cartridge variant found! Category: {module.category}, Caliber: {module.caliber}, Variant: {module.variant}");
+                    if (!module.hidden && module.caliber.Equals(wantedCaliber) && !list.Contains(module.variant)) list.Add(module.variant);
+                    else if (module.caliber.Equals(wantedCaliber)) Debug.Log($"Duplicate cartridge variant found! Category: {module.category}, Caliber: {module.caliber}, Variant: {module.variant}");
                 }
             }
             return list;
@@ -63,7 +63,7 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     AmmoModule module = data.GetModule<AmmoModule>();
-                    if (module.category.Remove(0, 5).Equals(wantedCategory) && module.caliber.Remove(0, 5).Equals(wantedCaliber) && module.variant.Remove(0, 5).Equals(wantedVariant)) return data.id;
+                    if (module.category.Equals(wantedCategory) && module.caliber.Equals(wantedCaliber) && module.variant.Remove(0, 5).Equals(wantedVariant)) return data.id;
                 }
             }
             return string.Empty;
@@ -76,7 +76,7 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     AmmoModule module = data.GetModule<AmmoModule>();
-                    if (module.caliber.Remove(0, 5).Equals(wantedCaliber)) return module.category;
+                    if (module.caliber.Equals(wantedCaliber)) return module.category;
                 }
             }
             return string.Empty;

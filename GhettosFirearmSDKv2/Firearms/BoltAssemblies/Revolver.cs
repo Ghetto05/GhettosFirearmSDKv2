@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 
@@ -20,6 +21,11 @@ namespace GhettosFirearmSDKv2
         [Space]
         public Transform foldClosedPosition;
         public Transform foldOpenedPosition;
+        [Space]
+        public Transform latchAxis;
+        public Transform latchClosedPosition;
+        public Transform latchOpenedPosition;
+
 
         [Space]
         [Header("ROTATE")]
@@ -52,6 +58,7 @@ namespace GhettosFirearmSDKv2
         [Space]
         [Header("HAMMER")]
         public bool singleActionOnly = false;
+        public bool pullHammerWhenOpened = false;
         public bool returnedTriggerSinceHammer = true;
         public Transform hammerAxis;
         public Transform hammerIdlePosition;
@@ -69,6 +76,9 @@ namespace GhettosFirearmSDKv2
         public List<Transform> mountPoints;
         public List<Collider> loadColliders;
         private Cartridge[] loadedCartridges;
+        public Transform ejectorRoot;
+        public Transform ejectorStart;
+        public Transform ejectorEnd;
 
         [Space]
         [Header("AUDIO")]
@@ -84,8 +94,11 @@ namespace GhettosFirearmSDKv2
         int shotsSinceTriggerReset = 0;
         int currentChamber = 0;
         bool ejectedSinceLastOpen = false;
+        bool afterCockAction = false;
+        float lastTriggerPull = 0f;
 
         public bool useGravityEject = true;
+        public float onTriggerWeight = 0.8f;
 
         private void Start()
         {
@@ -99,6 +112,7 @@ namespace GhettosFirearmSDKv2
             loadedCartridges = new Cartridge[mountPoints.Count];
             firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
             firearm.OnCollisionEventTR += Firearm_OnCollisionEventTR;
+            firearm.OnActionEvent += FirearmOnOnActionEvent;
 
             if (firearm.item.TryGetCustomData(out data))
             {
@@ -122,6 +136,14 @@ namespace GhettosFirearmSDKv2
             UpdateChamberedRounds();
         }
 
+        private void FirearmOnOnActionEvent(Interactable.Action action)
+        {
+            if (action == Interactable.Action.UseStop)
+            {
+                afterCockAction = false;
+            }
+        }
+
         private void Firearm_OnCollisionEventTR(CollisionInstance collisionInstance)
         {
             if (cockCollider != null && collisionInstance.sourceCollider == cockCollider && collisionInstance.targetCollider.GetComponentInParent<Player>() != null)
@@ -136,6 +158,7 @@ namespace GhettosFirearmSDKv2
             if (cocked) Uncock();
             else
             {
+                afterCockAction = true;
                 Cock();
                 ApplyNextChamber();
             }
@@ -196,6 +219,26 @@ namespace GhettosFirearmSDKv2
                     shotsSinceTriggerReset = 0;
                 }
 
+                if (firearm.setUpForHandPose)
+                {
+                    foreach (Handle h in firearm.AllTriggerHandles().Where(h => h != null))
+                    {
+                        if (h.handlers.Count > 0)
+                        {
+                            float weight;
+                            if (PlayerControl.GetHand(h.handlers[0].side).usePressed)
+                            {
+                                weight = onTriggerWeight + (1 - onTriggerWeight) * triggerPull;
+                                lastTriggerPull = Time.time;
+                            }
+                            else if (Time.time - lastTriggerPull <= FirearmsSettings.triggerDisciplineTime) weight = onTriggerWeight;
+                            else weight = 0f;
+
+                            h.handlers[0].poser.SetTargetWeight(weight);
+                        }
+                    }
+                }
+
                 //Hammer
                 if (hammerAxis != null && !singleActionOnly)
                 {
@@ -219,7 +262,7 @@ namespace GhettosFirearmSDKv2
 
                 //Trigger
                 triggerAxis.localEulerAngles = new Vector3(Mathf.Lerp(triggerIdlePosition.localEulerAngles.x, triggerPulledPosition.localEulerAngles.x, triggerPull), 0, 0);
-                if ((cocked || hammerAxis == null) && triggerPull >= triggerPullForTrigger)
+                if ((cocked || hammerAxis == null) && triggerPull >= triggerPullForTrigger && !afterCockAction)
                 {
                     TryFire();
                     if (hammerAxis != null && returnedTriggerSinceHammer) Util.PlayRandomAudioSource(triggerPullSound);
@@ -242,6 +285,19 @@ namespace GhettosFirearmSDKv2
             {
                 ejectedSinceLastOpen = true;
                 EjectCasings();
+            }
+
+            if (ejectorRoot != null)
+            {
+                if (closed)
+                {
+                    ejectorRoot.localPosition = ejectorStart.localPosition;
+                }
+                else
+                {
+                    float time = Mathf.Clamp01(Quaternion.Angle(foldClosedPosition.rotation, foldBody.transform.rotation) / Quaternion.Angle(foldClosedPosition.rotation, foldOpenedPosition.rotation));
+                    ejectorRoot.localPosition = Vector3.Lerp(ejectorStart.localPosition, ejectorEnd.localPosition, time);
+                }
             }
         }
 
@@ -417,6 +473,13 @@ namespace GhettosFirearmSDKv2
             Util.PlayRandomAudioSource(lockSounds);
             InitializeFoldJoint(true);
             InitializeRotateJoint(true);
+            
+            if (latchAxis != null)
+                latchAxis.SetLocalPositionAndRotation(latchClosedPosition.localPosition, latchClosedPosition.localRotation);
+            
+            if (hammerAxis != null && pullHammerWhenOpened && !cocked)
+                hammerAxis.SetLocalPositionAndRotation(hammerIdlePosition.localPosition, hammerIdlePosition.localRotation);
+            
             onClose?.Invoke();
         }
 
@@ -452,6 +515,14 @@ namespace GhettosFirearmSDKv2
 
             InitializeFoldJoint(false);
             InitializeRotateJoint(false);
+            
+            if (latchAxis != null)
+                latchAxis.SetLocalPositionAndRotation(latchOpenedPosition.localPosition, latchOpenedPosition.localRotation);
+            
+            
+            if (hammerAxis != null && pullHammerWhenOpened)
+                hammerAxis.SetLocalPositionAndRotation(hammerCockedPosition.localPosition, hammerCockedPosition.localRotation);
+            
             onOpen?.Invoke();
         }
 
@@ -488,6 +559,7 @@ namespace GhettosFirearmSDKv2
             foldJoint.connectedAnchor = Vector3.zero;
             foldJoint.axis = foldingAxis;
             foldJoint.useLimits = true;
+            foldJoint.enableCollision = false;
             foldJoint.limits = closed ? new JointLimits() { min = 0f, max = 0f } : new JointLimits() { min = minFoldAngle, max = maxFoldAngle };
         }
 
@@ -524,6 +596,7 @@ namespace GhettosFirearmSDKv2
             rotateJoint.connectedAnchor = Vector3.zero;
             rotateJoint.axis = rotatingAxis;
             rotateJoint.useLimits = closed;
+            rotateJoint.enableCollision = false;
             rotateJoint.limits = new JointLimits() { min = 0f, max = 0f };
         }
 

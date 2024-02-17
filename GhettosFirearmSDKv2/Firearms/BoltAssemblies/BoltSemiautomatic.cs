@@ -20,7 +20,7 @@ namespace GhettosFirearmSDKv2
         public bool onlyCatchIfManuallyPulled = false;
         public bool lockIfNoMagazineFound = false;
         public BoltReleaseButton[] releaseButtons;
-        List<Handle> boltHandles;
+        public List<Handle> boltHandles;
         public Rigidbody rigidBody;
         public Transform bolt;
         public Transform chargingHandle;

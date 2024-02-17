@@ -8,12 +8,12 @@ namespace GhettosFirearmSDKv2
     {
         public string prebuiltId;
         public string originalId;
+        public bool forced;
 
         public override void OnItemLoaded(Item item)
         {
-            if (!item.TryGetCustomData(out FirearmSaveData fsd))
-                item.AddCustomData(Catalog.GetData<GunLockerSaveData>(prebuiltId).dataList.Where(d => d.GetType() == typeof(FirearmSaveData)).FirstOrDefault()?.CloneJson());
-            base.OnItemLoaded(item);
+            if (!item.TryGetCustomData(out FirearmSaveData fsd) || forced)
+                item.OverrideCustomData(Catalog.GetData<GunLockerSaveData>(prebuiltId).dataList.CloneJson().Where(d => d.GetType() == typeof(FirearmSaveData)).ToList());
         }
     }
 }

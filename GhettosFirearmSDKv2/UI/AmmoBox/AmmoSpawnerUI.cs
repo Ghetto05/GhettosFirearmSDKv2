@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ namespace GhettosFirearmSDKv2
 {
     public class AmmoSpawnerUI : MonoBehaviour
     {
+        public CaliberSortingData sortingData;
         public bool alwaysFrozen;
         [Space]
         public Transform spawnPosition;
@@ -51,6 +53,9 @@ namespace GhettosFirearmSDKv2
                 locked = false;
                 Lock();
             }
+
+            sortingData = Catalog.GetDataList<CaliberSortingData>().FirstOrDefault();
+            
             SetupCategories();
         }
 
@@ -103,7 +108,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (mag != null) currentCaliber = mag.caliber;
                 else currentCaliber = sped.calibers[0];
-                currentCategory = AmmoModule.GetCaliberCategory(currentCaliber).Remove(0, 5);
+                currentCategory = AmmoModule.GetCaliberCategory(currentCaliber);
                 List<string> varis = AmmoModule.AllVariantsOfCaliber(currentCaliber);
                 varis.Sort(new FirstFourNumbersCompare());
                 currentVariant = varis[0].Remove(0, 5);
@@ -247,11 +252,10 @@ namespace GhettosFirearmSDKv2
                 variants.Clear();
             }
 
-            List<string> list = AmmoModule.AllCategories();
-            list.Sort(new FirstFourNumbersCompare());
+            List<string> list = AmmoModule.AllCategories().OrderBy(c => sortingData?.sortedCategories.IndexOf(c)).ToList();
             foreach (string s in list)
             {
-                AddCategory(s.Remove(0, 5));
+                AddCategory(s);
             }
         }
 
@@ -274,11 +278,10 @@ namespace GhettosFirearmSDKv2
                 variants.Clear();
             }
 
-            List<string> list = AmmoModule.AllCalibersOfCategory(category);
-            list.Sort(new FirstFourNumbersCompare());
+            List<string> list = AmmoModule.AllCalibersOfCategory(category).OrderBy(c => sortingData?.sortedCalibers.IndexOf(c)).ToList();
             foreach (string s in list)
             {
-                AddCaliber(s.Remove(0, 5));
+                AddCaliber(s);
             }
         }
 

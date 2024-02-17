@@ -22,6 +22,7 @@ namespace GhettosFirearmSDKv2
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
             pouchItem.OnHeldActionEvent += PouchItem_OnHeldActionEvent;
+            pouchItem.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
 
             if (pouchItem.TryGetCustomData(out savedData))
             {
@@ -91,6 +92,14 @@ namespace GhettosFirearmSDKv2
             holder.UnSnapOne();
             pouchItem.RemoveCustomData<PouchSaveData>();
             pouchItem.AddCustomData(savedData);
+        }
+
+        private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
+        {
+            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != pouchItem.lightVolumeReceiver))
+            {
+                Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
+            }
         }
     }
 }

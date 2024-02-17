@@ -223,9 +223,9 @@ namespace GhettosFirearmSDKv2
         #region NVG Offsets
 
         private static float _nvgForwardOffset;
-        // [ModOptionOrder(1)]
-        // [ModOptionCategory("NVG Offsets", 5)]
-        // [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOptionOrder(1)]
+        [ModOptionCategory("NVG Offsets", 5)]
+        [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgForwardOffset
         {
             get { return _nvgForwardOffset; }
@@ -237,9 +237,9 @@ namespace GhettosFirearmSDKv2
         }
         
         private static float _nvgUpwardOffset;
-        // [ModOptionOrder(2)]
-        // [ModOptionCategory("NVG Offsets", 5)]
-        // [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOptionOrder(2)]
+        [ModOptionCategory("NVG Offsets", 5)]
+        [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgUpwardOffset
         {
             get { return _nvgUpwardOffset; }
@@ -251,9 +251,9 @@ namespace GhettosFirearmSDKv2
         }
         
         private static float _nvgSidewaysOffset;
-        // [ModOptionOrder(3)]
-        // [ModOptionCategory("NVG Offsets", 5)]
-        // [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOptionOrder(3)]
+        [ModOptionCategory("NVG Offsets", 5)]
+        [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgSidewaysOffset
         {
             get { return _nvgSidewaysOffset; }
@@ -265,9 +265,9 @@ namespace GhettosFirearmSDKv2
         }
         
         private static bool _foldNvgs;
-        // [ModOptionOrder(4)]
-        // [ModOptionCategory("NVG Offsets", 5)]
-        // [ModOption(name = "Fold NVGs", tooltip = "Folds all NVGs upwards.", saveValue = true)]
+        [ModOptionOrder(4)]
+        [ModOptionCategory("NVG Offsets", 5)]
+        [ModOption(name = "Fold NVGs", tooltip = "Folds all NVGs upwards.", saveValue = true)]
         public static bool FoldNvgs
         {
             get { return _foldNvgs; }
