@@ -44,11 +44,15 @@
     <Compile Include="Firearms\Ammunition\AmmoBelt.cs" />
     <Compile Include="Firearms\Ammunition\PowderGrain.cs" />
     <Compile Include="Firearms\Ammunition\StripperClip.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\BoltAttacher.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\ForeGripSling.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\RevolverCaliberReplacer.cs" />
     <Compile Include="Firearms\BoltAssemblies\FlintLock.cs" />
     <Compile Include="Firearms\BoltAssemblies\LeverAction.cs" />
     <Compile Include="Firearms\BoltAssemblies\PumpAutomaticAdapter.cs" />
+    <Compile Include="Firearms\BoltAssemblies\RecoilSpring.cs" />
+    <Compile Include="Firearms\FirearmMechanics\AdditionalFireModeSelectorAxis.cs" />
     <Compile Include="Firearms\FirearmMechanics\AmmoCounter.cs" />
     <Compile Include="Firearms\FirearmMechanics\BeltFedCover.cs" />
     <Compile Include="Firearms\FirearmMechanics\BeltFedCoverAxis.cs" />
@@ -62,6 +66,8 @@
     <Compile Include="Other\CollapsibleBaton.cs" />
     <Compile Include="Other\Data\CaliberSortingData.cs" />
     <Compile Include="Other\Data\ItemMetaData.cs" />
+    <Compile Include="Other\Data\ObsoleteIdData.cs" />
+    <Compile Include="Other\FirearmClicker.cs" />
     <Compile Include="Other\GunCaseSaveData.cs" />
     <Compile Include="Other\GunCase.cs" />
     <Compile Include="Other\Handcuffs.cs" />
@@ -114,10 +120,12 @@
     <Compile Include="Other\CollisionRelay.cs" />
     <Compile Include="Other\Locks\GateLock.cs" />
     <Compile Include="Other\Pouches\PrebuiltPouch.cs" />
+    <Compile Include="Other\SpawnerGrouper.cs" />
     <Compile Include="Other\Switches\FireModeBasedSwitch.cs" />
     <Compile Include="Other\WireCutter.cs" />
     <Compile Include="Other\WireCutterCuttable.cs" />
     <Compile Include="SaveData\HolsterSaveData.cs" />
+    <Compile Include="SaveData\SaveNodeValueFloat.cs" />
     <Compile Include="SaveData\SaveNodeValueMagazineContents.cs" />
     <Compile Include="SaveData\SaveNodeValueBool.cs" />
     <Compile Include="SaveData\SaveNodeValueString.cs" />

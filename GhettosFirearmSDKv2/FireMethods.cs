@@ -536,10 +536,19 @@ namespace GhettosFirearmSDKv2
                         case RagdollPart.Type.Head: //damage = infinity, remove voice, push(3)
                             {
                                 FirearmsScore.local.headshots++;
-                                if (penetrated && data.lethalHeadshot) damageModifier = Mathf.Infinity;
-                                else damageModifier = 2;
-                                if (penetrated && WouldCreatureBeKilled(data.damagePerProjectile * damageModifier, cr) && !cr.isPlayer) cr.brain.instance.GetModule<BrainModuleSpeak>().Unload();
-                                if (penetrated && data.slicesBodyParts) ragdollPart.TrySlice();
+                                if (penetrated && data.lethalHeadshot)
+                                    damageModifier = Mathf.Infinity;
+                                else
+                                    damageModifier = 2;
+                                if (penetrated && data.lethalHeadshot && WouldCreatureBeKilled(data.damagePerProjectile * damageModifier, cr) && !cr.isPlayer)
+                                {
+                                    cr.brain.instance.GetModule<BrainModuleSpeak>().Unload();
+                                    cr.brain.instance.tree.Reset();
+                                    cr.StartCoroutine(DelayedStopAnimating(cr));
+                                }
+
+                                if (penetrated && data.slicesBodyParts)
+                                    ragdollPart.TrySlice();
                             }
                             break;
                         case RagdollPart.Type.Neck: //damage = infinity, push(1)
@@ -715,6 +724,14 @@ namespace GhettosFirearmSDKv2
             #endregion non creature hit
         }
 
+        private static IEnumerator DelayedStopAnimating(Creature cr)
+        {
+            yield return new WaitForSeconds(1);
+            cr.brain.instance.StopModuleUsingAnyBodyPart();
+            cr.brain.instance.tree.Reset();
+            cr.animator.StopPlayback();
+        }
+
         public static bool Slice(RagdollPart part)
         {
             return !FirearmsSettings.disableGore && (part.sliceAllowed || part.name.Equals("Spine")) && !part.ragdoll.creature.isPlayer;
@@ -751,19 +768,22 @@ namespace GhettosFirearmSDKv2
 
         private static void BloodSplatter(Vector3 origin, Vector3 direction, float force, int projectileCount, int penetrationPower, bool penetratedArmor)
         {
-            // || penetrationPower < 2 || !penetratedArmor
-            if (FirearmsSettings.disableGore)
+            if (FirearmsSettings.disableGore || FirearmsSettings.disableBloodSpatters || penetrationPower < 2 || !penetratedArmor)
                 return;
             int layer = LayerMask.GetMask("Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject");
             if (Physics.Raycast(origin, direction, out RaycastHit hit, force * projectileCount / 30, layer, QueryTriggerInteraction.Ignore))
             {
-                EffectInstance ei = Catalog.GetData<EffectData>("DropBlood").Spawn(hit.point, Quaternion.LookRotation(hit.normal), null, null, false);
+                GameObject go = new GameObject("temp_" + Random.Range(0, 10000));
+                go.transform.position = hit.point;
+                go.transform.rotation = Quaternion.LookRotation(hit.normal);
+                Util.RandomizeZRotation(go.transform);
+                EffectInstance ei = Catalog.GetData<EffectData>("DropBlood").Spawn(hit.point, go.transform.rotation, null, null, false);
                 ei.SetIntensity(100f);
 
                 EffectDecal particle = (EffectDecal)ei.effects[0];
-                particle.baseLifeTime = particle.baseLifeTime * 20f;
-                particle.emissionLifeTime = particle.emissionLifeTime * 20;
-                particle.size = particle.size * force / 40 * projectileCount;
+                particle.baseLifeTime = particle.baseLifeTime * 20f * FirearmsSettings.bloodSplatterLifetimeMultiplier;
+                particle.emissionLifeTime = particle.emissionLifeTime * 20 * FirearmsSettings.bloodSplatterLifetimeMultiplier;
+                particle.size = particle.size * force / 40 * projectileCount * FirearmsSettings.bloodSplatterSizeMultiplier;
                 
                 ei.Play();
             }
@@ -774,10 +794,11 @@ namespace GhettosFirearmSDKv2
             Vector3 fireDir = muzzle.forward;
             Vector3 firePoint = muzzle.position;
             Quaternion fireRotation = muzzle.rotation;
-            Catalog.GetData<ItemData>(data.projectileItemId, true).SpawnAsync(thisSpawnedItem =>
+            Util.SpawnItem(data.projectileItemId, $"[Cartridge of {data.projectileItemId}]", thisSpawnedItem =>
             {
                 item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, firePoint, fireRotation, fireDir, data.muzzleVelocity));
-                if (data.destroyTime != 0f) thisSpawnedItem.Despawn(data.destroyTime);
+                if (data.destroyTime != 0f)
+                    thisSpawnedItem.Despawn(data.destroyTime);
             }, firePoint, fireRotation);
         }
 
@@ -914,7 +935,7 @@ namespace GhettosFirearmSDKv2
         {
             float perFiftyDamage = perfifty * FirearmsSettings.damageMultiplier;
             float aspect = perFiftyDamage / 50;
-            float damageToBeDone = c.maxHealth * aspect;
+            float damageToBeDone = Mathf.Clamp(c.maxHealth, 50f, 100f) * aspect;
 
             return damageToBeDone;
         }

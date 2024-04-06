@@ -69,7 +69,8 @@ namespace GhettosFirearmSDKv2
                         lastFirearm = item.GetComponent<Firearm>();
                     }
 
-                    if (lastFirearm != null && lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff) lastFirearm = ff;
+                    if (lastFirearm != null && lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff)
+                        lastFirearm = ff;
                 }
 
                 if (lastFirearm != null)
@@ -78,7 +79,7 @@ namespace GhettosFirearmSDKv2
                     {
                         containedItems.Add(lastFirearm.defaultAmmoItem);
                         spawning = true;
-                        Catalog.GetData<ItemData>(lastFirearm.defaultAmmoItem).SpawnAsync(newItem =>
+                        Util.SpawnItem(lastFirearm.defaultAmmoItem, $"[Lazy Pouch - Default ammo on {lastFirearm?.item?.itemId}]", newItem =>
                         {
                             item.disallowDespawn = true;
                             StartCoroutine(DelayedSnap(newItem));
@@ -122,7 +123,7 @@ namespace GhettosFirearmSDKv2
             spawnedItems.Remove(item);
             if (item.TryGetComponent(out Firearm f)) return;
             spawning = true;
-            Catalog.GetData<ItemData>(item.data.id).SpawnAsync(newItem =>
+            Util.SpawnItem(item.data.id, $"[Lazy Pouch - Default ammo on {lastFirearm?.item?.itemId}]", newItem =>
             {
                 item.disallowDespawn = true;
                 StartCoroutine(DelayedSnap(newItem));

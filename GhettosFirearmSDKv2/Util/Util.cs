@@ -20,6 +20,12 @@ namespace GhettosFirearmSDKv2
         {
             return new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
         }
+        
+        public static void RandomizeZRotation(Transform target)
+        {
+            float randomAngle = Random.Range(0f, 360f);
+            target.Rotate(0f, 0f, randomAngle, Space.Self);
+        }
 
         public static bool AllowLoadCatridge(Cartridge cartridge, string requiredCaliber)
         {
@@ -195,7 +201,6 @@ namespace GhettosFirearmSDKv2
         {
             yield return new WaitForSeconds(delay);
             IgnoreCollision(obj1, obj2, ignore);
-            yield break;
         }
 
         public static AudioSource PlayRandomAudioSource(List<AudioSource> sources)
@@ -203,7 +208,7 @@ namespace GhettosFirearmSDKv2
             AudioSource source = GetRandomFromList(sources);
             if (source != null)
             {
-                source.Play();
+                source.PlayOneShot(source.clip);
                 return source;
             }
             return null;
@@ -290,6 +295,84 @@ namespace GhettosFirearmSDKv2
             }
 
             return angle;
+        }
+
+        public static void DisableCollision(Item item, bool disable)
+        {
+            foreach (Collider c in item.colliderGroups.SelectMany(i => i.colliders))
+            {
+                c.enabled = !disable;
+            }
+        }
+
+        public static void ApplyAudioConfig(ICollection<AudioSource> sources, bool suppressed = false)
+        {
+            if (Player.local == null || Player.local.head == null || Player.local.head.cam == null)
+                return;
+            
+            float range = 800;
+            foreach (AudioSource source in sources)
+            {
+                source.spatialBlend = 0.1f;
+                if (suppressed)
+                {
+                    source.volume = 0.7f;
+                    source.maxDistance = 50f;
+                }
+                else
+                {
+                    source.volume = 1f;
+                    source.maxDistance = 100f;
+                }
+
+                float distance = Vector3.Distance(source.transform.position, Player.local.head.cam.transform.position);
+                if (distance <= 2)
+                    source.volume *= 1;
+                else if (distance >= range)
+                    source.volume *= 0;
+                else
+                {
+                    float decayFactor = Mathf.Exp(-distance / 100);
+                    source.volume *= 1f - (1f - 0.3f) * decayFactor;
+                }
+                    //source.volume *= 1 - (distance / range);
+            }
+        }
+
+        public static void SpawnItem(string id, string handler,
+                                     Action<Item> callback,
+                                     Vector3? position = null,
+                                     Quaternion? rotation = null,
+                                     Transform parent = null,
+                                     bool pooled = true,
+                                     List<ContentCustomData> customDataList = null)
+        {
+            Catalog.GetData<ItemData>(GetSubstituteId(id, handler), FirearmsSettings.debugMode)?.SpawnAsync(callback, position, rotation, parent, pooled, customDataList);
+        }
+
+        private static ObsoleteIdData _obsoleteIdData;
+        private static bool _triedLoadingObsoleteIds;
+        public static string GetSubstituteId(string id, string handler)
+        {
+            if (_obsoleteIdData == null && !_triedLoadingObsoleteIds)
+            {
+                _triedLoadingObsoleteIds = true;
+                _obsoleteIdData = Catalog.GetDataList<ObsoleteIdData>().FirstOrDefault();
+            }
+
+            if (_obsoleteIdData != null)
+            {
+                if (_obsoleteIdData.idMatches.TryGetValue(id, out string substituteId))
+                {
+                    if (FirearmsSettings.debugMode)
+                    {
+                        Debug.Log($"OBSOLETE ID! {id} was replaced by {substituteId}! Handler: {handler}");
+                    }
+
+                    return substituteId;
+                }
+            }
+            return id;
         }
     }
 }

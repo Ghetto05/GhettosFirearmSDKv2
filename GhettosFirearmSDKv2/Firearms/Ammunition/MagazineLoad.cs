@@ -21,8 +21,8 @@ namespace GhettosFirearmSDKv2
                 mag.loadable = true;
                 mag.InvokeLoadFinished();
                 return;
-            }
-            Catalog.GetData<ItemData>(ids[index]).SpawnAsync(item =>
+            } 
+            Util.SpawnItem(ids[index], $"[Magazine load [{index}] on {mag.item?.itemId}]", item =>
             {
                 mag.InsertRound(item.GetComponent<Cartridge>(), true, true);
                 Recurve(index - 1, mag);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 
@@ -19,6 +20,9 @@ namespace GhettosFirearmSDKv2
         public Transform lid;
         public Transform lidClosedPosition;
         public Transform lidOpenedPosition;
+
+        public AudioSource[] tapSounds;
+        public AudioSource[] grainSpawnSounds;
 
         private float _lastEject;
 
@@ -67,13 +71,17 @@ namespace GhettosFirearmSDKv2
         public void Tap()
         {
             if (opened)
+            { 
                 Spawn();
+                Util.PlayRandomAudioSource(tapSounds);
+            }
         }
 
         private void FixedUpdate()
         {
             if (opened && Vector3.Angle(source.forward, Vector3.down) <= maxAngle)
             {
+                Util.PlayRandomAudioSource(grainSpawnSounds);
                 Spawn();
             }
         }
@@ -84,6 +92,14 @@ namespace GhettosFirearmSDKv2
             {
                 GameObject grainIn = Instantiate(grain, source.position, Quaternion.Euler(Util.RandomRotation()));
                 _lastEject = Time.time;
+                foreach (Collider ic in item.colliderGroups.SelectMany(cg => cg.colliders))
+                {
+                    Collider[] cs = grainIn.GetComponentsInChildren<Collider>(true);
+                    foreach (Collider cpg in cs)
+                    {
+                        Physics.IgnoreCollision(ic, cpg, true);
+                    }
+                }
                 grainIn.SetActive(true);
                 Destroy(grainIn, 5f);
             }

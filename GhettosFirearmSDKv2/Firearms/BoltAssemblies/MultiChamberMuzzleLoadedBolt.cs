@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
@@ -50,7 +51,7 @@ namespace GhettosFirearmSDKv2
                     if (data.contents[i] != null)
                     {
                         int index = i;
-                        Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -166,6 +167,11 @@ namespace GhettosFirearmSDKv2
             else shotsSinceTriggerReset = 0;
         }
 
+        private void Update()
+        {
+            BaseUpdate();
+        }
+
         private int GetFirstFireableChamber()
         {
             int car = -1;
@@ -202,14 +208,7 @@ namespace GhettosFirearmSDKv2
             }
             Transform muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[ca];
             Cartridge loadedCartridge = loadedCartridges[ca];
-            if (loadedCartridge.additionalMuzzleFlash != null)
-            {
-                loadedCartridge.additionalMuzzleFlash.transform.position = muzzle.position;
-                loadedCartridge.additionalMuzzleFlash.transform.rotation = muzzle.rotation;
-                loadedCartridge.additionalMuzzleFlash.transform.SetParent(muzzle);
-                loadedCartridge.additionalMuzzleFlash.Play();
-                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-            }
+            IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
             {

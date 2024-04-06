@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,9 @@ namespace GhettosFirearmSDKv2
     [AddComponentMenu("Firearm SDK v2/Bolt assemblies/Minigun")]
     public class Minigun : BoltBase
     {
+        public bool revOnTrigger;
+        public bool loopingMuzzleFlash;
+        
         public float[] barrelAngles;
         public Transform roundMount;
         public Cartridge loadedCartridge;
@@ -33,7 +37,18 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            firearm.item.OnHeldActionEvent += Item_OnHeldActionEvent;
+            if (!revOnTrigger)
+                firearm.item.OnHeldActionEvent += Item_OnHeldActionEvent;
+            else
+                firearm.OnTriggerChangeEvent += FirearmOnOnTriggerChangeEvent;
+        }
+
+        private void FirearmOnOnTriggerChangeEvent(bool isPulled)
+        {
+            if (isPulled)
+                StartRevving();
+            else
+                StopRevving();
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -53,7 +68,6 @@ namespace GhettosFirearmSDKv2
             beginTime = Time.time;
             revUpBeginTime = Time.time;
             RevUpSound.Play();
-            RotatingLoop.PlayDelayed(RevUpSound.clip.length);
             float timeForOneRound = 60f / firearm.roundsPerMinute;
             float timeForOneRotation = timeForOneRound * barrelAngles.Length;
             float rotationsPerSecond = 1 / timeForOneRotation;
@@ -71,12 +85,17 @@ namespace GhettosFirearmSDKv2
             RotatingLoopPlusFiring.Stop();
             RevUpSound.Stop();
             RevDownSound.Play();
+            
+            if (loopingMuzzleFlash && firearm.defaultMuzzleFlash != null && firearm.defaultMuzzleFlash.isPlaying)
+                firearm.defaultMuzzleFlash.Stop();
         }
 
         private void FixedUpdate()
         {
             revving = revvingUp && (Time.time - revUpBeginTime >= RevUpSound.clip.length);
-
+            if (revving && !RotatingLoop.isPlaying)
+                RotatingLoop.Play();
+            
             if (revvingUp || revvingDown)
             {
                 float timeSinceStart = Time.time - beginTime;
@@ -86,12 +105,8 @@ namespace GhettosFirearmSDKv2
                 currentSpeed = speed;
             }
 
-            barrel.Rotate(new Vector3(0, 0, degreesPerSecond * Time.deltaTime * currentSpeed));
-            //foreach (float degree in barrelAngles)
-            //{
-            //    if (lastRotation < degree && barrel.localEulerAngles.z >= degree && trigger && revving) TryFire();
-            //}
-            //lastRotation = barrel.localEulerAngles.z;
+            if (barrel != null)
+                barrel.Rotate(new Vector3(0, 0, degreesPerSecond * Time.deltaTime * currentSpeed));
 
             if (fireOnTriggerPress && firearm.triggerState && revving && Time.time - lastShotTime >= 60f / firearm.roundsPerMinute)
             {
@@ -110,6 +125,11 @@ namespace GhettosFirearmSDKv2
             }
         }
 
+        private void Update()
+        {
+            BaseUpdate();
+        }
+
         public override void TryFire()
         {
             TryLoadRound();
@@ -124,16 +144,11 @@ namespace GhettosFirearmSDKv2
                 if (hand.playerHand != null && hand.playerHand.controlHand != null) 
                     hand.playerHand.controlHand.HapticShort(50f);
             }
-            if (loadedCartridge.additionalMuzzleFlash != null)
-            {
-                loadedCartridge.additionalMuzzleFlash.transform.position = firearm.actualHitscanMuzzle.position;
-                loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.actualHitscanMuzzle.rotation;
-                loadedCartridge.additionalMuzzleFlash.transform.SetParent(null);
-                loadedCartridge.additionalMuzzleFlash.Play();
-                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-            }
-            if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
+            if (!loopingMuzzleFlash && loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 firearm.PlayMuzzleFlash(loadedCartridge);
+            else if (loopingMuzzleFlash && firearm.defaultMuzzleFlash != null && !firearm.defaultMuzzleFlash.isPlaying)
+                firearm.defaultMuzzleFlash.Play();
+            IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             Util.PlayRandomAudioSource(firearm.fireSounds);
@@ -175,7 +190,6 @@ namespace GhettosFirearmSDKv2
 
         public override void TryLoadRound()
         {
-            Debug.Log(firearm.magazineWell + ", " + firearm.magazineWell.currentMagazine);
             if (loadedCartridge == null && firearm.magazineWell.ConsumeRound() is Cartridge c)
             {
                 loadedCartridge = c;

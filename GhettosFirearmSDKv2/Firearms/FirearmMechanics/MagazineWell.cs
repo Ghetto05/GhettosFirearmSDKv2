@@ -82,7 +82,7 @@ namespace GhettosFirearmSDKv2
                     allowLoad = true;
                     return;
                 }
-                Catalog.GetData<ItemData>(data.value.itemID).SpawnAsync(magItem =>
+                Util.SpawnItem(data.value.itemID, "Magazine Well Save", magItem =>
                 {
                     Magazine mag = magItem.gameObject.GetComponent<Magazine>();
                     mag.OnLoadFinished += Mag_onLoadFinished;

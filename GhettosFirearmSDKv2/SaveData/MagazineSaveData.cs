@@ -43,7 +43,7 @@ namespace GhettosFirearmSDKv2
             }
             try
             {
-                Catalog.GetData<ItemData>(con[index]).SpawnAsync(cartridge =>
+                Util.SpawnItem(con[index], "Magazine save data",cartridge =>
                 {
                     mag.InsertRound(cartridge.GetComponent<Cartridge>(), true, true, false);
                     ApplyToMagazineRecurve(index - 1, mag, con);
@@ -68,7 +68,7 @@ namespace GhettosFirearmSDKv2
             }
             try
             {
-                Catalog.GetData<ItemData>(con[index]).SpawnAsync(cartridge =>
+                Util.SpawnItem(con[index], "Clip save data", cartridge =>
                 {
                     clip.InsertRound(cartridge.GetComponent<Cartridge>(), true, true, false);
                     ApplyToClipRecurve(index - 1, clip, con);

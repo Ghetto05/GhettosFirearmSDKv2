@@ -25,7 +25,7 @@ namespace GhettosFirearmSDKv2
             if (detachHandles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
             {
                 Item oldItem = attachment.attachmentPoint.parentFirearm.item;
-                Catalog.GetData<ItemData>(itemId).SpawnAsync(item =>
+                Util.SpawnItem(itemId, "Attachable Item Detach",item =>
                 {
                     Util.IgnoreCollision(item.gameObject, oldItem.gameObject, true);
                     Util.DelayIgnoreCollision(item.gameObject, oldItem.gameObject, false, 1f, item);

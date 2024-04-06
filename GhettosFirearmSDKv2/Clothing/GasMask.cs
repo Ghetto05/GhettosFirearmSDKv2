@@ -2,6 +2,7 @@
 using UnityEngine;
 using ThunderRoad;
 using GhettosFirearmSDKv2.Chemicals;
+using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
@@ -14,12 +15,17 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
+            if (breathingLoop == null && FirearmsSettings.debugMode)
+                Debug.Log($"GAS MASK BREATHING LOOP MISSING: {string.Join("/", gameObject.GetComponentsInParent<Transform>().Reverse().Select(t => t.name).ToArray())}");
         }
 
         private void Update()
         {
-            if (FirearmsSettings.playGasMaskSound && !breathingLoop.isPlaying) breathingLoop.Play();
-            else if (!FirearmsSettings.playGasMaskSound && breathingLoop.isPlaying) breathingLoop.Stop();
+            if (breathingLoop != null)
+            {
+                if (FirearmsSettings.playGasMaskSound && !breathingLoop.isPlaying) breathingLoop.Play();
+                else if (!FirearmsSettings.playGasMaskSound && breathingLoop.isPlaying) breathingLoop.Stop();
+            }
 
             if (creature == null)
             {

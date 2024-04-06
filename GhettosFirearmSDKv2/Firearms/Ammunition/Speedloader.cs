@@ -37,7 +37,12 @@ namespace GhettosFirearmSDKv2
                 for (int i = 0; i < loadedCartridges.Length; i++)
                 {
                     int i2 = i;
-                    if (data.contents[i2] != null) Catalog.GetData<ItemData>(data.contents[i]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadSlot(i2, c, false); }, transform.position + Vector3.up * 3);
+                    if (data.contents[i2] != null)
+                        Util.SpawnItem(data.contents[i], $"[Saved speedloader rounds - Index {i2} on {item?.itemId}]", ci =>
+                        {
+                            Cartridge c = ci.GetComponent<Cartridge>();
+                            LoadSlot(i2, c, false);
+                        }, transform.position + Vector3.up * 3);
                 }
             }
             else

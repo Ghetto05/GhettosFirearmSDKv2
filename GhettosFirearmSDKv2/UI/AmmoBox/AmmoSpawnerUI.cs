@@ -169,7 +169,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (sped.loadedCartridges[index] == null)
                 {
-                    Catalog.GetData<ItemData>(carId).SpawnAsync(cartr =>
+                    Util.SpawnItem(carId, "Ammo Spawner", cartr =>
                     {
                         sped.LoadSlot(index, cartr.GetComponent<Cartridge>(), true);
                         FillSpeedloader(sped, carId, index + 1);
@@ -186,7 +186,7 @@ namespace GhettosFirearmSDKv2
         {
             if (mag != null && mag.cartridges.Count < mag.maximumCapacity && !string.IsNullOrWhiteSpace(carId))
             {
-                Catalog.GetData<ItemData>(carId).SpawnAsync(cartr => 
+                Util.SpawnItem(carId, "Ammo Spawner", cartr => 
                 {
                     mag.InsertRound(cartr.GetComponent<Cartridge>(), true, true);
                     SpawnAndInsertCar(mag, carId);
@@ -207,7 +207,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!string.IsNullOrWhiteSpace(currentItemId))
             {
-                Catalog.GetData<ItemData>(currentItemId).SpawnAsync(car => {}, spawnPosition.position, spawnPosition.rotation);
+                Util.SpawnItem(currentItemId, "Ammo Spawner", car => {}, spawnPosition.position, spawnPosition.rotation);
             }
         }
 

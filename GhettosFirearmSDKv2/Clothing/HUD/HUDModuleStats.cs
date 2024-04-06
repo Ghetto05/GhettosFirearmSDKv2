@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using ThunderRoad;
+using TMPro;
 
 namespace GhettosFirearmSDKv2
 {
@@ -11,18 +9,23 @@ namespace GhettosFirearmSDKv2
         public Transform health;
         public Transform mana;
         public Transform focus;
-        public Text timeSlow;
+        public TextMeshProUGUI timeSlow;
 
         void Update()
         {
-            if (Player.local.creature == null) return;
-            health.localScale = Scale(Player.local.creature.currentHealth, Player.local.creature.maxHealth);
-            mana.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.maxMana);
-            focus.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.maxFocus);
-            timeSlow.text = (Time.timeScale * 100).ToString() + "%";
+            if (Player.local.creature == null)
+                return;
+            if (health != null)
+                health.localScale = Scale(Player.local.creature.currentHealth, Player.local.creature.maxHealth);
+            if (mana != null)
+                mana.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.maxMana);
+            if (focus != null)
+                focus.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.maxFocus);
+            if (timeSlow != null)
+                timeSlow.text = Time.timeScale * 100 + "%";
         }
 
-        private Vector3 Scale(float current, float max)
+        private static Vector3 Scale(float current, float max)
         {
             return new Vector3(1, current / max, 1);
         }

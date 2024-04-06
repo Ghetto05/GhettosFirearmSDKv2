@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace GhettosFirearmSDKv2
         int shotsSinceTriggerReset = 0;
         private float lastFireTime = -100f;
 
-        public bool ReadToFire()
+        public bool ReadyToFire()
         {
             float timePerRound = 60f / firearm.roundsPerMinute;
             float passedTime = Time.time - lastFireTime;
@@ -44,14 +45,7 @@ namespace GhettosFirearmSDKv2
                     hand.playerHand.controlHand.HapticShort(50f);
             }
             loadedCartridge = firearm.magazineWell.ConsumeRound();
-            if (loadedCartridge.additionalMuzzleFlash != null)
-            {
-                loadedCartridge.additionalMuzzleFlash.transform.position = firearm.actualHitscanMuzzle.position;
-                loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.actualHitscanMuzzle.rotation;
-                loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.actualHitscanMuzzle);
-                loadedCartridge.additionalMuzzleFlash.Play();
-                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-            }
+            IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 firearm.PlayMuzzleFlash(loadedCartridge);
@@ -68,17 +62,12 @@ namespace GhettosFirearmSDKv2
             return null;
         }
 
-        public override void UpdateChamberedRounds()
-        {
-            base.UpdateChamberedRounds();
-        }
-
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
         {
             if (fireOnTriggerPress && isPulled && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0 && ReadToFire()) TryFire();
-                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize && ReadToFire()) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0 && ReadyToFire()) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize && ReadyToFire()) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Auto) TryFire();
             }
             if (!isPulled)
@@ -120,6 +109,11 @@ namespace GhettosFirearmSDKv2
             if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
             loadedCartridge.ToggleHandles(true);
             if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired) firearm.magazineWell.Eject();
+        }
+
+        private void Update()
+        {
+            BaseUpdate();
         }
     }
 }

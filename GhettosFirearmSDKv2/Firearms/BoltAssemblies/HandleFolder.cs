@@ -13,6 +13,7 @@ namespace GhettosFirearmSDKv2
         public List<string> handleNames;
         public Transform defaultPosition;
         public List<Transform> positions;
+        public bool parentToPosition;
 
         private void Start()
         {
@@ -38,14 +39,30 @@ namespace GhettosFirearmSDKv2
                 if (h.IsHanded())
                 {
                     held = true;
-                    axis.localPosition = positions[handles.IndexOf(h)].localPosition;
-                    axis.localEulerAngles = positions[handles.IndexOf(h)].localEulerAngles;
+                    if (parentToPosition)
+                    {
+                        axis.SetParent(positions[handles.IndexOf(h)]);
+                        axis.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                    }
+                    else
+                    {
+                        axis.localPosition = positions[handles.IndexOf(h)].localPosition;
+                        axis.localEulerAngles = positions[handles.IndexOf(h)].localEulerAngles;
+                    }
                 }
             }
             if (!held && defaultPosition != null)
             {
-                axis.localPosition = defaultPosition.localPosition;
-                axis.localEulerAngles = defaultPosition.localEulerAngles;
+                if (parentToPosition)
+                {
+                    axis.SetParent(defaultPosition);
+                    axis.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                }
+                else
+                {
+                    axis.localPosition = defaultPosition.localPosition;
+                    axis.localEulerAngles = defaultPosition.localEulerAngles;
+                }
             }
         }
     }

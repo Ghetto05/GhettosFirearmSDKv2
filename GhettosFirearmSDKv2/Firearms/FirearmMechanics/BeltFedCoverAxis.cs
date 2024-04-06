@@ -15,9 +15,7 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            BoltBase.BoltState openedState =
-                !foldOnFullyOpened ? BoltBase.BoltState.Back : BoltBase.BoltState.Locked;
-            if (beltFed.state == openedState)
+            if ((!foldOnFullyOpened && beltFed.state != BoltBase.BoltState.Locked) || beltFed.state == BoltBase.BoltState.Back)
                 axis.SetLocalPositionAndRotation(foldedPosition.localPosition, foldedPosition.localRotation);
             else
                 axis.SetLocalPositionAndRotation(idlePosition.localPosition, idlePosition.localRotation);

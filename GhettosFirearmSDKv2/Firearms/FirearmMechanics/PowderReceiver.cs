@@ -24,10 +24,15 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
+            UpdatePositions();
+        }
+
+        public void UpdatePositions()
+        {
             if (fillRoot != null)
                 fillRoot.localScale = new Vector3(1, 1, (float)currentAmount / (float)minimum);
             if (fillPosition != null)
-                fillPosition.position = Vector3.Lerp(emptyPosition.position, filledPosition.position, (float)currentAmount / (float)minimum);
+                fillPosition.position = Vector3.LerpUnclamped(emptyPosition.position, filledPosition.position, (float)currentAmount / (float)minimum);
         }
     }
 }

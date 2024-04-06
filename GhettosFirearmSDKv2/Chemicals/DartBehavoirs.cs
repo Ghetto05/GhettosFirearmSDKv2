@@ -67,7 +67,8 @@ namespace GhettosFirearmSDKv2
             {
                 Vector3 v = c.transform.position;
                 c.Despawn();
-                if (GunLockerSaveData.allPrebuilts.Count > 0) GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count - 1)].SpawnAsync(item => { }, v + Vector3.up);
+                if (GunLockerSaveData.allPrebuilts.Count > 0)
+                    GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count - 1)].SpawnAsync(item => { }, v + Vector3.up);
             }
         }
 

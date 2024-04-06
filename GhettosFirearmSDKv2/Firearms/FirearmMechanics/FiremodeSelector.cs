@@ -18,7 +18,7 @@ namespace GhettosFirearmSDKv2
         public FirearmBase.FireModes[] firemodes;
         public float[] fireRates;
         public Transform[] irregularPositions;
-        private int currentIndex = 0;
+        public int currentIndex = 0;
         SaveNodeValueInt fireModeIndex;
         public Hammer hammer;
         public bool allowSwitchingModeIfHammerIsUncocked = true;
@@ -39,7 +39,6 @@ namespace GhettosFirearmSDKv2
             fireModeIndex = FirearmSaveData.GetNode(firearm).GetOrAddValue("Firemode", new SaveNodeValueInt());
             firearm.SetFiremode(firemodes[fireModeIndex.value]);
             currentIndex = fireModeIndex.value;
-            onFiremodeChanged?.Invoke(firearm.fireMode);
             UpdatePosition();
             onFiremodeChanged?.Invoke(firearm.fireMode);
         }

@@ -19,6 +19,8 @@ namespace GhettosFirearmSDKv2
         public float cyclePercentage;
         public bool externalTriggerState = false;
         public bool disallowRelease = false;
+        private float breachSmokeTime;
+        public ParticleSystem[] breachSmokeEffects;
 
         private void Awake()
         {
@@ -78,11 +80,42 @@ namespace GhettosFirearmSDKv2
             return false;
         }
 
+        public virtual bool CanPlayBreachSmoke()
+        {
+            return true;
+        }
+
+        internal void BaseUpdate()
+        {
+            foreach (ParticleSystem par in breachSmokeEffects)
+            {
+                if (CanPlayBreachSmoke() && breachSmokeTime > 0 && !par.isPlaying)
+                    par.Play();
+                if ((!CanPlayBreachSmoke() || breachSmokeTime <= 0) && par.isPlaying)
+                    par.Stop();
+            }
+
+            breachSmokeTime -= Time.deltaTime;
+            if (breachSmokeTime < 0)
+                breachSmokeTime = 0;
+        }
+
+        public void IncrementBreachSmokeTime()
+        {
+            float breachSmokeBaseTime = 4;
+            float breachSmokeIncrement = 2.2f;
+
+            if (breachSmokeTime < breachSmokeBaseTime)
+                breachSmokeTime = breachSmokeBaseTime;
+            else
+                breachSmokeTime += breachSmokeIncrement;
+        }
+
         public void ChamberSaved()
         {
             if (FirearmSaveData.GetNode(firearm) != null && FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber))
             {
-                Catalog.GetData<ItemData>(chamber.value)?.SpawnAsync(carItem =>
+                Util.SpawnItem(chamber.value, "Bolt Chamber", carItem =>
                 {
                     Cartridge car = carItem.gameObject.GetComponent<Cartridge>();
                     LoadChamber(car);

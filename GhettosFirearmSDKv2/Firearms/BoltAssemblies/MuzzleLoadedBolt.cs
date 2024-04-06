@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using ThunderRoad;
 using System.Collections.Generic;
@@ -76,14 +77,7 @@ namespace GhettosFirearmSDKv2
                 if (hand.playerHand != null && hand.playerHand.controlHand != null)
                     hand.playerHand.controlHand.HapticShort(50f);
             }
-            if (loadedCartridge.additionalMuzzleFlash != null)
-            {
-                loadedCartridge.additionalMuzzleFlash.transform.position = firearm.actualHitscanMuzzle.position;
-                loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.actualHitscanMuzzle.rotation;
-                loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.actualHitscanMuzzle);
-                loadedCartridge.additionalMuzzleFlash.Play();
-                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-            }
+            IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 firearm.PlayMuzzleFlash(loadedCartridge);
@@ -161,6 +155,11 @@ namespace GhettosFirearmSDKv2
             if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
             c.ToggleHandles(true);
             InvokeEjectRound(c);
+        }
+
+        private void Update()
+        {
+            BaseUpdate();
         }
     }
 }

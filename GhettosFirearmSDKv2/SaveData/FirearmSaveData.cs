@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
             foreach (AttachmentTreeNode node in firearmNode.childs)
             {
                 AttachmentPoint point = firearm.GetSlotFromId(node.slot);
-                Catalog.GetData<AttachmentData>(node.attachmentId)?.SpawnAndAttach(point, node, true);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(node.attachmentId, $"[Firearm save data - slot {node.slot} on {firearm.item?.data?.displayName} | {firearm.item?.itemId}]"))?.SpawnAndAttach(point, node, true);
             }
         }
 

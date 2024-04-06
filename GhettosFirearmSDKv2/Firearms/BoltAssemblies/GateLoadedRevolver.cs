@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,6 +43,8 @@ namespace GhettosFirearmSDKv2
         private ConfigurableJoint ejectorJoint;
         public float ejectForce;
         public Transform ejectDir;
+        public Transform springRoot;
+        public Vector3 springTargetScale = Vector3.one;
 
         [Header("Audio")]
         public List<AudioSource> insertSounds;
@@ -77,7 +80,7 @@ namespace GhettosFirearmSDKv2
                     if (data.contents[i] != null)
                     {
                         int index = i;
-                        Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -113,6 +116,12 @@ namespace GhettosFirearmSDKv2
                     c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 }
 
+                if (springRoot != null)
+                {
+                    float time = Vector3.Distance(ejectorAxis.position, ejectorEjectPoint.position)/Vector3.Distance(ejectorRoot.position, ejectorEjectPoint.position);
+                    springRoot.localScale = Vector3.Lerp(Vector3.one, springTargetScale, time);
+                }
+
                 if (!roundReparented && loadedCartridges[LoadModeChamber()] != null && Vector3.Distance(ejectorRB.transform.localPosition, ejectorRoot.localPosition) > 0.004f)
                 {
                     roundReparented = true;
@@ -143,7 +152,20 @@ namespace GhettosFirearmSDKv2
                     SaveCartridges();
                 }
             }
-            else if (firearm.triggerState) TryFire();
+            else
+            {
+                if (firearm.triggerState)
+                    TryFire();
+                if (springRoot != null)
+                {
+                    springRoot.localScale = Vector3.one;
+                }
+            }
+        }
+
+        private void Update()
+        {
+            BaseUpdate();
         }
 
         private void Firearm_OnAltActionEvent(bool longPress)
@@ -242,6 +264,7 @@ namespace GhettosFirearmSDKv2
                     hammerAxis.localPosition = hammerIdlePosition.localPosition;
                     hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
                 }
+                Destroy(ejectorJoint);
             }
             UpdateEjector();
         }
@@ -251,7 +274,7 @@ namespace GhettosFirearmSDKv2
             InitializeEjectorJoint();
             if (loadMode)
             {
-                Vector3 vec = BoltBase.GrandparentLocalPosition(ejectorEjectPoint, firearm.item.transform);
+                Vector3 vec = GrandparentLocalPosition(ejectorEjectPoint, firearm.item.transform);
                 ejectorJoint.anchor = new Vector3(vec.x, vec.y, vec.z + ((ejectorRoot.localPosition.z - ejectorEjectPoint.localPosition.z) / 2));
                 SoftJointLimit limit = new SoftJointLimit();
                 limit.limit = Vector3.Distance(ejectorEjectPoint.position, ejectorRoot.position) / 2;
@@ -263,7 +286,7 @@ namespace GhettosFirearmSDKv2
             }
             else
             {
-                Vector3 vec = BoltBase.GrandparentLocalPosition(ejectorRoot, firearm.item.transform);
+                Vector3 vec = GrandparentLocalPosition(ejectorRoot, firearm.item.transform);
                 ejectorJoint.anchor = new Vector3(vec.x, vec.y, vec.z);
                 SoftJointLimit limit = new SoftJointLimit();
                 limit.limit = 0f;
@@ -280,6 +303,8 @@ namespace GhettosFirearmSDKv2
             if (ejectorJoint == null)
             {
                 ejectorJoint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
+                ejectorRB.transform.position = ejectorRoot.position;
+                ejectorRB.transform.rotation = ejectorRoot.rotation;
                 ejectorJoint.connectedBody = ejectorRB;
                 ejectorJoint.massScale = 0.00001f;
 
@@ -291,8 +316,6 @@ namespace GhettosFirearmSDKv2
                 ejectorJoint.angularXMotion = ConfigurableJointMotion.Locked;
                 ejectorJoint.angularYMotion = ConfigurableJointMotion.Locked;
                 ejectorJoint.angularZMotion = ConfigurableJointMotion.Locked;
-                ejectorRB.transform.localPosition = ejectorRoot.localPosition;
-                ejectorRB.transform.localRotation = ejectorRoot.localRotation;
             }
         }
 
@@ -328,14 +351,7 @@ namespace GhettosFirearmSDKv2
                     if (hand.playerHand != null || hand.playerHand.controlHand != null)
                         hand.playerHand.controlHand.HapticShort(50f);
                 }
-                if (loadedCartridge.additionalMuzzleFlash != null)
-                {
-                    loadedCartridge.additionalMuzzleFlash.transform.position = firearm.actualHitscanMuzzle.position;
-                    loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.actualHitscanMuzzle.rotation;
-                    loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.actualHitscanMuzzle);
-                    loadedCartridge.additionalMuzzleFlash.Play();
-                    StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-                }
+                IncrementBreachSmokeTime();
                 firearm.PlayFireSound(loadedCartridge);
                 if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 {

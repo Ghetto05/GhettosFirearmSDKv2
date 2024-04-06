@@ -152,7 +152,7 @@ namespace GhettosFirearmSDKv2
             idString = idString.Replace("|", "");
             bool preb = FirearmsSettings.saveAsPrebuilt;
 
-            if (!preb) DeleteSave(idString);
+            DeleteSave(idString);
             
             GunLockerSaveData newData = new GunLockerSaveData
             {
@@ -241,10 +241,10 @@ namespace GhettosFirearmSDKv2
         {
             if (holder.items.Count > 0 && holder.UnSnapOne() is Item i) i.Despawn();
             GunLockerSaveData data = Catalog.GetData<GunLockerSaveData>(saveId);
-            Catalog.GetData<ItemData>(data.itemId).SpawnAsync(gun => 
+            Util.SpawnItem(data.itemId, $"[Gun Locker - Save {saveId}]", gun => 
             {
                 holder.Snap(gun);
-                //gun.data.displayName = data.displayName;
+                gun.data.displayName = data.displayName;
             }, holder.transform.position, holder.transform.rotation, null, true, data.dataList.CloneJson());
         }
 
@@ -253,8 +253,10 @@ namespace GhettosFirearmSDKv2
             GunLockerSaveData data = Catalog.GetData<GunLockerSaveData>(saveId);
             if (data == null) return;
             string path = FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + data.id + ".json";
-            if (File.Exists(path)) File.Delete(path);
-            Catalog.data[(int)Catalog.GetCategory(data.GetType())].catalogDatas.Remove(data);
+            if (File.Exists(path))
+                File.Delete(path);
+            CatalogCategory category = Catalog.GetCategoryData(Catalog.GetCategory(data.GetType()));
+            category.catalogDatas.Remove(data);
             SetCategory(currentCategory);
         }
         #endregion

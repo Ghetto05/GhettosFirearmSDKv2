@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
             {
                 if ((ati.attachmentType.Equals(type) || alternateTypes.Contains(ati.attachmentType)) && Util.CheckForCollisionWithColliders(attachColliders, ati.attachColliders, collision))
                 {
-                    Catalog.GetData<AttachmentData>(ati.attachmentId).SpawnAndAttach(this);
+                    Catalog.GetData<AttachmentData>(Util.GetSubstituteId(ati.attachmentId, $"[Attachable item - point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this);
                     AudioSource s = Util.PlayRandomAudioSource(ati.attachSounds);
                     if (s != null)
                     {
@@ -86,7 +86,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!string.IsNullOrEmpty(defaultAttachment))
             {
-                Catalog.GetData<AttachmentData>(defaultAttachment).SpawnAndAttach(this, null);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(defaultAttachment, $"[Default attachment on point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this, null);
             }
         }
 

@@ -71,7 +71,7 @@ namespace GhettosFirearmSDKv2
         public void SpawnSavedItem()
         {
             if (savedData == null || string.IsNullOrEmpty(savedData.itemID)) return;
-            Catalog.GetData<ItemData>(savedData.itemID)?.SpawnAsync(newItem =>
+            Util.SpawnItem(savedData.itemID, "Ammunition Pouch", newItem =>
             {
                 if (newItem.TryGetComponent(out Magazine mag))
                 {

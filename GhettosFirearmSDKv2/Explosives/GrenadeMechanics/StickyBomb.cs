@@ -37,8 +37,10 @@ namespace GhettosFirearmSDKv2
 
         public void StickTo(Rigidbody rb)
         {
-            if (stuck) return;
+            if (stuck)
+                return;
             stuck = true;
+            item.disallowDespawn = true;
             FixedJoint joint = item.gameObject.AddComponent<FixedJoint>();
             joint.connectedBody = rb;
             onStickEvent?.Invoke();

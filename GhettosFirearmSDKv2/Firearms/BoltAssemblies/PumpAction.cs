@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -171,14 +172,7 @@ namespace GhettosFirearmSDKv2
             shotsSinceTriggerReset++;
             if (hammer)
                 hammer.Fire();
-            if (loadedCartridge.additionalMuzzleFlash != null)
-            {
-                loadedCartridge.additionalMuzzleFlash.transform.position = firearm.actualHitscanMuzzle.position;
-                loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.actualHitscanMuzzle.rotation;
-                loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.actualHitscanMuzzle);
-                loadedCartridge.additionalMuzzleFlash.Play();
-                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-            }
+            IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
             firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
@@ -302,10 +296,15 @@ namespace GhettosFirearmSDKv2
             //firing
             if (state == BoltState.Locked && firearm.triggerState && fireOnTriggerPress && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && (slamFire || shotsSinceTriggerReset == 0 || actsAsRelay)) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && ((slamFire && !FirearmsSettings.infiniteAmmo) || shotsSinceTriggerReset == 0 || actsAsRelay)) TryFire();
             }
 
             CalculatePercentage();
+        }
+
+        private void Update()
+        {
+            BaseUpdate();
         }
 
         public override void EjectRound()
@@ -414,6 +413,11 @@ namespace GhettosFirearmSDKv2
             float distanceStartBolt = Util.AbsDist(bolt, startPoint);
             float totalDistance = Util.AbsDist(startPoint, endPoint);
             cyclePercentage = Mathf.Clamp01(distanceStartBolt / totalDistance);
+        }
+
+        public override Cartridge GetChamber()
+        {
+            return loadedCartridge;
         }
     }
 }

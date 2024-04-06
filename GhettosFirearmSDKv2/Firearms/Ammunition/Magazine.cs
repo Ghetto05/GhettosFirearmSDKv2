@@ -209,7 +209,7 @@ namespace GhettosFirearmSDKv2
                 cartridges.RemoveAt(0);
                 if (infinite || FirearmsSettings.infiniteAmmo)
                 {
-                    Catalog.GetData<ItemData>(c.item.itemId).SpawnAsync(car =>
+                    Util.SpawnItem(c.item.itemId, "[Loaded round in magazine]",car =>
                     {
                         Cartridge newC = car.GetComponent<Cartridge>();
                         InsertRound(newC, true, true, true, true);

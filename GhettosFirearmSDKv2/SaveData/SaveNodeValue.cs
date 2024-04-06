@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GhettosFirearmSDKv2
 {
-    public class SaveNodeValue
+    public abstract class SaveNodeValue
     {
         public string id;
     }

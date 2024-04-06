@@ -153,7 +153,7 @@ namespace GhettosFirearmSDKv2
             foreach (FirearmSaveData.AttachmentTreeNode n in node.childs)
             {
                 AttachmentPoint point = GetSlotFromId(n.slot);
-                Catalog.GetData<AttachmentData>(n.attachmentId).SpawnAndAttach(point, n);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.attachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, n);
             }
         }
 

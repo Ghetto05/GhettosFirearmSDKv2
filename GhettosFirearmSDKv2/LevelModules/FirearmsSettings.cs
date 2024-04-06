@@ -9,6 +9,7 @@ using ThunderRoad;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Object = UnityEngine.Object;
 
 namespace GhettosFirearmSDKv2
 {
@@ -136,7 +137,7 @@ namespace GhettosFirearmSDKv2
         
         #endregion Static
 
-        #region PureSettings
+        #region General
         
         //[ModOption(name = "HUD scale", tooltip = "Scales HUDs.", saveValue = true)]
         public static float hudScale = 1f;
@@ -148,25 +149,8 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(2)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0. Note: Firearms will never despawn up until 10 seconds after having spawned in.", saveValue = true, defaultValueIndex = 8, valueSourceName = nameof(firearmDespawnTimeValues))]
+        [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0. Note: Firearms will never despawn up until 10 seconds after having spawned in.", saveValue = true, defaultValueIndex = 8, valueSourceName = nameof(FirearmsSettingsValues.firearmDespawnTimeValues), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float firearmDespawnTime = 0f;
-        public static ModOptionFloat[] firearmDespawnTimeValues =
-        {
-            new ModOptionFloat("Disabled", 0.0f),
-            new ModOptionFloat("0.01 Seconds", 0.01f),
-            new ModOptionFloat("5 Seconds", 5),
-            new ModOptionFloat("10 Seconds", 10),
-            new ModOptionFloat("20 Seconds", 20),
-            new ModOptionFloat("30 Seconds", 30),
-            new ModOptionFloat("40 Seconds", 40),
-            new ModOptionFloat("50 Seconds", 50),
-            new ModOptionFloat("1 Minute", 60),
-            new ModOptionFloat("2 Minutes", 120),
-            new ModOptionFloat("3 Minutes", 180),
-            new ModOptionFloat("4 Minutes", 240),
-            new ModOptionFloat("5 Minutes", 300),
-            new ModOptionFloat("10 Minutes", 600)
-        };
 
         [ModOptionOrder(3)]
         [ModOptionCategory("Settings", 1)]
@@ -180,21 +164,8 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(5)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, defaultValueIndex = 4, valueSourceName = nameof(tdt))]
+        [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, defaultValueIndex = 4, valueSourceName = nameof(FirearmsSettingsValues.triggerDisciplineTimers), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float triggerDisciplineTime = 3f;
-        public static ModOptionFloat[] tdt =
-        {
-            new ModOptionFloat("0.1", 0.1f),
-            new ModOptionFloat("0.5", 0.5f),
-            new ModOptionFloat("1", 1),
-            new ModOptionFloat("2", 2),
-            new ModOptionFloat("3", 3),
-            new ModOptionFloat("5", 5),
-            new ModOptionFloat("7.5", 7.5f),
-            new ModOptionFloat("10", 10),
-            new ModOptionFloat("30", 30),
-            new ModOptionFloat("Never", 999999)
-        };
 
         [ModOptionOrder(6)]
         [ModOptionCategory("Settings", 1)]
@@ -213,10 +184,10 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(9)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Disable gore", tooltip = "If enabled, there will be no blood effects or dismemberment.", defaultValueIndex = 0, saveValue = true)]
-        public static bool disableGore = false;
+        [ModOption(name = "Break actions only eject fired rounds", tooltip = "If enabled, break actions will only eject fired shells. Unfired ones can be ejected with the release button.", defaultValueIndex = 0, saveValue = true)]
+        public static bool breakActionsEjectOnlyFired = false;
 
-        #endregion PureSettings
+        #endregion
 
         #region Clothing
         
@@ -225,7 +196,7 @@ namespace GhettosFirearmSDKv2
         private static float _nvgForwardOffset;
         [ModOptionOrder(1)]
         [ModOptionCategory("NVG Offsets", 5)]
-        [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgForwardOffset
         {
             get { return _nvgForwardOffset; }
@@ -239,7 +210,7 @@ namespace GhettosFirearmSDKv2
         private static float _nvgUpwardOffset;
         [ModOptionOrder(2)]
         [ModOptionCategory("NVG Offsets", 5)]
-        [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgUpwardOffset
         {
             get { return _nvgUpwardOffset; }
@@ -253,7 +224,7 @@ namespace GhettosFirearmSDKv2
         private static float _nvgSidewaysOffset;
         [ModOptionOrder(3)]
         [ModOptionCategory("NVG Offsets", 5)]
-        [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNVGOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgSidewaysOffset
         {
             get { return _nvgSidewaysOffset; }
@@ -280,6 +251,59 @@ namespace GhettosFirearmSDKv2
 
         #endregion
         
+        #endregion
+
+        #region Cheats
+        
+        [ModOptionOrder(1)]
+        [ModOptionCategory("Cheats", 10)]
+        [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", defaultValueIndex = 3, saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.incapacitateOnTorsoShotTimers), valueSourceType = typeof(FirearmsSettingsValues))]
+        public static float incapitateOnTorsoShot;
+
+        [ModOptionOrder(2)]
+        [ModOptionCategory("Cheats", 10)]
+        [ModOption(name = "Infinite ammo", tooltip = "If enabled, magazines will refill as they are used and chamber loaders will not use up the loaded cartridge.", defaultValueIndex = 0, saveValue = true)]
+        public static bool infiniteAmmo = false;
+
+        [ModOptionOrder(3)]
+        [ModOptionCategory("Cheats", 10)]
+        [ModOption(name = "Caliber checks", tooltip = "If disabled, any magazine or chamber can be loaded with any caliber.", defaultValueIndex = 1, saveValue = true)]
+        public static bool doCaliberChecks = true;
+
+        [ModOptionOrder(4)]
+        [ModOptionCategory("Cheats", 10)]
+        [ModOption(name = "Magazine type checks", tooltip = "If disabled, magazine can be loaded into any firearm.", defaultValueIndex = 1, saveValue = true)]
+        public static bool doMagazineTypeChecks = true;
+
+        [ModOptionOrder(5)]
+        [ModOptionCategory("Cheats", 10)]
+        [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true, defaultValueIndex = 10)]
+        public static float damageMultiplier = 1f;
+        
+        #endregion Cheats
+
+        #region Gore
+
+        [ModOptionOrder(1)]
+        [ModOptionCategory("Gore", 15)]
+        [ModOption(name = "Disable gore", tooltip = "If enabled, there will be no blood effects or dismemberment.", defaultValueIndex = 0, saveValue = true)]
+        public static bool disableGore = false;
+
+        [ModOptionOrder(2)]
+        [ModOptionCategory("Gore", 15)]
+        [ModOption(name = "Disable blood splatters", tooltip = "If enabled, there will be no blood effects on walls from the bullets penetrating.", defaultValueIndex = 0, saveValue = true)]
+        public static bool disableBloodSpatters = false;
+
+        [ModOptionOrder(3)]
+        [ModOptionCategory("Gore", 15)]
+        [ModOption(name = "Blood splatter life time multiplier", tooltip = "Allows you to change how long blood splatters stay.", defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.zeroToOneModifier), valueSourceType = typeof(FirearmsSettingsValues), saveValue = true)]
+        public static float bloodSplatterLifetimeMultiplier;
+
+        [ModOptionOrder(4)]
+        [ModOptionCategory("Gore", 15)]
+        [ModOption(name = "Blood splatter size multiplier", tooltip = "Allows you to change how large blood splatters are.", defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.zeroToFiveModifier), valueSourceType = typeof(FirearmsSettingsValues), saveValue = true)]
+        public static float bloodSplatterSizeMultiplier;
+
         #endregion
         
         #region Debug
@@ -309,58 +333,9 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "Save guns as prebuilts", tooltip = "Only for development. Saves any gun in the locker with the prebuilt setup.", defaultValueIndex = 0, saveValue = true)]
         public static bool saveAsPrebuilt;
         #endregion Debug
-
-        #region Cheats
-        [ModOptionOrder(1)]
-        [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", defaultValueIndex = 3, saveValue = true, valueSourceName = nameof(iots))]
-        public static float incapitateOnTorsoShot;
-        public static ModOptionFloat[] iots =
-        {
-            new ModOptionFloat("Disabled", 0.0f),
-            new ModOptionFloat("10 Seconds", 10),
-            new ModOptionFloat("20 Seconds", 20),
-            new ModOptionFloat("30 Seconds", 30),
-            new ModOptionFloat("40 Seconds", 40),
-            new ModOptionFloat("50 Seconds", 50),
-            new ModOptionFloat("1 Minute", 60),
-            new ModOptionFloat("2 Minutes", 120),
-            new ModOptionFloat("3 Minutes", 180),
-            new ModOptionFloat("4 Minutes", 240),
-            new ModOptionFloat("5 Minutes", 300),
-            new ModOptionFloat("10 Minutes", 600),
-            new ModOptionFloat("Permanent", -1f),
-            new ModOptionFloat("1 Day", 1440),
-            new ModOptionFloat("1 Week", 10080),
-            new ModOptionFloat("1 Year", 525600),
-            new ModOptionFloat("1 Decade", 5256000),
-            new ModOptionFloat("1 Century", 52560000),
-            new ModOptionFloat("1 Millenia", 525600000),
-            new ModOptionFloat("Till Battle State Games adds the Colt M16A4 to EFT", Mathf.Infinity),
-            new ModOptionFloat("Till our LORD AND SAVIOUR, JESUS CHIRST arrives", 3610558080)
-        };
-
-        [ModOptionOrder(2)]
-        [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Infinite ammo", tooltip = "If enabled, magazines will refill as they are used and chamber loaders will not use up the loaded cartridge.", defaultValueIndex = 0, saveValue = true)]
-        public static bool infiniteAmmo = false;
-
-        [ModOptionOrder(3)]
-        [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Caliber checks", tooltip = "If disabled, any magazine or chamber can be loaded with any caliber.", defaultValueIndex = 1, saveValue = true)]
-        public static bool doCaliberChecks = true;
-
-        [ModOptionOrder(4)]
-        [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Magazine type checks", tooltip = "If disabled, magazine can be loaded into any firearm.", defaultValueIndex = 1, saveValue = true)]
-        public static bool doMagazineTypeChecks = true;
-
-        [ModOptionOrder(5)]
-        [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true, defaultValueIndex = 10)]
-        public static float damageMultiplier = 1f;
-        #endregion Cheats
+        
         #endregion Values
+        
         #endregion Settings
 
         #region Gun Locker / Liam

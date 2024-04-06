@@ -28,7 +28,7 @@ namespace GhettosFirearmSDKv2
 
             if (_data.itemIDs.TryGetValue(holder.name, out string id))
             {
-                Catalog.GetData<ItemData>(id).SpawnAsync(i =>
+                Util.SpawnItem(id, $"[Holster {item.itemId} - Holder {holder.name}, Item {id}", i =>
                 {
                     holder.Snap(i);
                 }, holder.transform.position, null, null, true, _data.dataLists[holder.name]);

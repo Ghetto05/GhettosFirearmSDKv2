@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -223,17 +224,10 @@ namespace GhettosFirearmSDKv2
             {
                 if (hand.playerHand != null && hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
             }
-            if (loadedCartridge.additionalMuzzleFlash != null)
-            {
-                loadedCartridge.additionalMuzzleFlash.transform.position = firearm.actualHitscanMuzzle.position;
-                loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.actualHitscanMuzzle.rotation;
-                loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.actualHitscanMuzzle);
-                loadedCartridge.additionalMuzzleFlash.Play();
-                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-            }
             firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 firearm.PlayMuzzleFlash(loadedCartridge);
+            IncrementBreachSmokeTime();
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !(firearm.roundsPerMinute > 0 && HeldByAI()));
@@ -262,9 +256,9 @@ namespace GhettosFirearmSDKv2
             if (overrideHeldState)
                 return heldState;
             
-            foreach (Handle handl in boltHandles)
+            foreach (Handle handle in boltHandles)
             {
-                if (handl.IsHanded()) return true;
+                if (handle.IsHanded()) return true;
             }
             return false;
         }
@@ -510,6 +504,11 @@ namespace GhettosFirearmSDKv2
 
             lastFrameHeld = isHeld;
             CalculatePercentage();
+        }
+
+        private void Update()
+        {
+            BaseUpdate();
         }
 
         private bool CatchOpenBolt()

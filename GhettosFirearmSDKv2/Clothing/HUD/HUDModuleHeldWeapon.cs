@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ThunderRoad;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,8 +11,8 @@ namespace GhettosFirearmSDKv2
     {
         public HUD hud;
         public Image icon;
-        public Text roundCounter;
-        public Text capacityDisplay;
+        public TextMeshProUGUI roundCounter;
+        public TextMeshProUGUI capacityDisplay;
         public Firearm currentFirearm;
         public Color defaultColor;
         public Color lowColor;
@@ -19,7 +20,8 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            SetIcon();
+            if (icon != null)
+                SetIcon();
             UpdateRoundCounter();
         }
 
@@ -33,18 +35,24 @@ namespace GhettosFirearmSDKv2
                 {
                     count++;
                 }
-                if (roundCounter != null) roundCounter.text = count.ToString();
-                if (capacityDisplay != null) capacityDisplay.text = currentFirearm.magazineWell.currentMagazine.maximumCapacity.ToString();
+                if (roundCounter != null)
+                    roundCounter.text = count.ToString();
+                if (capacityDisplay != null)
+                    capacityDisplay.text = currentFirearm.magazineWell.currentMagazine.maximumCapacity.ToString();
             }
             else if (currentFirearm != null && currentFirearm.bolt.GetChamber() != null)
             {
-                if (roundCounter != null) roundCounter.text = 1.ToString();
-                if (capacityDisplay != null) capacityDisplay.text = 0.ToString();
+                if (roundCounter != null)
+                    roundCounter.text = 1.ToString();
+                if (capacityDisplay != null)
+                    capacityDisplay.text = 0.ToString();
             }
             else
             {
-                if (roundCounter != null) roundCounter.text = 0.ToString();
-                if (capacityDisplay != null) capacityDisplay.text = 0.ToString();
+                if (roundCounter != null)
+                    roundCounter.text = 0.ToString();
+                if (capacityDisplay != null)
+                    capacityDisplay.text = 0.ToString();
             }
         }
 
@@ -85,7 +93,8 @@ namespace GhettosFirearmSDKv2
         public Firearm GetHeldFirearm()
         {
             Firearm f = null;
-            if (Player.local == null || Player.local.creature == null) return null;
+            if (Player.local == null || Player.local.creature == null)
+                return null;
             if (Player.local.GetHand(Side.Right).ragdollHand.grabbedHandle is Handle h && h.item is Item i && i.GetComponent<Firearm>() != null)
             {
                 f = Player.local.GetHand(Side.Right).ragdollHand.grabbedHandle.item.GetComponent<Firearm>();

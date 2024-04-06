@@ -1,13 +1,17 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 using System.Collections.Generic;
 using System.Collections;
+using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2
 {
     public class FirearmBase : AIFireable
     {
+        public static List<FirearmBase> all = new List<FirearmBase>();
+        
         public bool setUpForHandPose = false;
         public bool disableMainFireHandle = false;
         public List<Handle> additionalTriggerHandles;
@@ -36,6 +40,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Start()
         {
+            all.Add(this);
             fireSoundsPitch = new float[fireSounds.Length];
             suppressedFireSoundsPitch = new float[suppressedFireSounds.Length];
             for (int i = 0; i < fireSounds.Length; i++)
@@ -57,6 +62,9 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Update()
         {
+            Util.ApplyAudioConfig(fireSounds);
+            Util.ApplyAudioConfig(suppressedFireSounds, true);
+            
             longPressTime = FirearmsSettings.longPressTime;
             if (item != null && item.data.moduleAI != null)
             {
@@ -72,8 +80,10 @@ namespace GhettosFirearmSDKv2
 
         private Color RandomColor(Cartridge cartridge)
         {
-            if (cartridge.data.overrideMuzzleFlashLightColor) return Color.Lerp(cartridge.data.muzzleFlashLightColorOne, cartridge.data.muzzleFlashLightColorTwo, Random.Range(0f, 1f));
-            else return Color.Lerp(new Color(1.0f, 0.3843f, 0.0f), new Color(1.0f, 0.5294f, 0.0f), Random.Range(0f, 1f));
+            if (cartridge != null && cartridge.data.overrideMuzzleFlashLightColor)
+                return Color.Lerp(cartridge.data.muzzleFlashLightColorOne, cartridge.data.muzzleFlashLightColorTwo, Random.Range(0f, 1f));
+            else
+                return Color.Lerp(new Color(1.0f, 0.3843f, 0.0f), new Color(1.0f, 0.5294f, 0.0f), Random.Range(0f, 1f));
         }
 
         public virtual float CalculateDamageMultiplier()
@@ -191,18 +201,24 @@ namespace GhettosFirearmSDKv2
         public void PlayFireSound(Cartridge cartridge, bool overrideSuppressedbool = false, bool suppressed = false)
         {
             bool supp = isSuppressed();
-            if (overrideSuppressedbool) supp = suppressed;
-            if (cartridge.data.alwaysSuppressed) supp = true;
+            if (overrideSuppressedbool)
+                supp = suppressed;
+            if (cartridge != null && cartridge.data.alwaysSuppressed)
+                supp = true;
             AudioSource source;
             if (!supp)
             {
-                if (cartridge.data.overrideFireSounds) source = Util.GetRandomFromList(cartridge.data.fireSounds);
-                else source = Util.GetRandomFromList(fireSounds);
+                if (cartridge != null && cartridge.data.overrideFireSounds)
+                    source = Util.GetRandomFromList(cartridge.data.fireSounds);
+                else
+                    source = Util.GetRandomFromList(fireSounds);
             }
             else
             {
-                if (cartridge.data.overrideFireSounds) source = Util.GetRandomFromList(cartridge.data.suppressedFireSounds);
-                else source = Util.GetRandomFromList(suppressedFireSounds);
+                if (cartridge != null && cartridge.data.overrideFireSounds)
+                    source = Util.GetRandomFromList(cartridge.data.suppressedFireSounds);
+                else
+                    source = Util.GetRandomFromList(suppressedFireSounds);
             }
 
             if (source == null) return;
@@ -211,18 +227,21 @@ namespace GhettosFirearmSDKv2
             {
                 NoiseManager.AddNoise(actualHitscanMuzzle.position, 600f);
                 Util.AlertAllCreaturesInRange(hitscanMuzzle.position, 50);
-                if (!cartridge.data.overrideFireSounds) pitch = fireSoundsPitch[fireSounds.ToList().IndexOf(source)];
+                if (cartridge == null || !cartridge.data.overrideFireSounds)
+                    pitch = fireSoundsPitch[fireSounds.ToList().IndexOf(source)];
             }
             else
             {
-                if (!cartridge.data.overrideFireSounds) pitch = suppressedFireSoundsPitch[suppressedFireSounds.ToList().IndexOf(source)];
+                if (cartridge == null || !cartridge.data.overrideFireSounds)
+                    pitch = suppressedFireSoundsPitch[suppressedFireSounds.ToList().IndexOf(source)];
             }
 
             float deviation =  FirearmsSettings.firingSoundDeviation / pitch;
             source.pitch = pitch += Random.Range(-deviation, deviation);
             source.Play();
             source.transform.SetParent(transform);
-            if (cartridge.data.overrideFireSounds) StartCoroutine(Explosives.Explosive.delayedDestroy(source.gameObject, source.clip.length + 1f)); 
+            if (cartridge != null && cartridge.data.overrideFireSounds)
+                StartCoroutine(Explosives.Explosive.delayedDestroy(source.gameObject, source.clip.length + 1f)); 
         }
 
         public virtual void PlayMuzzleFlash(Cartridge cartridge)

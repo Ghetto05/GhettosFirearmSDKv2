@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,6 +52,7 @@ namespace GhettosFirearmSDKv2
         public float triggerPull;
         public List<AudioSource> triggerPullSound;
         public List<AudioSource> triggerResetSound;
+        public float onTriggerWeight = 0.8f;
 
         [HideInInspector]
         public bool cocked;
@@ -98,7 +100,6 @@ namespace GhettosFirearmSDKv2
         float lastTriggerPull = 0f;
 
         public bool useGravityEject = true;
-        public float onTriggerWeight = 0.8f;
 
         private void Start()
         {
@@ -121,7 +122,7 @@ namespace GhettosFirearmSDKv2
                     if (data.contents[i] != null)
                     {
                         int index = i;
-                        Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -301,6 +302,11 @@ namespace GhettosFirearmSDKv2
             }
         }
 
+        private void Update()
+        {
+            BaseUpdate();
+        }
+
         private bool CheckEjectionGravity(Transform t)
         {
             float angle = Vector3.Angle(t.forward, Vector3.down);
@@ -403,14 +409,7 @@ namespace GhettosFirearmSDKv2
                 if (hand.playerHand != null || hand.playerHand.controlHand != null)
                     hand.playerHand.controlHand.HapticShort(50f);
             }
-            if (loadedCartridge.additionalMuzzleFlash != null)
-            {
-                loadedCartridge.additionalMuzzleFlash.transform.position = firearm.actualHitscanMuzzle.position;
-                loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.actualHitscanMuzzle.rotation;
-                loadedCartridge.additionalMuzzleFlash.transform.SetParent(firearm.actualHitscanMuzzle);
-                loadedCartridge.additionalMuzzleFlash.Play();
-                StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-            }
+            IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
             {

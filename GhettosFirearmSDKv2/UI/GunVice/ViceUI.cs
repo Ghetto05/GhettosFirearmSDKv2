@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,6 +39,8 @@ namespace GhettosFirearmSDKv2
         public float categroyHeaderHeight;
         public float categoryGapHeight;
 
+        private bool _triggeredLastFrame;
+
         private void Awake()
         {
             holder.Snapped += Holder_Snapped;
@@ -47,6 +50,17 @@ namespace GhettosFirearmSDKv2
             {
                 item.physicBody.isKinematic = true;
                 item.disallowDespawn = true;
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            if (holder.items.Count > 0 && holder.items[0].TryGetComponent(out Firearm firearm))
+            {
+                firearm.ChangeTrigger(FirearmClicker.Trigger());
+                // firearm.triggerState = FirearmClicker.Trigger();
+                //
+                // _triggeredLastFrame = FirearmClicker.Trigger();
             }
         }
 
@@ -61,6 +75,10 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_UnSnapped(Item item)
         {
+            if (item.TryGetComponent(out Firearm firearm))
+            {
+                firearm.triggerState = false;
+            }
             canvas.enabled = false;
             screenCollider.enabled = false;
             currentSlot = null;
@@ -326,7 +344,7 @@ namespace GhettosFirearmSDKv2
             return false;
         }
 
-        IEnumerator delayedRefresh()
+        IEnumerator DelayedRefresh()
         {
             yield return new WaitForSeconds(0.3f);
             SetupFirearm();
@@ -336,13 +354,16 @@ namespace GhettosFirearmSDKv2
         {
             currentSlot.parentFirearm.item.lastInteractionTime = Time.time;
             if (currentSlot.currentAttachment != null) currentSlot.currentAttachment.Detach();
-            if (!id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING")) Catalog.GetData<AttachmentData>(id).SpawnAndAttach(currentSlot);
+            if (!id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING"))
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(id, "Vice UI")).SpawnAndAttach(currentSlot);
             foreach (ViceUIAttachment att in attachmentButtons)
             {
-                if (!att.id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING") && id.Equals(att.id)) att.rim.enabled = true;
-                else if (!att.id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING")) att.rim.enabled = false;
+                if (!att.id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING") && id.Equals(att.id))
+                    att.rim.enabled = true;
+                else if (!att.id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING"))
+                    att.rim.enabled = false;
             }
-            StartCoroutine(delayedRefresh());
+            StartCoroutine(DelayedRefresh());
         }
     }
 }

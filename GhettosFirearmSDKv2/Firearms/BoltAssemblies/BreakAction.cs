@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ThunderRoad;
@@ -47,9 +48,24 @@ namespace GhettosFirearmSDKv2
         public Transform lockLockedPosition;
         public Transform lockUnlockedPosition;
 
+        public Transform ejectorAxis;
+        public Transform ejectorClosedPosition;
+        public Transform ejectorOpenedPosition;
+        public float ejectorMoveStartPercentage = 0.8f;
+
+        public FiremodeSelector chamberSetSelector;
+        public List<string> editorChamberSets;
+        public Dictionary<int, List<int>> chamberSets = new Dictionary<int, List<int>>();
+        public List<Trigger> triggers;
+        public List<string> targetHandPoses;
+        private List<HandPoseData> targetHandPoseData = new List<HandPoseData>();
+        public List<string> defaultAmmoItems;
+        
+
         private MagazineSaveData data;
 
-        int currentChamber = 0;
+        private int currentChamber = 0;
+        private int currentChamberSet = 0;
 
         public enum Axes
         {
@@ -61,6 +77,18 @@ namespace GhettosFirearmSDKv2
         private void Start()
         {
             Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            firearm.actualHitscanMuzzle = muzzles.First();
+
+            if (editorChamberSets.Any())
+            {
+                int i = 0;
+                foreach (string s in editorChamberSets)
+                {
+                    chamberSets.Add(i, new List<int>());
+                    chamberSets[i].AddRange(s.Split(',').Select(cs => int.Parse(cs)));
+                    i++;
+                }
+            }
         }
 
         public void InvokedStart()
@@ -70,6 +98,20 @@ namespace GhettosFirearmSDKv2
             state = BoltState.Locked;
             rb.gameObject.AddComponent<CollisionRelay>().onCollisionEnterEvent += OnCollisionEvent;
             firearm.OnMuzzleCalculatedEvent += Firearm_OnMuzzleCalculatedEvent;
+            
+            if (chamberSets.Any())
+            {
+                if (chamberSetSelector != null)
+                    chamberSetSelector.onFiremodeChanged += ChamberSetSelectorOnFireModeChanged;
+                SetChamberSet(0);
+                
+                foreach (Trigger t in triggers)
+                {
+                    t.triggerEnabled = false;
+                }
+                triggers[currentChamberSet].triggerEnabled = true;
+            }
+
             Initialize();
             if (firearm.item.TryGetCustomData(out data))
             {
@@ -78,7 +120,7 @@ namespace GhettosFirearmSDKv2
                     if (data.contents[i] != null)
                     {
                         int index = i;
-                        Catalog.GetData<ItemData>(data.contents[index]).SpawnAsync(ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -93,17 +135,49 @@ namespace GhettosFirearmSDKv2
             UpdateChamberedRounds();
         }
 
+        private void ChamberSetSelectorOnFireModeChanged(FirearmBase.FireModes newMode)
+        {
+            if (newMode != FirearmBase.FireModes.Safe)
+            {
+                currentChamberSet = chamberSetSelector.currentIndex;
+                SetChamberSet(currentChamberSet);
+            }
+        }
+
+        private void SetChamberSet(int set)
+        {
+            currentChamber = chamberSets[set].First();
+
+            foreach (Trigger t in triggers)
+            {
+                t.triggerEnabled = false;
+            }
+            triggers[set].triggerEnabled = true;
+
+            if (targetHandPoseData.Any())
+            {
+                foreach (HandlePose h in firearm.AllTriggerHandles().Where(h => h != null).SelectMany(h => h.orientations))
+                {
+                    h.targetHandPoseData = targetHandPoseData[set];
+                }
+            }
+
+            firearm.defaultAmmoItem = defaultAmmoItems[set];
+        }
+
         private void Firearm_OnMuzzleCalculatedEvent()
         {
-            if (firearm.actualHitscanMuzzle.TryGetComponent(out BreakActionMuzzleOverride overr))
+            if (firearm.actualHitscanMuzzle.TryGetComponent(out BreakActionMuzzleOverride over))
             {
-                actualMuzzles = overr.newMuzzles;
-                actualMuzzleFlashes = overr.newMuzzleFlashes;
+                actualMuzzles = over.newMuzzles;
+                actualMuzzleFlashes = over.newMuzzleFlashes;
+                firearm.actualHitscanMuzzle = over.newMuzzles.First();
             }
             else
             {
                 actualMuzzles = muzzles;
                 actualMuzzleFlashes = muzzleFlashes;
+                firearm.actualHitscanMuzzle = muzzles.First();
             }
         }
 
@@ -152,12 +226,16 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void TryEjectSingle(int i)
+        public void TryEjectSingle(int i, bool ignoreFiredState = false)
         {
             if (loadedCartridges[i] != null)
             {
-                Util.PlayRandomAudioSource(ejectSounds);
                 Cartridge c = loadedCartridges[i];
+                if (FirearmsSettings.breakActionsEjectOnlyFired && !c.fired && !ignoreFiredState)
+                    return;
+                if (chamberSets.Any() && !chamberSets[currentChamberSet].Contains(i))
+                    return;
+                Util.PlayRandomAudioSource(ejectSounds);
                 loadedCartridges[i] = null;
                 if (ejectPoints.Count > i && ejectPoints[i] != null)
                 {
@@ -219,6 +297,9 @@ namespace GhettosFirearmSDKv2
                     }
                 }
             }
+                
+            CalculateCyclePercentage();
+            UpdateEjector();
 
             if (firearm.triggerState)
             {
@@ -227,6 +308,11 @@ namespace GhettosFirearmSDKv2
                 else if (firearm.fireMode == FirearmBase.FireModes.Auto) for (int i = 0; i < mountPoints.Count; i++) { TryFire(); };
             }
             else shotsSinceTriggerReset = 0;
+        }
+
+        private void Update()
+        {
+            BaseUpdate();
         }
 
         private bool CheckEjectionGravity(Transform t)
@@ -276,14 +362,7 @@ namespace GhettosFirearmSDKv2
                     }
                     Transform muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[currentChamber];
                     Cartridge loadedCartridge = loadedCartridges[currentChamber];
-                    if (loadedCartridge.additionalMuzzleFlash != null)
-                    {
-                        loadedCartridge.additionalMuzzleFlash.transform.position = muzzle.position;
-                        loadedCartridge.additionalMuzzleFlash.transform.rotation = muzzle.rotation;
-                        loadedCartridge.additionalMuzzleFlash.transform.SetParent(muzzle);
-                        loadedCartridge.additionalMuzzleFlash.Play();
-                        StartCoroutine(Explosives.Explosive.delayedDestroy(loadedCartridge.additionalMuzzleFlash.gameObject, loadedCartridge.additionalMuzzleFlash.main.duration));
-                    }
+                    IncrementBreachSmokeTime();
                     firearm.PlayFireSound(loadedCartridge);
                     if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                     {
@@ -297,15 +376,45 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            currentChamber++;
-            if (currentChamber >= mountPoints.Count)
-                currentChamber = 0;
+            if (!chamberSets.Any())
+            {
+                currentChamber++;
+                if (currentChamber >= mountPoints.Count)
+                    currentChamber = 0;
+            }
+            else
+            {
+                currentChamber++;
+                if (currentChamber >= chamberSets[currentChamberSet].Count)
+                    currentChamber = chamberSets[currentChamberSet].First();
+            }
+
             InvokeFireLogicFinishedEvent();
+        }
+
+        public void UpdateEjector()
+        {
+            if (state == BoltState.Locked || ejectorAxis == null || cyclePercentage < ejectorMoveStartPercentage)
+            {
+                if (ejectorAxis != null)
+                    ejectorAxis.SetPositionAndRotation(ejectorClosedPosition.position, ejectorClosedPosition.rotation);
+                return;
+            }
+
+            float actualPercentage = (cyclePercentage - ejectorMoveStartPercentage) / (1 - ejectorMoveStartPercentage);
+            ejectorAxis.position = Vector3.Lerp(ejectorClosedPosition.position, ejectorOpenedPosition.position, actualPercentage);
+            ejectorAxis.rotation = Quaternion.Lerp(ejectorClosedPosition.rotation, ejectorOpenedPosition.rotation, actualPercentage);
         }
 
         public override void TryRelease(bool forced = false)
         {
-            if (state == BoltState.Locked) Unlock();
+            if (state == BoltState.Locked)
+                Unlock();
+            else if (FirearmsSettings.breakActionsEjectOnlyFired)
+                for (int i = 0; i < loadedCartridges.Length; i++)
+                {
+                    TryEjectSingle(i, true);
+                }
         }
 
         public override void Initialize()
@@ -332,6 +441,10 @@ namespace GhettosFirearmSDKv2
 
         public void Unlock()
         {
+            if (!chamberSets.Any())
+                currentChamber = 0;
+            else
+                currentChamber = chamberSets[currentChamberSet].First();
             state = BoltState.Moving;
             if (lockAxis != null)
             {
@@ -409,6 +522,14 @@ namespace GhettosFirearmSDKv2
                     loadedCartridges[i].transform.localEulerAngles = Util.RandomCartridgeRotation();
                 }
             }
+        }
+
+        public void CalculateCyclePercentage()
+        {
+            float angle = Quaternion.Angle(rb.transform.rotation, closedPosition.rotation);
+            float targetAngle = Quaternion.Angle(openedPosition.rotation, closedPosition.rotation);
+
+            cyclePercentage = Mathf.Clamp01(angle / targetAngle);
         }
     }
 }

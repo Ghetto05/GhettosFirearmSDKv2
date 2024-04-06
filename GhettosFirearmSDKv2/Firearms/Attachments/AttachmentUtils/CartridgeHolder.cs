@@ -49,7 +49,7 @@ namespace GhettosFirearmSDKv2
 
             if (!id.Equals(""))
             {
-                Catalog.GetData<ItemData>(id).SpawnAsync(cartridge =>
+                Util.SpawnItem(id, $"[Cartridge holder - Firearm: {firearm?.item?.itemId ?? "--"} Attachment: {attachment?.data.id ?? "--"} Slot: {slot}]", cartridge =>
                 {
                     InsertRound(cartridge.GetComponent<Cartridge>(), true);
                 }, transform.position + Vector3.up * 3);
@@ -75,7 +75,10 @@ namespace GhettosFirearmSDKv2
             {
                 Util.PlayRandomAudioSource(roundEjectSounds);
                 loadedCartridge.ToggleCollision(true);
-                Util.DelayIgnoreCollision(gameObject, loadedCartridge.gameObject, false, 1f, loadedCartridge.item);
+                if (firearm != null)
+                    Util.DelayIgnoreCollision(firearm.gameObject, loadedCartridge.gameObject, false, 1f, loadedCartridge.item);
+                if (attachment != null)
+                    Util.DelayIgnoreCollision(attachment.gameObject, loadedCartridge.gameObject, false, 1f, loadedCartridge.item);
                 loadedCartridge.loaded = false;
                 loadedCartridge.GetComponent<Rigidbody>().isKinematic = false;
                 loadedCartridge.item.disallowDespawn = false;
@@ -99,7 +102,10 @@ namespace GhettosFirearmSDKv2
                 c.ToggleCollision(false);
                 loadedCartridge = c;
                 c.UngrabAll();
-                Util.IgnoreCollision(c.gameObject, gameObject, true);
+                if (firearm != null)
+                    Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
+                if (attachment != null)
+                    Util.IgnoreCollision(c.gameObject, attachment.gameObject, true);
                 if (!silent) Util.PlayRandomAudioSource(roundInsertSounds);
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = transform;

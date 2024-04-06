@@ -56,7 +56,7 @@ namespace GhettosFirearmSDKv2
             holder.UnSnapped += Holder_UnSnapped;
             if (item.TryGetCustomData(out data))
             {
-                Catalog.GetData<ItemData>(data.firearm).SpawnAsync(f =>
+                Util.SpawnItem(data.firearm, $"[Gun case - Save {data.firearm}]", f =>
                 {
                     f.physicBody.isKinematic = true;
                     StartCoroutine(DelayedSnap(f));

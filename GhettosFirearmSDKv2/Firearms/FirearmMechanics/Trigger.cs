@@ -23,8 +23,9 @@ namespace GhettosFirearmSDKv2
         public AudioSource resetSound;
 
         public float onTriggerWeight = 0.8f;
-
         public float lastTriggerPull = 0f;
+
+        public bool triggerEnabled = true;
 
         void Start()
         {
@@ -34,17 +35,22 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
         {
+            if (!triggerEnabled)
+                return;
+            
             if (isPulled && trigger != null && pulledPosition != null && idlePosition != null)
             {
                 trigger.localPosition = pulledPosition.localPosition;
                 trigger.localRotation = pulledPosition.localRotation;
-                if (pullSound != null) pullSound.Play();
+                if (firearm != null && pullSound != null && firearm.item.holder == null)
+                    pullSound.Play();
             }
             else if (trigger != null && pulledPosition != null && idlePosition != null)
             {
                 trigger.localPosition = idlePosition.localPosition;
                 trigger.localRotation = idlePosition.localRotation;
-                if (resetSound != null) resetSound.Play();
+                if (firearm != null && resetSound != null && firearm.item.holder == null)
+                    resetSound.Play();
             }
         }
 
@@ -55,7 +61,10 @@ namespace GhettosFirearmSDKv2
                 firearm = attachment.attachmentPoint.parentFirearm;
                 firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             }
-
+            
+            if (!triggerEnabled)
+                return;
+            
             if (firearm != null && firearm.setUpForHandPose)
             {
                 foreach (Handle h in firearm.AllTriggerHandles().Where(h => h != null))
