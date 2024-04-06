@@ -84,6 +84,7 @@ namespace GhettosFirearmSDKv2
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnDespawnEvent += Item_OnDespawnEvent;
             item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
+            OnLoadFinished += OnOnLoadFinished;
             if (overrideItem == null)
             {
                 if (item.TryGetCustomData(out saveData))
@@ -120,6 +121,14 @@ namespace GhettosFirearmSDKv2
             }
         }
 
+        private void OnOnLoadFinished(Magazine mag)
+        {
+            OnLoadFinished -= OnOnLoadFinished;
+            
+            if (item.isHidden)
+                cartridges.ForEach(c => c.item.Hide(true));
+        }
+
         private void Item_OnUnSnapEvent(Holder holder)
         {
             foreach (Cartridge car in cartridges)
@@ -134,6 +143,13 @@ namespace GhettosFirearmSDKv2
             {
                 if (c!=null) c.item.Despawn();
             }
+            
+            item.OnUnSnapEvent -= Item_OnUnSnapEvent;
+            item.OnGrabEvent -= Item_OnGrabEvent;
+            item.OnHeldActionEvent -= Item_OnHeldActionEvent;
+            item.OnDespawnEvent -= Item_OnDespawnEvent;
+            item.lightVolumeReceiver.onVolumeChangeEvent -= UpdateAllLightVolumeReceivers;
+            OnLoadFinished -= OnOnLoadFinished;
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -342,7 +358,6 @@ namespace GhettosFirearmSDKv2
                     item.physicBody.isKinematic = false;
                     item.physicBody.rigidBody.WakeUp();
                     item.physicBody.velocity = lastWell.firearm.item.physicBody.velocity * 0.7f;
-                    
                 }
                 if (destroyOnEject && overrideItem == null)
                     item.Despawn();
