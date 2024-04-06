@@ -86,11 +86,6 @@ namespace GhettosFirearmSDKv2
             leverColliders.parent = state == BoltBase.BoltState.Locked ? lever : rb.transform;
             leverColliders.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
 
-            if (state != BoltBase.BoltState.Locked && LimitLeverChanged(out bool limit))
-            {
-                joint.limits = new JointLimits { max = limit ? lever.localEulerAngles.x : maxAngle, min = limit ? lever.localEulerAngles.x : minAngle };
-            }
-
             if (state == BoltBase.BoltState.Locked)
             {
                 bolt.bolt.localPosition = bolt.startPoint.localPosition;
@@ -102,7 +97,12 @@ namespace GhettosFirearmSDKv2
 
             bolt.rigidBody.transform.localPosition = Vector3.Lerp(bolt.startPoint.localPosition, bolt.endPoint.localPosition, Time());
             bolt.bolt.transform.localPosition = Vector3.Lerp(bolt.startPoint.localPosition, bolt.endPoint.localPosition, Time());
-
+            
+            if (state != BoltBase.BoltState.Locked && LimitLeverChanged(out bool limit))
+            {
+                joint.limits = new JointLimits { max = limit ? lever.localEulerAngles.x : maxAngle, min = limit ? lever.localEulerAngles.x : minAngle };
+            }
+            
             if (Quaternion.Angle(lever.localRotation, start.localRotation) <= Threshold && state == BoltBase.BoltState.Moving && reachedEnd)
             {
                 Lock();
@@ -201,31 +201,6 @@ namespace GhettosFirearmSDKv2
             joint.limits = new JointLimits { max = maxAngle, min = minAngle }; //{ min = 0, max = 0 };
             joint.autoConfigureConnectedAnchor = false;
             joint.connectedAnchor = Vector3.zero;
-        }
-
-        private void InitializeHandJoint(RagdollHand hand)
-        {
-            if (handJoint != null)
-                Destroy(handJoint);
-            handJointHand = hand;
-            handJoint = bolt.firearm.item.gameObject.AddComponent<HingeJoint>();
-            handJoint.axis = Vector3.left;
-            handJoint.massScale = 1f;
-            handJoint.anchor = BoltBase.GrandparentLocalPosition(rb.transform, bolt.firearm.item.transform);
-            handJoint.useLimits = false;
-            handJoint.autoConfigureConnectedAnchor = true;
-            // handJoint.autoConfigureConnectedAnchor = false;
-            // handJoint.connectedAnchor = BoltBase.GrandparentLocalPosition(rb.transform, hand.physicBody.rigidBody.transform);
-            handJoint.connectedBody = hand.physicBody.rigidBody;
-        }
-
-        private void DestroyHandleJoint()
-        {
-            if (handJoint == null)
-                return;
-
-            Destroy(handJoint);
-            handJointHand = null;
         }
     }
 }
