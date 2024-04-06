@@ -95,7 +95,7 @@ namespace GhettosFirearmSDKv2
 
         public void InsertRound(Cartridge c, bool silent)
         {
-            if (loadedCartridge == null && Util.AllowLoadCatridge(c, caliber) && !c.loaded)
+            if (loadedCartridge == null && Util.AllowLoadCartridge(c, caliber) && !c.loaded)
             {
                 c.item.disallowDespawn = true;
                 c.loaded = true;

@@ -468,7 +468,7 @@ namespace GhettosFirearmSDKv2
 
         public override bool LoadChamber(Cartridge c, bool forced = false)
         {
-            if (loadedCartridge == null && (Util.AllowLoadCatridge(c, caliber) || forced))
+            if (loadedCartridge == null && (Util.AllowLoadCartridge(c, caliber) || forced))
             {
                 if (!forced)
                     Util.PlayRandomAudioSource(roundInsertSounds);

@@ -151,12 +151,12 @@ namespace GhettosFirearmSDKv2
         {
             Magazine mag = GetHeldMagazine();
             Speedloader sped = GetHeldSpeedloader();
-            if (mag != null && Util.AllowLoadCatridge(currentCaliber, mag))
+            if (mag != null && Util.AllowLoadCartridge(currentCaliber, mag))
             {
                 ClearMagazine(mag);
                 SpawnAndInsertCar(mag, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
             }
-            if (sped != null && Util.AllowLoadCatridge(sped.calibers[0], currentCaliber))
+            if (sped != null && Util.AllowLoadCartridge(sped.calibers[0], currentCaliber))
             {
                 ClearSpeedloader(sped);
                 FillSpeedloader(sped, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
@@ -198,7 +198,7 @@ namespace GhettosFirearmSDKv2
         {
             Magazine mag = GetHeldMagazine();
             if (mag == null) return;
-            if (!Util.AllowLoadCatridge(currentCaliber, mag)) return;
+            if (!Util.AllowLoadCartridge(currentCaliber, mag)) return;
 
             SpawnAndInsertCar(mag, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
         }

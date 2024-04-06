@@ -176,7 +176,7 @@ namespace GhettosFirearmSDKv2
 
         public void InsertRound(Cartridge c, bool silent, bool forced, bool save = true, bool atBottom = false)
         {
-            if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCatridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
+            if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCartridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
             {
                 c.item.disallowDespawn = true;
                 c.loaded = true;

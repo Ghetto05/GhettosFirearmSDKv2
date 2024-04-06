@@ -27,7 +27,7 @@ namespace GhettosFirearmSDKv2
             target.Rotate(0f, 0f, randomAngle, Space.Self);
         }
 
-        public static bool AllowLoadCatridge(Cartridge cartridge, string requiredCaliber)
+        public static bool AllowLoadCartridge(Cartridge cartridge, string requiredCaliber)
         {
             if (!FirearmsSettings.doCaliberChecks) return true;
             if (cartridge.caliber.Equals("DEBUG UNIVERSAL")) return true;
@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
             return cartridge.caliber.Equals(requiredCaliber);
         }
 
-        public static bool AllowLoadCatridge(Cartridge cartridge, Magazine magazine)
+        public static bool AllowLoadCartridge(Cartridge cartridge, Magazine magazine)
         {
             if (!FirearmsSettings.doCaliberChecks && !magazine.forceCorrectCaliber) return true;
             if (cartridge.caliber.Equals("DEBUG UNIVERSAL")) return true;
@@ -44,7 +44,7 @@ namespace GhettosFirearmSDKv2
             return correctCaliber && magHasSameCaliber;
         }
 
-        public static bool AllowLoadCatridge(string cartridgeCaliber, Magazine magazine)
+        public static bool AllowLoadCartridge(string cartridgeCaliber, Magazine magazine)
         {
             if (!FirearmsSettings.doCaliberChecks) return true;
             if (cartridgeCaliber.Equals("DEBUG UNIVERSAL")) return true;
@@ -53,7 +53,7 @@ namespace GhettosFirearmSDKv2
             return correctCaliber && magHasSameCaliber;
         }
 
-        public static bool AllowLoadCatridge(string cartridgeCaliber, string otherCaliber)
+        public static bool AllowLoadCartridge(string cartridgeCaliber, string otherCaliber)
         {
             if (!FirearmsSettings.doCaliberChecks) return true;
             if (cartridgeCaliber.Equals("DEBUG UNIVERSAL")) return true;
@@ -239,12 +239,12 @@ namespace GhettosFirearmSDKv2
             return Mathf.Abs(Vector3.Distance(v1.position, v2.position));
         }
 
-        public static void DelayedExecute(float delay, System.Action action, MonoBehaviour handler)
+        public static void DelayedExecute(float delay, Action action, MonoBehaviour handler)
         {
             handler.StartCoroutine(DelayedExecuteIE(delay, action));
         }
 
-        private static IEnumerator DelayedExecuteIE(float delay, System.Action action)
+        private static IEnumerator DelayedExecuteIE(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);
             action.Invoke();
@@ -274,13 +274,14 @@ namespace GhettosFirearmSDKv2
         
         public static void UpdateLightVolumeReceiver(LightVolumeReceiver receiverToBeUpdated, LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            //return;
             MethodInfo method = typeof(LightVolumeReceiver).GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
             method?.Invoke(receiverToBeUpdated, new object[] { currentLightProbeVolume, lightProbeVolumes });
         }
         
-        /*
+        /**
+         * <summary>
          * Function to normalize angles to be within [-180, 180]
+         * </summary>>
          */
         public static float NormalizeAngle(float angle)
         {

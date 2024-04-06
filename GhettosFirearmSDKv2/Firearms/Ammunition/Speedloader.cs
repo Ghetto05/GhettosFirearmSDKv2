@@ -94,7 +94,7 @@ namespace GhettosFirearmSDKv2
 
         public void LoadSlot(int index, Cartridge cartridge, bool overrideSave = true)
         {
-            if (loadedCartridges[index] == null && Util.AllowLoadCatridge(cartridge, calibers[index]))
+            if (loadedCartridges[index] == null && Util.AllowLoadCartridge(cartridge, calibers[index]))
             {
                 if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
                 loadedCartridges[index] = cartridge;
