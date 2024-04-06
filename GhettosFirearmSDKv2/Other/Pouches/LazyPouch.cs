@@ -44,7 +44,8 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (!setup || Player.local == null || Player.local.creature == null || Player.local.creature.ragdoll == null) return;
+            if (!setup || Player.local == null || Player.local.creature == null || Player.local.creature.ragdoll == null)
+                return;
 
             foreach (Item i in holder.items.ToArray())
             {
@@ -54,43 +55,52 @@ namespace GhettosFirearmSDKv2
                     holder.UnSnap(i, true);
                 }
             }
+            
+            GetHeldFirearm();
+            
+            if (lastFirearm != null)
+            {
+                if (!containedItems.Contains(lastFirearm.defaultAmmoItem) && !lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
+                {
+                    containedItems.Add(lastFirearm.defaultAmmoItem);
+                    spawning = true;
+                    Util.SpawnItem(lastFirearm.defaultAmmoItem, $"LazyPouch", newItem =>
+                    {
+                        newItem.disallowDespawn = true;
+                        StartCoroutine(DelayedSnap(newItem));
+                        spawnedItems.Add(newItem);
+                    });
+                }
+                else if (!lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !spawning)
+                {
+                    GetById(lastFirearm.defaultAmmoItem);
+                }
+            }
+        }
 
+        private void GetHeldFirearm()
+        {
             Handle h = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
             if (h != null && h.item is Item item)
             {
+                FirearmBase firearm;
                 if (lastHeldHandle != h)
                 {
                     if (h.GetComponentInParent<AttachmentFirearm>() != null)
                     {
-                        lastFirearm = h.GetComponentInParent<AttachmentFirearm>();
+                        firearm = h.GetComponentInParent<AttachmentFirearm>();
                     }
                     else
                     {
-                        lastFirearm = item.GetComponent<Firearm>();
+                        firearm = item.GetComponent<Firearm>();
                     }
 
-                    if (lastFirearm != null && lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff)
-                        lastFirearm = ff;
-                }
+                    if (firearm != null && firearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff)
+                        firearm = ff;
 
-                if (lastFirearm != null)
-                {
-                    if (!containedItems.Contains(lastFirearm.defaultAmmoItem) && !lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
-                    {
-                        containedItems.Add(lastFirearm.defaultAmmoItem);
-                        spawning = true;
-                        Util.SpawnItem(lastFirearm.defaultAmmoItem, $"[Lazy Pouch - Default ammo on {lastFirearm?.item?.itemId}]", newItem =>
-                        {
-                            item.disallowDespawn = true;
-                            StartCoroutine(DelayedSnap(newItem));
-                            spawnedItems.Add(newItem);
-                        });
-                    }
-                    else if (!lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !spawning)
-                    {
-                        GetById(lastFirearm.defaultAmmoItem);
-                    }
+                    lastFirearm = firearm;
                 }
+                
                 lastHeldHandle = h;
             }
         }
@@ -98,9 +108,10 @@ namespace GhettosFirearmSDKv2
         public void GetById(string id)
         {
             bool searching = true;
+            string requestedId = Util.GetSubstituteId(id, "Lazy pouch");
             foreach (Item i in spawnedItems)
             {
-                if (searching && i.data.id.Equals(id))
+                if (searching && i.data.id.Equals(requestedId))
                 {
                     searching = false;
                     holder.items.Remove(i);
