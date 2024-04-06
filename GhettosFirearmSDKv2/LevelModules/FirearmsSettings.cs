@@ -258,7 +258,7 @@ namespace GhettosFirearmSDKv2
         [ModOptionOrder(1)]
         [ModOptionCategory("Cheats", 10)]
         [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", defaultValueIndex = 3, saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.incapacitateOnTorsoShotTimers), valueSourceType = typeof(FirearmsSettingsValues))]
-        public static float incapitateOnTorsoShot;
+        public static float incapacitateOnTorsoShot;
 
         [ModOptionOrder(2)]
         [ModOptionCategory("Cheats", 10)]
@@ -279,6 +279,11 @@ namespace GhettosFirearmSDKv2
         [ModOptionCategory("Cheats", 10)]
         [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true, defaultValueIndex = 10)]
         public static float damageMultiplier = 1f;
+
+        [ModOptionOrder(6)]
+        [ModOptionCategory("Cheats", 10)]
+        [ModOption(name = "No recoil", tooltip = "Disables all recoil.", saveValue = true, defaultValueIndex = 0)]
+        public static bool noRecoil = false;
         
         #endregion Cheats
 

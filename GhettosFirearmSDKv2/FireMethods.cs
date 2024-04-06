@@ -34,6 +34,9 @@ namespace GhettosFirearmSDKv2
 
         public static void ApplyRecoil(Transform transform, Rigidbody rb, float force, float upwardsModifier, float firearmRecoilModifier, List<FirearmBase.RecoilModifier> modifiers)
         {
+            if (FirearmsSettings.noRecoil)
+                return;
+            
             float upMod = 1f;
             float linMod = 1f;
 
@@ -559,9 +562,9 @@ namespace GhettosFirearmSDKv2
                             break;
                         case RagdollPart.Type.Torso: //damage = damage, push(2)
                             {
-                                if (penetrated && FirearmsSettings.incapitateOnTorsoShot > 0f && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
+                                if (penetrated && FirearmsSettings.incapacitateOnTorsoShot > 0f && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
                                 {
-                                    gunItem.StartCoroutine(TemporaryKnockout(FirearmsSettings.incapitateOnTorsoShot, 0, cr));
+                                    gunItem.StartCoroutine(TemporaryKnockout(FirearmsSettings.incapacitateOnTorsoShot, 0, cr));
                                 }
                             }
                             break;
