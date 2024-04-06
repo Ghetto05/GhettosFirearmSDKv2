@@ -187,6 +187,24 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "Break actions only eject fired rounds", tooltip = "If enabled, break actions will only eject fired shells. Unfired ones can be ejected with the release button.", defaultValueIndex = 0, saveValue = true)]
         public static bool breakActionsEjectOnlyFired = false;
 
+        [ModOptionOrder(10)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Spawn workbench and locker", tooltip = "If enabled, the locker and workbench will spawn in the home", defaultValueIndex = 1, saveValue = true)]
+        public static bool spawnWorkbenchAndLocker
+        {
+            get => _spawnWorkbenchAndLocker;
+            set
+            {
+                _spawnWorkbenchAndLocker = value;
+                if (_spawnWorkbenchAndLocker)
+                    SpawnWorkbenchAndLocker();
+                else if (workbenchAndLocker != null)
+                    GameObject.Destroy(workbenchAndLocker);
+            }
+        }
+        private static bool _spawnWorkbenchAndLocker;
+        private static GameObject workbenchAndLocker;
+
         #endregion
 
         #region Clothing
@@ -326,8 +344,10 @@ namespace GhettosFirearmSDKv2
             set
             {
                 _spawnLiam = value;
-                if (_spawnLiam) SpawnLiam();
-                else if (liam != null) GameObject.Destroy(liam);
+                if (_spawnLiam)
+                    SpawnLiam();
+                else if (liam != null)
+                    GameObject.Destroy(liam);
             }
         }
         private static bool _spawnLiam;
@@ -346,23 +366,16 @@ namespace GhettosFirearmSDKv2
         #region Gun Locker / Liam
         private void SpawnHomeItems()
         {
-            Level.current.StartCoroutine(DelayedLockerSpawn());
-            if (spawnLiam) Level.current.StartCoroutine(DelayedRigEditorSpawn());
+            if (spawnWorkbenchAndLocker)
+                Level.current.StartCoroutine(DelayedLockerSpawn());
+            if (spawnLiam)
+                Level.current.StartCoroutine(DelayedRigEditorSpawn());
         }
 
         private IEnumerator DelayedLockerSpawn()
         {
             yield return new WaitForSeconds(3f);
-            Vector3 position = new Vector3(41.3f, 2.5f, -43.0f);
-            Vector3 rotation = new Vector3(0, 120, 0);
-            Addressables.InstantiateAsync("Ghetto05.FirearmFrameworkV2.Locker", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
-            {
-                if (handle.Status != AsyncOperationStatus.Succeeded)
-                {
-                    Debug.LogWarning(("Unable to instantiate gun locker!"));
-                    Addressables.ReleaseInstance(handle);
-                }
-            };
+            SpawnWorkbenchAndLocker();
         }
 
         private IEnumerator DelayedRigEditorSpawn()
@@ -373,7 +386,8 @@ namespace GhettosFirearmSDKv2
 
         private static void SpawnLiam()
         {
-            if (liam != null || !Level.current.data.id.Equals("Home")) return;
+            if (liam != null || !Level.current.data.id.Equals("Home"))
+                return;
             Vector3 position = new Vector3(44.03f, 2.5f, -44.37f);
             Vector3 rotation = new Vector3(0, -36, 0);
             Addressables.InstantiateAsync("Ghetto05.Firearms.Clothes.Rigs.Editor", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
@@ -386,6 +400,24 @@ namespace GhettosFirearmSDKv2
                 liam = handle.Result;
             };
         }
+
+        private static void SpawnWorkbenchAndLocker()
+        {
+            if (workbenchAndLocker != null || !Level.current.data.id.Equals("Home"))
+                return;
+            Vector3 position = new Vector3(41.3f, 2.5f, -43.0f);
+            Vector3 rotation = new Vector3(0, 120, 0);
+            Addressables.InstantiateAsync("Ghetto05.FirearmFrameworkV2.Locker", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
+            {
+                if (handle.Status != AsyncOperationStatus.Succeeded)
+                {
+                    Debug.LogWarning(("Unable to instantiate gun locker!"));
+                    Addressables.ReleaseInstance(handle);
+                }
+                workbenchAndLocker = handle.Result;
+            };
+        }
+
         #endregion
 
         #region General
