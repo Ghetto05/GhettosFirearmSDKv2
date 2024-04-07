@@ -98,9 +98,10 @@ namespace GhettosFirearmSDKv2
             bolt.rigidBody.transform.localPosition = Vector3.Lerp(bolt.startPoint.localPosition, bolt.endPoint.localPosition, Time());
             bolt.bolt.transform.localPosition = Vector3.Lerp(bolt.startPoint.localPosition, bolt.endPoint.localPosition, Time());
             
-            if (state != BoltBase.BoltState.Locked && LimitLeverChanged(out bool limit))
+            if (LimitLeverChanged(out bool limit))
             {
-                joint.limits = new JointLimits { max = limit ? lever.localEulerAngles.x : maxAngle, min = limit ? lever.localEulerAngles.x : minAngle };
+                float lockAngle = Util.NormalizeAngle(lever.localEulerAngles.x);
+                joint.limits = new JointLimits { max = limit ? lockAngle + 0.001f : maxAngle, min = limit ? lockAngle : minAngle };
             }
             
             if (Quaternion.Angle(lever.localRotation, start.localRotation) <= Threshold && state == BoltBase.BoltState.Moving && reachedEnd)
@@ -120,7 +121,7 @@ namespace GhettosFirearmSDKv2
         {
             bool held = leverHandle.handlers.Count > 0;
             bool limited = Mathf.Abs(Mathf.Abs(joint.limits.min) - Mathf.Abs(joint.limits.max)) < 0.001f;
-            bool notLimited = MathF.Abs(MathF.Abs(joint.limits.max) - maxAngle) < 0.001f && MathF.Abs(MathF.Abs(joint.limits.min) - minAngle) < 0.001f;
+            bool notLimited = Mathf.Abs(Mathf.Abs(joint.limits.max) - Mathf.Abs(maxAngle)) < 0.001f && Mathf.Abs(Mathf.Abs(joint.limits.min) - Mathf.Abs(minAngle)) < 0.001f;
 
             limit = !held;
             return (held && limited) || (!held && notLimited);
