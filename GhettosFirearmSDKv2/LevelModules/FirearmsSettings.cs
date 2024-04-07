@@ -1,15 +1,9 @@
-﻿using System;
-using IngameDebugConsole;
-using Newtonsoft.Json;
-using System.Collections;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ThunderRoad;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using Object = UnityEngine.Object;
 
 namespace GhettosFirearmSDKv2
 {
@@ -110,7 +104,8 @@ namespace GhettosFirearmSDKv2
             }
 
             //Gun locker
-            if (Level.current.data.id.Equals("Home")) SpawnHomeItems();
+            if (Level.current.data.id.Equals("Home"))
+                HomeAdjustments.local.SpawnHomeItems();
 
             //First person only renderer
             NVGOnlyRenderer ren = Player.local.head.cam.gameObject.AddComponent<NVGOnlyRenderer>();
@@ -197,13 +192,12 @@ namespace GhettosFirearmSDKv2
             {
                 _spawnWorkbenchAndLocker = value;
                 if (_spawnWorkbenchAndLocker)
-                    SpawnWorkbenchAndLocker();
-                else if (workbenchAndLocker != null)
-                    GameObject.Destroy(workbenchAndLocker);
+                    HomeAdjustments.local.SpawnWorkbenchAndLocker();
+                else if (HomeAdjustments.local.workbenchAndLocker != null)
+                    Object.Destroy(HomeAdjustments.local.workbenchAndLocker);
             }
         }
         private static bool _spawnWorkbenchAndLocker;
-        private static GameObject workbenchAndLocker;
 
         #endregion
 
@@ -345,13 +339,12 @@ namespace GhettosFirearmSDKv2
             {
                 _spawnLiam = value;
                 if (_spawnLiam)
-                    SpawnLiam();
-                else if (liam != null)
-                    GameObject.Destroy(liam);
+                    HomeAdjustments.local.SpawnLiam();
+                else if (HomeAdjustments.local.liam != null)
+                    Object.Destroy(HomeAdjustments.local.liam);
             }
         }
         private static bool _spawnLiam;
-        private static GameObject liam;
 
         [ModOptionOrder(3)]
         [ModOptionCategory("Debug", 30)]
@@ -362,63 +355,6 @@ namespace GhettosFirearmSDKv2
         #endregion Values
         
         #endregion Settings
-
-        #region Gun Locker / Liam
-        private void SpawnHomeItems()
-        {
-            if (spawnWorkbenchAndLocker)
-                Level.current.StartCoroutine(DelayedLockerSpawn());
-            if (spawnLiam)
-                Level.current.StartCoroutine(DelayedRigEditorSpawn());
-        }
-
-        private IEnumerator DelayedLockerSpawn()
-        {
-            yield return new WaitForSeconds(3f);
-            SpawnWorkbenchAndLocker();
-        }
-
-        private IEnumerator DelayedRigEditorSpawn()
-        {
-            yield return new WaitForSeconds(3f);
-            SpawnLiam();
-        }
-
-        private static void SpawnLiam()
-        {
-            if (liam != null || !Level.current.data.id.Equals("Home"))
-                return;
-            Vector3 position = new Vector3(44.03f, 2.5f, -44.37f);
-            Vector3 rotation = new Vector3(0, -36, 0);
-            Addressables.InstantiateAsync("Ghetto05.Firearms.Clothes.Rigs.Editor", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
-            {
-                if (handle.Status != AsyncOperationStatus.Succeeded)
-                {
-                    Debug.LogWarning(("Unable to instantiate rig editor!"));
-                    Addressables.ReleaseInstance(handle);
-                }
-                liam = handle.Result;
-            };
-        }
-
-        private static void SpawnWorkbenchAndLocker()
-        {
-            if (workbenchAndLocker != null || !Level.current.data.id.Equals("Home"))
-                return;
-            Vector3 position = new Vector3(41.3f, 2.5f, -43.0f);
-            Vector3 rotation = new Vector3(0, 120, 0);
-            Addressables.InstantiateAsync("Ghetto05.FirearmFrameworkV2.Locker", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
-            {
-                if (handle.Status != AsyncOperationStatus.Succeeded)
-                {
-                    Debug.LogWarning(("Unable to instantiate gun locker!"));
-                    Addressables.ReleaseInstance(handle);
-                }
-                workbenchAndLocker = handle.Result;
-            };
-        }
-
-        #endregion
 
         #region General
         public static readonly string saveFolderName = "!GhettosFirearmSDKv2Saves";
