@@ -79,7 +79,6 @@ namespace GhettosFirearmSDKv2
             
             if (!item.TryGetCustomData(out saveData))
             {
-                Debug.Log($"No data on {item.name}! Modules: {string.Join(", ", item.data.modules.Select(m => m.GetType().ToString()))}");
                 saveData = new FirearmSaveData();
                 saveData.firearmNode = new FirearmSaveData.AttachmentTreeNode();
                 item.AddCustomData(saveData);
