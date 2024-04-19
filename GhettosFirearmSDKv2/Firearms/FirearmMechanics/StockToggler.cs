@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 
@@ -66,15 +68,30 @@ namespace GhettosFirearmSDKv2
         {
             try
             {
-                if (toggleSound != null && playSound) toggleSound.Play();
+                if (toggleSound != null && playSound)
+                    toggleSound.Play();
                 pivot.localPosition = positions[index].localPosition;
                 pivot.localEulerAngles = positions[index].localEulerAngles;
+
                 OnToggleEvent?.Invoke(index, playSound);
+
+                if (toggleHandle.handlers.Any())
+                {
+                    IEnumerable<Tuple<RagdollHand,HandlePose,float>> handlers = toggleHandle.handlers.Select(h => new Tuple<RagdollHand, HandlePose, float>(h, h.gripInfo.orientation, h.gripInfo.axisPosition)).ToList();
+                    toggleHandle.Release();
+                    foreach (Tuple<RagdollHand,HandlePose,float> pair in handlers)
+                    {
+                        Debug.Log($"{toggleHandle?.gameObject.name}, {pair.Item1?.gameObject.name}, {pair.Item2?.gameObject.name}, {pair.Item3}");
+                        pair.Item1.Grab(toggleHandle, pair.Item2, pair.Item3);
+                    }
+                }
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                if (connectedAttachment != null) Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.parentFirearm.name}: Index {index}, list is {positions.Length} entires long!");
-                else if (connectedFirearm != null) Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedFirearm.name}: Index {index}, list is {positions.Length} entires long!");
+                if (connectedAttachment != null)
+                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.parentFirearm.name}: Index {index}, list is {positions.Length} entries long!");
+                else if (connectedFirearm != null)
+                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedFirearm.name}: Index {index}, list is {positions.Length} entries long!");
             }
         }
 
