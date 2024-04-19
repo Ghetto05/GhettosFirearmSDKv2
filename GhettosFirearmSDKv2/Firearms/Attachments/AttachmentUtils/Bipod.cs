@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 
@@ -14,7 +16,9 @@ namespace GhettosFirearmSDKv2
         public List<Transform> positions;
         public Handle toggleHandle;
         public AudioSource toggleSound;
-        public int index = 0;
+        public int index;
+        public Bipod[] requiredBipods;
+        public Bipod[] requiredInactiveBipods;
 
         private void Start()
         {
@@ -23,6 +27,22 @@ namespace GhettosFirearmSDKv2
             else if (attachment != null)
                 attachment.OnHeldActionEvent += OnHeldActionEvent;
             ApplyPosition(false);
+        }
+
+        private void FixedUpdate()
+        {
+            if (toggleHandle.item.holder != null)
+                return;
+            
+            if (requiredBipods.Any())
+            {
+                toggleHandle.SetTouch(requiredBipods.All(b => b.index != 0));
+            }
+            
+            if (requiredInactiveBipods.Any())
+            {
+                toggleHandle.SetTouch(!requiredInactiveBipods.Any(b => b.index == 1));
+            }
         }
 
         private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
