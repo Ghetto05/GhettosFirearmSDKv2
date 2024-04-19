@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
-using ThunderRoad;
+﻿using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
@@ -19,7 +17,7 @@ namespace GhettosFirearmSDKv2
 
         public float CalculateAccuracy()
         {
-            return ((float)shotsHit / (float)shotsFired) * 100f;
+            return (float)shotsHit / (float)shotsFired * 100f;
         }
     }
 }

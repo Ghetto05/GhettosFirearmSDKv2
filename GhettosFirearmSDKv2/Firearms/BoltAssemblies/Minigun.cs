@@ -24,15 +24,15 @@ namespace GhettosFirearmSDKv2
         public AudioSource RevDownSound;
         public AudioSource RotatingLoop;
         public AudioSource RotatingLoopPlusFiring;
-        bool revving = false;
-        float degreesPerSecond;
+        private bool revving;
+        private float degreesPerSecond;
 
-        private float lastShotTime = 0f;
-        private float currentSpeed = 0f;
-        private float revUpBeginTime = 0f;
+        private float lastShotTime;
+        private float currentSpeed;
+        private float revUpBeginTime;
         private float beginTime = -100f;
-        private bool revvingUp = false;
-        private bool revvingDown = false;
+        private bool revvingUp;
+        private bool revvingDown;
 
 
         private void Start()
@@ -102,8 +102,10 @@ namespace GhettosFirearmSDKv2
             {
                 float timeSinceStart = Time.time - beginTime;
                 float speed = timeSinceStart / RevUpSound.clip.length;
-                if (speed > 1) speed = 1;
-                if (revvingDown) speed = 1f - speed;
+                if (speed > 1)
+                    speed = 1;
+                if (revvingDown)
+                    speed = 1f - speed;
                 currentSpeed = speed;
             }
 
@@ -163,7 +165,8 @@ namespace GhettosFirearmSDKv2
 
         public override void EjectRound()
         {
-            if (loadedCartridge == null) return;
+            if (loadedCartridge == null)
+                return;
             Cartridge c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
@@ -186,7 +189,8 @@ namespace GhettosFirearmSDKv2
                 AddForceToCartridge(c, roundEjectDir, roundEjectForce);
             }
             c.ToggleHandles(true);
-            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired) firearm.magazineWell.Eject();
+            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired)
+                firearm.magazineWell.Eject();
             InvokeEjectRound(c);
         }
 
