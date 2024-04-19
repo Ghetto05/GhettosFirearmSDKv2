@@ -1,12 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using ThunderRoad;
 using UnityEngine;
-using UnityEngine.XR;
-using Unity.XR;
-using Valve.VR;
 
 namespace GhettosFirearmSDKv2
 {
@@ -23,9 +17,22 @@ namespace GhettosFirearmSDKv2
         public AudioSource resetSound;
 
         public float onTriggerWeight = 0.8f;
-        public float lastTriggerPull = 0f;
+        public float lastTriggerPull;
 
         public bool triggerEnabled = true;
+
+        [Space]
+        public bool fireModeSelectionMode;
+        public float secondModePullWeight = 0.9f;
+        public Transform secondModePulledPosition;
+        public FirearmBase.FireModes firstMode;
+        public FirearmBase.FireModes secondMode;
+        private bool onSecondMode;
+        [Space]
+        public FiremodeSelector selector;
+        public int[] allowedIndexesForSecondMode;
+
+        private const float SecondModeTriggerPull = 0.9f;
 
         void Start()
         {
@@ -38,17 +45,13 @@ namespace GhettosFirearmSDKv2
             if (!triggerEnabled)
                 return;
             
-            if (isPulled && trigger != null && pulledPosition != null && idlePosition != null)
+            if (isPulled)
             {
-                trigger.localPosition = pulledPosition.localPosition;
-                trigger.localRotation = pulledPosition.localRotation;
                 if (firearm != null && pullSound != null && firearm.item.holder == null)
                     pullSound.Play();
             }
-            else if (trigger != null && pulledPosition != null && idlePosition != null)
+            else
             {
-                trigger.localPosition = idlePosition.localPosition;
-                trigger.localRotation = idlePosition.localRotation;
                 if (firearm != null && resetSound != null && firearm.item.holder == null)
                     resetSound.Play();
             }
@@ -64,25 +67,66 @@ namespace GhettosFirearmSDKv2
             
             if (!triggerEnabled)
                 return;
-            
-            if (firearm != null && firearm.setUpForHandPose)
+
+            float highestPull = 0f;
+            if (firearm != null)
             {
                 foreach (Handle h in firearm.AllTriggerHandles().Where(h => h != null))
                 {
                     if (h.handlers.Count > 0)
                     {
+                        if (PlayerControl.GetHand(h.handlers[0].side).useAxis > highestPull)
+                            highestPull = PlayerControl.GetHand(h.handlers[0].side).useAxis;
+                        
                         float weight;
                         if (PlayerControl.GetHand(h.handlers[0].side).usePressed)
                         {
-                            weight = 1f;
+                            weight = onSecondMode ? secondModePullWeight : 1f;
                             lastTriggerPull = Time.time;
                         }
-                        else if (Time.time - lastTriggerPull <= FirearmsSettings.triggerDisciplineTime) weight = onTriggerWeight;
-                        else weight = 0f;
+                        else if (Time.time - lastTriggerPull <= FirearmsSettings.triggerDisciplineTime)
+                            weight = onTriggerWeight;
+                        else
+                            weight = 0f;
 
-                        h.handlers[0].poser.SetTargetWeight(weight);
+                        if (firearm.setUpForHandPose)
+                            h.handlers[0].poser.SetTargetWeight(weight);
                     }
                 }
+            }
+            
+            UpdateTriggerPosition(highestPull);
+        }
+
+        private void UpdateTriggerPosition(float pull)
+        {
+            Transform target = GetTarget(pull);
+            
+            if (trigger == null || pulledPosition == null || idlePosition == null)
+                return;
+            
+            trigger.SetPositionAndRotation(target.position, target.rotation);
+        }
+
+        private Transform GetTarget(float pull)
+        {
+            if (fireModeSelectionMode && (selector == null || allowedIndexesForSecondMode.Contains(selector.currentIndex)))
+            {
+                float actual = pull + FirearmsSettings.progressiveTriggerDeadZone;
+                if (actual > SecondModeTriggerPull)
+                {
+                    onSecondMode = true;
+                    firearm.fireMode = secondMode;
+                    return secondModePulledPosition;
+                }
+
+                firearm.fireMode = firstMode;
+                onSecondMode = false;
+                return firearm.triggerState ? pulledPosition : idlePosition;
+            }
+            else
+            {
+                return firearm.triggerState ? pulledPosition : idlePosition;
             }
         }
     }
