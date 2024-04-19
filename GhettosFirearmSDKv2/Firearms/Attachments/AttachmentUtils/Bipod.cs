@@ -18,34 +18,43 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            if (item != null) item.OnHeldActionEvent += OnHeldActionEvent;
-            else if (attachment != null) attachment.OnHeldActionEvent += OnHeldActionEvent;
+            if (item != null)
+                item.OnHeldActionEvent += OnHeldActionEvent;
+            else if (attachment != null)
+                attachment.OnHeldActionEvent += OnHeldActionEvent;
             ApplyPosition(false);
         }
 
         private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (handle == toggleHandle && action == Interactable.Action.UseStart) ToggleUp();
-            else if (handle == toggleHandle && action == Interactable.Action.AlternateUseStart) ToggleDown();
+            if (handle == toggleHandle && action == Interactable.Action.UseStart)
+                ToggleUp();
+            else if (handle == toggleHandle && action == Interactable.Action.AlternateUseStart)
+                ToggleDown();
         }
 
         public void ToggleUp()
         {
-            if (index + 1 == positions.Count) index = 0;
-            else index++;
+            if (index + 1 == positions.Count)
+                index = 0;
+            else
+                index++;
             ApplyPosition();
         }
 
         public void ToggleDown()
         {
-            if (index - 1 == -1) index = positions.Count - 1;
-            else index--;
+            if (index - 1 == -1)
+                index = positions.Count - 1;
+            else
+                index--;
             ApplyPosition();
         }
 
         public void ApplyPosition(bool playSound = true)
         {
-            if (playSound) toggleSound.Play();
+            if (playSound)
+                toggleSound.Play();
             axis.localPosition = positions[index].localPosition;
             axis.localEulerAngles = positions[index].localEulerAngles;
         }

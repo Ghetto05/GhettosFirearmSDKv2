@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
                     Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + id + ".json", "!GhettosFirearmSDKv2_Saves");
                     allPrebuilts.Add(itemData);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Debug.Log($"Couldn't load prebuilt {displayName}!");
                 }

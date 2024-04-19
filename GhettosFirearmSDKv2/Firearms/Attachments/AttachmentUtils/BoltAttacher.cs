@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
                 Destroy(boltChild?.gameObject);
                 Destroy(boltRBChild?.gameObject);
             }
-            catch (Exception e)
+            catch (Exception)
             { }
         }
 

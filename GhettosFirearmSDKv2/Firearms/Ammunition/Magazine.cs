@@ -28,7 +28,6 @@ namespace GhettosFirearmSDKv2
         public bool canBeGrabbedInWell;
         public List<Handle> handles;
         public MagazineWell currentWell;
-        FixedJoint joint;
         public Transform nullCartridgePosition;
         public Transform[] cartridgePositions;
         public Item item;

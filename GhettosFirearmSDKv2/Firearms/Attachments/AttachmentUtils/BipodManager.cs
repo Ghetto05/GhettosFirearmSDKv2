@@ -14,13 +14,15 @@ namespace GhettosFirearmSDKv2
         public List<Transform> groundFollowers;
         public float linearRecoilModifier;
         public float muzzleRiseModifier;
-        private bool lastFrameOverriden = false;
-        private bool active = false;
+        private bool lastFrameOverriden;
+        private bool active;
 
         private void Start()
         {
-            if (firearm == null && attachment != null) attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
-            else if (firearm != null) active = true;
+            if (firearm == null && attachment != null)
+                attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            else if (firearm != null)
+                active = true;
         }
 
         private void Attachment_OnDelayedAttachEvent()
@@ -31,19 +33,24 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            if (!active) return;
+            if (!active)
+                return;
             bool extended = true;
             foreach (Bipod bp in bipods)
             {
-                if (bp.index == 0) extended = false;
+                if (bp.index == 0)
+                    extended = false;
             }
             foreach (Transform t in groundFollowers)
             {
-                if (!Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default"))) extended = false;
+                if (!Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default")))
+                    extended = false;
             }
 
-            if (extended && !lastFrameOverriden) firearm.AddRecoilModifier(linearRecoilModifier, muzzleRiseModifier, this);
-            else if (!extended && lastFrameOverriden) firearm.RemoveRecoilModifier(this);
+            if (extended && !lastFrameOverriden)
+                firearm.AddRecoilModifier(linearRecoilModifier, muzzleRiseModifier, this);
+            else if (!extended && lastFrameOverriden)
+                firearm.RemoveRecoilModifier(this);
 
             lastFrameOverriden = extended;
         }

@@ -193,15 +193,15 @@ namespace GhettosFirearmSDKv2
             OnFiremodeChangedEvent?.Invoke();
         }
 
-        public virtual bool isSuppressed()
+        public virtual bool IsSuppressed()
         {
             return false;
         }
 
-        public void PlayFireSound(Cartridge cartridge, bool overrideSuppressedbool = false, bool suppressed = false)
+        public void PlayFireSound(Cartridge cartridge, bool overrideSuppressedBool = false, bool suppressed = false)
         {
-            bool supp = isSuppressed();
-            if (overrideSuppressedbool)
+            bool supp = IsSuppressed();
+            if (overrideSuppressedBool)
                 supp = suppressed;
             if (cartridge != null && cartridge.data.alwaysSuppressed)
                 supp = true;

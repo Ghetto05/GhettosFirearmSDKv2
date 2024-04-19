@@ -68,7 +68,7 @@ namespace GhettosFirearmSDKv2
             return hs;
         }
 
-        public override bool isSuppressed()
+        public override bool IsSuppressed()
         {
             if (integrallySuppressed) return true;
             return false;

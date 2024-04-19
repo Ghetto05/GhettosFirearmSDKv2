@@ -30,8 +30,6 @@ namespace GhettosFirearmSDKv2
         public Handle leverHandle;
 
         private HingeJoint joint;
-        private RagdollHand handJointHand;
-        private HingeJoint handJoint;
 
         private BoltBase.BoltState state;
         private bool reachedEnd;

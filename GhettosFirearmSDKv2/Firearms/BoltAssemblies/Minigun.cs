@@ -62,7 +62,8 @@ namespace GhettosFirearmSDKv2
 
         private void StartRevving()
         {
-            if (revving) return;
+            if (revving)
+                return;
             revvingUp = true;
             revvingDown = false;
             beginTime = Time.time;
@@ -76,7 +77,8 @@ namespace GhettosFirearmSDKv2
 
         private void StopRevving()
         {
-            if (!revving) return;
+            if (!revving)
+                return;
             revving = false;
             revvingUp = false;
             revvingDown = true;
