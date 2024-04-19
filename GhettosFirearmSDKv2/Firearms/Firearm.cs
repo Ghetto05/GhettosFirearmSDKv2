@@ -10,8 +10,6 @@ namespace GhettosFirearmSDKv2
 {
     public class Firearm : FirearmBase
     {
-        public static List<Firearm> all = new List<Firearm>();
-
         public List<AttachmentPoint> attachmentPoints;
         public List<Attachment> allAttachments;
         public Texture icon;
@@ -70,7 +68,7 @@ namespace GhettosFirearmSDKv2
             item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             allAttachments = new List<Attachment>();
-            OnAIFire = new FireableEvent(AIFire);
+            OnAIFire = AIFire;
             foreach (AttachmentPoint ap in attachmentPoints)
             {
                 ap.parentFirearm = this;
@@ -188,7 +186,8 @@ namespace GhettosFirearmSDKv2
             bool overridden = false;
             foreach (Attachment at in allAttachments)
             {
-                if (at.overridesMuzzleFlash) overridden = true;
+                if (at.overridesMuzzleFlash)
+                    overridden = true;
                 if (at.overridesMuzzleFlash && NoMuzzleFlashOverridingAttachmentChildren(at))
                 {
                     if (at.newFlash != null)
@@ -207,29 +206,22 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public override bool isSuppressed()
+        public override bool IsSuppressed()
         {
-            if (integrallySuppressed) return true;
-            foreach (Attachment at in allAttachments)
-            {
-                if (at.isSuppressing) return true;
-            }
-            return false;
+            return integrallySuppressed || allAttachments.Any(at => at.isSuppressing && at.gameObject.activeInHierarchy);
         }
-
+        
         public override void CalculateMuzzle()
         {
-            if (hitscanMuzzle == null) return;
-            Transform t = hitscanMuzzle;
-            foreach (Attachment a in allAttachments)
-            {
-                if (a.minimumMuzzlePosition != null && Vector3.Distance(transform.position, a.minimumMuzzlePosition.position) > Vector3.Distance(transform.position, t.position)) t = a.minimumMuzzlePosition;
-            }
-            actualHitscanMuzzle = t;
+            if (hitscanMuzzle == null)
+                return;
+            actualHitscanMuzzle = allAttachments.Where(at => at.minimumMuzzlePosition != null).OrderByDescending(at => Vector3.Distance(hitscanMuzzle.position, at.minimumMuzzlePosition.position)).FirstOrDefault()?.minimumMuzzlePosition;
+            if (actualHitscanMuzzle == null)
+                actualHitscanMuzzle = hitscanMuzzle;
             base.CalculateMuzzle();
         }
 
-        public bool AIFire(AIFireable fireable, RagdollHand hand, bool finished)
+        public bool AIFire(AIFireable fireAble, RagdollHand hand, bool finished)
         {
             if (fireMode == FireModes.Safe && GetComponentInChildren<FiremodeSelector>() is FiremodeSelector fs)
                 fs.CycleFiremode();
@@ -244,7 +236,6 @@ namespace GhettosFirearmSDKv2
             if (fireMode == FireModes.Burst) yield return new WaitForSeconds(0.4f);
             if (fireMode == FireModes.Auto) yield return new WaitForSeconds(Random.Range(0.2f, 1.3f));
             Item_OnHeldActionEvent(hand, item.GetMainHandle(hand.side), Interactable.Action.UseStop);
-            yield break;
         }
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
