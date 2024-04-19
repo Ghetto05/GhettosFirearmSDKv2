@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Dynamic;
 using System.Linq;
 using ThunderRoad;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace GhettosFirearmSDKv2
         private void EventManagerOnOnPlayerPrefabSpawned()
         {
             if (Level.current.data.id.Equals("Home"))
-                RemoveDrawers();
+                Util.DelayedExecute(20f, RemoveDrawers, Player.local);
         }
 
         #region Gun Locker / Liam
@@ -86,9 +87,27 @@ namespace GhettosFirearmSDKv2
 
         #region Remove Drawers
 
+        private static string[] _naughtyList = new[]
+                                              {
+                                                  "Drawer1",
+                                                  "Table4m",
+                                                  "Bench2m",
+                                                  "Jar2",
+                                                  "Pottery_05",
+                                                  "Pottery_02",
+                                                  "PotionHealth",
+                                                  "Pottery_06",
+                                                  "Stool2",
+                                                  "Chair1",
+                                                  "Apple"
+                                              };
+        
         private void RemoveDrawers()
         {
-            Debug.Log(string.Join("\n", Level.current.baseTransform.GetComponentsInChildren<Handle>().Select(h => $"{h.gameObject.name} - {h.data.id}")));
+            foreach (Item item in Item.all.Where(i => _naughtyList.Contains(i.data.id)).ToArray())
+            {
+                item.Despawn(0.1f);
+            }
         }
 
         #endregion
