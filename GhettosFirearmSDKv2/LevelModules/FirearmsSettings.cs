@@ -154,35 +154,40 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(4)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Revolver trigger deadzone", tooltip = "Lowers the trigger threshold for revolvers. Helpful if your revolver does not fire double action.", saveValue = true)]
+        [ModOption(name = "Revolver trigger dead zone", tooltip = "Lowers the trigger threshold for revolvers. Helpful if your revolver does not fire double action.", saveValue = true)]
         public static float revolverTriggerDeadzone = 0f;
-
+        
         [ModOptionOrder(5)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Progressive trigger dead zone", tooltip = "Lowers the fire mode switch threshold for progressive triggers. Helpful if firearms with progressive trigger do not fire in full auto.", saveValue = true)]
+        public static float progressiveTriggerDeadZone = 0f;
+
+        [ModOptionOrder(6)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, defaultValueIndex = 4, valueSourceName = nameof(FirearmsSettingsValues.triggerDisciplineTimers), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float triggerDisciplineTime = 3f;
 
-        [ModOptionOrder(6)]
+        [ModOptionOrder(7)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like headbreaker. Has no impact on damage.", defaultValueIndex = 0, saveValue = true)]
         public static bool bulletsAreBlunt = false;
 
-        [ModOptionOrder(7)]
+        [ModOptionOrder(8)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Play gas mask sounds", tooltip = "If enabled, wearing a gas mask will play a breathing sound", defaultValueIndex = 1, saveValue = true)]
         public static bool playGasMaskSound = false;
 
-        [ModOptionOrder(8)]
+        [ModOptionOrder(9)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Explosions dismember", tooltip = "If enabled, any ragdoll part in that is caught in the center of an explosion will be ripped off.", defaultValueIndex = 0, saveValue = true)]
         public static bool explosionsDismember = false;
 
-        [ModOptionOrder(9)]
+        [ModOptionOrder(10)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Break actions only eject fired rounds", tooltip = "If enabled, break actions will only eject fired shells. Unfired ones can be ejected with the release button.", defaultValueIndex = 0, saveValue = true)]
         public static bool breakActionsEjectOnlyFired = false;
 
-        [ModOptionOrder(10)]
+        [ModOptionOrder(11)]
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Spawn workbench and locker", tooltip = "If enabled, the locker and workbench will spawn in the home", defaultValueIndex = 1, saveValue = true)]
         public static bool spawnWorkbenchAndLocker
