@@ -29,36 +29,52 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadCartridge(Cartridge cartridge, string requiredCaliber)
         {
-            if (!FirearmsSettings.doCaliberChecks) return true;
-            if (cartridge.caliber.Equals("DEBUG UNIVERSAL")) return true;
-
-            return cartridge.caliber.Equals(requiredCaliber);
+            return CheckCaliberMatch(cartridge.caliber, requiredCaliber);
         }
 
         public static bool AllowLoadCartridge(Cartridge cartridge, Magazine magazine)
         {
             if (!FirearmsSettings.doCaliberChecks && !magazine.forceCorrectCaliber) return true;
-            if (cartridge.caliber.Equals("DEBUG UNIVERSAL")) return true;
-            bool correctCaliber = cartridge.caliber.Equals(magazine.caliber) || ListContainsString(magazine.alternateCalibers, cartridge.caliber);
+
+            bool correctCaliber = 
+                CheckCaliberMatch(cartridge.caliber, magazine.caliber, magazine.forceCorrectCaliber) || 
+                CheckCaliberMatch(cartridge.caliber, magazine.alternateCalibers, magazine.forceCorrectCaliber);
             bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridge.caliber);
             return correctCaliber && magHasSameCaliber;
         }
 
         public static bool AllowLoadCartridge(string cartridgeCaliber, Magazine magazine)
         {
-            if (!FirearmsSettings.doCaliberChecks) return true;
-            if (cartridgeCaliber.Equals("DEBUG UNIVERSAL")) return true;
-            bool correctCaliber = cartridgeCaliber.Equals(magazine.caliber) || ListContainsString(magazine.alternateCalibers, cartridgeCaliber);
+            bool correctCaliber = 
+                CheckCaliberMatch(cartridgeCaliber, magazine.caliber, magazine.forceCorrectCaliber) || 
+                CheckCaliberMatch(cartridgeCaliber, magazine.alternateCalibers, magazine.forceCorrectCaliber);
             bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridgeCaliber);
             return correctCaliber && magHasSameCaliber;
         }
 
         public static bool AllowLoadCartridge(string cartridgeCaliber, string otherCaliber)
         {
-            if (!FirearmsSettings.doCaliberChecks) return true;
-            if (cartridgeCaliber.Equals("DEBUG UNIVERSAL")) return true;
-            bool correctCaliber = cartridgeCaliber.Equals(otherCaliber);
-            return correctCaliber;
+            return CheckCaliberMatch(cartridgeCaliber, otherCaliber);
+        }
+        
+        public static bool CheckCaliberMatch(string insertedCaliber, List<string> targetCalibers, bool ignoreCheat = false)
+        {
+            foreach (string targetCaliber in targetCalibers)
+            {
+                if (CheckCaliberMatch(insertedCaliber, targetCaliber, ignoreCheat))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool CheckCaliberMatch(string insertedCaliber, string targetCaliber, bool ignoreCheat = false)
+        {
+            if (!FirearmsSettings.doCaliberChecks && !ignoreCheat)
+                return true;
+            if (insertedCaliber.Equals("DEBUG UNIVERSAL"))
+                return true;
+            return insertedCaliber.Equals(targetCaliber) || CaliberSubstituteData.AllowSubstitution(insertedCaliber, targetCaliber);
         }
 
         public static bool AllowLoadMagazine(Magazine magazine, MagazineWell well)
