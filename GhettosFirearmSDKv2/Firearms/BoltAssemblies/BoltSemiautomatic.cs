@@ -12,14 +12,14 @@ namespace GhettosFirearmSDKv2
         public BoltState chargingHandleState;
         public BoltState previousChargingHandleState;
 
-        public bool isOpenBolt = false;
+        public bool isOpenBolt;
         public List<AttachmentPoint> onBoltPoints;
-        public bool locksWhenSafetyIsOn = false;
+        public bool locksWhenSafetyIsOn;
         public bool hasBoltcatch;
         public bool hasBoltCatchReleaseControl = true;
-        public bool chargingHandleLocksBack = false;
-        public bool onlyCatchIfManuallyPulled = false;
-        public bool lockIfNoMagazineFound = false;
+        public bool chargingHandleLocksBack;
+        public bool onlyCatchIfManuallyPulled;
+        public bool lockIfNoMagazineFound;
         public BoltReleaseButton[] releaseButtons;
         public List<Handle> boltHandles;
         public Rigidbody rigidBody;
@@ -50,18 +50,18 @@ namespace GhettosFirearmSDKv2
         public float roundEjectForce;
         public Transform roundEjectDir;
         public Transform roundEjectPoint;
-        int shotsSinceTriggerReset;
+        private int shotsSinceTriggerReset;
 
-        bool isReciprocating;
-        bool isClosing;
+        private bool isReciprocating;
+        private bool isClosing;
         public float startTimeOfMovement;
-        bool letGoBeforeClosed;
-        bool closingAfterRelease;
-        bool closedAfterLoad = true;
+        private bool letGoBeforeClosed;
+        private bool closingAfterRelease;
+        private bool closedAfterLoad = true;
 
-        bool behindLoadPoint;
-        bool beforeLoadPoint = true;
-        bool beforeHammerPoint = true;
+        private bool behindLoadPoint;
+        private bool beforeLoadPoint = true;
+        private bool beforeHammerPoint = true;
 
         private bool lastFrameHeld;
         public Hammer hammer;
@@ -314,7 +314,7 @@ namespace GhettosFirearmSDKv2
                 //Racked
                 if (Util.AbsDist(bolt.position, startPoint.position) < FirearmsSettings.boltPointTreshold && state == BoltState.Moving)
                 {
-                    bolt.localPosition = startPoint.localPosition; //possibly broke bolt
+                    bolt.localPosition = startPoint.localPosition;
                     closedAfterLoad = true;
                     letGoBeforeClosed = false;
                     closingAfterRelease = false;
@@ -378,10 +378,12 @@ namespace GhettosFirearmSDKv2
                 {
                     if (roundLoadPoint != null && behindLoadPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition))
                     {
-                        if (loadedCartridge == null) TryLoadRound();
+                        if (loadedCartridge == null && !loadRoundOnPull)
+                            TryLoadRound();
                         behindLoadPoint = false;
                     }
-                    else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) behindLoadPoint = true;
+                    else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition))
+                        behindLoadPoint = true;
                 }
                 //ejecting
                 if (firearm.roundsPerMinute == 0 && state == BoltState.Moving && (laststate == BoltState.Front || laststate == BoltState.Locked))
@@ -401,7 +403,8 @@ namespace GhettosFirearmSDKv2
                     {
                         hammer.Cock();
                     }
-                    else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition)) beforeHammerPoint = true;
+                    else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition))
+                        beforeHammerPoint = true;
                 }
 
                 //Charging handle racked
