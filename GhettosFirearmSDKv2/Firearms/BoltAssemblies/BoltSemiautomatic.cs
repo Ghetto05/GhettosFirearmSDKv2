@@ -20,6 +20,7 @@ namespace GhettosFirearmSDKv2
         public bool chargingHandleLocksBack;
         public bool onlyCatchIfManuallyPulled;
         public bool lockIfNoMagazineFound;
+        public bool loadRoundOnPull;
         public BoltReleaseButton[] releaseButtons;
         public List<Handle> boltHandles;
         public Rigidbody rigidBody;
@@ -356,6 +357,9 @@ namespace GhettosFirearmSDKv2
                     {
                         CatchBolt(true);
                     }
+                    
+                    if (loadRoundOnPull && loadedCartridge == null)
+                        TryLoadRound();
                 }
                 //caught
                 else if (state == BoltState.Moving && caught && Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < FirearmsSettings.boltPointTreshold)
