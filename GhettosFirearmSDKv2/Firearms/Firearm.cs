@@ -210,7 +210,7 @@ namespace GhettosFirearmSDKv2
         {
             if (hitscanMuzzle == null)
                 return;
-            actualHitscanMuzzle = allAttachments.Where(at => at.minimumMuzzlePosition != null).OrderByDescending(at => Vector3.Distance(hitscanMuzzle.position, at.minimumMuzzlePosition.position)).FirstOrDefault()?.minimumMuzzlePosition;
+            actualHitscanMuzzle = allAttachments.Where(at => at.minimumMuzzlePosition != null).OrderByDescending(at => Vector3.Distance(transform.position, at.minimumMuzzlePosition.position)).FirstOrDefault()?.minimumMuzzlePosition;
             if (actualHitscanMuzzle == null)
                 actualHitscanMuzzle = hitscanMuzzle;
             base.CalculateMuzzle();
