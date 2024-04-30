@@ -349,12 +349,13 @@ namespace GhettosFirearmSDKv2
             {
                 bool hammerCocked = hammers.Count - 1 < currentChamber || hammers[currentChamber] == null || hammers[currentChamber].cocked;
                 bool cartridge = loadedCartridges[currentChamber] != null && !loadedCartridges[currentChamber].fired;
+                
+                shotsSinceTriggerReset++;
+                if (hammers.Count > currentChamber && hammers[currentChamber] != null)
+                    hammers[currentChamber].Fire();
 
                 if (hammerCocked && cartridge)
                 {
-                    shotsSinceTriggerReset++;
-                    if (hammers.Count > currentChamber && hammers[currentChamber] != null)
-                        hammers[currentChamber].Fire();
                     foreach (RagdollHand hand in firearm.item.handlers)
                     {
                         if (hand.playerHand != null || hand.playerHand.controlHand != null)
