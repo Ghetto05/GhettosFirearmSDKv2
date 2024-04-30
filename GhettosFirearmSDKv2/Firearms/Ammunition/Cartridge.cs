@@ -82,13 +82,13 @@ namespace GhettosFirearmSDKv2
             OnFiredWithHitPointsAndMuzzleAndCreatures?.Invoke(hits, directions, hitCreatures, muzzle);
             if (additionalMuzzleFlash != null)
             {
-                additionalMuzzleFlash.transform.SetParent(muzzle);
-                additionalMuzzleFlash.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-                additionalMuzzleFlash.Play();
+                GameObject additionalMuzzleFlashInstance = Instantiate(additionalMuzzleFlash.gameObject, muzzle, true);
+                additionalMuzzleFlashInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                additionalMuzzleFlashInstance.GetComponent<ParticleSystem>().Play();
                 ParticleSystem.MainModule main = additionalMuzzleFlash.main;
-                StartCoroutine(Explosives.Explosive.delayedDestroy(additionalMuzzleFlash.gameObject, main.duration + main.startLifetime.constantMax * 4));
+                StartCoroutine(Explosives.Explosive.delayedDestroy(additionalMuzzleFlashInstance, main.duration + main.startLifetime.constantMax * 4));
             }
-            if (destroyOnFire)
+            if (destroyOnFire && fire)
                 item.Despawn();
         }
 
