@@ -13,11 +13,13 @@ namespace GhettosFirearmSDKv2
         public enum LensSizes
         {
             _10mm = 10,
+            _15mm = 15,
             _20mm = 20,
             _25mm = 25,
             _30mm = 30,
             _35mm = 35,
             _40mm = 40,
+            _45mm = 45,
             _50mm = 50
         }
 
