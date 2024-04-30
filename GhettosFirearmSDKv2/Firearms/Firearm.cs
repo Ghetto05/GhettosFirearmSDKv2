@@ -82,11 +82,6 @@ namespace GhettosFirearmSDKv2
                 item.AddCustomData(saveData);
             }
 
-            if (saveData.firearmNode.TryGetValue("Ammo item", out SaveNodeValueString value))
-            {
-                defaultAmmoItem = value.value;
-            }
-
             saveData.ApplyToFirearm(this);
             CalculateMuzzle();
 
@@ -99,7 +94,7 @@ namespace GhettosFirearmSDKv2
                 }
                 else
                 {
-                    Debug.LogWarning(("Unable to load icon texture from location " + item.data.iconAddress));
+                    Debug.LogWarning("Unable to load icon texture from location " + item.data.iconAddress);
                     Addressables.Release(handle);
                 }
             });
