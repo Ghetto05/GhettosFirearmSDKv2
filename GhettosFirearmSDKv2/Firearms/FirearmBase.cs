@@ -201,6 +201,7 @@ namespace GhettosFirearmSDKv2
         public void PlayFireSound(Cartridge cartridge, bool overrideSuppressedBool = false, bool suppressed = false)
         {
             bool supp = IsSuppressed();
+            bool fromCartridgeData = false;
             if (overrideSuppressedBool)
                 supp = suppressed;
             if (cartridge != null && cartridge.data.alwaysSuppressed)
@@ -209,39 +210,51 @@ namespace GhettosFirearmSDKv2
             if (!supp)
             {
                 if (cartridge != null && cartridge.data.overrideFireSounds)
+                {
                     source = Util.GetRandomFromList(cartridge.data.fireSounds);
+                    fromCartridgeData = true;
+                }
                 else
                     source = Util.GetRandomFromList(fireSounds);
             }
             else
             {
                 if (cartridge != null && cartridge.data.overrideFireSounds)
+                {
                     source = Util.GetRandomFromList(cartridge.data.suppressedFireSounds);
+                    fromCartridgeData = true;
+                }
                 else
                     source = Util.GetRandomFromList(suppressedFireSounds);
             }
 
-            if (source == null) return;
+            if (source == null)
+                return;
+            
             float pitch = 1f;
             if (!supp)
             {
                 NoiseManager.AddNoise(actualHitscanMuzzle.position, 600f);
-                Util.AlertAllCreaturesInRange(hitscanMuzzle.position, 50);
-                if (cartridge == null || !cartridge.data.overrideFireSounds)
+                Util.AlertAllCreaturesInRange(hitscanMuzzle.position, 100);
+                if (!fromCartridgeData)
                     pitch = fireSoundsPitch[fireSounds.ToList().IndexOf(source)];
             }
             else
             {
-                if (cartridge == null || !cartridge.data.overrideFireSounds)
+                if (!fromCartridgeData)
                     pitch = suppressedFireSoundsPitch[suppressedFireSounds.ToList().IndexOf(source)];
             }
-
+            
+            if (fromCartridgeData)
+            {
+                GameObject sourceInstance = Instantiate(source.gameObject, fireSounds.Any() ? fireSounds.First().transform : transform, true);
+                source = sourceInstance.GetComponent<AudioSource>();
+                StartCoroutine(Explosives.Explosive.delayedDestroy(sourceInstance, source.clip.length + 1f)); 
+            }
+            
             float deviation =  FirearmsSettings.firingSoundDeviation / pitch;
-            source.pitch = pitch += Random.Range(-deviation, deviation);
+            source.pitch = pitch + Random.Range(-deviation, deviation);
             source.Play();
-            source.transform.SetParent(transform);
-            if (cartridge != null && cartridge.data.overrideFireSounds)
-                StartCoroutine(Explosives.Explosive.delayedDestroy(source.gameObject, source.clip.length + 1f)); 
         }
 
         public virtual void PlayMuzzleFlash(Cartridge cartridge)
