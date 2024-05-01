@@ -158,6 +158,8 @@ namespace GhettosFirearmSDKv2
             {
                 ragdollHand.Grab(grip);
             }
+
+            bolt.firearm.item.disableSnap = false;
         }
 
         [EasyButtons.Button]
@@ -184,6 +186,8 @@ namespace GhettosFirearmSDKv2
             }
             if (bolt.firearm.triggerState)
                 bolt.firearm.ChangeTrigger(false);
+            
+            bolt.firearm.item.disableSnap = true;
         }
 
         private void InitializeJoint()
