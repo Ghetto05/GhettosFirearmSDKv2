@@ -41,6 +41,7 @@ namespace GhettosFirearmSDKv2
         public List<GameObject> feederObjects;
         public bool loadable = false;
         public float lastEjectTime = 0f;
+        public bool partOfPrebuilt;
         public BoltBase bolt;
         public bool onlyAllowLoadWhenBoltIsBack;
         private List<ColliderGroup> colliderGroups = new List<ColliderGroup>();
@@ -191,7 +192,7 @@ namespace GhettosFirearmSDKv2
 
         public void InsertRound(Cartridge c, bool silent, bool forced, bool save = true, bool atBottom = false)
         {
-            if (cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCartridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
+            if (!partOfPrebuilt && cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCartridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
             {
                 c.item.disallowDespawn = true;
                 c.loaded = true;
@@ -303,6 +304,8 @@ namespace GhettosFirearmSDKv2
                 firearmSave.value.GetContentsFromMagazine(this);
                 firearmSave.value.itemID = item.itemId;
             }
+
+            partOfPrebuilt = false;
 
             UpdateCartridgePositions();
             OnInsertEvent?.Invoke(currentWell);
