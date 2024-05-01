@@ -8,12 +8,14 @@ namespace GhettosFirearmSDKv2
 {
     public class Magazine : MonoBehaviour
     {
-        public bool ejectOnLastRoundFired = false;
-        public bool infinite = false;
+        public static List<Magazine> all = new List<Magazine>();
+        
+        public bool ejectOnLastRoundFired;
+        public bool infinite;
         public string magazineType;
         public string caliber;
         public List<string> alternateCalibers;
-        public bool forceCorrectCaliber = false;
+        public bool forceCorrectCaliber;
         public List<Cartridge> cartridges;
         public int maximumCapacity;
         public bool canEjectRounds;
@@ -39,9 +41,9 @@ namespace GhettosFirearmSDKv2
         MagazineSaveData saveData;
         SaveNodeValueMagazineContents firearmSave;
         public List<GameObject> feederObjects;
-        public bool loadable = false;
-        public float lastEjectTime = 0f;
+        public bool loadable;
         public bool partOfPrebuilt;
+        public float lastEjectTime;
         public BoltBase bolt;
         public bool onlyAllowLoadWhenBoltIsBack;
         private List<ColliderGroup> colliderGroups = new List<ColliderGroup>();
@@ -119,6 +121,9 @@ namespace GhettosFirearmSDKv2
                 }
                 else InvokeLoadFinished();
             }
+            
+            if (overrideItem == null)
+                all.Add(this);
         }
 
         private void OnOnLoadFinished(Magazine mag)
@@ -150,6 +155,7 @@ namespace GhettosFirearmSDKv2
             item.OnDespawnEvent -= Item_OnDespawnEvent;
             item.lightVolumeReceiver.onVolumeChangeEvent -= UpdateAllLightVolumeReceivers;
             OnLoadFinished -= OnOnLoadFinished;
+            all.Remove(this);
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -367,6 +373,7 @@ namespace GhettosFirearmSDKv2
                 lastEjectTime = Time.time;
             }
             UpdateCartridgePositions();
+            item.lastInteractionTime = Time.time;
         }
 
         private void ResetRagdollCollision()
