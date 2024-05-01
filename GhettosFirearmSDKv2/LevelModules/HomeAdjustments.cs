@@ -15,7 +15,7 @@ namespace GhettosFirearmSDKv2
         public override void ScriptEnable()
         {
             local = this;
-            EventManager.OnPlayerPrefabSpawned += EventManagerOnOnPlayerPrefabSpawned;
+            //EventManager.OnPlayerPrefabSpawned += EventManagerOnOnPlayerPrefabSpawned;
         }
 
         private void EventManagerOnOnPlayerPrefabSpawned()
