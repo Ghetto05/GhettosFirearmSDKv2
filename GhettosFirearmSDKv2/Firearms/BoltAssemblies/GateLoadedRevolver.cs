@@ -97,7 +97,7 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnCollisionEventTR(CollisionInstance collisionInstance)
         {
-            if (cockCollider != null && collisionInstance.sourceCollider == cockCollider && collisionInstance.targetCollider.GetComponentInParent<Player>() != null)
+            if (cockCollider != null && collisionInstance.sourceCollider == cockCollider && collisionInstance.targetCollider.GetComponentInParent<Player>() != null && !cocked)
             {
                 Cock();
             }
