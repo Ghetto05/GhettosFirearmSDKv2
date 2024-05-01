@@ -55,8 +55,10 @@ namespace GhettosFirearmSDKv2
         {
             if (handle == firearm.item.mainHandleRight)
             {
-                if (action == Interactable.Action.AlternateUseStart) StartRevving();
-                else if (action == Interactable.Action.AlternateUseStop) StopRevving();
+                if (action == Interactable.Action.AlternateUseStart)
+                    StartRevving();
+                else if (action == Interactable.Action.AlternateUseStop)
+                    StopRevving();
             }
         }
 
@@ -95,8 +97,6 @@ namespace GhettosFirearmSDKv2
         private void FixedUpdate()
         {
             revving = revvingUp && (Time.time - revUpBeginTime >= RevUpSound.clip.length);
-            if (revving && !RotatingLoop.isPlaying)
-                RotatingLoop.Play();
             
             if (revvingUp || revvingDown)
             {
