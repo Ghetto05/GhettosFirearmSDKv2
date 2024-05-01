@@ -1,9 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -59,8 +57,8 @@ namespace GhettosFirearmSDKv2
         [HideInInspector]
         [Space]
         [Header("HAMMER")]
-        public bool singleActionOnly = false;
-        public bool pullHammerWhenOpened = false;
+        public bool singleActionOnly;
+        public bool pullHammerWhenOpened;
         public bool returnedTriggerSinceHammer = true;
         public Transform hammerAxis;
         public Transform hammerIdlePosition;
@@ -71,7 +69,7 @@ namespace GhettosFirearmSDKv2
 
         [Space]
         [Header("LOADING")]
-        public bool autoEject = false;
+        public bool autoEject;
         public Transform ejectDir;
         public float ejectForce;
         public List<string> calibers;
@@ -89,15 +87,15 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> ejectSounds;
         public List<AudioSource> loadSounds;
 
-        bool closed = false;
-        float lastOpenTime = 0f;
-        bool allowInsert = false;
+        bool closed;
+        float lastOpenTime;
+        bool allowInsert;
         MagazineSaveData data;
-        int shotsSinceTriggerReset = 0;
-        int currentChamber = 0;
-        bool ejectedSinceLastOpen = false;
-        bool afterCockAction = false;
-        float lastTriggerPull = 0f;
+        int shotsSinceTriggerReset;
+        int currentChamber;
+        bool ejectedSinceLastOpen;
+        bool afterCockAction;
+        float lastTriggerPull;
 
         public bool useGravityEject = true;
 
@@ -559,7 +557,7 @@ namespace GhettosFirearmSDKv2
             foldJoint.axis = foldingAxis;
             foldJoint.useLimits = true;
             foldJoint.enableCollision = false;
-            foldJoint.limits = closed ? new JointLimits() { min = 0f, max = 0f } : new JointLimits() { min = minFoldAngle, max = maxFoldAngle };
+            foldJoint.limits = closed ? new JointLimits { min = 0f, max = 0f } : new JointLimits { min = minFoldAngle, max = maxFoldAngle };
         }
 
         public void InitializeRotateJoint(bool closed)
@@ -596,7 +594,7 @@ namespace GhettosFirearmSDKv2
             rotateJoint.axis = rotatingAxis;
             rotateJoint.useLimits = closed;
             rotateJoint.enableCollision = false;
-            rotateJoint.limits = new JointLimits() { min = 0f, max = 0f };
+            rotateJoint.limits = new JointLimits { min = 0f, max = 0f };
         }
 
         public override void TryRelease(bool forced = false)
