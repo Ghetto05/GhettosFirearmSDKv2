@@ -126,7 +126,8 @@ namespace GhettosFirearmSDKv2
         void LoadChamber(Cartridge c)
         {
             bool succ = LoadChamber(c, true);
-            if (!succ) c.item.Despawn();
+            if (!succ)
+                c.item.Despawn();
         }
 
         public void SaveChamber(string id)
