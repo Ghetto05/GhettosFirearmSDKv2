@@ -23,7 +23,10 @@ namespace GhettosFirearmSDKv2
 
             string initialMessage = $"\n\n" +
                              $"----> Loaded FirearmSDKv2!\n" +
-                             $"----> Version: {version}" +
+                             $"----> Version: {version}\n" +
+                             $"----> \n" +
+                             $"----> Mod versions check:\n" +
+                             $"{UpdateChecker.CheckForUpdates()}" +
                              $"\n\n";
 
             Debug.Log(initialMessage);
@@ -204,6 +207,11 @@ namespace GhettosFirearmSDKv2
         }
         private static bool _spawnWorkbenchAndLocker;
 
+        [ModOptionOrder(12)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Hide update notifications", tooltip = "Hide popup notifications for updates.", defaultValueIndex = 0, saveValue = true)]
+        public static bool hideUpdateNotifications = false;
+
         #endregion
 
         #region Clothing
@@ -329,6 +337,7 @@ namespace GhettosFirearmSDKv2
         #endregion
         
         #region Debug
+        
         [ModOptionOrder(1)]
         [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Display debug messages", tooltip = "Only for debugging use.", defaultValueIndex = 0, saveValue = true)]
@@ -355,6 +364,7 @@ namespace GhettosFirearmSDKv2
         [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Save guns as prebuilts", tooltip = "Only for development. Saves any gun in the locker with the prebuilt setup.", defaultValueIndex = 0, saveValue = true)]
         public static bool saveAsPrebuilt;
+        
         #endregion Debug
         
         #endregion Values

@@ -65,6 +65,7 @@
     <Compile Include="LevelModules\FirearmCleaner.cs" />
     <Compile Include="LevelModules\FirearmsSettingsValues.cs" />
     <Compile Include="LevelModules\HomeAdjustments.cs" />
+    <Compile Include="LevelModules\UpdateChecker.cs" />
     <Compile Include="Other\ChemLight.cs" />
     <Compile Include="Other\CollapsibleBaton.cs" />
     <Compile Include="Other\Data\CaliberSortingData.cs" />
