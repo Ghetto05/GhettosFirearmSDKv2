@@ -192,6 +192,7 @@ namespace GhettosFirearmSDKv2
                 }
                 else if (hitItem.TryGetComponent(out Cartridge c) && Util.CheckForCollisionWithThisCollider(collision, roundInsertCollider))
                 {
+                    nextLoadIsMuzzle = true;
                     LoadChamber(c);
                 }
             }
@@ -466,6 +467,13 @@ namespace GhettosFirearmSDKv2
             return loadedCartridge;
         }
 
+        private void SetPositionToPowder()
+        {
+            if (loadedCartridge != null)
+                loadedCartridge.transform.position = Vector3.LerpUnclamped(rodFrontEnd.position, rodRearEnd.position, (float)mainReceiver.currentAmount / (float)mainReceiver.grainCapacity);
+        }
+
+        private bool nextLoadIsMuzzle;
         public override bool LoadChamber(Cartridge c, bool forced = false)
         {
             if (loadedCartridge == null && (Util.AllowLoadCartridge(c, caliber) || forced))
@@ -485,7 +493,13 @@ namespace GhettosFirearmSDKv2
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 SaveChamber(c.item.itemId);
-                Invoke(nameof(Rechamber), 2f);
+                Invoke(nameof(Rechamber), 1f);
+                if (!nextLoadIsMuzzle)
+                { 
+                    Invoke(nameof(SetPositionToPowder), 1.2f);
+                    nextLoadIsMuzzle = false;
+                }
+
                 return true;
             }
             return false;
