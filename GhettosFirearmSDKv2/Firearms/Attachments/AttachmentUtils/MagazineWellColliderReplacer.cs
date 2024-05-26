@@ -24,10 +24,12 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDetachEvent(bool despawnDetach)
         {
-            if (despawnDetach) return;
+            if (despawnDetach)
+                return;
             if (newCollider != null)
             {
-                oldCollider.enabled = true;
+                if (oldCollider != null)
+                    oldCollider.enabled = true;
                 attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = oldCollider;
             }
             if (newMount != null)
@@ -41,7 +43,8 @@ namespace GhettosFirearmSDKv2
             if (newCollider != null)
             {
                 oldCollider = attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider;
-                oldCollider.enabled = false;
+                if (oldCollider != null)
+                    oldCollider.enabled = false;
                 attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = newCollider;
             }
             if (newMount != null)
