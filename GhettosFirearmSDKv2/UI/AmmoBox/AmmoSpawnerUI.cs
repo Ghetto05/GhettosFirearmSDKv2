@@ -11,25 +11,34 @@ namespace GhettosFirearmSDKv2
 {
     public class AmmoSpawnerUI : MonoBehaviour
     {
+        #region Values
+
         public CaliberSortingData sortingData;
         public bool alwaysFrozen;
+
         [Space]
         public Transform spawnPosition;
+
         public Item item;
         public Canvas canvas;
         public Collider canvasCollider;
         public Transform categoriesContent;
         public Transform calibersContent;
         public Transform variantContent;
+
         [Space]
         public string currentCategory;
+
         public string currentCaliber;
         public string currentVariant;
         public string currentItemId;
+
         [Space]
         public GameObject categoryPref;
+
         public GameObject caliberPref;
         public GameObject variantPref;
+
         [Space]
         public TextMeshProUGUI description;
 
@@ -39,6 +48,8 @@ namespace GhettosFirearmSDKv2
         public List<Transform> calibers;
         public List<Transform> variants;
 
+        #endregion
+        
         private void Start()
         {
             description.text = "";
@@ -61,57 +72,77 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (action == Interactable.Action.UseStart) Lock();
+            if (action == Interactable.Action.UseStart)
+                Lock();
         }
 
         #region Actions
-        public Magazine GetHeldMagazine()
-        {
-            if (Player.local.handRight.ragdollHand.grabbedHandle is Handle han && han.item is Item heldItem && heldItem.GetComponent<Firearm>() is Firearm firearm && firearm.magazineWell is MagazineWell magwell && magwell.currentMagazine is Magazine ma)
-            {
-                return ma;
-            }
-            else if (Player.local.handLeft.ragdollHand.grabbedHandle is Handle han1 && han1.item is Item heldItem2 && heldItem2.GetComponent<Firearm>() is Firearm firearm2 && firearm2.magazineWell is MagazineWell magwell2 && magwell2.currentMagazine is Magazine ma2)
-            {
-                return ma2;
-            }
-            else if (Player.local.handRight.ragdollHand.grabbedHandle is Handle han2 && han2.item is Item heldItem3 && heldItem3.GetComponent<Magazine>() is Magazine ma3)
-            {
-                return ma3;
-            }
-            else if (Player.local.handLeft.ragdollHand.grabbedHandle is Handle han3 && han3.item is Item heldItem4 && heldItem4.GetComponent<Magazine>() is Magazine ma4)
-            {
-                return ma4;
-            }
-            else return null;
-        }
 
-        public Speedloader GetHeldSpeedloader()
+        public T GetHeld<T>() where T : class, ICaliberGettable
         {
-            if (Player.local.handRight.ragdollHand.grabbedHandle is Handle han2 && han2.item is Item heldItem3 && heldItem3.GetComponent<Speedloader>() is Speedloader ma3)
+            Handle foundHandle = null;
+            if (Player.local.handRight.ragdollHand.grabbedHandle != null)
+                foundHandle = Player.local.handRight.ragdollHand.grabbedHandle;
+            else if (Player.local.handLeft.ragdollHand.grabbedHandle != null)
+                foundHandle = Player.local.handLeft.ragdollHand.grabbedHandle;
+
+            if (foundHandle != null)
             {
-                return ma3;
+                T found;
+
+                found = typeof(T) == typeof(IAmmunitionLoadable) ? 
+                    foundHandle.GetComponentsInParent<T>().FirstOrDefault(x => ((IAmmunitionLoadable)x).GetCapacity() != 0) : 
+                    foundHandle.GetComponentsInParent<T>().FirstOrDefault();
+
+                if (found != null)
+                    return found;
+
+                FirearmBase firearm = foundHandle.GetComponentInParent<FirearmBase>();
+                if (firearm != null)
+                {
+                    if (firearm.magazineWell != null && firearm.magazineWell.currentMagazine != null)
+                        return firearm.magazineWell.currentMagazine.GetComponent<T>();
+
+                    IAmmunitionLoadable[] foundAmmunitionLoaders = firearm.GetComponentsInChildren<IAmmunitionLoadable>();
+                    if (foundAmmunitionLoaders.Any())
+                    {
+                        found = (T)foundAmmunitionLoaders.FirstOrDefault(x => x.GetTransform().GetComponentInParent<FirearmBase>() == null);
+
+                        if (found == null)
+                            found = (T)foundAmmunitionLoaders.FirstOrDefault(x => x.GetCapacity() != 0);
+
+                        if (found == null)
+                            found = (T)foundAmmunitionLoaders.FirstOrDefault();
+
+                        return found;
+                    }
+                    
+                    ICaliberGettable[] foundCaliberGetters = firearm.GetComponentsInChildren<ICaliberGettable>();
+                    if (foundCaliberGetters.Any())
+                    {
+                        found = (T)foundCaliberGetters.FirstOrDefault(x => x.GetTransform().GetComponentInParent<FirearmBase>() == null);
+
+                        if (found == null)
+                            found = (T)foundCaliberGetters.FirstOrDefault();
+
+                        return found;
+                    }
+                }
             }
-            else if (Player.local.handLeft.ragdollHand.grabbedHandle is Handle han3 && han3.item is Item heldItem4 && heldItem4.GetComponent<Speedloader>() is Speedloader ma4)
-            {
-                return ma4;
-            }
-            else return null;
+
+            return default;
         }
 
         public void GetCaliberFromGunOrMag()
         {
-            Magazine mag = GetHeldMagazine();
-            Speedloader sped = GetHeldSpeedloader();
-
-            if (mag != null || sped != null)
+            ICaliberGettable gettable = GetHeld<ICaliberGettable>();
+            if (gettable != null)
             {
-                if (mag != null) currentCaliber = mag.caliber;
-                else currentCaliber = sped.calibers[0];
+                currentCaliber = gettable.GetCaliber();
                 currentCategory = AmmoModule.GetCaliberCategory(currentCaliber);
-                List<string> varis = AmmoModule.AllVariantsOfCaliber(currentCaliber);
-                varis.Sort(new FirstFourNumbersCompare());
-                currentVariant = varis[0].Remove(0, 5);
+                List<string> variantsOfCaliber = AmmoModule.AllVariantsOfCaliber(currentCaliber);
+                variantsOfCaliber.Sort(new FirstFourNumbersCompare());
+                currentVariant = variantsOfCaliber[0].Remove(0, 5);
 
                 SetupCategories();
                 SetupCaliberList(currentCategory);
@@ -122,83 +153,40 @@ namespace GhettosFirearmSDKv2
 
         public void ClearMagazine()
         {
-            if (GetHeldMagazine() != null) ClearMagazine(GetHeldMagazine());
-            if (GetHeldSpeedloader() != null) ClearSpeedloader(GetHeldSpeedloader());
-        }
-
-        public void ClearMagazine(Magazine mag)
-        {
-            foreach (Cartridge car in mag.cartridges)
-            {
-                car.item.Despawn(0.05f);
-            }
-            mag.cartridges.Clear();
-        }
-
-        public void ClearSpeedloader(Speedloader speedloader)
-        {
-            for (int i = 0; i < speedloader.loadedCartridges.Length; i++)
-            {
-                if (speedloader.loadedCartridges[i] != null)
-                {
-                    speedloader.loadedCartridges[i].item.Despawn(0.05f);
-                    speedloader.loadedCartridges[i] = null;
-                }
-            }
+            IAmmunitionLoadable loadable = GetHeld<IAmmunitionLoadable>();
+            if (loadable != null)
+                loadable.ClearRounds();
         }
 
         public void FillMagazine()
         {
-            Magazine mag = GetHeldMagazine();
-            Speedloader sped = GetHeldSpeedloader();
-            if (mag != null && Util.AllowLoadCartridge(currentCaliber, mag))
+            IAmmunitionLoadable loadable = GetHeld<IAmmunitionLoadable>();
+            if (loadable != null && Util.AllowLoadCartridge(currentCaliber, loadable, true))
             {
-                ClearMagazine(mag);
-                SpawnAndInsertCar(mag, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
-            }
-            if (sped != null && Util.AllowLoadCartridge(sped.calibers[0], currentCaliber))
-            {
-                ClearSpeedloader(sped);
-                FillSpeedloader(sped, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+                loadable.ClearRounds();
+                SpawnAndInsertCar(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
             }
         }
 
-        private void FillSpeedloader(Speedloader sped, string carId, int index = 0)
+        private void SpawnAndInsertCar(IAmmunitionLoadable mag, string carId)
         {
-            if (sped != null && !string.IsNullOrWhiteSpace(carId) && index < sped.loadedCartridges.Length)
+            if (mag != null && mag.GetLoadedCartridges().Count < mag.GetCapacity() && !string.IsNullOrWhiteSpace(carId))
             {
-                if (sped.loadedCartridges[index] == null)
+                Util.SpawnItem(carId, "Ammo Spawner", cartridge => 
                 {
-                    Util.SpawnItem(carId, "Ammo Spawner", cartr =>
-                    {
-                        sped.LoadSlot(index, cartr.GetComponent<Cartridge>(), true);
-                        FillSpeedloader(sped, carId, index + 1);
-                    }, sped.transform.position + Vector3.up * 2);
-                }
-                else
-                {
-                    FillSpeedloader(sped, carId, index + 1);
-                }
-            }
-        }
-
-        private void SpawnAndInsertCar(Magazine mag, string carId)
-        {
-            if (mag != null && mag.cartridges.Count < mag.maximumCapacity && !string.IsNullOrWhiteSpace(carId))
-            {
-                Util.SpawnItem(carId, "Ammo Spawner", cartr => 
-                {
-                    mag.InsertRound(cartr.GetComponent<Cartridge>(), true, true);
+                    mag.LoadRound(cartridge.GetComponent<Cartridge>());
                     SpawnAndInsertCar(mag, carId);
-                }, mag.transform.position);
+                }, transform.position);
             }
         }
 
         public void TopOffMagazine()
         {
-            Magazine mag = GetHeldMagazine();
-            if (mag == null) return;
-            if (!Util.AllowLoadCartridge(currentCaliber, mag)) return;
+            IAmmunitionLoadable mag = GetHeld<IAmmunitionLoadable>();
+            if (mag == null)
+                return;
+            if (!Util.AllowLoadCartridge(currentCaliber, mag))
+                return;
 
             SpawnAndInsertCar(mag, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
         }
@@ -222,6 +210,7 @@ namespace GhettosFirearmSDKv2
             canvasCollider.enabled = locked;
             canvas.enabled = locked;
         }
+        
         #endregion Actions
 
         #region Setups

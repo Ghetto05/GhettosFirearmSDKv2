@@ -7,7 +7,7 @@ using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
-    public class StripperClip : MonoBehaviour
+    public class StripperClip : MonoBehaviour, IAmmunitionLoadable
     {
         public string caliber;
         public string clipType;
@@ -190,7 +190,7 @@ namespace GhettosFirearmSDKv2
                 well.currentClip != null ||
                 (well.bolt.state != well.allowedState && !well.alwaysAllow) ||
                 (!well.clipType.Equals(clipType) && FirearmsSettings.doMagazineTypeChecks) ||
-                well.blockingAttachmentPoints.Any(at => at.currentAttachment != null))
+                well.blockingAttachmentPoints.Any(at => at.currentAttachments.Any()))
             {
                 return;
             }
@@ -227,6 +227,52 @@ namespace GhettosFirearmSDKv2
         private void SaveContent()
         {
             _data.GetContentsFromClip(this);
+        }
+
+        public string GetCaliber()
+        {
+            return caliber;
+        }
+
+        public int GetCapacity()
+        {
+            return capacity;
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return loadedCartridges.ToList();
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            InsertRound(cartridge, true, true);
+        }
+
+        public void ClearRounds()
+        {
+            foreach (Cartridge cartridge in loadedCartridges)
+            {
+                cartridge.item.Despawn(0.01f);
+            }
+            loadedCartridges.Clear();
+
+            SaveContent();
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return false;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return null;
         }
     }
 }

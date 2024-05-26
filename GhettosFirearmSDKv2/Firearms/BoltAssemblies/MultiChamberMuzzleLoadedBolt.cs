@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     [AddComponentMenu("Firearm SDK v2/Bolt assemblies/Muzzle loaded, multi chamber, self cocking")]
-    public class MultiChamberMuzzleLoadedBolt : BoltBase
+    public class MultiChamberMuzzleLoadedBolt : BoltBase, IAmmunitionLoadable
     {
         public bool ejectOnFire;
 
@@ -235,9 +236,12 @@ namespace GhettosFirearmSDKv2
 
         public override void EjectRound()
         {
-            if (mountPoints.Count == 1) TryEjectSingle(0);
-            else if (GetFirstFireableChamber() != -1) TryEjectSingle(GetFirstFireableChamber() - 1);
-            else if (mountPoints.Count > 0) TryEjectSingle(mountPoints.Count - 1);
+            if (mountPoints.Count == 1)
+                TryEjectSingle(0);
+            else if (GetFirstFireableChamber() != -1)
+                TryEjectSingle(GetFirstFireableChamber() - 1);
+            else if (mountPoints.Count > 0)
+                TryEjectSingle(mountPoints.Count - 1);
         }
 
         public void SaveCartridges()
@@ -262,6 +266,65 @@ namespace GhettosFirearmSDKv2
                     loadedCartridges[i].transform.localEulerAngles = Util.RandomCartridgeRotation();
                 }
             }
+        }
+
+        private int GetFirstFreeChamber()
+        {
+            List<int> availableChambers = new List<int>();
+            for (int i = loadedCartridges.Length - 1; i >= 0; i--)
+            {
+                if (loadedCartridges[i] == null)
+                    availableChambers.Add(i);
+            }
+
+            if (availableChambers.Count == 0)
+                return 0;
+            
+            return availableChambers.First();
+        }
+
+        public string GetCaliber()
+        {
+            return calibers[GetFirstFreeChamber()];
+        }
+
+        public int GetCapacity()
+        {
+            return loadedCartridges.Length;
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return loadedCartridges.ToList();
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            LoadChamber(GetFirstFreeChamber(), cartridge);
+        }
+
+        public void ClearRounds()
+        {
+            foreach (Cartridge cartridge in loadedCartridges)
+            {
+                EjectRound();
+                cartridge.item.Despawn(0.05f);
+            }
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return false;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return null;
         }
     }
 }

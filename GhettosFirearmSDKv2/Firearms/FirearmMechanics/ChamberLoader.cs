@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class ChamberLoader : MonoBehaviour
+    public class ChamberLoader : MonoBehaviour, ICaliberGettable
     {
         public string caliber;
         public Collider loadCollider;
@@ -27,6 +27,16 @@ namespace GhettosFirearmSDKv2
                     Util.PlayRandomAudioSource(insertSounds);
                 }
             }
+        }
+
+        public string GetCaliber()
+        {
+            return caliber;
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
         }
     }
 }

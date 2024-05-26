@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using ThunderRoad;
 using System.Collections;
+using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
-    public class Speedloader : MonoBehaviour
+    public class Speedloader : MonoBehaviour, IAmmunitionLoadable
     {
         public Item item;
         public bool deleteIfEmpty = false;
@@ -132,15 +133,18 @@ namespace GhettosFirearmSDKv2
             {
                 foreach (Cartridge c in loadedCartridges)
                 {
-                    if (c != null && !c.loaded) c.ToggleCollision(item.holder == null);
+                    if (c != null && !c.loaded)
+                        c.ToggleCollision(item.holder == null);
                 }
 
-                if (loadedCartridges[i] != null && loadedCartridges[i].transform.parent == null) UpdateCartridges();
+                if (loadedCartridges[i] != null && loadedCartridges[i].transform.parent == null)
+                    UpdateCartridges();
 
                 if (startRemoving && loadedCartridges[i] != null && loadedCartridges[i].loaded)
                 {
                     loadedCartridges[i] = null;
-                    if (Empty() && deleteIfEmpty) item.Despawn();
+                    if (Empty() && deleteIfEmpty)
+                        item.Despawn();
                 }
             }
         }
@@ -161,6 +165,67 @@ namespace GhettosFirearmSDKv2
             {
                 data.contents[i] = loadedCartridges[i]?.item.itemId;
             }
+        }
+
+        public string GetCaliber()
+        {
+            return calibers.First();
+        }
+
+        public int GetCapacity()
+        {
+            return mountPoints.Count;
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return loadedCartridges.ToList();
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            if (FirstFreeSlot(out int free))
+                LoadSlot(free, cartridge);
+        }
+
+        private bool FirstFreeSlot(out int firstFree)
+        {
+            for (int i = 0; i < loadedCartridges.Length; i++)
+            {
+                firstFree = i;
+                if (loadedCartridges[i] == null)
+                    return true; 
+            }
+
+            firstFree = 0;
+            return false;
+        }
+
+        public void ClearRounds()
+        {
+            foreach (Cartridge c in loadedCartridges.Where(x => x != null && x.item != null))
+            {
+                c.item.Despawn(0.5f);
+            }
+
+            loadedCartridges = new Cartridge[mountPoints.Count];
+            
+            SaveCartridges();
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return false;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return null;
         }
     }
 }

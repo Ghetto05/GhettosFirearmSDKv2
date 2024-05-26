@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
-    public class Magazine : MonoBehaviour
+    public class Magazine : MonoBehaviour, IAmmunitionLoadable
     {
         public static List<Magazine> all = new List<Magazine>();
         
@@ -61,8 +61,10 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            foreach (GameObject obj in feederObjects) obj.SetActive(false);
-            if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count] != null) feederObjects[cartridges.Count].SetActive(true);
+            foreach (GameObject obj in feederObjects)
+                obj.SetActive(false);
+            if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count] != null)
+                feederObjects[cartridges.Count].SetActive(true);
         }
 
         public void InvokeLoadFinished() => OnLoadFinished?.Invoke(this);
@@ -121,7 +123,20 @@ namespace GhettosFirearmSDKv2
                 }
                 else InvokeLoadFinished();
             }
-            
+
+            var renderersToBeAdded = new List<MeshRenderer>();
+            foreach (var feederObject in feederObjects)
+            {
+                var renderers = feederObject.GetComponentsInChildren<MeshRenderer>(true);
+                if (renderers.Any())
+                    renderersToBeAdded.AddRange(renderers);
+            }
+            if (renderersToBeAdded.Any())
+            {
+                item.renderers.AddRange(renderersToBeAdded.Where(x => !item.renderers.Contains(x)));
+                item.lightVolumeReceiver.SetRenderers(item.renderers);
+            }
+
             if (overrideItem == null)
                 all.Add(this);
         }
@@ -210,14 +225,16 @@ namespace GhettosFirearmSDKv2
                     cartridges.Add(c);
                 c.UngrabAll();
                 Util.IgnoreCollision(c.gameObject, gameObject, true);
-                if (!silent) Util.PlayRandomAudioSource(roundInsertSounds);
+                if (!silent)
+                    Util.PlayRandomAudioSource(roundInsertSounds);
                 c.GetComponent<Rigidbody>().isKinematic = true;
                 c.transform.parent = nullCartridgePosition;
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
             }
             UpdateCartridgePositions();
-            if (save) SaveCustomData();
+            if (save)
+                SaveCustomData();
         }
 
         public Cartridge ConsumeRound()
@@ -457,5 +474,50 @@ namespace GhettosFirearmSDKv2
         
         public delegate void OnInsert(MagazineWell well);
         public event OnInsert OnInsertEvent;
+        public string GetCaliber()
+        {
+            return caliber;
+        }
+
+        public int GetCapacity()
+        {
+            return maximumCapacity;
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return cartridges.ToList();
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            InsertRound(cartridge, true, true);
+        }
+
+        public void ClearRounds()
+        {
+            foreach (Cartridge car in cartridges)
+            {
+                car.item.Despawn(0.05f);
+            } 
+            cartridges.Clear();
+            
+            SaveCustomData();
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return forceCorrectCaliber;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return alternateCalibers;
+        }
     }
 }

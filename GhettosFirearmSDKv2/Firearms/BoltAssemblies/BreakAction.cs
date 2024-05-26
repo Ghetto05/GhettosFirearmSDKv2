@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class BreakAction : BoltBase
+    public class BreakAction : BoltBase, IAmmunitionLoadable
     {
         public bool ejector = true;
 
@@ -64,8 +64,8 @@ namespace GhettosFirearmSDKv2
 
         private MagazineSaveData data;
 
-        private int currentChamber = 0;
-        private int currentChamberSet = 0;
+        private int currentChamber;
+        private int currentChamberSet;
 
         public enum Axes
         {
@@ -89,6 +89,14 @@ namespace GhettosFirearmSDKv2
                     i++;
                 }
             }
+            else
+            {
+                chamberSets.Add(0, new List<int>());
+                for (int i = 0; i < mountPoints.Count; i++)
+                {
+                    chamberSets[0].Add(i);
+                }
+            }
         }
 
         public void InvokedStart()
@@ -104,12 +112,15 @@ namespace GhettosFirearmSDKv2
                 if (chamberSetSelector != null)
                     chamberSetSelector.onFiremodeChanged += ChamberSetSelectorOnFireModeChanged;
                 SetChamberSet(0);
-                
-                foreach (Trigger t in triggers)
+
+                if (triggers.Any() && triggers.Count > currentChamberSet)
                 {
-                    t.triggerEnabled = false;
+                    foreach (Trigger t in triggers)
+                    {
+                        t.triggerEnabled = false;
+                    }
+                    triggers[currentChamberSet].triggerEnabled = true;
                 }
-                triggers[currentChamberSet].triggerEnabled = true;
             }
 
             Initialize();
@@ -152,7 +163,9 @@ namespace GhettosFirearmSDKv2
             {
                 t.triggerEnabled = false;
             }
-            triggers[set].triggerEnabled = true;
+
+            if (triggers.Count > set)
+                triggers[set].triggerEnabled = true;
 
             if (targetHandPoseData.Any())
             {
@@ -162,7 +175,8 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            firearm.defaultAmmoItem = defaultAmmoItems[set];
+            if (defaultAmmoItems.Count > set)
+                firearm.defaultAmmoItem = defaultAmmoItems[set];
         }
 
         private void Firearm_OnMuzzleCalculatedEvent()
@@ -226,7 +240,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void TryEjectSingle(int i, bool ignoreFiredState = false)
+        public void TryEjectSingle(int i, bool ignoreFiredState = false, bool silent = false)
         {
             if (loadedCartridges[i] != null)
             {
@@ -235,7 +249,8 @@ namespace GhettosFirearmSDKv2
                     return;
                 if (chamberSets.Any() && !chamberSets[currentChamberSet].Contains(i))
                     return;
-                Util.PlayRandomAudioSource(ejectSounds);
+                if (!silent)
+                    Util.PlayRandomAudioSource(ejectSounds);
                 loadedCartridges[i] = null;
                 if (ejectPoints.Count > i && ejectPoints[i] != null)
                 {
@@ -531,6 +546,72 @@ namespace GhettosFirearmSDKv2
             float targetAngle = Quaternion.Angle(openedPosition.rotation, closedPosition.rotation);
 
             cyclePercentage = Mathf.Clamp01(angle / targetAngle);
+        }
+
+        private int GetFirstFreeChamber()
+        {
+            List<int> availableChambers = new List<int>();
+            for (int i = loadedCartridges.Length - 1; i >= 0; i--)
+            {
+                if (loadedCartridges[i] == null)
+                    availableChambers.Add(i);
+            }
+
+            availableChambers = availableChambers.Where(x => chamberSets[currentChamberSet].Contains(x)).ToList();
+
+            if (availableChambers.Count == 0)
+                return 0;
+            
+            return availableChambers.First();
+        }
+
+        public string GetCaliber()
+        {
+            return calibers[GetFirstFreeChamber()];
+        }
+
+        public int GetCapacity()
+        {
+            return calibers.Count(x => x.Equals(GetCaliber()));
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return loadedCartridges.ToList();
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            LoadChamber(GetFirstFreeChamber(), cartridge);
+        }
+
+        public void ClearRounds()
+        {
+            foreach (Cartridge car in loadedCartridges)
+            { 
+                if (car != null)
+                    car.item.Despawn(0.05f);
+            }
+            
+            for (int i = 0; i < loadedCartridges.Length; i++)
+            {
+                TryEjectSingle(i, true, true);
+            }
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return false;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return null;
         }
     }
 }
