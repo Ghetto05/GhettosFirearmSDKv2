@@ -16,7 +16,8 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> pressSounds;
         public List<AudioSource> releaseSounds;
 
-        bool ac = false;
+        private bool _active;
+        private SaveNodeValueBool _saveData;
 
         private void Start()
         {
@@ -25,10 +26,28 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            if (attachment == null && item == null && handles.Count > 0) item = handles[0].item;
+            if (attachment == null && item == null && handles.Count > 0)
+                item = handles[0].item;
 
-            if (attachment != null) attachment.attachmentPoint.parentFirearm.item.OnHeldActionEvent += OnAttachmentsAction;
-            else if (item != null) item.OnHeldActionEvent += OnOffhandAction;
+            if (attachment != null)
+                attachment.attachmentPoint.parentFirearm.item.OnHeldActionEvent += OnAttachmentsAction;
+            else if (item != null)
+                item.OnHeldActionEvent += OnOffhandAction;
+
+            if (toggleMode)
+            {
+                if (attachment != null)
+                {
+                    _saveData = attachment.node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {value = true});
+                }
+                else if (item.GetComponent<Firearm>() is Firearm firearm)
+                {
+                    _saveData = firearm.saveData.firearmNode.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {value = true});
+                }
+
+                if (_saveData != null)
+                    _active = _saveData.value;
+            }
 
             Invoke(nameof(InitialSet), 1f);
         }
@@ -90,16 +109,23 @@ namespace GhettosFirearmSDKv2
 
         public void Toggle(bool active, Item item)
         {
-            if (toggleMode && active) ac = !ac;
-            else if (!toggleMode) ac = active;
+            if (toggleMode && active)
+                _active = !_active;
+            else if (!toggleMode)
+                _active = active;
 
-            if (ac) Util.PlayRandomAudioSource(pressSounds);
-            else Util.PlayRandomAudioSource(releaseSounds);
+            if (_active)
+                Util.PlayRandomAudioSource(pressSounds);
+            else
+                Util.PlayRandomAudioSource(releaseSounds);
 
             foreach (TacticalDevice td in item.GetComponentsInChildren<TacticalDevice>())
             {
-                td.tacSwitch = ac;
+                td.tacSwitch = _active;
             }
+            
+            if (_saveData != null)
+                _saveData.value = _active;
         }
     }
 }
