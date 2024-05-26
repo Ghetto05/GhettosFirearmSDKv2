@@ -32,23 +32,20 @@ namespace GhettosFirearmSDKv2
             return CheckCaliberMatch(cartridge.caliber, requiredCaliber);
         }
 
-        public static bool AllowLoadCartridge(Cartridge cartridge, Magazine magazine)
+        public static bool AllowLoadCartridge(Cartridge cartridge, IAmmunitionLoadable magazine)
         {
-            if (!FirearmsSettings.doCaliberChecks && !magazine.forceCorrectCaliber) return true;
+            if (!FirearmsSettings.doCaliberChecks && !magazine.GetForceCorrectCaliber())
+                return true;
 
-            bool correctCaliber = 
-                CheckCaliberMatch(cartridge.caliber, magazine.caliber, magazine.forceCorrectCaliber) || 
-                CheckCaliberMatch(cartridge.caliber, magazine.alternateCalibers, magazine.forceCorrectCaliber);
-            bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridge.caliber);
-            return correctCaliber && magHasSameCaliber;
+            return AllowLoadCartridge(cartridge.caliber, magazine);
         }
 
-        public static bool AllowLoadCartridge(string cartridgeCaliber, Magazine magazine)
+        public static bool AllowLoadCartridge(string cartridgeCaliber, IAmmunitionLoadable magazine, bool ignoreSameCaliber = false)
         {
             bool correctCaliber = 
-                CheckCaliberMatch(cartridgeCaliber, magazine.caliber, magazine.forceCorrectCaliber) || 
-                CheckCaliberMatch(cartridgeCaliber, magazine.alternateCalibers, magazine.forceCorrectCaliber);
-            bool magHasSameCaliber = magazine.cartridges.Count == 0 || magazine.cartridges[0].caliber.Equals(cartridgeCaliber);
+                CheckCaliberMatch(cartridgeCaliber, magazine.GetCaliber(), magazine.GetForceCorrectCaliber()) || 
+                CheckCaliberMatch(cartridgeCaliber, magazine.GetAlternativeCalibers(), magazine.GetForceCorrectCaliber());
+            bool magHasSameCaliber = ignoreSameCaliber || magazine.GetLoadedCartridges() == null || !magazine.GetLoadedCartridges().Any() || (magazine.GetLoadedCartridges().FirstOrDefault()?.caliber.Equals(cartridgeCaliber) ?? true);
             return correctCaliber && magHasSameCaliber;
         }
 
@@ -59,6 +56,9 @@ namespace GhettosFirearmSDKv2
         
         public static bool CheckCaliberMatch(string insertedCaliber, List<string> targetCalibers, bool ignoreCheat = false)
         {
+            if (targetCalibers == null)
+                return false;
+            
             foreach (string targetCaliber in targetCalibers)
             {
                 if (CheckCaliberMatch(insertedCaliber, targetCaliber, ignoreCheat))
