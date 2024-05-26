@@ -51,12 +51,15 @@ namespace GhettosFirearmSDKv2
         private void Grab()
         {
             _following = false;
+            rb.isKinematic = true;
             axis.localEulerAngles = heldPosition.localEulerAngles;
+            rb.transform.localEulerAngles = heldPosition.localEulerAngles;
         }
 
         private void UnGrab()
         {
             _following = true;
+            rb.isKinematic = false;
         }
     }
 }
