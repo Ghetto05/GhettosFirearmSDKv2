@@ -163,7 +163,7 @@ namespace GhettosFirearmSDKv2
             {
                 Holder h = item.holder;
                 item.holder.UnSnap(item, true, false);
-                h.Snap(item, true);
+                h.Snap(item, true, false);
             }
         }
 

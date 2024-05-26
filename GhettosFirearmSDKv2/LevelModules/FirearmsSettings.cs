@@ -71,7 +71,8 @@ namespace GhettosFirearmSDKv2
 
         private void EventManager_onItemSpawn(Item item)
         {
-            if (item.spawnPoint == null) item.spawnPoint = item.transform;
+            if (item.spawnPoint == null)
+                item.spawnPoint = item.transform;
         }
 
         private void EventManager_onCreatureSpawn(Creature creature)
@@ -93,6 +94,12 @@ namespace GhettosFirearmSDKv2
                         ThermalBody tb = body.GetComponent<ThermalBody>();
                         tb.ApplyTo(creature);
                     }, "Thermal Imaging Spawner");
+                }
+                
+                foreach (Holder.DrawSlot slot in Enum.GetValues(typeof(Holder.DrawSlot)))
+                {
+                    if (creature.equipment?.GetHolder(slot) != null)
+                        creature.equipment.GetHolder(slot).linkedContainer = null;
                 }
             }
         }
