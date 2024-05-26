@@ -58,9 +58,8 @@ namespace GhettosFirearmSDKv2
             if (holder.items.Count > 0 && holder.items[0].TryGetComponent(out Firearm firearm))
             {
                 firearm.ChangeTrigger(FirearmClicker.Trigger());
-                // firearm.triggerState = FirearmClicker.Trigger();
-                //
-                // _triggeredLastFrame = FirearmClicker.Trigger();
+                firearm.triggerState = FirearmClicker.Trigger();
+                _triggeredLastFrame = FirearmClicker.Trigger();
             }
         }
 
