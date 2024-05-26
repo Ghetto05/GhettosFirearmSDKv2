@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ThunderRoad;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace GhettosFirearmSDKv2
 {
@@ -211,6 +213,31 @@ namespace GhettosFirearmSDKv2
         [ModOptionCategory("Settings", 1)]
         [ModOption(name = "Hide update notifications", tooltip = "Hide popup notifications for updates.", defaultValueIndex = 0, saveValue = true)]
         public static bool hideUpdateNotifications = false;
+
+        [ModOptionOrder(13)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Spawn Axon Body 3", tooltip = "")]
+        public static bool spawnAxonBodyThree
+        {
+            get { return true; }
+            set
+            {
+                if (axonBodyThree != null)
+                {
+                    Object.Destroy(axonBodyThree);
+                }
+                else if (Player.local != null && Player.local.creature != null)
+                {
+                    Catalog.InstantiateAsync("Ghetto05.FirearmFrameworkV2.AxonBodyThree", Player.local.transform.position, Player.local.transform.rotation, Player.local.transform, axon =>
+                    {
+                        axonBodyThree = axon;
+                        axon.transform.SetParent(Player.currentCreature.ragdoll.bones?.FirstOrDefault(cb => cb.mesh.gameObject.name.Equals("Spine1_Mesh"))?.mesh);
+                        axon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                    }, "AxonBodyThree");
+                }
+            }
+        }
+        private static GameObject axonBodyThree;
 
         #endregion
 
