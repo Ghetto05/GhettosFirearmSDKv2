@@ -205,7 +205,7 @@ namespace GhettosFirearmSDKv2
             if (item != null)
             {
                 item.physicBody.isKinematic = locked;
-                item.disallowDespawn = locked;
+                item.DisallowDespawn = locked;
             }
             canvasCollider.enabled = locked;
             canvas.enabled = locked;

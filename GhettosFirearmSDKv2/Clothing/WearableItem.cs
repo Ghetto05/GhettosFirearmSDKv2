@@ -43,7 +43,7 @@ namespace GhettosFirearmSDKv2.Clothing
             Transform bone = currentCreature.animator.GetBoneTransform(baseBone);
             if (Vector3.Distance(bone.position, transform.position) > 0.3f)
                 return;
-            item.disallowDespawn = true;
+            item.DisallowDespawn = true;
             item.disableSnap = true;
             item.physicBody.rigidBody.isKinematic = true;
             transform.SetParent(bone);
@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2.Clothing
                 return;
 
             item.physicBody.rigidBody.isKinematic = false;
-            item.disallowDespawn = false;
+            item.DisallowDespawn = false;
             item.disableSnap = false;
             transform.SetParent(null);
             currentCreature = null;

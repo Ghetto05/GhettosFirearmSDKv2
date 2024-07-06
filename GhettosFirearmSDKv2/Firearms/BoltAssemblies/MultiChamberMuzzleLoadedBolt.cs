@@ -102,7 +102,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
                 loadedCartridges[index] = cartridge;
-                cartridge.item.disallowDespawn = true;
+                cartridge.item.DisallowDespawn = true;
                 cartridge.loaded = true;
                 cartridge.ToggleHandles(false);
                 cartridge.ToggleCollision(false);
@@ -141,7 +141,7 @@ namespace GhettosFirearmSDKv2
                 c.ToggleCollision(true);
                 Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
                 Rigidbody rb = c.item.physicBody.rigidBody;
-                c.item.disallowDespawn = false;
+                c.item.DisallowDespawn = false;
                 c.transform.parent = null;
                 c.loaded = false;
                 rb.isKinematic = false;

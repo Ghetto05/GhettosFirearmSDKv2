@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (currentMagazine.overrideItem == null)
                 {
-                    currentMagazine.item.SetColliderLayer(firearm.item.currentPhysicsLayer);
+                    //currentMagazine.item.SetColliderLayer(firearm.item.currentPhysicsLayer);
                     currentMagazine.item.SetMeshLayer(firearm.item.gameObject.layer);
                 }
                 roundCounterMessage = currentMagazine.cartridges.Count.ToString();

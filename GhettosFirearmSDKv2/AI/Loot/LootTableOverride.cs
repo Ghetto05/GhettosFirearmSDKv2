@@ -23,8 +23,8 @@ namespace GhettosFirearmSDKv2
                     tableDrops.Add(tableDrop);
                 }
 
-                table.drops = tableDrops;
-                table.CalculateWeight();
+                //table.drops = tableDrops; //ToDo
+                //table.CalculateWeight(); //ToDo
             }
         }
 

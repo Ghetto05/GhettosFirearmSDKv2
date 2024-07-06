@@ -101,7 +101,7 @@ namespace GhettosFirearmSDKv2
             loadedCartridge.ToggleCollision(true);
             Util.DelayIgnoreCollision(loadedCartridge.gameObject, firearm.gameObject, false, 3f, firearm.item);
             Rigidbody rb = loadedCartridge.GetComponent<Rigidbody>();
-            loadedCartridge.item.disallowDespawn = false;
+            loadedCartridge.item.DisallowDespawn = false;
             loadedCartridge.transform.parent = null;
             rb.isKinematic = false;
             loadedCartridge.loaded = false;

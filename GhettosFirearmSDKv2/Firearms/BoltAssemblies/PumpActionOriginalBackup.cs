@@ -311,7 +311,7 @@
 //            c.ToggleCollision(true);
 //            Util.DelayIgnoreCollision(c.gameObject, firearm.item.gameObject, false, 3f, firearm.item);
 //            Rigidbody rb = c.GetComponent<Rigidbody>();
-//            c.item.disallowDespawn = false;
+//            c.item.DisallowDespawn = false;
 //            c.transform.parent = null;
 //            c.loaded = false;
 //            rb.isKinematic = false;
@@ -366,7 +366,7 @@
 //            if (loadedCartridge == null && (state != BoltState.Locked || forced) && !c.loaded)
 //            {
 //                loadedCartridge = c;
-//                c.item.disallowDespawn = true;
+//                c.item.DisallowDespawn = true;
 //                c.loaded = true;
 //                c.ToggleHandles(false);
 //                c.ToggleCollision(false);

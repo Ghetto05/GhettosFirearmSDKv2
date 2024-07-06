@@ -244,6 +244,7 @@ namespace GhettosFirearmSDKv2
             Util.SpawnItem(data.itemId, $"[Gun Locker - Save {saveId}]", gun => 
             {
                 holder.Snap(gun);
+                gun.SetOwner(Item.Owner.Player);
                 gun.data.displayName = data.displayName;
             }, holder.transform.position, holder.transform.rotation, null, true, data.dataList.CloneJson());
         }

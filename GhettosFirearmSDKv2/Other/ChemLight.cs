@@ -40,7 +40,7 @@ namespace GhettosFirearmSDKv2
             if (triggered) return;
             triggered = true;
             triggerTime = Time.time;
-            item.disallowDespawn = true;
+            item.DisallowDespawn = true;
             Util.PlayRandomAudioSource(triggerSounds);
         }
 
@@ -56,7 +56,7 @@ namespace GhettosFirearmSDKv2
             {
                 ApplyLightLevel(0);
                 burntOut = true;
-                item.disallowDespawn = false;
+                item.DisallowDespawn = false;
             }
 
             if (timePassed <= lightUpTime)

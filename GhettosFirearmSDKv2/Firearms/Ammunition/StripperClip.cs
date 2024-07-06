@@ -131,7 +131,7 @@ namespace GhettosFirearmSDKv2
                 c.UngrabAll();
                 c.ToggleCollision(false);
                 c.ToggleHandles(false);
-                c.item.disallowDespawn = true;
+                c.item.DisallowDespawn = true;
                 c.item.physicBody.isKinematic = true;
                 c.item.transform.SetParent(cartridgePositions[0]);
                 c.item.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(Util.RandomCartridgeRotation()));
@@ -156,7 +156,7 @@ namespace GhettosFirearmSDKv2
                 SaveContent();
                 c.item.physicBody.isKinematic = false;
                 c.item.transform.SetParent(null);
-                c.item.disallowDespawn = false;
+                c.item.DisallowDespawn = false;
                 c.ToggleCollision(true);
                 c.ToggleHandles(true);
                 c.item.transform.SetPositionAndRotation(roundEjectPoint.position, roundEjectPoint.rotation);
@@ -201,7 +201,7 @@ namespace GhettosFirearmSDKv2
             {
                 handle.Release();
             }
-            item.disallowDespawn = true;
+            item.DisallowDespawn = true;
             item.physicBody.isKinematic = true;
             Util.IgnoreCollision(item.gameObject, _currentWell.magazineWell.firearm.gameObject, true);
             item.transform.SetParent(_currentWell.mountPoint);
@@ -215,7 +215,7 @@ namespace GhettosFirearmSDKv2
                 return;
 
             _lastRemoveTime = Time.time;
-            item.disallowDespawn = false;
+            item.DisallowDespawn = false;
             item.physicBody.isKinematic = false;
             item.transform.SetParent(null);
             Util.DelayIgnoreCollision(item.gameObject, _currentWell.magazineWell.firearm.gameObject, false, 0.5f, item);

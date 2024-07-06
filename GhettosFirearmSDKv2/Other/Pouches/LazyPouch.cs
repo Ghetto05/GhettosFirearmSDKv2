@@ -66,7 +66,7 @@ namespace GhettosFirearmSDKv2
                     spawning = true;
                     Util.SpawnItem(lastFirearm.defaultAmmoItem, $"LazyPouch", newItem =>
                     {
-                        newItem.disallowDespawn = true;
+                        newItem.DisallowDespawn = true;
                         StartCoroutine(DelayedSnap(newItem));
                         spawnedItems.Add(newItem);
                     });
@@ -129,14 +129,14 @@ namespace GhettosFirearmSDKv2
                 return;
             }
             if (!setup) return;
-            item.disallowDespawn = false;
+            item.DisallowDespawn = false;
             Util.IgnoreCollision(gameObject, item.gameObject, false);
             spawnedItems.Remove(item);
             if (item.TryGetComponent(out Firearm f)) return;
             spawning = true;
             Util.SpawnItem(item.data.id, $"[Lazy Pouch - Default ammo on {lastFirearm?.item?.itemId}]", newItem =>
             {
-                item.disallowDespawn = true;
+                item.DisallowDespawn = true;
                 StartCoroutine(DelayedSnap(newItem));
                 spawnedItems.Add(newItem);
             });

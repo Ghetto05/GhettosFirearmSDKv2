@@ -17,10 +17,11 @@ namespace GhettosFirearmSDKv2
                 return;
             if (health != null)
                 health.localScale = Scale(Player.local.creature.currentHealth, Player.local.creature.maxHealth);
-            if (mana != null)
-                mana.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.maxMana);
+            //ToDo
+            //if (mana != null)
+                //mana.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.);
             if (focus != null)
-                focus.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.maxFocus);
+                focus.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.MaxFocus);
             if (timeSlow != null)
                 timeSlow.text = Time.timeScale * 100 + "%";
         }

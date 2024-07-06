@@ -77,6 +77,8 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_UnSnapped(Item f)
         {
+            if (f.despawning)
+                return;
             f.Hide(false);
             if (!f.isCulled)
             {
@@ -99,7 +101,7 @@ namespace GhettosFirearmSDKv2
                 if (freezeHandles.Contains(handle))
                 {
                     item.physicBody.isKinematic = !item.physicBody.isKinematic;
-                    item.disallowDespawn = item.physicBody.isKinematic;
+                    item.DisallowDespawn = item.physicBody.isKinematic;
                 }
                 if (toggleHandles.Contains(handle))
                 {

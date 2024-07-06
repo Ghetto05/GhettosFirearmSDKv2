@@ -201,7 +201,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.position = roundEjectPoint.position;
                 c.transform.rotation = roundEjectPoint.rotation;
                 c.GetComponent<Rigidbody>().isKinematic = false;
-                c.item.disallowDespawn = false;
+                c.item.DisallowDespawn = false;
                 c.transform.parent = null;
             }
             UpdateCartridgePositions();
@@ -215,7 +215,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!partOfPrebuilt && cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCartridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
             {
-                c.item.disallowDespawn = true;
+                c.item.DisallowDespawn = true;
                 c.loaded = true;
                 c.ToggleHandles(false);
                 c.ToggleCollision(false);
@@ -268,7 +268,7 @@ namespace GhettosFirearmSDKv2
 
         public void Mount(MagazineWell well, Rigidbody rb, bool silent = false)
         {
-            if (overrideItem == null) item.disallowDespawn = true;
+            if (overrideItem == null) item.DisallowDespawn = true;
 
             //renderers reassignment to fix dungeon lighting
             if (originalRenderers == null) originalRenderers = item.renderers.ToList();
@@ -342,7 +342,7 @@ namespace GhettosFirearmSDKv2
                 MagazineWell lastWell = currentWell;
                 OnEjectEvent?.Invoke(lastWell);
                 
-                if (overrideItem == null) item.disallowDespawn = false;
+                if (overrideItem == null) item.DisallowDespawn = false;
 
                 //Revert dungeon lighting fix
                 foreach (Renderer ren in originalRenderers)

@@ -49,7 +49,7 @@ namespace GhettosFirearmSDKv2
             if (AlwaysFrozen && item != null)
             {
                 item.physicBody.isKinematic = true;
-                item.disallowDespawn = true;
+                item.DisallowDespawn = true;
             }
         }
 
@@ -68,7 +68,7 @@ namespace GhettosFirearmSDKv2
             if (!AlwaysFrozen && item != null && action == Interactable.Action.UseStart || action == Interactable.Action.AlternateUseStart)
             {
                 item.physicBody.isKinematic = !item.physicBody.isKinematic;
-                item.disallowDespawn = item.physicBody.isKinematic;
+                item.DisallowDespawn = item.physicBody.isKinematic;
             }
         }
 

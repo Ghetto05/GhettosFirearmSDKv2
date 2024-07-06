@@ -178,7 +178,7 @@ namespace GhettosFirearmSDKv2
                 {
                     InitializeRamRodJoint(hitItem);
                     currentRamRod = hitItem;
-                    currentRamRod.disallowDespawn = true;
+                    currentRamRod.DisallowDespawn = true;
                     rodAwayFromBreach = false;
                     Util.PlayRandomAudioSource(ramRodInsertSound);
                 }
@@ -186,7 +186,7 @@ namespace GhettosFirearmSDKv2
                 {
                     InitializeRamRodJoint(hitItem, true);
                     currentStoredRamRod = hitItem;
-                    currentStoredRamRod.disallowDespawn = true;
+                    currentStoredRamRod.DisallowDespawn = true;
                     rodAwayFromStoreEnd = false;
                     Util.PlayRandomAudioSource(ramRodStoreInsertSound);
                 }
@@ -273,7 +273,7 @@ namespace GhettosFirearmSDKv2
             { 
                 InitializeRamRodJoint(null);
                 Util.DisableCollision(currentRamRod, false);
-                currentRamRod.disallowDespawn = false;
+                currentRamRod.DisallowDespawn = false;
                 currentRamRod = null;
                 Util.PlayRandomAudioSource(ramRodExtractSound);
             }
@@ -348,7 +348,7 @@ namespace GhettosFirearmSDKv2
             {
                 InitializeRamRodJoint(null);
                 Util.DisableCollision(currentRamRod, false);
-                currentRamRod.disallowDespawn = false;
+                currentRamRod.DisallowDespawn = false;
                 currentRamRod = null;
                 Util.PlayRandomAudioSource(ramRodExtractSound);
             }
@@ -379,7 +379,7 @@ namespace GhettosFirearmSDKv2
             {
                 InitializeRamRodJoint(null, true);
                 Util.DisableCollision(currentStoredRamRod, false);
-                currentStoredRamRod.disallowDespawn = false;
+                currentStoredRamRod.DisallowDespawn = false;
                 currentStoredRamRod = null;
                 Util.PlayRandomAudioSource(ramRodStoreExtractSound);
             }
@@ -482,7 +482,7 @@ namespace GhettosFirearmSDKv2
                     Util.PlayRandomAudioSource(roundInsertSounds);
                 lastRoundPosition = 0f;
                 loadedCartridge = c;
-                c.item.disallowDespawn = true;
+                c.item.DisallowDespawn = true;
                 c.loaded = true;
                 c.ToggleHandles(false);
                 c.ToggleCollision(false);
@@ -531,7 +531,7 @@ namespace GhettosFirearmSDKv2
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
             Rigidbody rb = c.item.physicBody.rigidBody;
-            c.item.disallowDespawn = false;
+            c.item.DisallowDespawn = false;
             c.transform.parent = null;
             c.loaded = false;
             rb.isKinematic = false;

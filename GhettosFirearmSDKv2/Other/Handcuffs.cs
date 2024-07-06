@@ -124,7 +124,7 @@ namespace GhettosFirearmSDKv2
             if (Time.time - _lastUnlockTime < 2f)
                 return;
 
-            item.disallowDespawn = true;
+            item.DisallowDespawn = true;
             Transform anchor = part.type == RagdollPart.Type.LeftFoot || part.type == RagdollPart.Type.RightFoot ? (side == Side.Left ? leftFootAnchor : rightFootAnchor) : (side == Side.Left ? leftAnchor : rightAnchor);
             allAttachedParts.Add(part);
 
@@ -231,7 +231,7 @@ namespace GhettosFirearmSDKv2
                 }
                 
                 UnlockAnimation();
-                item.disallowDespawn = false;
+                item.DisallowDespawn = false;
                 if (destroyOnReopen && !onDespawn)
                     item.Despawn();
             }

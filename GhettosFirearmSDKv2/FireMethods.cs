@@ -580,7 +580,7 @@ namespace GhettosFirearmSDKv2
                     coll.intensity = EvaluateDamage(data.damage, hitCreature);
                     try { hitCreature.Damage(coll); } catch (Exception) { }
 
-                    hitCreature.locomotion.rb.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
+                    hitCreature.locomotion.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
                     if (hitCreature.isKilled) hitCreature.StartCoroutine(ExplodeCreature(point, data, hitCreature));
                 }
             }

@@ -65,7 +65,7 @@ namespace GhettosFirearmSDKv2
             do
             {
                 yield return new WaitForSeconds(FirearmsSettings.cartridgeDespawnTime);
-            } while (loaded || item.physicBody.rigidBody.isKinematic || item.disallowDespawn);
+            } while (loaded || item.physicBody.rigidBody.isKinematic || item.DisallowDespawn);
             item.Despawn();
         }
 

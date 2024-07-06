@@ -82,7 +82,7 @@ namespace GhettosFirearmSDKv2
                     Util.DelayIgnoreCollision(attachment.gameObject, loadedCartridge.gameObject, false, 1f, loadedCartridge.item);
                 loadedCartridge.loaded = false;
                 loadedCartridge.GetComponent<Rigidbody>().isKinematic = false;
-                loadedCartridge.item.disallowDespawn = false;
+                loadedCartridge.item.DisallowDespawn = false;
                 loadedCartridge.transform.parent = null;
                 loadedCartridge.item.OnGrabEvent -= Item_OnGrabEvent;
                 loadedCartridge = null;
@@ -98,7 +98,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null && Util.AllowLoadCartridge(c, caliber) && !c.loaded)
             {
-                c.item.disallowDespawn = true;
+                c.item.DisallowDespawn = true;
                 c.loaded = true;
                 c.ToggleCollision(false);
                 loadedCartridge = c;

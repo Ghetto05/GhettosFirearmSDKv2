@@ -99,7 +99,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
                 loadedCartridges[index] = cartridge;
-                cartridge.item.disallowDespawn = true;
+                cartridge.item.DisallowDespawn = true;
                 cartridge.ToggleHandles(false);
                 //cartridge.ToggleCollision(false);
                 cartridge.UngrabAll();

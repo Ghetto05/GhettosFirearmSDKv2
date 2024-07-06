@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2.Explosives
         {
             if (item != null)
             {
-                item.disallowDespawn = true;
+                item.DisallowDespawn = true;
             }
         }
 
@@ -65,7 +65,7 @@ namespace GhettosFirearmSDKv2.Explosives
                 Destroy(zone.gameObject);
                 if (item != null)
                 {
-                    item.disallowDespawn = false;
+                    item.DisallowDespawn = false;
                 }
                 else Destroy(gameObject);
             }

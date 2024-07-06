@@ -49,7 +49,7 @@ namespace GhettosFirearmSDKv2
             }, _item.transform.position + Vector3.up * 20, null, null, false, prebuilt.dataList.CloneJson());
             
             if (_equipmentSlot != null)
-                _equipmentSlot.UnSnap(_item, true, false);
+                _equipmentSlot.UnSnap(_item, true);
         }
     }
 }

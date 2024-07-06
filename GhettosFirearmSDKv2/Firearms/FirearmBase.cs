@@ -68,7 +68,7 @@ namespace GhettosFirearmSDKv2
             longPressTime = FirearmsSettings.longPressTime;
             if (item != null && item.data.moduleAI != null)
             {
-                item.data.moduleAI.weaponClass =
+                item.data.moduleAI.primaryClass =
                     item.handlers.Count > 0 ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
             }
         }

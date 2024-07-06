@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
             return "";
         }
 
-        private static void EventManager_onLevelLoad(LevelData levelData, EventTime eventTime)
+        private static void EventManager_onLevelLoad(LevelData levelData, LevelData.Mode mode, EventTime eventTime)
         {
             if (eventTime == EventTime.OnStart)
                 return;
@@ -61,7 +61,7 @@ namespace GhettosFirearmSDKv2
         {
             yield return new WaitForSeconds(6f);
             if (!string.IsNullOrWhiteSpace(message) && !message.Equals("----> All checkable mods are up to date!"))
-                DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData(message, "", "", "", 100));
+                DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData(message, 100));
         }
 
         public static bool AttemptDownload(out string content)
