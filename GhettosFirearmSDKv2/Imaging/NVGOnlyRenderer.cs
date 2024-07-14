@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -12,7 +14,9 @@ namespace GhettosFirearmSDKv2
         {
             InfraRed,
             FirstPerson,
-            Thermal
+            Thermal,
+            DirectMode,
+            XM157Marker
         }
 
         public enum ThermalTypes
@@ -23,21 +27,74 @@ namespace GhettosFirearmSDKv2
             BlackHot
         }
 
+        public NVGOnlyRendererMeshModule[] directModules;
         public Types renderType;
         public Camera renderCamera;
         public ThermalTypes thermalType;
 
         private void Start()
         {
-            RenderPipelineManager.beginCameraRendering += RenderPipelineManager_beginCameraRendering;
-            RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
+            if (directModules == null || !directModules.Any())
+            {
+                RenderPipelineManager.beginCameraRendering += RegularMode_BeginRender;
+                RenderPipelineManager.endCameraRendering += RegularMode_EndRender;
+            }
+            else
+            {
+                RenderPipelineManager.beginCameraRendering += DirectMode_BeginRender;
+                RenderPipelineManager.endCameraRendering += DirectMode_EndRender;
+            }
         }
 
-        private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext context, Camera cam)
+        #region Direct Mode
+
+        private void DirectMode_EndRender(ScriptableRenderContext arg1, Camera arg2)
+        {
+            try
+            {
+                foreach (var module in directModules)
+                {
+                    foreach (GameObject obj in module.objects)
+                    {
+                        obj.SetActive(false);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        private void DirectMode_BeginRender(ScriptableRenderContext arg1, Camera arg2)
+        {
+            try
+            {
+                foreach (var module in directModules)
+                {
+                    foreach (GameObject obj in module.objects)
+                    {
+                        obj.SetActive(true);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        #endregion
+        
+        #region Regular Mode
+
+        private void RegularMode_EndRender(ScriptableRenderContext context, Camera cam)
         {
             if (cam == renderCamera)
             {
-                if (NVGOnlyRendererMeshModule.all == null) return;
+                if (NVGOnlyRendererMeshModule.all == null)
+                    return;
+
                 foreach (NVGOnlyRendererMeshModule module in NVGOnlyRendererMeshModule.all)
                 {
                     if (module.renderType.Equals(renderType))
@@ -54,17 +111,19 @@ namespace GhettosFirearmSDKv2
         private void UpdateThermal()
         {
             if (ThermalBody.all == null) return;
+
             foreach (ThermalBody t in ThermalBody.all)
             {
                 t.SetColor(thermalType);
             }
         }
 
-        private void RenderPipelineManager_beginCameraRendering(ScriptableRenderContext context, Camera cam)
+        private void RegularMode_BeginRender(ScriptableRenderContext context, Camera cam)
         {
             if (cam == renderCamera)
             {
                 if (NVGOnlyRendererMeshModule.all == null) return;
+
                 foreach (NVGOnlyRendererMeshModule module in NVGOnlyRendererMeshModule.all)
                 {
                     if (module.renderType.Equals(renderType))
@@ -82,5 +141,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
         }
+
+        #endregion
     }
 }

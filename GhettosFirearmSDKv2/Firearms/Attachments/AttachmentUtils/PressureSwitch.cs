@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (attachment != null)
                 {
-                    _saveData = attachment.node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {value = true});
+                    _saveData = attachment.Node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {value = true});
                 }
                 else if (item.GetComponent<Firearm>() is Firearm firearm)
                 {
@@ -54,12 +54,13 @@ namespace GhettosFirearmSDKv2
 
         public void InitialSet()
         {
-            item = attachment == null ? null : attachment.attachmentPoint.parentFirearm.item;
-            if (item == null) return;
+            item = item != null ? item : attachment != null ? attachment.attachmentPoint.parentFirearm.item : null;
+            if (item == null)
+                return;
 
             foreach (TacticalDevice td in item.GetComponentsInChildren<TacticalDevice>())
             {
-                td.tacSwitch = false;
+                td.tacSwitch = _active;
             }
         }
 

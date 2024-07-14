@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
             }
 
             string id = "";
-            if (attachment != null && attachment.node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueString value))
+            if (attachment != null && attachment.Node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueString value))
             {
                 id = value.value;
             }
@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
 
             if (!id.Equals(""))
             {
-                Util.SpawnItem(id, $"[Cartridge holder - Firearm: {firearm?.item?.itemId ?? "--"} Attachment: {attachment?.data.id ?? "--"} Slot: {slot}]", cartridge =>
+                Util.SpawnItem(id, $"[Cartridge holder - Firearm: {firearm?.item?.itemId ?? "--"} Attachment: {attachment?.Data.id ?? "--"} Slot: {slot}]", cartridge =>
                 {
                     InsertRound(cartridge.GetComponent<Cartridge>(), true);
                 }, transform.position + Vector3.up * 3);
@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.item.OnGrabEvent -= Item_OnGrabEvent;
                 loadedCartridge = null;
 
-                if (attachment != null) attachment.node.RemoveValue("CartridgeHolder" + slot);
+                if (attachment != null) attachment.Node.RemoveValue("CartridgeHolder" + slot);
                 else if (firearm != null) firearm.saveData.firearmNode.RemoveValue("CartridgeHolder" + slot);
             }
             UpdateCartridgePositions();
@@ -115,7 +115,7 @@ namespace GhettosFirearmSDKv2
 
                 c.item.OnGrabEvent += Item_OnGrabEvent;
 
-                if (attachment != null) attachment.node.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).value = c.item.itemId;
+                if (attachment != null) attachment.Node.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).value = c.item.itemId;
                 else if (firearm != null) firearm.saveData.firearmNode.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).value = c.item.itemId;
             }
             UpdateCartridgePositions();

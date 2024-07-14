@@ -23,6 +23,8 @@ namespace GhettosFirearmSDKv2
             _50mm = 50
         }
 
+        [Header("Reticle")]
+        public Canvas reticleCanvas;
         [Header("Lens")]
         public MeshRenderer lens;
         [FormerlySerializedAs("additionalLenses")]
@@ -44,7 +46,7 @@ namespace GhettosFirearmSDKv2
         public List<GameObject> Reticles;
         public AudioSource CycleUpSound;
         public AudioSource CycleDownSound;
-        int currentIndex;
+        public int currentIndex;
         SaveNodeValueInt zoomIndex;
 
         public virtual void Start()
@@ -68,7 +70,7 @@ namespace GhettosFirearmSDKv2
             else if (hasZoom && connectedAtatchment != null)
             {
                 connectedAtatchment.OnHeldActionEvent += Item_OnHeldActionEvent;
-                zoomIndex = connectedAtatchment.node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
+                zoomIndex = connectedAtatchment.Node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
             }
             else SetFOVFromMagnification(noZoomMagnification);
 

@@ -274,33 +274,27 @@ namespace GhettosFirearmSDKv2
         {
             foreach (AttachmentPoint p in attachment.attachmentPoints)
             {
-                if (p.currentAttachment != null)
+                if (p.currentAttachments.Any())
                 {
-                    if (!NMFOACrecurve(p.currentAttachment)) return false;
+                    if (!NMFOACrecurve(p.currentAttachments))
+                        return false;
                 }
             }
             return true;
         }
 
-        private bool NMFOACrecurve(Attachment attachment)
+        private bool NMFOACrecurve(ICollection<Attachment> attachments)
         {
-            foreach (AttachmentPoint p in attachment.attachmentPoints)
+            foreach (AttachmentPoint p in attachments.SelectMany(x => x.attachmentPoints))
             {
-                if (p.currentAttachment != null)
+                if (p.currentAttachments.Any())
                 {
-                    if (!NMFOACrecurve(p.currentAttachment)) return false;
+                    if (!NMFOACrecurve(p.currentAttachments))
+                        return false;
                 }
             }
-            if (attachment.overridesMuzzleFlash) return false;
-            return true;
-        }
-
-        private bool NoAttachments(Attachment attachment)
-        {
-            foreach (AttachmentPoint p in attachment.attachmentPoints)
-            {
-                if (p.currentAttachment != null) return false;
-            }
+            if (attachments.Any(x => x.overridesMuzzleFlash))
+                return false;
             return true;
         }
 

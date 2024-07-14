@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
         private void ConnectedAttachment_OnDelayedAttachEvent()
         {
             connectedAttachment.OnHeldActionEvent += OnAction;
-            stockPosition = connectedAttachment.node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
+            stockPosition = connectedAttachment.Node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
             currentIndex = stockPosition.value;
             ApplyPosition(stockPosition.value, false);
         }

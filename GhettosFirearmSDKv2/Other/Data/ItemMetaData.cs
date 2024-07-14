@@ -1,13 +1,10 @@
-﻿using System;
-using ThunderRoad;
-using ThunderRoad.Reveal;
-using UnityEngine;
+﻿using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
-    public class ItemMetaData
+    public class ItemMetaData : ItemModule
     {
-        public enum ItemType
+        public enum ItemTypes
         {
             Firearm,
             PrebuiltFirearm,
@@ -18,7 +15,8 @@ namespace GhettosFirearmSDKv2
             Tool,
             Grenade
         }
-        public enum Actions
+
+        public enum FirearmActions
         {
             ClosedBolt,
             OpenBolt,
@@ -29,29 +27,56 @@ namespace GhettosFirearmSDKv2
             Revolver,
             Minigun
         }
+
         public enum Eras
         {
             Victorian, //1800 - 1900
             WildWest, //1900 - 1914
             TheGreatWar, //1914 - 1918
             Interwar, //1918 - 1938
-            WorldWarII, //1938 - 1945
+            WorldWarTwo, //1938 - 1945
             EarlyColdWar, //1945 - 1970
             LateColdWar, //1970 - 1991
             WarOnTerror //1991 - 2024
         }
 
-        public ItemType itemType;
-        public string category;
-        public string description;
-        public Actions action;
-        public FirearmBase.FireModes[] fireModes;
-        public int[] fireRates;
-        public string[] calibers;
-        public string[] magazineTypes;
-        public int capacity;
-        public string countryOfOrigin;
-        public Eras era;
-        public int yearOfIntroduction;
+        public ItemTypes Type;
+        public string Category;
+        public FirearmActions[] Actions;
+        public FirearmBase.FireModes[] FireModes;
+        public string[] FireRates;
+        public CaliberCapacityData[] CaliberCapacityDatas;
+        public string[] MagazineTypes;
+
+        public string[] CountryOfOrigin;
+        public Eras[] Era;
+        public string[] YearOfIntroduction;
+        public string[] Manufacturer;
+        public string[] Designer;
+
+/*
+ 
+{
+    "$type": "GhettosFirearmSDKv2.ItemMetaData, Assembly-CSharp",
+    "Types": "Firearm",
+    "Category": "Some Category",
+    "Actions": [ "ClosedBolt" ],
+    "FireModes": [ "Safe" ],
+    "FireRates": [ "Rate1", "Rate2" ],
+    "CaliberCapacityDatas": [ {"Caliber": "5.56x45mm","Capactiy": 30} ],
+    "MagazineTypes": [ "STANAG" ],
+    "CountryOfOrigin": [ "USA" ],
+    "Era": [ "Victorian" ],
+    "YearOfIntroduction": [ "1890" ],
+    "Manufacturer": [ "Colt" ],
+    "Designer": [ "Some Designer" ]
+}
+*/
+
+        public class CaliberCapacityData
+        {
+            public string Caliber;
+            public int Capactiy;
+        }
     }
 }

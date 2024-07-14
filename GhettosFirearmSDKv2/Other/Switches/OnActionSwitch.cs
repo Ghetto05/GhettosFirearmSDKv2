@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2
             if (parentItem != null) parentItem.OnHeldActionEvent += OnHeldActionEvent;
             else if (parentAttachment != null) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
 
-            if (parentAttachment != null && parentAttachment.node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
+            if (parentAttachment != null && parentAttachment.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
             {
                 current = value.value;
             }
@@ -89,7 +89,7 @@ namespace GhettosFirearmSDKv2
                 if (swi != null) AlignSwitch(swi, current);
             }
 
-            if (parentAttachment != null) parentAttachment.node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).value = current;
+            if (parentAttachment != null) parentAttachment.Node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).value = current;
             else if (parentItem != null && parentItem.TryGetComponent(out Firearm firearm)) firearm.saveData.firearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).value = current;
         }
 

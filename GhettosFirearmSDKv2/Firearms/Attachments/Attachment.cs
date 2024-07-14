@@ -1,15 +1,18 @@
-﻿using System;
-using ThunderRoad;
+﻿using ThunderRoad;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
+using System.Linq;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace GhettosFirearmSDKv2
 {
     public class Attachment : MonoBehaviour
     {
-        public FirearmSaveData.AttachmentTreeNode node;
+        public AsyncOperationHandle<GameObject>? AssetLoadHandle;
+        
+        public FirearmSaveData.AttachmentTreeNode Node;
         public List<Handle> additionalTriggerHandles;
         public AttachmentPoint attachmentPoint;
         public List<AttachmentPoint> attachmentPoints;
@@ -192,10 +195,11 @@ namespace GhettosFirearmSDKv2
             {
                 firearm.additionalTriggerHandles.Remove(han);
             }
-            attachmentPoint.currentAttachment = null;
-            foreach (AttachmentPoint point in attachmentPoints)
+            attachmentPoint.currentAttachments.Remove(this);
+            var attachments = attachmentPoints.SelectMany(x => x.currentAttachments).ToArray();
+            for (var i = 0; i < attachments.Length; i++)
             {
-                if (point.currentAttachment != null) point.currentAttachment.Detach();
+                attachments[i].Detach();
             }
             foreach (Handle han in handles)
             {
@@ -223,8 +227,86 @@ namespace GhettosFirearmSDKv2
             }
             try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); };
             if (this == null || gameObject == null) return;
+
+            if (AssetLoadHandle != null)
+                Addressables.ReleaseInstance(AssetLoadHandle.Value);
+            
             Destroy(gameObject);
         }
+        
+        public void MoveOnRail(bool forwards)
+        {
+            if (!attachmentPoint.usesRail)
+                return;
+
+            if ((forwards && (!CheckForwardClearance() || !CheckForwardRailLength())) || (!forwards && (!CheckRearwardRailLength() || !CheckRearwardClearance())))
+                return;
+
+            if (forwards)
+                Node.slotPosition++;
+            else
+                Node.slotPosition--;
+            
+            UpdatePosition();
+        }
+
+        private void UpdatePosition()
+        {
+            if (!attachmentPoint.usesRail)
+                return;
+            
+            transform.SetParent(attachmentPoint.railSlots[Node.slotPosition]);
+            transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        }
+
+        #region Rail Checks
+
+        /**
+         * Check if no attachments are immediately in front of this one
+         */
+        private bool CheckForwardClearance()
+        {
+            return !attachmentPoint.currentAttachments.Any(x => x.TakenUpSlots().Contains(Node.slotPosition + Data.railLength + Data.forwardClearance));
+        }
+
+        /**
+         * Check if rail is long enough to move forwards one slot
+         */
+        private bool CheckForwardRailLength()
+        {
+            return Node.slotPosition + Data.railLength >= attachmentPoint.railSlots.Count - 1;
+        }
+
+        /**
+         * Check if no attachments are immediately behind this one
+         */
+        private bool CheckRearwardClearance()
+        {
+            return !attachmentPoint.currentAttachments.Any(x => x.TakenUpSlots().Contains(Node.slotPosition - 1));
+        }
+
+        /**
+         * Check if rail is long enough to move back one slot
+         */
+        private bool CheckRearwardRailLength()
+        {
+            return Node.slotPosition > 0;
+        }
+
+        public int[] TakenUpSlots()
+        {
+            int start = Node.slotPosition - Data.rearwardClearance;
+            int end = Node.slotPosition + (Data.railLength - 1) + Data.forwardClearance;
+            
+            List<int> output = new List<int>();
+            for (var i = start; i <= end; i++)
+            {
+                output.Add(i);
+            }
+            return output.ToArray();
+        }
+
+        #endregion
 
         public AttachmentPoint GetSlotFromId(string id)
         {

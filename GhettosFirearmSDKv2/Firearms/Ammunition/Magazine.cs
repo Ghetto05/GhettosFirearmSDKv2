@@ -61,7 +61,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            foreach (GameObject obj in feederObjects)
+            foreach (var obj in feederObjects)
                 obj.SetActive(false);
             if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count] != null)
                 feederObjects[cartridges.Count].SetActive(true);
@@ -83,6 +83,8 @@ namespace GhettosFirearmSDKv2
                 item = overrideItem;
             if (item == null)
                 return;
+            if (overrideItem == null)
+                item.SetPhysicBodyAndMainCollisionHandler();
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;

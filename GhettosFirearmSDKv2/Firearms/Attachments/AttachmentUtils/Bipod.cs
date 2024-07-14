@@ -74,7 +74,7 @@ namespace GhettosFirearmSDKv2
         public void ApplyPosition(bool playSound = true)
         {
             if (playSound)
-                toggleSound.Play();
+                toggleSound?.Play();
             axis.localPosition = positions[index].localPosition;
             axis.localEulerAngles = positions[index].localEulerAngles;
         }

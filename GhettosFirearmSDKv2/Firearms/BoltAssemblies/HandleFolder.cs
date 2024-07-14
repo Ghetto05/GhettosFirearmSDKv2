@@ -1,5 +1,6 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using ThunderRoad;
 
@@ -39,15 +40,27 @@ namespace GhettosFirearmSDKv2
                 if (h.IsHanded())
                 {
                     held = true;
-                    if (parentToPosition)
+                    try
                     {
-                        axis.SetParent(positions[handles.IndexOf(h)]);
-                        axis.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                        if (parentToPosition)
+                        {
+                            axis.SetParent(positions[handles.IndexOf(h)]);
+                            axis.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                        }
+                        else
+                        {
+                            axis.localPosition = positions[handles.IndexOf(h)].localPosition;
+                            axis.localEulerAngles = positions[handles.IndexOf(h)].localEulerAngles;
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        axis.localPosition = positions[handles.IndexOf(h)].localPosition;
-                        axis.localEulerAngles = positions[handles.IndexOf(h)].localEulerAngles;
+                        if (!positions.Any())
+                            Debug.Log($"Position array is empty! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() != null ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
+                        else if (!handles.Any())
+                            Debug.Log($"Handle array is empty! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() != null ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
+                        else
+                            Debug.Log($"Unknown error! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() != null ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
                     }
                 }
             }

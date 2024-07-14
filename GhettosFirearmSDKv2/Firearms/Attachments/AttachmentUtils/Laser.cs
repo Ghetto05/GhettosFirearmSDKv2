@@ -17,6 +17,7 @@ namespace GhettosFirearmSDKv2
         public Item item;
         public Attachment attachment;
         private Item actualItem;
+        public float lastHitDistance;
 
         private void Start()
         {
@@ -58,6 +59,7 @@ namespace GhettosFirearmSDKv2
                 if (endPointObject != null && !endPointObject.activeInHierarchy) endPointObject.SetActive(true);
                 if (endPointObject != null) endPointObject.transform.localPosition = LengthPosition(hit.distance);
                 if (distanceDisplay != null) distanceDisplay.text = hit.distance.ToString();
+                lastHitDistance = hit.distance;
             }
             else
             {

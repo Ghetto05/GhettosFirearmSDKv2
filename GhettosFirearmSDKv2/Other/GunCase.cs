@@ -26,12 +26,12 @@ namespace GhettosFirearmSDKv2
         public List<Handle> freezeHandles;
         public List<Handle> toggleHandles;
 
-        private bool closed = true;
-        private bool open = false;
-        private bool moving = false;
-        private GunCaseSaveData data;
+        private bool _closed = true;
+        private bool _open = false;
+        private bool _moving = false;
+        private GunCaseSaveData _data;
 
-        void Start()
+        private void Start()
         {
             Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
             if (isStatic)
@@ -54,18 +54,22 @@ namespace GhettosFirearmSDKv2
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
-            if (item.TryGetCustomData(out data))
+            if (item.TryGetCustomData(out _data))
             {
-                Util.SpawnItem(data.firearm, $"[Gun case - Save {data.firearm}]", f =>
+                if (string.IsNullOrWhiteSpace(_data.firearm))
+                    return;
+
+                Util.SpawnItem(_data.firearm, $"[Gun case - Save {_data.firearm}]", f =>
                 {
                     f.physicBody.isKinematic = true;
+                    f.SetOwner(Item.Owner.Player);
                     StartCoroutine(DelayedSnap(f));
-                }, holder.transform.position - (Vector3.down * 10), holder.transform.rotation, null, true, data.firearmData.CloneJson());
+                }, holder.transform.position - Vector3.down * 10, holder.transform.rotation, null, true, _data.firearmData.CloneJson());
             }
             else
             {
-                data = new GunCaseSaveData();
-                item.AddCustomData(data);
+                _data = new GunCaseSaveData();
+                item.AddCustomData(_data);
             }
         }
 
@@ -82,16 +86,16 @@ namespace GhettosFirearmSDKv2
             f.Hide(false);
             if (!f.isCulled)
             {
-                data.firearm = "";
-                data.firearmData = null;
+                _data.firearm = "";
+                _data.firearmData = null;
             }
         }
 
         private void Holder_Snapped(Item f)
         {
-            f.Hide(closed);
-            data.firearm = f.itemId;
-            data.firearmData = f.contentCustomData;
+            f.Hide(_closed);
+            _data.firearm = f.itemId;
+            _data.firearmData = f.contentCustomData.CloneJson();
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -105,7 +109,7 @@ namespace GhettosFirearmSDKv2
                 }
                 if (toggleHandles.Contains(handle))
                 {
-                    if (open) Close();
+                    if (_open) Close();
                     else Open();
                 }
             }
@@ -114,48 +118,48 @@ namespace GhettosFirearmSDKv2
         [EasyButtons.Button]
         public void Open()
         {
-            if (open || moving) return;
+            if (_open || _moving) return;
             StartCoroutine(OpenIE());
         }
 
         [EasyButtons.Button]
         public void Close()
         {
-            if (closed || moving) return;
+            if (_closed || _moving) return;
             StartCoroutine(CloseIE());
         }
 
         private IEnumerator OpenIE()
         {
-            foreach (Item item in holder.items)
+            foreach (Item i in holder.items)
             {
-                item.Hide(false);
+                i.Hide(false);
             }
-            moving = true;
+            _moving = true;
             animator.Play(openingAnimationName);
             openingStartedEvent.Invoke();
             yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
             openingEvent.Invoke();
-            open = true;
-            closed = false;
-            moving = false;
+            _open = true;
+            _closed = false;
+            _moving = false;
             holder.SetTouch(true);
         }
 
         private IEnumerator CloseIE()
         {
             holder.SetTouch(false);
-            moving = true;
+            _moving = true;
             closingEvent.Invoke();
             animator.Play(closingAnimationName);
             yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
             closingFinishedEvent.Invoke();
-            open = false;
-            closed = true;
-            moving = false;
-            foreach (Item item in holder.items)
+            _open = false;
+            _closed = true;
+            _moving = false;
+            foreach (Item i in holder.items)
             {
-                item.Hide(true);
+                i.Hide(true);
             }
         }
     }

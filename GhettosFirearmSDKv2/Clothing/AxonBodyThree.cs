@@ -111,19 +111,19 @@ namespace GhettosFirearmSDKv2
                 RenderTexture.active = null;
                 Destroy(rt);
 
-                byte[] bytes = screenShot.EncodeToJPG(); // Use JPG for compression
-                lock (frameDataList)
-                {
-                    frameDataList.Add(bytes);
-                }
-                Destroy(screenShot);
-
-                videoTimer += frameTime;
-                if (videoTimer >= interval)
-                {
-                    SaveVideo();
-                    videoTimer = 0f;
-                }
+                // byte[] bytes = screenShot.EncodeToJPG(); // Use JPG for compression
+                // lock (frameDataList)
+                // {
+                //     frameDataList.Add(bytes);
+                // }
+                // Destroy(screenShot);
+                //
+                // videoTimer += frameTime;
+                // if (videoTimer >= interval)
+                // {
+                //     SaveVideo();
+                //     videoTimer = 0f;
+                // }
             }
         }
 

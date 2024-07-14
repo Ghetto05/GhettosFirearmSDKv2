@@ -53,10 +53,12 @@
     <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\ForeGripSling.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\RevolverCaliberReplacer.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\XM157.cs" />
     <Compile Include="Firearms\BoltAssemblies\FlintLock.cs" />
     <Compile Include="Firearms\BoltAssemblies\LeverAction.cs" />
     <Compile Include="Firearms\BoltAssemblies\PumpAutomaticAdapter.cs" />
     <Compile Include="Firearms\BoltAssemblies\RecoilSpring.cs" />
+    <Compile Include="Firearms\BoltAssemblies\SplitChargingHandle.cs" />
     <Compile Include="Firearms\FirearmMechanics\AdditionalFireModeSelectorAxis.cs" />
     <Compile Include="Firearms\FirearmMechanics\AmmoCounter.cs" />
     <Compile Include="Firearms\FirearmMechanics\BeltFedCover.cs" />
@@ -129,7 +131,6 @@
     <Compile Include="Other\CollisionRelay.cs" />
     <Compile Include="Other\Locks\GateLock.cs" />
     <Compile Include="Other\Pouches\PrebuiltPouch.cs" />
-    <Compile Include="Other\SpawnerGrouper.cs" />
     <Compile Include="Other\Switches\FireModeBasedSwitch.cs" />
     <Compile Include="Other\WireCutter.cs" />
     <Compile Include="Other\WireCutterCuttable.cs" />
@@ -441,95 +442,11 @@
     <Content Include="BaSAssemblies\VRKB.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>BaSAssemblies\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>BaSAssemblies\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="AssistantCoreSDKRuntime">
-      <HintPath>BaSAssemblies\AssistantCoreSDKRuntime.dll</HintPath>
-    </Reference>
-    <Reference Include="Autodesk.Fbx">
-      <HintPath>BaSAssemblies\Autodesk.Fbx.dll</HintPath>
-    </Reference>
-    <Reference Include="BetterStreamingAssets">
-      <HintPath>BaSAssemblies\BetterStreamingAssets.dll</HintPath>
-    </Reference>
-    <Reference Include="Bhaptics.SDK2">
-      <HintPath>BaSAssemblies\Bhaptics.SDK2.dll</HintPath>
-    </Reference>
-    <Reference Include="Cinemachine">
-      <HintPath>BaSAssemblies\Cinemachine.dll</HintPath>
-    </Reference>
-    <Reference Include="Crest">
-      <HintPath>BaSAssemblies\Crest.dll</HintPath>
-    </Reference>
-    <Reference Include="CW.Common">
-      <HintPath>BaSAssemblies\CW.Common.dll</HintPath>
-    </Reference>
     <Reference Include="EasyButtons">
       <HintPath>BaSAssemblies\EasyButtons.dll</HintPath>
     </Reference>
-    <Reference Include="Facebook.Wit.Dictation">
-      <HintPath>BaSAssemblies\Facebook.Wit.Dictation.dll</HintPath>
-    </Reference>
-    <Reference Include="FbxBuildTestAssets">
-      <HintPath>BaSAssemblies\FbxBuildTestAssets.dll</HintPath>
-    </Reference>
     <Reference Include="IngameDebugConsole.Runtime">
       <HintPath>BaSAssemblies\IngameDebugConsole.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Ionic.Zip.Unity">
-      <HintPath>BaSAssemblies\Ionic.Zip.Unity.dll</HintPath>
-    </Reference>
-    <Reference Include="JBooth.BetterLitShader.Scripts">
-      <HintPath>BaSAssemblies\JBooth.BetterLitShader.Scripts.dll</HintPath>
-    </Reference>
-    <Reference Include="JBooth.BetterShaders.Samples">
-      <HintPath>BaSAssemblies\JBooth.BetterShaders.Samples.dll</HintPath>
-    </Reference>
-    <Reference Include="LIV">
-      <HintPath>BaSAssemblies\LIV.dll</HintPath>
-    </Reference>
-    <Reference Include="Meta.VoiceSDK.Mic.Common">
-      <HintPath>BaSAssemblies\Meta.VoiceSDK.Mic.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Meta.VoiceSDK.Mic.Other">
-      <HintPath>BaSAssemblies\Meta.VoiceSDK.Mic.Other.dll</HintPath>
-    </Reference>
-    <Reference Include="Meta.WitAi">
-      <HintPath>BaSAssemblies\Meta.WitAi.dll</HintPath>
-    </Reference>
-    <Reference Include="Meta.WitAi.Conduit">
-      <HintPath>BaSAssemblies\Meta.WitAi.Conduit.dll</HintPath>
-    </Reference>
-    <Reference Include="Meta.WitAi.Lib">
-      <HintPath>BaSAssemblies\Meta.WitAi.Lib.dll</HintPath>
-    </Reference>
-    <Reference Include="Meta.WitAi.TTS">
-      <HintPath>BaSAssemblies\Meta.WitAi.TTS.dll</HintPath>
-    </Reference>
-    <Reference Include="Meta.WitAi.TTS.Samples">
-      <HintPath>BaSAssemblies\Meta.WitAi.TTS.Samples.dll</HintPath>
-    </Reference>
-    <Reference Include="modio.UI">
-      <HintPath>BaSAssemblies\modio.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="modio.UnityPlugin">
-      <HintPath>BaSAssemblies\modio.UnityPlugin.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security">
-      <HintPath>BaSAssemblies\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="mscorlib">
-      <HintPath>BaSAssemblies\mscorlib.dll</HintPath>
-    </Reference>
-    <Reference Include="NavMeshComponents">
-      <HintPath>BaSAssemblies\NavMeshComponents.dll</HintPath>
-    </Reference>
-    <Reference Include="netstandard">
-      <HintPath>BaSAssemblies\netstandard.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>BaSAssemblies\Newtonsoft.Json.dll</HintPath>
@@ -540,140 +457,11 @@
     <Reference Include="Newtonsoft.Json.UnityConverters.Addressables">
       <HintPath>BaSAssemblies\Newtonsoft.Json.UnityConverters.Addressables.dll</HintPath>
     </Reference>
-    <Reference Include="Oculus.AudioManager">
-      <HintPath>BaSAssemblies\Oculus.AudioManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Oculus.LipSync">
-      <HintPath>BaSAssemblies\Oculus.LipSync.dll</HintPath>
-    </Reference>
-    <Reference Include="Oculus.Platform">
-      <HintPath>BaSAssemblies\Oculus.Platform.dll</HintPath>
-    </Reference>
-    <Reference Include="Oculus.Spatializer">
-      <HintPath>BaSAssemblies\Oculus.Spatializer.dll</HintPath>
-    </Reference>
-    <Reference Include="Oculus.Voice.Demo">
-      <HintPath>BaSAssemblies\Oculus.Voice.Demo.dll</HintPath>
-    </Reference>
-    <Reference Include="Oculus.VR">
-      <HintPath>BaSAssemblies\Oculus.VR.dll</HintPath>
-    </Reference>
-    <Reference Include="PerfectCulling">
-      <HintPath>BaSAssemblies\PerfectCulling.dll</HintPath>
-    </Reference>
-    <Reference Include="PICO.Platform">
-      <HintPath>BaSAssemblies\PICO.Platform.dll</HintPath>
-    </Reference>
-    <Reference Include="Pico.Spatializer">
-      <HintPath>BaSAssemblies\Pico.Spatializer.dll</HintPath>
-    </Reference>
-    <Reference Include="Pico.Spatializer.Example">
-      <HintPath>BaSAssemblies\Pico.Spatializer.Example.dll</HintPath>
-    </Reference>
-    <Reference Include="RainyReignGames.Collections">
-      <HintPath>BaSAssemblies\RainyReignGames.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="RainyReignGames.Dismemberment">
-      <HintPath>BaSAssemblies\RainyReignGames.Dismemberment.dll</HintPath>
-    </Reference>
-    <Reference Include="RainyReignGames.Expresssions">
-      <HintPath>BaSAssemblies\RainyReignGames.Expresssions.dll</HintPath>
-    </Reference>
-    <Reference Include="RainyReignGames.MeshUtilities">
-      <HintPath>BaSAssemblies\RainyReignGames.MeshUtilities.dll</HintPath>
-    </Reference>
-    <Reference Include="RemoteInspectorRuntime">
-      <HintPath>BaSAssemblies\RemoteInspectorRuntime.dll</HintPath>
-    </Reference>
-    <Reference Include="RootMotion">
-      <HintPath>BaSAssemblies\RootMotion.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.OdinInspector.Attributes">
-      <HintPath>BaSAssemblies\Sirenix.OdinInspector.Attributes.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.OdinInspector.CompatibilityLayer">
-      <HintPath>BaSAssemblies\Sirenix.OdinInspector.CompatibilityLayer.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.Serialization">
-      <HintPath>BaSAssemblies\Sirenix.Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.Serialization.Config">
-      <HintPath>BaSAssemblies\Sirenix.Serialization.Config.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.Utilities">
-      <HintPath>BaSAssemblies\Sirenix.Utilities.dll</HintPath>
-    </Reference>
-    <Reference Include="SpaceGraphicsToolkit">
-      <HintPath>BaSAssemblies\SpaceGraphicsToolkit.dll</HintPath>
-    </Reference>
-    <Reference Include="SpaceGraphicsToolkit.Terrain">
-      <HintPath>BaSAssemblies\SpaceGraphicsToolkit.Terrain.dll</HintPath>
-    </Reference>
-    <Reference Include="SteamVR">
-      <HintPath>BaSAssemblies\SteamVR.dll</HintPath>
-    </Reference>
-    <Reference Include="SteamVR_Actions">
-      <HintPath>BaSAssemblies\SteamVR_Actions.dll</HintPath>
-    </Reference>
-    <Reference Include="Steamworks.NET">
-      <HintPath>BaSAssemblies\Steamworks.NET.dll</HintPath>
+    <Reference Include="Newtonsoft.Json.UnityConverters.Mathematics">
+      <HintPath>BaSAssemblies\Newtonsoft.Json.UnityConverters.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <HintPath>BaSAssemblies\System.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ComponentModel.Composition">
-      <HintPath>BaSAssemblies\System.ComponentModel.Composition.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Configuration">
-      <HintPath>BaSAssemblies\System.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core">
-      <HintPath>BaSAssemblies\System.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data">
-      <HintPath>BaSAssemblies\System.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <HintPath>BaSAssemblies\System.Data.DataSetExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Drawing">
-      <HintPath>BaSAssemblies\System.Drawing.dll</HintPath>
-    </Reference>
-    <Reference Include="System.EnterpriseServices">
-      <HintPath>BaSAssemblies\System.EnterpriseServices.dll</HintPath>
-    </Reference>
-    <Reference Include="System.IO.Compression">
-      <HintPath>BaSAssemblies\System.IO.Compression.dll</HintPath>
-    </Reference>
-    <Reference Include="System.IO.Compression.FileSystem">
-      <HintPath>BaSAssemblies\System.IO.Compression.FileSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http">
-      <HintPath>BaSAssemblies\System.Net.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics">
-      <HintPath>BaSAssemblies\System.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime">
-      <HintPath>BaSAssemblies\System.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization">
-      <HintPath>BaSAssemblies\System.Runtime.Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Security">
-      <HintPath>BaSAssemblies\System.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ServiceModel.Internals">
-      <HintPath>BaSAssemblies\System.ServiceModel.Internals.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Transactions">
-      <HintPath>BaSAssemblies\System.Transactions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml">
-      <HintPath>BaSAssemblies\System.Xml.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <HintPath>BaSAssemblies\System.Xml.Linq.dll</HintPath>
     </Reference>
     <Reference Include="ThunderRoad">
       <HintPath>BaSAssemblies\ThunderRoad.dll</HintPath>
@@ -702,89 +490,11 @@
     <Reference Include="ThunderRoad.Utilities">
       <HintPath>BaSAssemblies\ThunderRoad.Utilities.dll</HintPath>
     </Reference>
-    <Reference Include="TRVRKBSharedData">
-      <HintPath>BaSAssemblies\TRVRKBSharedData.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Addressables">
       <HintPath>BaSAssemblies\Unity.Addressables.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Animation.Rigging">
-      <HintPath>BaSAssemblies\Unity.Animation.Rigging.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Burst">
-      <HintPath>BaSAssemblies\Unity.Burst.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Burst.Unsafe">
-      <HintPath>BaSAssemblies\Unity.Burst.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Collections">
-      <HintPath>BaSAssemblies\Unity.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Collections.LowLevel.ILSupport">
-      <HintPath>BaSAssemblies\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Formats.Fbx.Runtime">
-      <HintPath>BaSAssemblies\Unity.Formats.Fbx.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.InputSystem">
-      <HintPath>BaSAssemblies\Unity.InputSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.InternalAPIEngineBridge.011">
-      <HintPath>BaSAssemblies\Unity.InternalAPIEngineBridge.011.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Jobs">
-      <HintPath>BaSAssemblies\Unity.Jobs.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.ARKitFaceCapture">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.ARKitFaceCapture.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.CompanionApp">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.CompanionApp.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.Ltc">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.Ltc.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.Mocap">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.Mocap.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.Networking">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.Ntp">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.Ntp.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.Rendering">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.Rendering.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.TransformCapture">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.TransformCapture.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.VideoStreaming.Server">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.VideoStreaming.Server.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.LiveCapture.VirtualCamera">
-      <HintPath>BaSAssemblies\Unity.LiveCapture.VirtualCamera.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Mathematics">
       <HintPath>BaSAssemblies\Unity.Mathematics.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.MemoryProfiler">
-      <HintPath>BaSAssemblies\Unity.MemoryProfiler.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Polybrush">
-      <HintPath>BaSAssemblies\Unity.Polybrush.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Recorder">
-      <HintPath>BaSAssemblies\Unity.Recorder.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Recorder.Base">
-      <HintPath>BaSAssemblies\Unity.Recorder.Base.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipeline.Universal.ShaderLibrary">
-      <HintPath>BaSAssemblies\Unity.RenderPipeline.Universal.ShaderLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Runtime">
       <HintPath>BaSAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
@@ -804,62 +514,17 @@
     <Reference Include="Unity.ResourceManager">
       <HintPath>BaSAssemblies\Unity.ResourceManager.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.ScriptableBuildPipeline">
-      <HintPath>BaSAssemblies\Unity.ScriptableBuildPipeline.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Splines">
-      <HintPath>BaSAssemblies\Unity.Splines.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Subsystem.Registration">
-      <HintPath>BaSAssemblies\Unity.Subsystem.Registration.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>BaSAssemblies\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Timeline">
-      <HintPath>BaSAssemblies\Unity.Timeline.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.VisualEffectGraph.Runtime">
-      <HintPath>BaSAssemblies\Unity.VisualEffectGraph.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.XR.CoreUtils">
-      <HintPath>BaSAssemblies\Unity.XR.CoreUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.XR.Interaction.Toolkit">
-      <HintPath>BaSAssemblies\Unity.XR.Interaction.Toolkit.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.XR.Management">
-      <HintPath>BaSAssemblies\Unity.XR.Management.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.XR.MockHMD">
-      <HintPath>BaSAssemblies\Unity.XR.MockHMD.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.XR.Oculus">
-      <HintPath>BaSAssemblies\Unity.XR.Oculus.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.XR.OpenVR">
-      <HintPath>BaSAssemblies\Unity.XR.OpenVR.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.XR.PICO">
-      <HintPath>BaSAssemblies\Unity.XR.PICO.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>BaSAssemblies\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.AccessibilityModule">
-      <HintPath>BaSAssemblies\UnityEngine.AccessibilityModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>BaSAssemblies\UnityEngine.AIModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.AndroidJNIModule">
-      <HintPath>BaSAssemblies\UnityEngine.AndroidJNIModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.AnimationModule">
       <HintPath>BaSAssemblies\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ARModule">
-      <HintPath>BaSAssemblies\UnityEngine.ARModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
       <HintPath>BaSAssemblies\UnityEngine.AssetBundleModule.dll</HintPath>
@@ -870,119 +535,14 @@
     <Reference Include="UnityEngine.ClothModule">
       <HintPath>BaSAssemblies\UnityEngine.ClothModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.ClusterInputModule">
-      <HintPath>BaSAssemblies\UnityEngine.ClusterInputModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ClusterRendererModule">
-      <HintPath>BaSAssemblies\UnityEngine.ClusterRendererModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>BaSAssemblies\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CrashReportingModule">
-      <HintPath>BaSAssemblies\UnityEngine.CrashReportingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.DirectorModule">
-      <HintPath>BaSAssemblies\UnityEngine.DirectorModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.DSPGraphModule">
-      <HintPath>BaSAssemblies\UnityEngine.DSPGraphModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.GameCenterModule">
-      <HintPath>BaSAssemblies\UnityEngine.GameCenterModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.GIModule">
-      <HintPath>BaSAssemblies\UnityEngine.GIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.GridModule">
-      <HintPath>BaSAssemblies\UnityEngine.GridModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.HotReloadModule">
-      <HintPath>BaSAssemblies\UnityEngine.HotReloadModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>BaSAssemblies\UnityEngine.ImageConversionModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>BaSAssemblies\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>BaSAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.InputModule">
-      <HintPath>BaSAssemblies\UnityEngine.InputModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>BaSAssemblies\UnityEngine.JSONSerializeModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.LocalizationModule">
-      <HintPath>BaSAssemblies\UnityEngine.LocalizationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.NVIDIAModule">
-      <HintPath>BaSAssemblies\UnityEngine.NVIDIAModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
       <HintPath>BaSAssemblies\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.PerformanceReportingModule">
-      <HintPath>BaSAssemblies\UnityEngine.PerformanceReportingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Physics2DModule">
-      <HintPath>BaSAssemblies\UnityEngine.Physics2DModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>BaSAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ProfilerModule">
-      <HintPath>BaSAssemblies\UnityEngine.ProfilerModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule">
-      <HintPath>BaSAssemblies\UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ScreenCaptureModule">
-      <HintPath>BaSAssemblies\UnityEngine.ScreenCaptureModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.SharedInternalsModule">
-      <HintPath>BaSAssemblies\UnityEngine.SharedInternalsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.SpatialTracking">
-      <HintPath>BaSAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.SpriteMaskModule">
-      <HintPath>BaSAssemblies\UnityEngine.SpriteMaskModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.SpriteShapeModule">
-      <HintPath>BaSAssemblies\UnityEngine.SpriteShapeModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.StreamingModule">
-      <HintPath>BaSAssemblies\UnityEngine.StreamingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.SubstanceModule">
-      <HintPath>BaSAssemblies\UnityEngine.SubstanceModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.SubsystemsModule">
-      <HintPath>BaSAssemblies\UnityEngine.SubsystemsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TerrainModule">
-      <HintPath>BaSAssemblies\UnityEngine.TerrainModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TerrainPhysicsModule">
-      <HintPath>BaSAssemblies\UnityEngine.TerrainPhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextCoreFontEngineModule">
-      <HintPath>BaSAssemblies\UnityEngine.TextCoreFontEngineModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextCoreTextEngineModule">
-      <HintPath>BaSAssemblies\UnityEngine.TextCoreTextEngineModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>BaSAssemblies\UnityEngine.TextRenderingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TilemapModule">
-      <HintPath>BaSAssemblies\UnityEngine.TilemapModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TLSModule">
-      <HintPath>BaSAssemblies\UnityEngine.TLSModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>BaSAssemblies\UnityEngine.UI.dll</HintPath>
@@ -996,86 +556,8 @@
     <Reference Include="UnityEngine.UIModule">
       <HintPath>BaSAssemblies\UnityEngine.UIModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UmbraModule">
-      <HintPath>BaSAssemblies\UnityEngine.UmbraModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UNETModule">
-      <HintPath>BaSAssemblies\UnityEngine.UNETModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityAnalyticsCommonModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityAnalyticsCommonModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityAnalyticsModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityAnalyticsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityConnectModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityConnectModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityCurlModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityCurlModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityTestProtocolModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityTestProtocolModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityWebRequestModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestTextureModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestWWWModule">
-      <HintPath>BaSAssemblies\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.VehiclesModule">
-      <HintPath>BaSAssemblies\UnityEngine.VehiclesModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.VFXModule">
-      <HintPath>BaSAssemblies\UnityEngine.VFXModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.VideoModule">
       <HintPath>BaSAssemblies\UnityEngine.VideoModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.VirtualTexturingModule">
-      <HintPath>BaSAssemblies\UnityEngine.VirtualTexturingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.VRModule">
-      <HintPath>BaSAssemblies\UnityEngine.VRModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.WindModule">
-      <HintPath>BaSAssemblies\UnityEngine.WindModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.XR.LegacyInputHelpers">
-      <HintPath>BaSAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.XRModule">
-      <HintPath>BaSAssemblies\UnityEngine.XRModule.dll</HintPath>
-    </Reference>
-    <Reference Include="Valve.Newtonsoft.Json">
-      <HintPath>BaSAssemblies\Valve.Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Viveport">
-      <HintPath>BaSAssemblies\Viveport.dll</HintPath>
-    </Reference>
-    <Reference Include="VLB">
-      <HintPath>BaSAssemblies\VLB.dll</HintPath>
-    </Reference>
-    <Reference Include="VoiceSDK.Dictation.Runtime">
-      <HintPath>BaSAssemblies\VoiceSDK.Dictation.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="VoiceSDK.Runtime">
-      <HintPath>BaSAssemblies\VoiceSDK.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="VolumetricAudio">
-      <HintPath>BaSAssemblies\VolumetricAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="VRKB">
-      <HintPath>BaSAssemblies\VRKB.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using ThunderRoad;
@@ -156,41 +157,43 @@ namespace GhettosFirearmSDKv2
             {
                 if (point.gameObject.activeInHierarchy)
                 {
-                    AddPoint(point, parentFirearm.icon, point.id);
-                    if (point.currentAttachment != null) FromAttachment(point.currentAttachment);
+                    AddPoint(point, parentFirearm.item.data?.iconAddress, point.id);
+                    point.currentAttachments.ForEach(AddSlotsFromAttachment);
                 }
             }
         }
 
-        private void FromAttachment(Attachment attachment)
+        private void AddSlotsFromAttachment(Attachment attachment)
         {
             foreach (AttachmentPoint point in attachment.attachmentPoints)
             {
                 if (point.gameObject.activeInHierarchy)
                 {
-                    AddPoint(point, attachment.icon, point.id);
-                    if (point.currentAttachment != null) FromAttachment(point.currentAttachment);
+                    AddPoint(point, attachment.Data.iconAddress, point.id);
+                    point.currentAttachments.ForEach(AddSlotsFromAttachment);
                 }
             }
         }
 
-        public void AddPoint(AttachmentPoint slot, Texture icon, string name)
+        private void AddPoint(AttachmentPoint slot, string iconAddress, string name)
         {
-            GameObject obj = Instantiate(slotButtonPrefab);
-            obj.transform.SetParent(slotContentReference);
+            GameObject obj = Instantiate(slotButtonPrefab, slotContentReference, true);
             obj.transform.localScale = Vector3.one;
             obj.transform.localEulerAngles = Vector3.zero;
             obj.transform.localPosition = Vector3.zero;
             obj.SetActive(true);
 
             ViceUIAttachmentSlot slotUIElement = obj.GetComponent<ViceUIAttachmentSlot>();
+            Catalog.LoadAssetAsync<Texture2D>(iconAddress, t =>
+            {
+                slotUIElement.image.texture = t;
+            }, "Vice UI Attachment Point Icon Loader");
             slotUIElement.slotName.text = name;
-            slotUIElement.image.texture = icon;
-            if (slot.currentAttachment != null)
+            if (slot.currentAttachments.Any())
             {
                 slotUIElement.selectedAttachmentBackground.enabled = true;
                 slotUIElement.selectedAttachmentIcon.enabled = true;
-                Catalog.LoadAssetAsync<Texture2D>(slot.currentAttachment.data.iconAddress, tex =>
+                Catalog.LoadAssetAsync<Texture2D>(slot.currentAttachments.First().Data.iconAddress, tex =>
                 {
                     slotUIElement.selectedAttachmentIcon.texture = tex;
                 }, "ViceUI");
@@ -228,15 +231,20 @@ namespace GhettosFirearmSDKv2
             }
             else attach.icon.texture = icon;
 
-            if (currentSlot != null && currentSlot.currentAttachment != null && attach.id.Equals(currentSlot.currentAttachment.data.id)) attach.rim.enabled = true;
-            else attach.rim.enabled = false;
+            if (currentSlot != null && currentSlot.currentAttachments.Any() && attach.id.Equals(currentSlot.currentAttachments.First().Data.id))
+                attach.rim.enabled = true;
+            else
+                attach.rim.enabled = false;
             PositionCategories();
         }
 
         public void SetCurrentSlot(AttachmentPoint point)
         {
             currentSlot = point;
-            SetupAttachmentList(point.type, point.alternateTypes);
+            if (!point.usesRail)
+                SetupAttachmentList(point.type, point.alternateTypes);
+            else
+                SetupAttachmentList(point.railType, null);
         }
 
         public void PositionCategories()
@@ -335,10 +343,14 @@ namespace GhettosFirearmSDKv2
 
         private bool TypeMatch(string type, List<string> alternateTypes, AttachmentData data)
         {
-            if (data.type.Equals(type)) return true;
+            if (data.type.Equals(type))
+                return true;
+            if (alternateTypes == null || !alternateTypes.Any())
+                return false;
             foreach (string s in alternateTypes)
             {
-                if (data.type.Equals(s)) return true;
+                if (data.type.Equals(s))
+                    return true;
             }
             return false;
         }
@@ -352,7 +364,11 @@ namespace GhettosFirearmSDKv2
         public void SpawnAttachment(string id)
         {
             currentSlot.parentFirearm.item.lastInteractionTime = Time.time;
-            if (currentSlot.currentAttachment != null) currentSlot.currentAttachment.Detach();
+            for (int i = 0; i < currentSlot.currentAttachments.Count; i++)
+            {
+                currentSlot.currentAttachments[0].Detach();
+            }
+            
             if (!id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING"))
                 Catalog.GetData<AttachmentData>(Util.GetSubstituteId(id, "Vice UI")).SpawnAndAttach(currentSlot);
             foreach (ViceUIAttachment att in attachmentButtons)
@@ -363,6 +379,12 @@ namespace GhettosFirearmSDKv2
                     att.rim.enabled = false;
             }
             StartCoroutine(DelayedRefresh());
+        }
+
+        public void MoveAttachment(bool forwards)
+        {
+            if (currentSlot != null && currentSlot.currentAttachments.Any())
+                currentSlot.currentAttachments.First().MoveOnRail(forwards);
         }
     }
 }

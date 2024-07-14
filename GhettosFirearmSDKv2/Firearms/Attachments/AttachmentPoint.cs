@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 
@@ -11,27 +12,34 @@ namespace GhettosFirearmSDKv2
         public List<string> alternateTypes;
         public string id;
         public Firearm parentFirearm;
-        public Attachment currentAttachment;
+        public List<Attachment> currentAttachments = new();
         public string defaultAttachment;
         public GameObject disableOnAttach;
         public GameObject enableOnAttach;
         public Attachment attachment;
         public List<Collider> attachColliders;
 
+        [Space]
+        public bool usesRail;
+        public string railType;
+        public List<Transform> railSlots;
+
         private void Start()
         {
-            StartCoroutine(Alert());
+            if (FirearmsSettings.debugMode)
+                StartCoroutine(Alert());
             Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime + 0.01f);
         }
 
         private void InvokedStart()
         {
-            parentFirearm.OnCollisionEvent += ParentFirearm_OnCollisionEvent;
+            if (parentFirearm != null)
+                parentFirearm.OnCollisionEvent += ParentFirearm_OnCollisionEvent;
         }
 
         private void ParentFirearm_OnCollisionEvent(Collision collision)
         {
-            if (currentAttachment == null && collision.contacts[0].otherCollider.gameObject.GetComponentInParent<AttachableItem>() is AttachableItem ati)
+            if (!currentAttachments.Any() && collision.contacts[0].otherCollider.gameObject.GetComponentInParent<AttachableItem>() is AttachableItem ati)
             {
                 if ((ati.attachmentType.Equals(type) || alternateTypes.Contains(ati.attachmentType)) && Util.CheckForCollisionWithColliders(attachColliders, ati.attachColliders, collision))
                 {
@@ -51,12 +59,13 @@ namespace GhettosFirearmSDKv2
         public List<Attachment> GetAllChildAttachments()
         {
             List<Attachment> list = new List<Attachment>();
-            if (currentAttachment == null) return list;
-            foreach (AttachmentPoint point in currentAttachment.attachmentPoints)
+            if (!currentAttachments.Any())
+                return list;
+            foreach (AttachmentPoint point in currentAttachments.SelectMany(x => x.attachmentPoints))
             {
                 list.AddRange(point.GetAllChildAttachments());
             }
-            list.Add(currentAttachment);
+            list.AddRange(currentAttachments);
             return list;
         }
 
@@ -80,6 +89,11 @@ namespace GhettosFirearmSDKv2
                 }
                 Debug.Log("Not initialized! Name: " + name + "\n" + parentFound);
             }
+
+            if (gameObject.name.Equals("mod_muzzle") && !attachColliders.Any())
+            {
+                Debug.Log($"Muzzle on {attachment.gameObject.name} does not have any attach colliders!");
+            }
         }
 
         public void SpawnDefaultAttachment()
@@ -94,13 +108,17 @@ namespace GhettosFirearmSDKv2
         {
             if (disableOnAttach != null)
             {
-                if (currentAttachment == null && !disableOnAttach.activeInHierarchy) disableOnAttach.SetActive(true);
-                else if (currentAttachment != null && disableOnAttach.activeInHierarchy) disableOnAttach.SetActive(false);
+                if (!currentAttachments.Any() && !disableOnAttach.activeInHierarchy)
+                    disableOnAttach.SetActive(true);
+                else if (currentAttachments.Any() && disableOnAttach.activeInHierarchy)
+                    disableOnAttach.SetActive(false);
             }
             if (enableOnAttach != null)
             {
-                if (currentAttachment != null && !enableOnAttach.activeInHierarchy) enableOnAttach.SetActive(true);
-                else if (currentAttachment == null && enableOnAttach.activeInHierarchy) enableOnAttach.SetActive(false);
+                if (currentAttachments.Any() && !enableOnAttach.activeInHierarchy)
+                    enableOnAttach.SetActive(true);
+                else if (!currentAttachments.Any() && enableOnAttach.activeInHierarchy)
+                    enableOnAttach.SetActive(false);
             }
         }
 

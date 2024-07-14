@@ -68,7 +68,10 @@ namespace GhettosFirearmSDKv2
                 }
                 else
                 {
-                    icon.sprite = Sprite.Create((Texture2D) firearm.icon, new Rect(0, 0, firearm.icon.width, firearm.icon.height), new Vector2(0.5f, 0.5f));
+                    Catalog.LoadAssetAsync<Texture2D>(firearm.item.data.iconAddress, t =>
+                    {
+                        icon.sprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), new Vector2(0.5f, 0.5f));
+                    }, "HUD Module Held Weapon");
                 }
             }
             else if (GetHeldFirearm() == null)

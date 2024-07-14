@@ -21,7 +21,7 @@ namespace GhettosFirearmSDKv2
         public void InvokedStart()
         {
             if (!disableMainFireHandle) mainFireHandle = fireHandle;
-            item = attachment.transform.parent.GetComponent<AttachmentPoint>().parentFirearm.item;
+            item = attachment.GetComponentInParent<AttachmentPoint>().parentFirearm.item;
             attachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;
             attachment.attachmentPoint.parentFirearm.item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             attachment.OnHeldActionEvent += Item_OnHeldActionEvent;

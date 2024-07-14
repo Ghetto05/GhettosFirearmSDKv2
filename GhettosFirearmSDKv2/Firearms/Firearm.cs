@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using ThunderRoad;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace GhettosFirearmSDKv2
 {
     public class Firearm : FirearmBase
     {
+        #region TheftPrevention
+
+        public bool GhettoMade_23103012730712037091283 = false;
+
+        #endregion
         public List<AttachmentPoint> attachmentPoints;
         public List<Attachment> allAttachments;
         public Texture icon;
@@ -20,7 +23,8 @@ namespace GhettosFirearmSDKv2
         {
             List<Handle> hs = new List<Handle>();
             hs.AddRange(additionalTriggerHandles);
-            if (disableMainFireHandle) return hs;
+            if (disableMainFireHandle || item == null || item.mainHandleLeft == null)
+                return hs;
             hs.Add(item.mainHandleLeft);
             return hs;
         }
@@ -40,6 +44,16 @@ namespace GhettosFirearmSDKv2
 
         public override void Start()
         {
+            #region TheftPrevention
+
+            if (!GhettoMade_23103012730712037091283)
+            {
+                Debug.LogError($"No you don't. ({item.data.id})");
+                Application.Quit();
+            }
+
+            #endregion
+
             base.Start();
             if (attachmentPoints.Count == 0 || attachmentPoints.Any(a => a == null))
             {
@@ -68,7 +82,7 @@ namespace GhettosFirearmSDKv2
             item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             allAttachments = new List<Attachment>();
-            OnAIFire = AIFire;
+            fireEvent.AddListener(AIFire);
             foreach (AttachmentPoint ap in attachmentPoints)
             {
                 ap.parentFirearm = this;
@@ -85,20 +99,6 @@ namespace GhettosFirearmSDKv2
             saveData.ApplyToFirearm(this);
             CalculateMuzzle();
 
-            #region load icon
-            Addressables.LoadAssetAsync<Texture>(item.data.iconAddress).Completed += (handle =>
-            {
-                if (handle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    icon = handle.Result;
-                }
-                else
-                {
-                    Debug.LogWarning("Unable to load icon texture from location " + item.data.iconAddress);
-                    Addressables.Release(handle);
-                }
-            });
-            #endregion load icon
             #region handle type validation
             if (FirearmsSettings.debugMode)
             {
@@ -148,10 +148,10 @@ namespace GhettosFirearmSDKv2
         {
             foreach (AttachmentPoint point in points)
             {
-                if (point.currentAttachment != null)
+                if (point.currentAttachments.Any())
                 {
-                    allAttachments.Add(point.currentAttachment);
-                    AddAttachments(point.currentAttachment.attachmentPoints);
+                    allAttachments.AddRange(point.currentAttachments);
+                    AddAttachments(point.currentAttachments.SelectMany(x => x.attachmentPoints).ToList());
                 }
             }
         }
@@ -162,8 +162,8 @@ namespace GhettosFirearmSDKv2
             if (item.holder != null)
             {
                 Holder h = item.holder;
-                item.holder.UnSnap(item, true, false);
-                h.Snap(item, true, false);
+                item.holder.UnSnap(item, true);
+                h.Snap(item, true);
             }
         }
 
@@ -216,21 +216,20 @@ namespace GhettosFirearmSDKv2
             base.CalculateMuzzle();
         }
 
-        public bool AIFire(AIFireable fireAble, RagdollHand hand, bool finished)
+        public void AIFire()
         {
             if (fireMode == FireModes.Safe && GetComponentInChildren<FiremodeSelector>() is FiremodeSelector fs)
                 fs.CycleFiremode();
-            StartCoroutine(AIFireCoroutine(hand));
-            return true;
+            StartCoroutine(AIFireCoroutine());
         }
 
-        private IEnumerator AIFireCoroutine(RagdollHand hand)
+        private IEnumerator AIFireCoroutine()
         {
-            Item_OnHeldActionEvent(hand, item.GetMainHandle(hand.side), Interactable.Action.UseStart);
+            Item_OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStart);
             if (fireMode == FireModes.Semi) yield return new WaitForSeconds(0.2f);
             if (fireMode == FireModes.Burst) yield return new WaitForSeconds(0.4f);
             if (fireMode == FireModes.Auto) yield return new WaitForSeconds(Random.Range(0.2f, 1.3f));
-            Item_OnHeldActionEvent(hand, item.GetMainHandle(hand.side), Interactable.Action.UseStop);
+            Item_OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStop);
         }
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)

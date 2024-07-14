@@ -141,7 +141,7 @@ namespace GhettosFirearmSDKv2
             else
             {
                 AttachmentFirearm f = (AttachmentFirearm)firearm;
-                node = f.attachment.node;
+                node = f.attachment.Node;
             }
 
             if (node != null)

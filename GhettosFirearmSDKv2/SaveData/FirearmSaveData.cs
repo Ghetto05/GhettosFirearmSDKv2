@@ -28,13 +28,14 @@ namespace GhettosFirearmSDKv2
             else
             {
                 AttachmentFirearm f = (AttachmentFirearm)firearm;
-                return f.attachment.node;
+                return f.attachment.Node;
             }
         }
 
         public class AttachmentTreeNode
         {
             public string slot;
+            public int slotPosition;
             public string attachmentId;
             public List<AttachmentTreeNode> childs;
             public List<SaveNodeValue> values;
