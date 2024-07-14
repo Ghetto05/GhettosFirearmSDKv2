@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
         public AttachmentPoint attachmentPoint;
         public List<AttachmentPoint> attachmentPoints;
         public List<Handle> handles;
-        public AttachmentData data;
+        public AttachmentData Data;
         public ColliderGroup colliderGroup;
         public List<ColliderGroup> alternateGroups;
         public List<string> alternateGroupsIds;
@@ -41,7 +41,8 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (attachmentPoint != null && attachmentPoint.parentFirearm != null && attachmentPoint.parentFirearm.item != null) Hide(!attachmentPoint.parentFirearm.item.renderers[0].enabled);
+            if (attachmentPoint != null && attachmentPoint.parentFirearm != null && attachmentPoint.parentFirearm.item != null)
+                Hide(!attachmentPoint.parentFirearm.item.renderers[0].enabled);
         }
 
         public void Hide(bool hidden)
@@ -55,7 +56,7 @@ namespace GhettosFirearmSDKv2
 
         public void Initialize(FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
-            if (thisNode != null) node = thisNode;
+            if (thisNode != null) Node = thisNode;
             renderers = new List<Renderer>();
             decals = new List<RevealDecal>();
             foreach (Renderer ren in gameObject.GetComponentsInChildren<Renderer>(true))
@@ -69,9 +70,7 @@ namespace GhettosFirearmSDKv2
                 if (!attachmentPoint.parentFirearm.item.revealDecals.Contains(dec)) attachmentPoint.parentFirearm.item.revealDecals.Add(dec);
             }
             try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); };
-            transform.parent = attachmentPoint.transform;
-            transform.localPosition = Vector3.zero;
-            transform.localEulerAngles = Vector3.zero;
+            transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             foreach (AttachmentPoint ap in attachmentPoints)
             {
                 ap.parentFirearm = attachmentPoint.parentFirearm;
@@ -88,10 +87,10 @@ namespace GhettosFirearmSDKv2
                     if (!handles.Contains(h)) Debug.LogWarning("Handle " + h.gameObject.name + " is not in the handle list of the attachment " + gameObject.name + "!");
                 }
             }
-            Catalog.LoadAssetAsync<Texture2D>(data.iconAddress, tex =>
+            Catalog.LoadAssetAsync<Texture2D>(Data.iconAddress, tex =>
             {
                 icon = tex;
-            }, "Attachment_" + data.id);
+            }, "Attachment_" + Data.id);
             if (thisNode != null) ApplyNode();
             foreach (UnityEvent eve in OnAttachEvents)
             {
@@ -150,7 +149,7 @@ namespace GhettosFirearmSDKv2
 
         private void ApplyNode()
         {
-            foreach (FirearmSaveData.AttachmentTreeNode n in node.childs)
+            foreach (FirearmSaveData.AttachmentTreeNode n in Node.childs)
             {
                 AttachmentPoint point = GetSlotFromId(n.slot);
                 Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.attachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, n);
@@ -181,8 +180,8 @@ namespace GhettosFirearmSDKv2
             if (attachmentPoint != null && attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.item.OnHeldActionEvent -= InvokeHeldAction;
             OnDetachEvent?.Invoke(despawnDetach);
             if (despawnDetach) return;
-            if (attachmentPoint.attachment != null) attachmentPoint.attachment.node.childs.Remove(node);
-            else if (attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.saveData.firearmNode.childs.Remove(node);
+            if (attachmentPoint.attachment != null) attachmentPoint.attachment.Node.childs.Remove(Node);
+            else if (attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.saveData.firearmNode.childs.Remove(Node);
             foreach (UnityEvent eve in OnDetachEvents)
             {
                 eve.Invoke();
