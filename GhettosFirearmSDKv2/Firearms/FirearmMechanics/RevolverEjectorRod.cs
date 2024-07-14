@@ -18,8 +18,8 @@ namespace GhettosFirearmSDKv2
         {
             InitializeJoint();
             revolver.firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
-            revolver.onClose += Revolver_onClose;
-            revolver.onOpen += Revolver_onOpen;
+            revolver.OnClose += Revolver_onClose;
+            revolver.OnOpen += Revolver_onOpen;
             revolver.useGravityEject = false;
             rigidBody.gameObject.AddComponent<CollisionRelay>().onCollisionEnterEvent += revolver.OnCollisionEvent;
             Util.IgnoreCollision(axis.gameObject, revolver.firearm.gameObject, true);
