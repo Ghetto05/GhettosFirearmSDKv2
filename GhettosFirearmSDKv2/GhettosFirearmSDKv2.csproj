@@ -35,7 +35,6 @@
     <Compile Include="AI\Loot\LootTableOverride.cs" />
     <Compile Include="AI\Loot\PrebuiltEquipmentSpawner.cs" />
     <Compile Include="Chemicals\DartBehavoirs.cs" />
-    <Compile Include="Clothing\AxonBodyThree.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs" />
     <Compile Include="Clothing\HUD\HUD.cs" />
     <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
