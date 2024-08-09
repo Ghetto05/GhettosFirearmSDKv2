@@ -235,31 +235,18 @@
     <Compile Include="WTFInator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="BaSAssemblies\arcade_success.dll" />
     <Content Include="BaSAssemblies\Assembly-CSharp-firstpass.dll" />
     <Content Include="BaSAssemblies\Assembly-CSharp.dll" />
-    <Content Include="BaSAssemblies\AssistantCoreSDKRuntime.dll" />
     <Content Include="BaSAssemblies\Autodesk.Fbx.dll" />
     <Content Include="BaSAssemblies\BetterStreamingAssets.dll" />
     <Content Include="BaSAssemblies\Bhaptics.SDK2.dll" />
     <Content Include="BaSAssemblies\Cinemachine.dll" />
-    <Content Include="BaSAssemblies\Crest.dll" />
     <Content Include="BaSAssemblies\CW.Common.dll" />
     <Content Include="BaSAssemblies\EasyButtons.dll" />
-    <Content Include="BaSAssemblies\Facebook.Wit.Dictation.dll" />
     <Content Include="BaSAssemblies\FbxBuildTestAssets.dll" />
     <Content Include="BaSAssemblies\IngameDebugConsole.Runtime.dll" />
     <Content Include="BaSAssemblies\Ionic.Zip.Unity.dll" />
-    <Content Include="BaSAssemblies\JBooth.BetterLitShader.Scripts.dll" />
-    <Content Include="BaSAssemblies\JBooth.BetterShaders.Samples.dll" />
     <Content Include="BaSAssemblies\LIV.dll" />
-    <Content Include="BaSAssemblies\Meta.VoiceSDK.Mic.Common.dll" />
-    <Content Include="BaSAssemblies\Meta.VoiceSDK.Mic.Other.dll" />
-    <Content Include="BaSAssemblies\Meta.WitAi.Conduit.dll" />
-    <Content Include="BaSAssemblies\Meta.WitAi.dll" />
-    <Content Include="BaSAssemblies\Meta.WitAi.Lib.dll" />
-    <Content Include="BaSAssemblies\Meta.WitAi.TTS.dll" />
-    <Content Include="BaSAssemblies\Meta.WitAi.TTS.Samples.dll" />
     <Content Include="BaSAssemblies\modio.UI.dll" />
     <Content Include="BaSAssemblies\modio.UnityPlugin.dll" />
     <Content Include="BaSAssemblies\Mono.Security.dll" />
@@ -273,12 +260,9 @@
     <Content Include="BaSAssemblies\Oculus.LipSync.dll" />
     <Content Include="BaSAssemblies\Oculus.Platform.dll" />
     <Content Include="BaSAssemblies\Oculus.Spatializer.dll" />
-    <Content Include="BaSAssemblies\Oculus.Voice.Demo.dll" />
     <Content Include="BaSAssemblies\Oculus.VR.dll" />
     <Content Include="BaSAssemblies\PerfectCulling.dll" />
     <Content Include="BaSAssemblies\PICO.Platform.dll" />
-    <Content Include="BaSAssemblies\Pico.Spatializer.dll" />
-    <Content Include="BaSAssemblies\Pico.Spatializer.Example.dll" />
     <Content Include="BaSAssemblies\RainyReignGames.Collections.dll" />
     <Content Include="BaSAssemblies\RainyReignGames.Dismemberment.dll" />
     <Content Include="BaSAssemblies\RainyReignGames.Expresssions.dll" />
@@ -290,8 +274,6 @@
     <Content Include="BaSAssemblies\Sirenix.Serialization.Config.dll" />
     <Content Include="BaSAssemblies\Sirenix.Serialization.dll" />
     <Content Include="BaSAssemblies\Sirenix.Utilities.dll" />
-    <Content Include="BaSAssemblies\SpaceGraphicsToolkit.dll" />
-    <Content Include="BaSAssemblies\SpaceGraphicsToolkit.Terrain.dll" />
     <Content Include="BaSAssemblies\SteamVR.dll" />
     <Content Include="BaSAssemblies\SteamVR_Actions.dll" />
     <Content Include="BaSAssemblies\Steamworks.NET.dll" />
@@ -360,7 +342,6 @@
     <Content Include="BaSAssemblies\Unity.ResourceManager.dll" />
     <Content Include="BaSAssemblies\Unity.ScriptableBuildPipeline.dll" />
     <Content Include="BaSAssemblies\Unity.Splines.dll" />
-    <Content Include="BaSAssemblies\Unity.Subsystem.Registration.dll" />
     <Content Include="BaSAssemblies\Unity.TextMeshPro.dll" />
     <Content Include="BaSAssemblies\Unity.Timeline.dll" />
     <Content Include="BaSAssemblies\Unity.VisualEffectGraph.Runtime.dll" />
@@ -445,8 +426,6 @@
     <Content Include="BaSAssemblies\Valve.Newtonsoft.Json.dll" />
     <Content Include="BaSAssemblies\Viveport.dll" />
     <Content Include="BaSAssemblies\VLB.dll" />
-    <Content Include="BaSAssemblies\VoiceSDK.Dictation.Runtime.dll" />
-    <Content Include="BaSAssemblies\VoiceSDK.Runtime.dll" />
     <Content Include="BaSAssemblies\VolumetricAudio.dll" />
     <Content Include="BaSAssemblies\VRKB.dll" />
   </ItemGroup>
