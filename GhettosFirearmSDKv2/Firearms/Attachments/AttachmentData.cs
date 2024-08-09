@@ -31,7 +31,12 @@ namespace GhettosFirearmSDKv2
             return Catalog.GetDataList<AttachmentData>().Where(d => d.type.Equals(requestedType)).OrderBy(d => d.displayName).ToList();
         }
 
-        public void SpawnAndAttach(AttachmentPoint point, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
+        public void SpawnAndAttach(AttachmentPoint point, int? railPosition = null, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
+        {
+            SpawnAndAttach(point, _ => { }, railPosition, thisNode, initialSetup);
+        }
+
+        public void SpawnAndAttach(AttachmentPoint point, Action<Attachment> callback, int? railPosition = null, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
             if (point == null)
             {
@@ -39,15 +44,25 @@ namespace GhettosFirearmSDKv2
                     Debug.LogError("Tried to attach attachment to no point!");
                 return;
             }
-
-            var target = !point.usesRail ? point.transform : point.railSlots != null ? thisNode != null ? point.railSlots[thisNode.slotPosition] : point.railSlots[(point.railSlots.Count - 1) / 2] : point.transform;
+            
+            var target = !point.usesRail ?
+                point.transform :
+                point.railSlots != null ?
+                    thisNode != null ?
+                        point.railSlots[thisNode.slotPosition] :
+                        railPosition != null ?
+                            point.railSlots[railPosition.Value] :
+                            point.railSlots[0] :
+                    point.transform;
+            
             if (point.usesRail && target == point.transform&& thisNode != null)
                 Debug.LogError($"Couldn't use rail points on point '{point.name}' on attachment '{id}'!");
+            
             Addressables.InstantiateAsync(prefabAddress, target.position, target.rotation, target, false).Completed += (handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
-                    Attachment attachment = handle.Result.GetComponent<Attachment>();
+                    var attachment = handle.Result.GetComponent<Attachment>();
                     attachment.AssetLoadHandle = handle;
                     point.currentAttachments.Add(attachment);
                     attachment.Data = this;
@@ -67,6 +82,7 @@ namespace GhettosFirearmSDKv2
                         point.parentFirearm.saveData.firearmNode.childs.Add(attachment.Node);
                     attachment.Initialize(thisNode, initialSetup);
                     point.InvokeAttachmentAdded(attachment);
+                    callback?.Invoke(attachment);
                 }
                 else
                 {

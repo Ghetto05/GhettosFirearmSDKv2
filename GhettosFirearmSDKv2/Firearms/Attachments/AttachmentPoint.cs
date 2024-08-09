@@ -72,35 +72,27 @@ namespace GhettosFirearmSDKv2
         private IEnumerator Alert()
         {
             yield return new WaitForSeconds(1f);
+            
+            string parentFound;
+            if (GetComponentInParent<Attachment>() is { } a)
+                parentFound = "Attachment name: " + a.gameObject.name;
+            else if (GetComponentInParent<Firearm>() is { } f)
+                parentFound = "Firearm name: " + f.gameObject.name;
+            else
+                parentFound = "No parent firearm or attachment found!";
+            
             if (parentFirearm == null)
-            {
-                string parentFound = "";
-                if (GetComponentInParent<Attachment>() is Attachment a)
-                {
-                    parentFound = "Attachment name: " + a.gameObject.name;
-                }
-                else if (GetComponentInParent<Firearm>() is Firearm f)
-                {
-                    parentFound = "Firearm name: " + f.gameObject.name;
-                }
-                else
-                {
-                    parentFound = "No parent firearm or attachment found!";
-                }
                 Debug.Log("Not initialized! Name: " + name + "\n" + parentFound);
-            }
 
             if (gameObject.name.Equals("mod_muzzle") && !attachColliders.Any())
-            {
-                Debug.Log($"Muzzle on {attachment.gameObject.name} does not have any attach colliders!");
-            }
+                Debug.Log($"Muzzle on {parentFound} does not have any attach colliders!");
         }
 
         public void SpawnDefaultAttachment()
         {
             if (!string.IsNullOrEmpty(defaultAttachment))
             {
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(defaultAttachment, $"[Default attachment on point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this, null);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(defaultAttachment, $"[Default attachment on point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this);
             }
         }
 

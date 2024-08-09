@@ -184,6 +184,11 @@
     <Compile Include="UI\GunLocker\GunLockerUI.cs" />
     <Compile Include="UI\GunLocker\GunLockerUICategory.cs" />
     <Compile Include="UI\GunLocker\GunLockerUISave.cs" />
+    <Compile Include="UI\GunViceV2\UIAttachment.cs" />
+    <Compile Include="UI\GunViceV2\UIAttachmentCategory.cs" />
+    <Compile Include="UI\GunViceV2\UIRailAttachment.cs" />
+    <Compile Include="UI\GunViceV2\UISlot.cs" />
+    <Compile Include="UI\GunViceV2\ViceUI.cs" />
     <Compile Include="UI\SettingsPanel\ScoreWindow.cs" />
     <Compile Include="Util\AdditionalFireSoundManager.cs" />
     <Compile Include="Other\BetterAudioLoader.cs" />

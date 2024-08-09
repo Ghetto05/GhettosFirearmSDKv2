@@ -25,7 +25,6 @@ namespace GhettosFirearmSDKv2
         public bool isSuppressing;
         public bool multiplyDamage;
         public float damageMultiplier;
-        public Texture2D icon;
         public string ColliderGroupId = "PropMetal";
         public bool overridesMuzzleFlash;
         public ParticleSystem newFlash;
@@ -90,10 +89,6 @@ namespace GhettosFirearmSDKv2
                     if (!handles.Contains(h)) Debug.LogWarning("Handle " + h.gameObject.name + " is not in the handle list of the attachment " + gameObject.name + "!");
                 }
             }
-            Catalog.LoadAssetAsync<Texture2D>(Data.iconAddress, tex =>
-            {
-                icon = tex;
-            }, "Attachment_" + Data.id);
             if (thisNode != null) ApplyNode();
             foreach (UnityEvent eve in OnAttachEvents)
             {
@@ -155,7 +150,7 @@ namespace GhettosFirearmSDKv2
             foreach (FirearmSaveData.AttachmentTreeNode n in Node.childs)
             {
                 AttachmentPoint point = GetSlotFromId(n.slot);
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.attachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, n);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.attachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, null, n);
             }
         }
 
@@ -239,7 +234,7 @@ namespace GhettosFirearmSDKv2
             if (!attachmentPoint.usesRail)
                 return;
 
-            if ((forwards && (!CheckForwardClearance() || !CheckForwardRailLength())) || (!forwards && (!CheckRearwardRailLength() || !CheckRearwardClearance())))
+            if ((forwards && RailPosition + Data.railLength >= attachmentPoint.railSlots.Count) || (!forwards && RailPosition == 0))
                 return;
 
             if (forwards)
@@ -250,6 +245,11 @@ namespace GhettosFirearmSDKv2
             UpdatePosition();
         }
 
+        public int RailPosition
+        {
+            get { return Node.slotPosition; }
+        }
+
         private void UpdatePosition()
         {
             if (!attachmentPoint.usesRail)
@@ -258,55 +258,6 @@ namespace GhettosFirearmSDKv2
             transform.SetParent(attachmentPoint.railSlots[Node.slotPosition]);
             transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
-
-        #region Rail Checks
-
-        /**
-         * Check if no attachments are immediately in front of this one
-         */
-        private bool CheckForwardClearance()
-        {
-            return !attachmentPoint.currentAttachments.Any(x => x.TakenUpSlots().Contains(Node.slotPosition + Data.railLength + Data.forwardClearance));
-        }
-
-        /**
-         * Check if rail is long enough to move forwards one slot
-         */
-        private bool CheckForwardRailLength()
-        {
-            return Node.slotPosition + Data.railLength >= attachmentPoint.railSlots.Count - 1;
-        }
-
-        /**
-         * Check if no attachments are immediately behind this one
-         */
-        private bool CheckRearwardClearance()
-        {
-            return !attachmentPoint.currentAttachments.Any(x => x.TakenUpSlots().Contains(Node.slotPosition - 1));
-        }
-
-        /**
-         * Check if rail is long enough to move back one slot
-         */
-        private bool CheckRearwardRailLength()
-        {
-            return Node.slotPosition > 0;
-        }
-
-        public int[] TakenUpSlots()
-        {
-            int start = Node.slotPosition - Data.rearwardClearance;
-            int end = Node.slotPosition + (Data.railLength - 1) + Data.forwardClearance;
-            
-            List<int> output = new List<int>();
-            for (var i = start; i <= end; i++)
-            {
-                output.Add(i);
-            }
-            return output.ToArray();
-        }
-
-        #endregion
 
         public AttachmentPoint GetSlotFromId(string id)
         {

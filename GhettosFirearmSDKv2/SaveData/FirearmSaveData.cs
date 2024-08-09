@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
             foreach (AttachmentTreeNode node in firearmNode.childs)
             {
                 AttachmentPoint point = firearm.GetSlotFromId(node.slot);
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(node.attachmentId, $"[Firearm save data - slot {node.slot} on {firearm.item?.data?.displayName} | {firearm.item?.itemId}]"))?.SpawnAndAttach(point, node, true);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(node.attachmentId, $"[Firearm save data - slot {node.slot} on {firearm.item?.data?.displayName} | {firearm.item?.itemId}]"))?.SpawnAndAttach(point, null, node, true);
             }
         }
 
@@ -62,13 +62,21 @@ namespace GhettosFirearmSDKv2
 
             public T GetOrAddValue<T>(string id, T newObject) where T : SaveNodeValue
             {
+                SaveNodeValue value = GetOrAddValue(id, newObject, out var addedNew);
+                return value as T;
+            }
+            
+            public T GetOrAddValue<T>(string id, T newObject, out bool addedNew) where T : SaveNodeValue
+            {
                 SaveNodeValue value;
                 if (TryGetValue(id, out value))
                 {
+                    addedNew = false;
                     return value as T;
                 }
                 else
                 {
+                    addedNew = true;
                     value = newObject;
                     value.id = id;
                     values.Add(value as T);
