@@ -33,12 +33,12 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(2)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0. Note: Firearms will never despawn up until 10 seconds after having spawned in.", saveValue = true, defaultValueIndex = 8, valueSourceName = nameof(FirearmsSettingsValues.firearmDespawnTimeValues), valueSourceType = typeof(FirearmsSettingsValues))]
-        public static float firearmDespawnTime = 0f;
+        [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0. Note: Firearms will never despawn up until 10 seconds after having spawned in.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.firearmDespawnTimeValues), valueSourceType = typeof(FirearmsSettingsValues))]
+        public static float firearmDespawnTime = 60f;
 
         [ModOptionOrder(3)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Long press (safety switch) time", tooltip = "Defines the amount of time you need to hold alternate use to switch fire modes.", saveValue = true, defaultValueIndex = 5)]
+        [ModOption(name = "Long press (safety switch) time", tooltip = "Defines the amount of time you need to hold alternate use to switch fire modes.", saveValue = true)]
         public static float longPressTime = 0.5f;
 
         [ModOptionOrder(4)]
@@ -53,32 +53,32 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(6)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, defaultValueIndex = 4, valueSourceName = nameof(FirearmsSettingsValues.triggerDisciplineTimers), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.triggerDisciplineTimers), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float triggerDisciplineTime = 3f;
 
         [ModOptionOrder(7)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like headbreaker. Has no impact on damage.", defaultValueIndex = 0, saveValue = true)]
+        [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like headbreaker. Has no impact on damage.", saveValue = true)]
         public static bool bulletsAreBlunt = false;
 
         [ModOptionOrder(8)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Play gas mask sounds", tooltip = "If enabled, wearing a gas mask will play a breathing sound", defaultValueIndex = 1, saveValue = true)]
-        public static bool playGasMaskSound = false;
+        [ModOption(name = "Play gas mask sounds", tooltip = "If enabled, wearing a gas mask will play a breathing sound",  saveValue = true)]
+        public static bool playGasMaskSound = true;
 
         [ModOptionOrder(9)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Explosions dismember", tooltip = "If enabled, any ragdoll part in that is caught in the center of an explosion will be ripped off.", defaultValueIndex = 0, saveValue = true)]
+        [ModOption(name = "Explosions dismember", tooltip = "If enabled, any ragdoll part in that is caught in the center of an explosion will be ripped off.", saveValue = true)]
         public static bool explosionsDismember = false;
 
         [ModOptionOrder(10)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Break actions only eject fired rounds", tooltip = "If enabled, break actions will only eject fired shells. Unfired ones can be ejected with the release button.", defaultValueIndex = 0, saveValue = true)]
+        [ModOption(name = "Break actions only eject fired rounds", tooltip = "If enabled, break actions will only eject fired shells. Unfired ones can be ejected with the release button.", saveValue = true)]
         public static bool breakActionsEjectOnlyFired = false;
 
         [ModOptionOrder(11)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Spawn workbench and locker", tooltip = "If enabled, the locker and workbench will spawn in the home", defaultValueIndex = 1, saveValue = true)]
+        [ModOption(name = "Spawn workbench and locker", tooltip = "If enabled, the locker and workbench will spawn in the home", saveValue = true)]
         public static bool SpawnWorkbenchAndLocker
         {
             get { return _spawnWorkbenchAndLocker; }
@@ -92,11 +92,11 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private static bool _spawnWorkbenchAndLocker;
+        private static bool _spawnWorkbenchAndLocker = true;
 
         [ModOptionOrder(12)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Hide update notifications", tooltip = "Hide popup notifications for updates.", defaultValueIndex = 0, saveValue = true)]
+        [ModOption(name = "Hide update notifications", tooltip = "Hide popup notifications for updates.", saveValue = true)]
         public static bool hideUpdateNotifications = false;
 
         #endregion
@@ -108,7 +108,7 @@ namespace GhettosFirearmSDKv2
         private static float _nvgForwardOffset;
         [ModOptionOrder(1)]
         [ModOptionCategory("NVG Offsets", 5)]
-        [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgForwardOffset
         {
             get { return _nvgForwardOffset; }
@@ -122,7 +122,7 @@ namespace GhettosFirearmSDKv2
         private static float _nvgUpwardOffset;
         [ModOptionOrder(2)]
         [ModOptionCategory("NVG Offsets", 5)]
-        [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgUpwardOffset
         {
             get { return _nvgUpwardOffset; }
@@ -136,7 +136,7 @@ namespace GhettosFirearmSDKv2
         private static float _nvgSidewaysOffset;
         [ModOptionOrder(3)]
         [ModOptionCategory("NVG Offsets", 5)]
-        [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+        [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgSidewaysOffset
         {
             get { return _nvgSidewaysOffset; }
@@ -169,32 +169,32 @@ namespace GhettosFirearmSDKv2
         
         [ModOptionOrder(1)]
         [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", defaultValueIndex = 3, saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.incapacitateOnTorsoShotTimers), valueSourceType = typeof(FirearmsSettingsValues))]
-        public static float incapacitateOnTorsoShot;
+        [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.incapacitateOnTorsoShotTimers), valueSourceType = typeof(FirearmsSettingsValues))]
+        public static float incapacitateOnTorsoShot = 30;
 
         [ModOptionOrder(2)]
         [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Infinite ammo", tooltip = "If enabled, magazines will refill as they are used and chamber loaders will not use up the loaded cartridge.", defaultValueIndex = 0, saveValue = true)]
+        [ModOption(name = "Infinite ammo", tooltip = "If enabled, magazines will refill as they are used and chamber loaders will not use up the loaded cartridge.", saveValue = true)]
         public static bool infiniteAmmo = false;
 
         [ModOptionOrder(3)]
         [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Caliber checks", tooltip = "If disabled, any magazine or chamber can be loaded with any caliber.", defaultValueIndex = 1, saveValue = true)]
+        [ModOption(name = "Caliber checks", tooltip = "If disabled, any magazine or chamber can be loaded with any caliber.", saveValue = true)]
         public static bool doCaliberChecks = true;
 
         [ModOptionOrder(4)]
         [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Magazine type checks", tooltip = "If disabled, magazine can be loaded into any firearm.", defaultValueIndex = 1, saveValue = true)]
+        [ModOption(name = "Magazine type checks", tooltip = "If disabled, magazine can be loaded into any firearm.", saveValue = true)]
         public static bool doMagazineTypeChecks = true;
 
         [ModOptionOrder(5)]
         [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true, defaultValueIndex = 10)]
+        [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true)]
         public static float damageMultiplier = 1f;
 
         [ModOptionOrder(6)]
         [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "No recoil", tooltip = "Disables all recoil.", saveValue = true, defaultValueIndex = 0)]
+        [ModOption(name = "No recoil", tooltip = "Disables all recoil.", saveValue = true)]
         public static bool noRecoil = false;
         
         #endregion Cheats
@@ -203,23 +203,25 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(1)]
         [ModOptionCategory("Gore", 15)]
-        [ModOption(name = "Disable gore", tooltip = "If enabled, there will be no blood effects or dismemberment.", defaultValueIndex = 0, saveValue = true)]
+        [ModOption(name = "Disable gore", tooltip = "If enabled, there will be no blood effects or dismemberment.", saveValue = true)]
         public static bool disableGore = false;
 
         [ModOptionOrder(2)]
         [ModOptionCategory("Gore", 15)]
-        [ModOption(name = "Disable blood splatters", tooltip = "If enabled, there will be no blood effects on walls from the bullets penetrating.", defaultValueIndex = 0, saveValue = true)]
+        [ModOption(name = "Disable blood splatters", tooltip = "If enabled, there will be no blood effects on walls from the bullets penetrating.", saveValue = true)]
         public static bool disableBloodSpatters = false;
 
         [ModOptionOrder(3)]
         [ModOptionCategory("Gore", 15)]
-        [ModOption(name = "Blood splatter life time multiplier", tooltip = "Allows you to change how long blood splatters stay.", defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.zeroToOneModifier), valueSourceType = typeof(FirearmsSettingsValues), saveValue = true)]
-        public static float bloodSplatterLifetimeMultiplier;
+        [ModOptionFloatValues(0, 1, 0.5f)]
+        [ModOption(name = "Blood splatter life time multiplier", tooltip = "Allows you to change how long blood splatters stay.", saveValue = true)]
+        public static float bloodSplatterLifetimeMultiplier = 1f;
 
         [ModOptionOrder(4)]
         [ModOptionCategory("Gore", 15)]
-        [ModOption(name = "Blood splatter size multiplier", tooltip = "Allows you to change how large blood splatters are.", defaultValueIndex = 20, valueSourceName = nameof(FirearmsSettingsValues.zeroToFiveModifier), valueSourceType = typeof(FirearmsSettingsValues), saveValue = true)]
-        public static float bloodSplatterSizeMultiplier;
+        [ModOptionFloatValues(0, 5, 0.5f)]
+        [ModOption(name = "Blood splatter size multiplier", tooltip = "Allows you to change how large blood splatters are.", saveValue = true)]
+        public static float bloodSplatterSizeMultiplier = 1f;
 
         #endregion
         
@@ -227,12 +229,12 @@ namespace GhettosFirearmSDKv2
         
         [ModOptionOrder(1)]
         [ModOptionCategory("Debug", 30)]
-        [ModOption(name = "Display debug messages", tooltip = "Only for debugging use.", defaultValueIndex = 0, saveValue = true)]
-        public static bool debugMode;
+        [ModOption(name = "Display debug messages", tooltip = "Only for debugging use.", saveValue = true)]
+        public static bool debugMode = false;
 
         [ModOptionOrder(2)]
         [ModOptionCategory("Debug", 30)]
-        [ModOption(name = "Spawn Liam", tooltip = "Spawn the blue guy.", defaultValueIndex = 0, saveValue = true)]
+        [ModOption(name = "Spawn Liam", tooltip = "Spawn the blue guy.", saveValue = true)]
         public static bool SpawnLiam
         {
             get { return _spawnLiam; }
@@ -250,8 +252,8 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(3)]
         [ModOptionCategory("Debug", 30)]
-        [ModOption(name = "Save guns as prebuilts", tooltip = "Only for development. Saves any gun in the locker with the prebuilt setup.", defaultValueIndex = 0, saveValue = true)]
-        public static bool saveAsPrebuilt;
+        [ModOption(name = "Save guns as prebuilts", tooltip = "Only for development. Saves any gun in the locker with the prebuilt setup.", saveValue = true)]
+        public static bool saveAsPrebuilt = false;
         
         #endregion Debug
         
