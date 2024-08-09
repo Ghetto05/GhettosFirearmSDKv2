@@ -31,9 +31,9 @@ namespace GhettosFirearmSDKv2
         
         public void SpawnHomeItems()
         {
-            if (Settings.spawnWorkbenchAndLocker && AllowSpawnLocker)
+            if (Settings.SpawnWorkbenchAndLocker && AllowSpawnLocker)
                 Level.current.StartCoroutine(DelayedLockerSpawn());
-            if (Settings.spawnLiam)
+            if (Settings.SpawnLiam)
                 Level.current.StartCoroutine(DelayedRigEditorSpawn());
         }
 

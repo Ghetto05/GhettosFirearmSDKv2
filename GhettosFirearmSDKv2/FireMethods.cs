@@ -29,7 +29,9 @@ namespace GhettosFirearmSDKv2
                 }
             }
             catch (Exception)
-            { }
+            {
+                // ignored
+            }
         }
 
         public static void ApplyRecoil(Transform transform, Rigidbody rb, float force, float upwardsModifier, float firearmRecoilModifier, List<FirearmBase.RecoilModifier> modifiers)
@@ -37,12 +39,12 @@ namespace GhettosFirearmSDKv2
             if (Settings.noRecoil)
                 return;
             
-            float upMod = 1f;
-            float linMod = 1f;
+            var upMod = 1f;
+            var linMod = 1f;
 
             if (modifiers != null)
             {
-                foreach (FirearmBase.RecoilModifier mod in modifiers)
+                foreach (var mod in modifiers)
                 {
                     upMod *= mod.muzzleRiseModifier;
                     linMod *= mod.modifier;
@@ -57,19 +59,19 @@ namespace GhettosFirearmSDKv2
         {
             returnedEndpoints = new List<Vector3>();
             returnedTrajectories = new List<Vector3>();
-            List<Creature> crs = new List<Creature>();
+            var crs = new List<Creature>();
             try
             {
-                for (int i = 0; i < data.projectileCount; i++)
+                for (var i = 0; i < data.projectileCount; i++)
                 {
-                    Transform tempMuz = new GameObject().transform;
+                    var tempMuz = new GameObject().transform;
                     tempMuz.parent = muzzle;
                     tempMuz.localPosition = Vector3.zero;
                     if (!useAISpread || data.projectileCount > 1)
                         tempMuz.localEulerAngles = new Vector3(Random.Range(-data.projectileSpread, data.projectileSpread), Random.Range(-data.projectileSpread, data.projectileSpread), 0);
                     else
                         tempMuz.localEulerAngles = new Vector3(Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), 0);
-                    List<Creature> cr = HitScan(tempMuz, data, item, out Vector3 endpoint, damageMultiplier);
+                    var cr = HitScan(tempMuz, data, item, out var endpoint, damageMultiplier);
                     returnedEndpoints.Add(endpoint);
                     returnedTrajectories.Add(tempMuz.forward);
                     Destroy(tempMuz.gameObject);
@@ -78,7 +80,9 @@ namespace GhettosFirearmSDKv2
             }
             catch (Exception)
             {
+                // ignored
             }
+
             return crs;
         }
 
@@ -87,13 +91,16 @@ namespace GhettosFirearmSDKv2
             FirearmsScore.local.shotsFired++;
 
             #region physics toggle
-            foreach (RaycastHit hit1 in Physics.RaycastAll(muzzle.position, muzzle.forward, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion")))
+
+            var physicsToggleHits = new RaycastHit[Physics.RaycastNonAlloc(muzzle.position, muzzle.forward, null, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion"))];
+            Physics.RaycastNonAlloc(muzzle.position, muzzle.forward, physicsToggleHits, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion"));
+            foreach (var physicsToggleHit in physicsToggleHits)
             {
-                if (hit1.collider.gameObject.GetComponentInParent<Creature>() is Creature cr)
+                if (physicsToggleHit.collider.gameObject.GetComponentInParent<Creature>() is { } cr)
                 {
                     if (cr)
                     {
-                        foreach (RagdollPart part in cr.ragdoll.parts)
+                        foreach (var part in cr.ragdoll.parts)
                         {
                             part.gameObject.SetActive(true);
                         }
@@ -113,13 +120,26 @@ namespace GhettosFirearmSDKv2
             }
             #endregion physics toggle
 
-            List<Creature> hitCreatures = new List<Creature>();
-            List<Item> hitItems = new List<Item>();
-            int layer = LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject", "Avatar", "PlayerHandAndFoot");
+            var hitCreatures = new List<Creature>();
+            var layer = LayerMask.GetMask(
+                "NPC",
+                "Ragdoll",
+                "Default",
+                "DroppedItem",
+                "MovingItem",
+                "PlayerLocomotionObject",
+                "Avatar",
+                "PlayerHandAndFoot",
+                "MovingObjectOnly",
+                "NoLocomotion",
+                "ItemAndRagdollOnly");
 
-            List<RaycastHit> hits = Physics.RaycastAll(muzzle.position, muzzle.forward, data.projectileRange, layer).ToList();
+            var forward = muzzle.forward;
+            var hitsBuffer = new RaycastHit[Physics.RaycastNonAlloc(muzzle.position, forward, null, data.projectileRange, layer)];
+            Physics.RaycastNonAlloc(muzzle.position, forward, hitsBuffer, data.projectileRange, layer);
+            var hits = hitsBuffer.ToList();
             hits = hits.OrderBy(h => Vector3.Distance(h.point, muzzle.position)).ToList();
-            int power = (int)data.penetrationPower;
+            var power = (int)data.penetrationPower;
 
             #region no hits
             if (hits.Count == 0)
@@ -129,13 +149,13 @@ namespace GhettosFirearmSDKv2
             }
             #endregion no hits
 
-            List<RaycastHit> successfullHits = new List<RaycastHit>();
+            var successfullHits = new List<RaycastHit>();
 
             #region explosive
             if (data.isExplosive)
             {
-                RaycastHit hit = hits[0];
-                HitscanExplosion(hit.point, data.explosiveData, gunItem, out List<Creature> hitCrs, out List<Item> hitItms);
+                var hit = hits[0];
+                HitscanExplosion(hit.point, data.explosiveData, gunItem, out _, out _);
                 if (data.explosiveEffect != null)
                 {
                     data.explosiveEffect.gameObject.transform.SetParent(null);
@@ -143,7 +163,7 @@ namespace GhettosFirearmSDKv2
                     Player.local.StartCoroutine(Explosive.delayedDestroy(data.explosiveEffect.gameObject, data.explosiveEffect.main.duration + 9f));
                     data.explosiveEffect.Play();
 
-                    AudioSource audio = Util.GetRandomFromList(data.explosiveSoundEffects);
+                    var audio = Util.GetRandomFromList(data.explosiveSoundEffects);
                     audio.gameObject.transform.SetParent(null);
                     audio.transform.position = hit.point;
                     audio.Play();
@@ -152,14 +172,14 @@ namespace GhettosFirearmSDKv2
             }
             #endregion explosive
 
-            bool processing = true;
-            foreach (RaycastHit hit in hits)
+            var processing = true;
+            foreach (var hit in hits)
             {
                 if (processing)
                 {
                     try
                     {
-                        Creature c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, gunItem, out bool lowerDamageLevel, out bool cancel, ref power);
+                        var c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, gunItem, out var lowerDamageLevel, out var cancel, ref power);
                         if (lowerDamageLevel)
                         {
                             if (power == (int)ProjectileData.PenetrationLevels.None || power == (int)ProjectileData.PenetrationLevels.Leather) processing = false;
@@ -170,6 +190,7 @@ namespace GhettosFirearmSDKv2
                     }
                     catch (Exception)
                     {
+                        // ignored
                     }
                 }
             }
@@ -182,43 +203,63 @@ namespace GhettosFirearmSDKv2
 
         public static Creature ProcessHit(Transform muzzle, RaycastHit hit, List<RaycastHit> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)
         {
-            if (hit.collider.GetComponentInParent<Shootable>() is Shootable shootable) shootable.Shoot((ProjectileData.PenetrationLevels)penetrationPower);
+            if (hit.collider.GetComponentInParent<Shootable>() is { } shootable) shootable.Shoot((ProjectileData.PenetrationLevels)penetrationPower);
 
+            #region Breakables
+            
+            foreach (var breakable in hit.collider.GetComponentsInParent<Breakable>())
+            {
+                breakable.Break();
+            }
+            foreach (var breakable in hit.collider.GetComponentsInParent<SimpleBreakable>())
+            {
+                breakable.Break();
+            }
+
+            #endregion
+            
             #region static non creature hit
             if (hit.rigidbody == null)
             {
                 if (data.hasImpactEffect)
                 {
-                    EffectInstance ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal));
+                    var ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ?
+                        Quaternion.LookRotation(Vector3.one * 0.0001f) :
+                        Quaternion.LookRotation(hit.normal));
                     ei.SetIntensity(100f);
                     ei.Play();
                 }
 
                 successfulHits.Add(hit);
                 lowerDamageLevel = true;
-                cancel = GetRequiredPenetrationLevel(hit.collider) > (int)penetrationPower;
+                cancel = GetRequiredPenetrationLevel(hit.collider) > penetrationPower;
                 return null;
             }
             #endregion static non creature hit
 
             #region creature hit
-            if (hit.collider.gameObject.GetComponentInParent<Ragdoll>() is Ragdoll rag)
+            if (hit.collider.gameObject.GetComponentInParent<Ragdoll>() is { } rag)
             {
                 if (!hitCreatures.Contains(rag.creature))
                 {
                     hitCreatures.Add(rag.creature);
 
-                    Creature cr = rag.creature;
-                    RagdollPart ragdollPart = hit.collider.gameObject.GetComponentInParent<RagdollPart>();
+                    var cr = rag.creature;
+                    var ragdollPart = hit.collider.gameObject.GetComponentInParent<RagdollPart>();
                     FirearmsScore.local.shotsHit++;
 
-                    bool penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= (int)penetrationPower;
+                    var penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= penetrationPower;
 
                     #region Impact effect
                     if (data.hasBodyImpactEffect)
                     {
                         //Effect
-                        EffectInstance ei = Catalog.GetData<EffectData>(penetrated ? "BulletImpactFlesh_Ghetto05_FirearmSDKv2" : "BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal), hit.collider.transform);
+                        var ei = Catalog.GetData<EffectData>(penetrated ? "BulletImpactFlesh_Ghetto05_FirearmSDKv2" : "BulletImpactGround_Ghetto05_FirearmSDKv2")
+                                        .Spawn(hit.point,
+                                            hit.normal == Vector3.zero ?
+                                            Quaternion.LookRotation(Vector3.one * 0.0001f) :
+                                            Quaternion.LookRotation(hit.normal),
+                                            hit.collider.transform);
                         ei.SetIntensity(100f);
                         ei.Play();
                     }
@@ -334,7 +375,7 @@ namespace GhettosFirearmSDKv2
                     coll.contactNormal = hit.normal;
                     coll.impactVelocity = muzzle.forward * 200;
 
-                    Transform penPoint = new GameObject().transform;
+                    var penPoint = new GameObject().transform;
                     penPoint.position = hit.point;
                     penPoint.rotation = hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal);
                     penPoint.parent = hit.transform;
@@ -345,7 +386,8 @@ namespace GhettosFirearmSDKv2
                     coll.intensity = EvaluateDamage(data.damagePerProjectile * damageModifier * damageMultiplier, cr);
                     coll.pressureRelativeVelocity = muzzle.forward * 200;
 
-                    try { cr.Damage(coll); } catch (Exception) { }
+                    try { cr.Damage(coll); } catch (Exception) { /* ignored */ }
+
                     #endregion Damaging
 
                     #region Additional Effects
@@ -372,7 +414,7 @@ namespace GhettosFirearmSDKv2
                         }
                     }
 
-                    BrainModuleHitReaction hitReaction = cr.brain.instance.GetModule<BrainModuleHitReaction>();
+                    var hitReaction = cr.brain.instance.GetModule<BrainModuleHitReaction>();
                     hitReaction.SetStagger(hitReaction.staggerMedium);
                     #endregion Additional Effects
 
@@ -393,31 +435,14 @@ namespace GhettosFirearmSDKv2
             {
                 if (data.hasImpactEffect)
                 {
-                    EffectInstance ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal));
+                    var ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal));
                     ei.SetIntensity(100f);
                     ei.Play();
                 }
-                if (hit.collider.GetComponentInParent<Item>() is Item hitItem)
-                {
-                    hit.rigidbody.AddForce(muzzle.forward * (data.forcePerProjectile / 10), ForceMode.Impulse);
-                    try
-                    {
-                        foreach (Breakable b in hitItem.GetComponentsInChildren<Breakable>())
-                        {
-                            b.Break();
-                        }
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-                else
-                {
-                    try { hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse); } catch (Exception) { }
-                }
+                hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
 
                 lowerDamageLevel = true;
-                cancel = GetRequiredPenetrationLevel(hit.collider) > (int)penetrationPower;
+                cancel = GetRequiredPenetrationLevel(hit.collider) > penetrationPower;
                 return null;
             }
             #endregion non creature hit
@@ -449,37 +474,39 @@ namespace GhettosFirearmSDKv2
             {
                 rem = (EffectModuleReveal)Catalog.GetData<EffectData>(customDecal).modules[0];
             }
-            List<RevealMaterialController> controllers = new List<RevealMaterialController>();
-            foreach (Creature.RendererData r in rp.renderers.Where(renderer => rem != null && renderer.revealDecal && (renderer.revealDecal.type == RevealDecal.Type.Default &&
-                    rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Default) ||
-                    renderer.revealDecal.type == RevealDecal.Type.Body &&
-                    rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Body) ||
-                    renderer.revealDecal.type == RevealDecal.Type.Outfit &&
-                    rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Outfit))))
+            var controllers = new List<RevealMaterialController>();
+            foreach (var r in rp.renderers.Where(renderer => rem != null && renderer.revealDecal && (renderer.revealDecal.type == RevealDecal.Type.Default &&
+                                                                                                     rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Default) ||
+                                                                                                     renderer.revealDecal.type == RevealDecal.Type.Body &&
+                                                                                                     rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Body) ||
+                                                                                                     renderer.revealDecal.type == RevealDecal.Type.Outfit &&
+                                                                                                     rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Outfit))))
             {
                 controllers.Add(r.revealDecal.revealMaterialController);
             }
-            Transform rev = new GameObject().transform;
+            var rev = new GameObject().transform;
             rev.position = hit.point;
             rev.rotation = hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal);
-            GameManager.local.StartCoroutine(RevealMaskProjection.ProjectAsync(rev.position + rev.forward * rem.offsetDistance, -rev.forward, rev.up, rem.depth, rem.maxSize, rem.textureContainer.GetRandomTexture(), rem.maxChannelMultiplier, controllers, rem.revealData, null));
+            GameManager.local.StartCoroutine(RevealMaskProjection.ProjectAsync(
+                rev.position + rev.forward * rem.offsetDistance, -rev.forward, rev.up, rem.depth, rem.maxSize,
+                rem.textureContainer.GetRandomTexture(), rem.maxChannelMultiplier, controllers, rem.revealData, null));
         }
 
         private static void BloodSplatter(Vector3 origin, Vector3 direction, float force, int projectileCount, int penetrationPower, bool penetratedArmor)
         {
             if (Settings.disableGore || Settings.disableBloodSpatters || penetrationPower < 2 || !penetratedArmor)
                 return;
-            int layer = LayerMask.GetMask("Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject");
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, force * projectileCount / 30, layer, QueryTriggerInteraction.Ignore))
+            var layer = LayerMask.GetMask("Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject");
+            if (Physics.Raycast(origin, direction, out var hit, force * projectileCount / 30, layer, QueryTriggerInteraction.Ignore))
             {
-                GameObject go = new GameObject("temp_" + Random.Range(0, 10000));
+                var go = new GameObject("temp_" + Random.Range(0, 10000));
                 go.transform.position = hit.point;
                 go.transform.rotation = hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal);
                 Util.RandomizeZRotation(go.transform);
-                EffectInstance ei = Catalog.GetData<EffectData>("DropBlood").Spawn(hit.point, go.transform.rotation, null, null, false);
+                var ei = Catalog.GetData<EffectData>("DropBlood").Spawn(hit.point, go.transform.rotation, null, null, false);
                 ei.SetIntensity(100f);
 
-                EffectDecal particle = (EffectDecal)ei.effects[0];
+                var particle = (EffectDecal)ei.effects[0];
                 particle.baseLifeTime = particle.baseLifeTime * 20f * Settings.bloodSplatterLifetimeMultiplier;
                 particle.emissionLifeTime = particle.emissionLifeTime * 20 * Settings.bloodSplatterLifetimeMultiplier;
                 particle.size = particle.size * force / 40 * projectileCount * Settings.bloodSplatterSizeMultiplier;
@@ -490,9 +517,9 @@ namespace GhettosFirearmSDKv2
 
         public static void FireItem(Transform muzzle, ProjectileData data, Item item)
         {
-            Vector3 fireDir = muzzle.forward;
-            Vector3 firePoint = muzzle.position;
-            Quaternion fireRotation = muzzle.rotation;
+            var fireDir = muzzle.forward;
+            var firePoint = muzzle.position;
+            var fireRotation = muzzle.rotation;
             Util.SpawnItem(data.projectileItemId, $"[Cartridge of {data.projectileItemId}]", thisSpawnedItem =>
             {
                 item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, firePoint, fireRotation, fireDir, data.muzzleVelocity));
@@ -517,7 +544,7 @@ namespace GhettosFirearmSDKv2
 
         public static IEnumerator TemporaryKnockout(float duration, float delay, Creature creature)
         {
-            GameObject handler = new GameObject($"TempKnockoutHandler_{Random.Range(0, 9999)}");
+            var handler = new GameObject($"TempKnockoutHandler_{Random.Range(0, 9999)}");
             yield return new WaitForSeconds(delay);
             creature.brain.AddNoStandUpModifier(handler);
             creature.ragdoll.SetState(Ragdoll.State.Inert);
@@ -529,13 +556,14 @@ namespace GhettosFirearmSDKv2
         public static void HitscanExplosion(Vector3 point, ExplosiveData data, Item item, out List<Creature> hitCreatures, out List<Item> hitItems)
         {
             //PHYSICS TOGGLE
-            Collider[] locomotionHits = Physics.OverlapSphere(point, data.radius, LayerMask.GetMask("BodyLocomotion"));
-            foreach (Collider locomotionHit in locomotionHits)
+            var locomotionHits = new Collider[Physics.OverlapSphereNonAlloc(point, data.radius, null, LayerMask.GetMask("BodyLocomotion"))];
+            Physics.OverlapSphereNonAlloc(point, data.radius, locomotionHits, LayerMask.GetMask("BodyLocomotion"));
+            foreach (var locomotionHit in locomotionHits)
             {
                 if (locomotionHit.GetComponentInParent<Creature>() != null)
                 {
-                    Creature cr = locomotionHit.GetComponentInParent<Creature>();
-                    foreach (RagdollPart part in cr.ragdoll.parts)
+                    var cr = locomotionHit.GetComponentInParent<Creature>();
+                    foreach (var part in cr.ragdoll.parts)
                     {
                         part.gameObject.SetActive(true);
                     }
@@ -544,29 +572,31 @@ namespace GhettosFirearmSDKv2
 
             hitCreatures = new List<Creature>();
             hitItems = new List<Item>();
-            List<Shootable> hitShootables = new List<Shootable>();
+            var hitShootables = new List<Shootable>();
+            var hitSimpleBreakables = new List<SimpleBreakable>();
+            var hitBreakables = new List<Breakable>();
 
-            foreach (Collider c in Physics.OverlapSphere(point, data.radius))
+            var hits = new Collider[Physics.OverlapSphereNonAlloc(point, data.radius, null)];
+            Physics.OverlapSphereNonAlloc(point, data.radius, hits);
+            foreach (var c in hits)
             {
-                if (c.GetComponentInParent<Ragdoll>() is Ragdoll hitRag && !hitCreatures.Contains(hitRag.creature))
-                {
+                if (c.GetComponentInParent<Ragdoll>() is { } hitRag && !hitCreatures.Contains(hitRag.creature))
                     hitCreatures.Add(hitRag.creature);
-                }
-                else if (c.GetComponentInParent<Item>() is Item hitItem && !hitItems.Contains(hitItem))
-                {
+                else if (c.GetComponentInParent<Item>() is { } hitItem && !hitItems.Contains(hitItem))
                     hitItems.Add(hitItem);
-                }
-                if (c.GetComponentInParent<Shootable>() is Shootable sb && !hitShootables.Contains(sb))
-                {
+                if (c.GetComponentInParent<Shootable>() is { } sb && !hitShootables.Contains(sb))
                     hitShootables.Add(sb);
-                }
+                if (c.GetComponentInParent<Breakable>() is { } br && !hitBreakables.Contains(br))
+                    hitBreakables.Add(br);
+                if (c.GetComponentInParent<SimpleBreakable>() is { } sbr && !hitSimpleBreakables.Contains(sbr))
+                    hitSimpleBreakables.Add(sbr);
             }
 
-            foreach (Creature hitCreature in hitCreatures)
+            foreach (var hitCreature in hitCreatures)
             {
                 if (CheckExplosionCreatureHit(hitCreature, point))
                 {
-                    CollisionInstance coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, EvaluateDamage(data.damage, hitCreature)));
+                    var coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, EvaluateDamage(data.damage, hitCreature)));
                     coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
                     coll.damageStruct.damageType = DamageType.Energy;
                     coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
@@ -578,26 +608,26 @@ namespace GhettosFirearmSDKv2
                     coll.damageStruct.penetrationDepth = 10;
                     coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
                     coll.intensity = EvaluateDamage(data.damage, hitCreature);
-                    try { hitCreature.Damage(coll); } catch (Exception) { }
+                    try { hitCreature.Damage(coll); }catch (Exception) { /*ignored*/ }
 
                     hitCreature.locomotion.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
                     if (hitCreature.isKilled) hitCreature.StartCoroutine(ExplodeCreature(point, data, hitCreature));
                 }
             }
 
-            foreach (Shootable hitShootable in hitShootables)
+            foreach (var hitShootable in hitShootables)
             {
                 hitShootable.Shoot(ProjectileData.PenetrationLevels.Kevlar);
             }
 
-            foreach (Item hitItem in hitItems)
+            foreach (var hitItem in hitItems)
             {
                 hitItem.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius * 3, data.upwardsModifier);
             }
 
             if (!string.IsNullOrWhiteSpace(data.effectId))
             {
-                EffectInstance ei = Catalog.GetData<EffectData>(data.effectId).Spawn(point, Quaternion.Euler(0, 0, 0));
+                var ei = Catalog.GetData<EffectData>(data.effectId).Spawn(point, Quaternion.Euler(0, 0, 0));
                 ei.Play();
             }
         }
@@ -606,7 +636,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!hitCreature.isPlayer && Settings.explosionsDismember && !Settings.disableGore)
             {
-                foreach (RagdollPart rp in hitCreature.ragdoll.parts.ToArray().Reverse())
+                foreach (var rp in hitCreature.ragdoll.parts.ToArray().Reverse())
                 {
                     yield return new WaitForEndOfFrame();
                     if (Vector3.Distance(rp.transform.position, point) < (data.radius / 2) && Slice(rp))
@@ -617,14 +647,17 @@ namespace GhettosFirearmSDKv2
                     else rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 10);
                 }
             }
-            yield break;
         }
 
         public static bool CheckExplosionCreatureHit(Creature c, Vector3 origin)
         {
-            foreach (RagdollPart b in c.ragdoll.parts)
+            foreach (var b in c.ragdoll.parts)
             {
-                if (!Physics.Raycast(b.transform.position, origin - b.transform.position, Vector3.Distance(b.transform.position, origin) - 0.1f, LayerMask.GetMask("Default"))) return true;
+                if (!Physics.Raycast(b.transform.position,
+                        origin - b.transform.position, 
+                        Vector3.Distance(b.transform.position, origin) - 0.1f,
+                        LayerMask.GetMask("Default")))
+                    return true;
             }
 
             return false;
@@ -632,9 +665,9 @@ namespace GhettosFirearmSDKv2
 
         public static float EvaluateDamage(float perFifty, Creature c)
         {
-            float perFiftyDamage = perFifty * Settings.damageMultiplier;
-            float aspect = perFiftyDamage / 50;
-            float damageToBeDone = Mathf.Clamp(c.maxHealth, 50f, 100f) * aspect;
+            var perFiftyDamage = perFifty * Settings.damageMultiplier;
+            var aspect = perFiftyDamage / 50;
+            var damageToBeDone = Mathf.Clamp(c.maxHealth, 50f, 100f) * aspect;
 
             return damageToBeDone;
         }
@@ -646,31 +679,34 @@ namespace GhettosFirearmSDKv2
 
         public static int GetRequiredPenetrationLevel(RaycastHit hit, Vector3 direction, Item handler)
         {
-            int hitMaterialHash = -1;
-            ColliderGroup colliderGroup = hit.collider.GetComponentInParent<ColliderGroup>();
+            var hitMaterialHash = -1;
+            var colliderGroup = hit.collider.GetComponentInParent<ColliderGroup>();
 
-            if (colliderGroup != null) handler.mainCollisionHandler.MeshRaycast(colliderGroup, hit.point, hit.normal, direction, ref hitMaterialHash);
-            if (hitMaterialHash == -1) hitMaterialHash = Animator.StringToHash(hit.collider.material.name);
-            TryGetMaterial(hitMaterialHash, out MaterialData matDat);
+            if (colliderGroup != null)
+                handler.mainCollisionHandler.MeshRaycast(colliderGroup, hit.point, hit.normal, direction, ref hitMaterialHash);
+            if (hitMaterialHash == -1)
+                hitMaterialHash = Animator.StringToHash(hit.collider.material.name);
+            TryGetMaterial(hitMaterialHash, out var matDat);
             return (int)RequiredPenetrationPowerData.GetRequiredLevel(matDat.id);
         }
 
         public static int GetRequiredPenetrationLevel(Collider collider)
         {
-            if (collider.material == null) return 0;
-            int hitMaterialHash = Animator.StringToHash(collider.material.name);
-            TryGetMaterial(hitMaterialHash, out MaterialData matDat);
+            if (collider.material == null)
+                return 0;
+            var hitMaterialHash = Animator.StringToHash(collider.material.name);
+            TryGetMaterial(hitMaterialHash, out var matDat);
             return (int)RequiredPenetrationPowerData.GetRequiredLevel(matDat.id);
         }
 
         public static bool TryGetMaterial(int targetPhysicMaterialHash, out MaterialData targetMaterial)
         {
             targetMaterial = null;
-            List<CatalogData> list = Catalog.GetDataList(Category.Material);
-            int count = list.Count;
-            for (int i = 0; i < count; i++)
+            var list = Catalog.GetDataList(Category.Material);
+            var count = list.Count;
+            for (var i = 0; i < count; i++)
             {
-                MaterialData materialData = (MaterialData)list[i];
+                var materialData = (MaterialData)list[i];
 
                 if (materialData.physicMaterialHash == targetPhysicMaterialHash)
                 {
