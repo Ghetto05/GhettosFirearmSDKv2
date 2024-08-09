@@ -52,6 +52,12 @@ namespace GhettosFirearmSDKv2
                 Application.Quit();
             }
 
+            if (GameModeManager.instance.currentGameMode.name.Equals("CrystalHunt"))
+            {
+                item.Despawn();
+                return;
+            }
+
             #endregion
 
             base.Start();
@@ -64,6 +70,40 @@ namespace GhettosFirearmSDKv2
             item.OnDespawnEvent += Item_OnDespawnEvent;
             Invoke(nameof(InvokedStart), Settings.invokeTime);
             all.Add(this);
+
+            var aiModule = new ItemModuleAI()
+                           {
+                               primaryClass = ItemModuleAI.WeaponClass.Melee,
+                               secondaryClass = ItemModuleAI.WeaponClass.Melee,
+                               weaponHandling = ItemModuleAI.WeaponHandling.OneHanded,
+                               secondaryHandling = ItemModuleAI.WeaponHandling.OneHanded,
+                               weaponAttackTypes = ItemModuleAI.AttackTypeFlags.Swing,
+                               ignoredByDefense = false,
+                               alwaysPrimary = false,
+                               defaultStanceInfo = new ItemModuleAI.StanceInfo()
+                                                   {
+                                                       offhand = ItemModuleAI.StanceInfo.Offhand.SameItem,
+                                                       stanceDataID = "HumanMeleeDualWieldStance",
+                                                       grabAIHandleRadius = 0
+                                                   },
+                               rangedWeaponData = new ItemModuleAI.RangedWeaponData()
+                                                  {
+                                                      spread = Vector2.zero,
+                                                      ammoType = defaultAmmoItem,
+                                                      projectileSpeed = Mathf.Infinity,
+                                                      accountForGravity = false,
+                                                      tooCloseDistance = 3f,
+                                                      weaponAimAngleOffset = Vector3.zero,
+                                                      weaponHoldAngleOffset = Vector3.zero,
+                                                      weaponHoldPositionOffset = Vector3.zero,
+                                                      customRangedAttackAnimationData = null
+                                                  },
+                               armResistanceMultiplier = 3f,
+                               allowDynamicHeight = false,
+                               defenseHasPriority = false
+                           };
+            item.data.modules.Add(aiModule);
+            item.data.moduleAI = aiModule;
         }
 
         private void Item_OnDespawnEvent(EventTime eventTime)

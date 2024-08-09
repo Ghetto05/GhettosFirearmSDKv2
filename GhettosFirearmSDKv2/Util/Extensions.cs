@@ -1,6 +1,6 @@
-﻿using ThunderRoad;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
+using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
@@ -18,8 +18,8 @@ namespace GhettosFirearmSDKv2
             if (target == null || child == null || ignoredAxes == Vector3.one)
                 return;
 
-            Quaternion targetRotation = target.rotation;
-            Quaternion quaternion = targetRotation * Quaternion.Inverse(child.rotation);
+            var targetRotation = target.rotation;
+            var quaternion = targetRotation * Quaternion.Inverse(child.rotation);
             transform.rotation = quaternion * transform.transform.rotation;
         }
         
@@ -28,13 +28,37 @@ namespace GhettosFirearmSDKv2
             if (target == null || child == null || ignoredAxes == Vector3.one)
                 return;
 
-            Quaternion relativeRotation = target.rotation * Quaternion.Inverse(child.rotation);
+            var relativeRotation = target.rotation * Quaternion.Inverse(child.rotation);
             relativeRotation.eulerAngles = new Vector3(
-                ignoredAxes.x == 1 ? transform.rotation.eulerAngles.x : relativeRotation.eulerAngles.x,
-                ignoredAxes.y == 1 ? transform.rotation.eulerAngles.y : relativeRotation.eulerAngles.y,
-                ignoredAxes.z == 1 ? transform.rotation.eulerAngles.z : relativeRotation.eulerAngles.z
+                Mathf.Approximately(ignoredAxes.x, 1) ? transform.rotation.eulerAngles.x : relativeRotation.eulerAngles.x,
+                Mathf.Approximately(ignoredAxes.y, 1) ? transform.rotation.eulerAngles.y : relativeRotation.eulerAngles.y,
+                Mathf.Approximately(ignoredAxes.z, 1) ? transform.rotation.eulerAngles.z : relativeRotation.eulerAngles.z
             );
             transform.rotation = relativeRotation * transform.rotation;
+        }
+
+        #endregion
+
+        #region Enums
+
+        public static T Next<T>(this T value) where T : Enum
+        {
+            var values = Enum.GetValues(value.GetType()).Cast<T>().ToList();
+            var index = values.IndexOf(value);
+            index++;
+            if (index >= values.Count)
+                index = 0;
+            return values[index];
+        }
+
+        public static T Previous<T>(this T value) where T : Enum
+        {
+            var values = Enum.GetValues(value.GetType()).Cast<T>().ToList();
+            var index = values.IndexOf(value);
+            index--;
+            if (index <= 0)
+                index = values.Count - 1;
+            return values[index];
         }
 
         #endregion

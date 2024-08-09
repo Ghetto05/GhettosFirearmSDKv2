@@ -47,6 +47,7 @@ namespace GhettosFirearmSDKv2
         public List<Transform> chamberLocators;
         public List<float> chamberRotations;
 
+        public bool rotateWhenReleasingTrigger;
         public float triggerPullForTrigger;
         public float triggerPullMax;
         public Transform triggerAxis;
@@ -56,6 +57,14 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> triggerPullSound;
         public List<AudioSource> triggerResetSound;
         public float onTriggerWeight = 0.8f;
+
+        [Space]
+        [Header("AUTO ROTATE")]
+        public bool autoRotateCylinder;
+        public bool limitCylinderRotation;
+        private bool _autoTurnOnNextTriggerRelease;
+        private bool _autoTurning;
+        private float _autoRotateStartTime;
 
         [HideInInspector]
         public bool cocked;
@@ -95,6 +104,7 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> unlockSounds;
         public List<AudioSource> ejectSounds;
         public List<AudioSource> loadSounds;
+        public List<AudioSource> chamberClickSounds;
 
         private bool _closed;
         private float _lastOpenTime;
@@ -121,6 +131,7 @@ namespace GhettosFirearmSDKv2
             firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
             firearm.OnCollisionEventTR += Firearm_OnCollisionEventTR;
             firearm.OnActionEvent += FirearmOnOnActionEvent;
+            firearm.OnTriggerChangeEvent += FirearmOnOnTriggerChangeEvent;
 
             if (firearm.item.TryGetCustomData(out _data))
             {
@@ -150,6 +161,16 @@ namespace GhettosFirearmSDKv2
             UpdateChamberedRounds();
         }
 
+        private void FirearmOnOnTriggerChangeEvent(bool ispulled)
+        {
+            if (!ispulled && _autoTurnOnNextTriggerRelease)
+            { 
+                _autoTurning = true;
+                _autoRotateStartTime = Time.time;
+                _autoTurnOnNextTriggerRelease = false;
+            }
+        }
+
         private void FirearmOnOnActionEvent(Interactable.Action action)
         {
             if (action == Interactable.Action.UseStop)
@@ -162,20 +183,23 @@ namespace GhettosFirearmSDKv2
         {
             if (cockCollider != null && collisionInstance.sourceCollider == cockCollider && collisionInstance.targetCollider.GetComponentInParent<Player>() != null)
             {
-                ApplyNextChamber();
+                ApplyNextChamber(false);
                 Cock();
             }
         }
 
         private void Firearm_OnCockActionEvent()
         {
-            if (cocked)
-                Uncock();
-            else
+            if (hammerAxis != null)
             {
-                _afterCockAction = true;
-                Cock();
-                ApplyNextChamber();
+                if (cocked)
+                    Uncock();
+                else
+                {
+                    _afterCockAction = true;
+                    Cock();
+                    ApplyNextChamber(false);
+                }
             }
         }
 
@@ -234,6 +258,8 @@ namespace GhettosFirearmSDKv2
 
                 if (Mathf.Approximately(triggerPull, 0f))
                 {
+                    if (!autoRotateCylinder && rotateWhenReleasingTrigger && !returnedTriggerSinceHammer)
+                        ApplyNextChamber(true);
                     returnedTriggerSinceHammer = true;
                     if (triggerAxis != null && _shotsSinceTriggerReset > 0)
                         Util.PlayRandomAudioSource(triggerResetSound);
@@ -268,7 +294,7 @@ namespace GhettosFirearmSDKv2
                     if (!cocked && triggerPull >= 1f && returnedTriggerSinceHammer && !singleActionOnly)
                     {
                         Cock();
-                        ApplyNextChamber();
+                        ApplyNextChamber(true);
                         TryFire();
                     }
 
@@ -279,10 +305,30 @@ namespace GhettosFirearmSDKv2
                 }
 
                 //Cylinder
-                if ((!cocked || hammerAxis == null) && !singleActionOnly && returnedTriggerSinceHammer && _closed && firearm.fireMode != FirearmBase.FireModes.Safe)
+                if (!autoRotateCylinder && (!cocked || hammerAxis == null) && !rotateWhenReleasingTrigger && !singleActionOnly && returnedTriggerSinceHammer && _closed && firearm.fireMode != FirearmBase.FireModes.Safe)
                 {
                     if (_shotsSinceTriggerReset == 0 && !cocked)
                         rotateAxis.localEulerAngles = Vector3.Lerp(new Vector3(0, 0, chamberRotations[_currentChamber]), GetNextTargetRotation(), triggerPull);
+                }
+
+                if (!autoRotateCylinder && (!cocked || hammerAxis == null) && rotateWhenReleasingTrigger && !singleActionOnly && !returnedTriggerSinceHammer && _closed && firearm.fireMode != FirearmBase.FireModes.Safe)
+                {
+                    if (_shotsSinceTriggerReset == 1 && !cocked)
+                        rotateAxis.localEulerAngles = Vector3.Lerp(new Vector3(0, 0, chamberRotations[_currentChamber]), GetNextTargetRotation(), 1 - triggerPull);
+                }
+
+                if (autoRotateCylinder && _autoTurning)
+                {
+                    var time = Mathf.Clamp01((Time.time - _autoRotateStartTime) / (60f / firearm.roundsPerMinute));
+                    if (time.IsApproximately(1))
+                    {
+                        _autoTurning = false;
+                        ApplyNextChamber(true);
+                    }
+                    else
+                    {
+                        rotateAxis.localEulerAngles = Vector3.Lerp(new Vector3(0, 0, chamberRotations[_currentChamber]), GetNextTargetRotation(), time);
+                    }
                 }
 
                 //Trigger
@@ -340,7 +386,7 @@ namespace GhettosFirearmSDKv2
 
         public void EjectCasings()
         {
-            if (_closed)
+            if (_closed || _loadedCartridges == null)
                 return;
 
             for (var i = 0; i < _loadedCartridges.Length; i++)
@@ -394,33 +440,42 @@ namespace GhettosFirearmSDKv2
             if (hammerAxis == null || !cocked)
                 return;
 
+            _autoTurning = false;
             hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
             cocked = false;
         }
 
-        public void ApplyNextChamber()
+        public void ApplyNextChamber(bool playSound, bool first = false)
         {
-            _currentChamber = GetNextChamberIndex();
+            _autoTurning = false;
+            _currentChamber = first ? 0 : GetNextChamberIndex();
             rotateAxis.localEulerAngles = new Vector3(0, 0, chamberRotations[_currentChamber]);
+            if (playSound)
+                Util.PlayRandomAudioSource(chamberClickSounds);
         }
 
         public override void TryFire()
         {
-            if (state != BoltState.Locked || (!singleActionOnly && _shotsSinceTriggerReset > 0) || firearm.fireMode == FirearmBase.FireModes.Safe)
+            if ((autoRotateCylinder && _autoTurning) || state != BoltState.Locked || (!singleActionOnly && _shotsSinceTriggerReset > 0) || firearm.fireMode == FirearmBase.FireModes.Safe)
             {
                 InvokeFireLogicFinishedEvent();
                 return;
             }
 
+            returnedTriggerSinceHammer = false;
             if (hammerAxis != null)
             {
-                returnedTriggerSinceHammer = false;
                 hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
                 cocked = false;
                 Util.PlayRandomAudioSource(hammerHitSounds);
             }
-            else
-                ApplyNextChamber();
+            else if (!rotateWhenReleasingTrigger && !autoRotateCylinder)
+                ApplyNextChamber(true);
+
+            if (_shotsSinceTriggerReset == 0 && (!limitCylinderRotation || _currentChamber != chamberRotations.Count - 1))
+            {
+                _autoTurnOnNextTriggerRelease = true;
+            }
 
             _shotsSinceTriggerReset++;
 
@@ -491,6 +546,9 @@ namespace GhettosFirearmSDKv2
                     _currentChamber = i;
                 }
             }
+            
+            if (limitCylinderRotation)
+                ApplyNextChamber(false, true);
 
             if (!initial)
             {
@@ -509,7 +567,8 @@ namespace GhettosFirearmSDKv2
             }
 
             state = BoltState.Locked;
-            Util.PlayRandomAudioSource(lockSounds);
+            if (!initial)
+                Util.PlayRandomAudioSource(lockSounds);
             InitializeFoldJoint(true);
             InitializeRotateJoint(true);
 

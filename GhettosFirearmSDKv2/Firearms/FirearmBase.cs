@@ -127,11 +127,11 @@ namespace GhettosFirearmSDKv2
 
         public void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if ((handle == mainFireHandle && !disableMainFireHandle) || Util.ListContainsHandle(additionalTriggerHandles, handle))
+            if ((handle == mainFireHandle && !disableMainFireHandle) || additionalTriggerHandles.Any(x => x == handle))
             {
                 OnActionEvent?.Invoke(action);
                 
-                if (action == Interactable.Action.UseStart)
+                if (action == Interactable.Action.UseStart && fireMode != FireModes.AttachmentFirearm)
                 {
                     if (!countingForLongpress)
                     {
@@ -143,7 +143,7 @@ namespace GhettosFirearmSDKv2
                         CockAction();
                     }
                 }
-                else if (action == Interactable.Action.UseStop)
+                else if (action == Interactable.Action.UseStop && fireMode != FireModes.AttachmentFirearm)
                 {
                     ChangeTrigger(false);
                 }
@@ -160,8 +160,10 @@ namespace GhettosFirearmSDKv2
                 if (action == Interactable.Action.AlternateUseStop && countingForLongpress)
                 {
                     countingForLongpress = false;
-                    if (Time.time - lastPressTime >= longPressTime) LongPress();
-                    else ShortPress();
+                    if (Time.time - lastPressTime >= longPressTime)
+                        LongPress();
+                    else if (fireMode != FireModes.AttachmentFirearm)
+                        ShortPress();
                 }
             }
         }
@@ -169,7 +171,7 @@ namespace GhettosFirearmSDKv2
         public void ShortPress()
         {
             OnAltActionEvent?.Invoke(false);
-            if (magazineWell != null && (magazineWell.canEject || (!magazineWell.canEject && magazineWell.currentMagazine != null && !magazineWell.currentMagazine.canBeGrabbedInWell && magazineWell.currentMagazine.overrideItem == null)))
+            if (magazineWell != null && (magazineWell.canEject || (!magazineWell.canEject && magazineWell.currentMagazine != null && !magazineWell.currentMagazine.canBeGrabbedInWell && !magazineWell.currentMagazine.overrideItem && !magazineWell.currentMagazine.overrideAttachment)))
             {
                 if (bolt.disallowRelease || !bolt.caught || (bolt.caught && magazineWell.IsEmptyAndHasMagazine())) magazineWell.Eject();
                 else if (bolt.caught && !magazineWell.IsEmpty()) bolt.TryRelease();

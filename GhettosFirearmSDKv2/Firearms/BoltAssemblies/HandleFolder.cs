@@ -15,6 +15,8 @@ namespace GhettosFirearmSDKv2
         public Transform defaultPosition;
         public List<Transform> positions;
         public bool parentToPosition;
+        public bool foldIfBoltCaught;
+        public BoltSemiautomatic bolt;
 
         private void Start()
         {
@@ -37,7 +39,7 @@ namespace GhettosFirearmSDKv2
             bool held = false;
             foreach (Handle h in handles)
             {
-                if (h.IsHanded())
+                if (h.IsHanded() || (foldIfBoltCaught && bolt && bolt.caught))
                 {
                     held = true;
                     try

@@ -25,7 +25,8 @@ namespace GhettosFirearmSDKv2
             BreakAction,
             ChamberLoader,
             Revolver,
-            Minigun
+            Minigun,
+            LeverAction
         }
 
         public enum Eras

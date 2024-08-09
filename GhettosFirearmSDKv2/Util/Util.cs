@@ -96,24 +96,6 @@ namespace GhettosFirearmSDKv2
             return sameType && compatibleCaliber;
         }
 
-        public static bool ListContainsHandle(List<Handle> list, Handle handle)
-        {
-            foreach (Handle h in list)
-            {
-                if (handle == h) return true;
-            }
-            return false;
-        }
-
-        public static bool ListContainsString(List<string> list, string str)
-        {
-            foreach (string s in list)
-            {
-                if (s.Equals(str)) return true;
-            }
-            return false;
-        }
-
         public static void AlertAllCreaturesInRange(Vector3 point, float range)
         {
             foreach (Creature cr in Creature.allActive)
@@ -331,7 +313,7 @@ namespace GhettosFirearmSDKv2
                 return;
             
             float range = 800;
-            foreach (AudioSource source in sources)
+            foreach (var source in sources)
             {
                 source.spatialBlend = 0.1f;
                 if (suppressed)
@@ -353,7 +335,7 @@ namespace GhettosFirearmSDKv2
                 else
                 {
                     float decayFactor = Mathf.Exp(-distance / 100);
-                    source.volume *= 1f - (1f - 0.3f) * decayFactor;
+                    source.volume *= (1f - 0.3f) * decayFactor;
                 }
                     //source.volume *= 1 - (distance / range);
             }

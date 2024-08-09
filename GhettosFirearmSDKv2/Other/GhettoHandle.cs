@@ -17,6 +17,14 @@ namespace GhettosFirearmSDKv2
 
         public HandleType type;
 
+        protected override void Awake()
+        {
+            if (axisLength > 0)
+                slideBehavior = SlideBehavior.CanSlide;
+            
+            base.Awake();
+        }
+
         public override void RefreshJointDrive()
         {
             if (!IsHanded()) return;
