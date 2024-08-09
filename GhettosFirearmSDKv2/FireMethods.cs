@@ -198,7 +198,39 @@ namespace GhettosFirearmSDKv2
             if (successfullHits.Count > 0) endpoint = successfullHits.Last().point;
             else endpoint = Vector3.zero;
 
+            if (!gunItem.waterHandler.inWater)
+            {
+                var hitWater = false;
+
+                var currentDistance = 0f;
+                while (!hitWater && currentDistance <= Settings.waterSplashRange)
+                {
+                    var pos = muzzle.position + forward.normalized * currentDistance;
+                    if (Water.current.TryGetWaterHeight(pos, out var depth))
+                    {
+                        hitWater = true;
+                        WaterSplash(pos, depth, forward);
+                    }
+
+                    currentDistance += Settings.waterSplashPrecision;
+                }
+            }
+
             return hitCreatures;
+        }
+
+        private static void WaterSplash(Vector3 point, float waterDepth, Vector3 direction)
+        {
+            Catalog.InstantiateAsync(Catalog.gameData.water.splashFxLocation, new Vector3(point.x, point.y, waterDepth), Quaternion.LookRotation(Vector3.up, direction), null, go =>
+            {
+                var component = go.GetComponent<FxController>();
+                if (!component)
+                    return;
+                component.SetIntensity(Catalog.gameData.water.splashIntensityRadiusCurve.Evaluate(0.5f));
+                component.SetSpeed(Catalog.gameData.water.splashSpeedVelocityCurve.Evaluate(400));
+                component.direction = direction;
+                component.Play();
+            }, "WaterSplash");
         }
 
         public static Creature ProcessHit(Transform muzzle, RaycastHit hit, List<RaycastHit> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)

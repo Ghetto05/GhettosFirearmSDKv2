@@ -99,6 +99,16 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "Hide update notifications", tooltip = "Hide popup notifications for updates.", saveValue = true)]
         public static bool hideUpdateNotifications = false;
 
+        [ModOptionOrder(13)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Water Splash - Range", tooltip = "Up until how far away bullets should splash the water. The larger the value, the greater the performance impact!", saveValue = true)]
+        public static float waterSplashRange = 20f;
+
+        [ModOptionOrder(14)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Water Splash - Precision", tooltip = "How often the bullets should probe for water. The smaller the value, the greater the performance impact!", saveValue = true)]
+        public static float waterSplashPrecision = 0.20f;
+
         #endregion
 
         #region Clothing
