@@ -11,6 +11,7 @@ namespace GhettosFirearmSDKv2
         public Item item;
         public Attachment attachment;
         public List<Handle> handles;
+        public bool useFireHandle;
 
         public Transform gate;
         public Transform locked;
@@ -19,31 +20,46 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> openSounds;
         public List<AudioSource> closeSounds;
 
-        bool state = true;
+        private bool _isLocked = true;
 
-        public override bool GetState()
+        public override bool GetIsUnlocked()
         {
-            return state;
+            return !_isLocked;
         }
 
         private void Start()
         {
-            if (item != null) item.OnHeldActionEvent += OnHeldActionEvent;
-            else if (attachment != null) attachment.OnHeldActionEvent += OnHeldActionEvent;
+            if (item != null)
+                item.OnHeldActionEvent += OnHeldActionEvent;
+            else if (attachment != null)
+            {
+                attachment.OnHeldActionEvent += OnHeldActionEvent;
+                if (useFireHandle && attachment.GetComponent<AttachmentFirearm>() is { } firearm)
+                    firearm.OnAltActionEvent += FirearmOnOnAltActionEvent;
+            }
             Toggle(true);
+        }
+
+        private void FirearmOnOnAltActionEvent(bool longpress)
+        {
+            if (!longpress)
+                Toggle();
         }
 
         private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (handles.Contains(handle) && action == Interactable.Action.AlternateUseStart) Toggle();
+            if (handles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
+                Toggle();
         }
 
         public void Toggle(bool initial = false)
         {
-            if (!initial) state = !state;
-            Transform t = !state ? locked : unlocked;
+            if (!initial)
+                _isLocked = !_isLocked;
+            var t = _isLocked ? locked : unlocked;
             gate.SetLocalPositionAndRotation(t.localPosition, t.localRotation);
-            if (!initial) Util.PlayRandomAudioSource(state ? openSounds : closeSounds);
+            if (!initial)
+                Util.PlayRandomAudioSource(_isLocked ? openSounds : closeSounds);
         }
     }
 }

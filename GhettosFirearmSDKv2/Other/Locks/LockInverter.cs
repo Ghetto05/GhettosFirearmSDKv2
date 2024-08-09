@@ -9,7 +9,7 @@ namespace GhettosFirearmSDKv2
     {
         public Lock lockToBeInverted;
 
-        public override bool GetState()
+        public override bool GetIsUnlocked()
         {
             if (lockToBeInverted == null) return true;
             return !lockToBeInverted.IsUnlocked();

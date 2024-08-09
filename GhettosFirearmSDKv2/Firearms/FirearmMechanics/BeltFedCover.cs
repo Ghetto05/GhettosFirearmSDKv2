@@ -129,7 +129,7 @@ namespace GhettosFirearmSDKv2
             _joint.connectedAnchor = Vector3.zero;
         }
 
-        public override bool GetState()
+        public override bool GetIsUnlocked()
         {
             return state == BoltBase.BoltState.Back;
         }

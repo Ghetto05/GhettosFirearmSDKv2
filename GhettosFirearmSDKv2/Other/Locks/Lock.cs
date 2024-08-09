@@ -10,10 +10,10 @@ namespace GhettosFirearmSDKv2
 
         public bool IsUnlocked()
         {
-            return !inverted? GetState() : !GetState();
+            return !inverted? GetIsUnlocked() : !GetIsUnlocked();
         }
 
-        public virtual bool GetState()
+        public virtual bool GetIsUnlocked()
         {
             return false;
         }
