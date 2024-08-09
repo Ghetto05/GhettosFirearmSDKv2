@@ -8,7 +8,7 @@ namespace GhettosFirearmSDKv2
 {
     public class Magazine : MonoBehaviour, IAmmunitionLoadable
     {
-        public static List<Magazine> all = new List<Magazine>();
+        public static List<Magazine> all = new();
         
         public bool ejectOnLastRoundFired;
         public bool infinite;
@@ -36,25 +36,24 @@ namespace GhettosFirearmSDKv2
         public MagazineLoad defaultLoad;
         public bool hasOverrideLoad;
         public Item overrideItem;
+        public Attachment overrideAttachment;
         public List<Collider> colliders;
-        private List<Renderer> originalRenderers;
-        MagazineSaveData saveData;
-        SaveNodeValueMagazineContents firearmSave;
+        private List<Renderer> _originalRenderers;
+        private MagazineSaveData _saveData;
+        private SaveNodeValueMagazineContents _firearmSave;
         public List<GameObject> feederObjects;
         public bool loadable;
-        public bool partOfPrebuilt;
+        public bool partOfPrebuilt = true;
         public float lastEjectTime;
         public BoltBase bolt;
         public bool onlyAllowLoadWhenBoltIsBack;
-        private List<ColliderGroup> colliderGroups = new List<ColliderGroup>();
+        private List<ColliderGroup> _colliderGroups = new();
 
         private void Update()
         {
-            //if (FirearmsSettings.magazinesHaveNoCollision && currentWell != null) ToggleCollision(false);
-            //UpdateCartridgePositions();
             if (currentWell != null && currentWell.firearm != null && canBeGrabbedInWell)
             {
-                foreach (Handle handle in handles)
+                foreach (var handle in handles)
                 {
                     handle.SetTouch(currentWell.firearm.item.holder == null);
                     handle.SetTelekinesis(currentWell == null);
@@ -77,13 +76,15 @@ namespace GhettosFirearmSDKv2
         public void InvokedStart()
         {
             cartridges = new List<Cartridge>();
-            if (overrideItem == null)
+            if (!overrideItem && !overrideItem)
                 item = GetComponent<Item>();
-            else
+            else if (overrideItem)
                 item = overrideItem;
+            else if (overrideAttachment)
+                item = overrideAttachment.attachmentPoint.parentFirearm.item;
             if (item == null)
                 return;
-            if (overrideItem == null)
+            if (!overrideItem && !overrideAttachment)
                 item.SetPhysicBodyAndMainCollisionHandler();
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
@@ -91,16 +92,42 @@ namespace GhettosFirearmSDKv2
             item.OnDespawnEvent += Item_OnDespawnEvent;
             item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             OnLoadFinished += OnOnLoadFinished;
-            if (overrideItem == null)
+            if (overrideItem)
             {
-                if (item.TryGetCustomData(out saveData))
+                overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
+                if (overrideItem.TryGetComponent(out Firearm f))
                 {
-                    saveData.ApplyToMagazine(this);
+                    _firearmSave = f.saveData.firearmNode.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents(), out var addedNew);
+                    if (addedNew && !defaultLoad)
+                    {
+                        defaultLoad.Load(this);
+                        return;
+                    }
+                    _firearmSave.value.ApplyToMagazine(this);
+                }
+                else InvokeLoadFinished();
+            }
+            else if (overrideAttachment)
+            {
+                overrideAttachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;
+                _firearmSave = overrideAttachment.Node.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents(), out var addedNew);
+                if (addedNew && !defaultLoad)
+                {
+                    defaultLoad.Load(this);
+                    return;
+                }
+                _firearmSave.value.ApplyToMagazine(this);
+            }
+            else
+            {
+                if (item.TryGetCustomData(out _saveData))
+                {
+                    _saveData.ApplyToMagazine(this);
                 }
                 else
                 {
-                    saveData = new MagazineSaveData();
-                    item.AddCustomData(saveData);
+                    _saveData = new MagazineSaveData();
+                    item.AddCustomData(_saveData);
                     if (defaultLoad != null)
                         defaultLoad.Load(this);
                     else
@@ -109,21 +136,6 @@ namespace GhettosFirearmSDKv2
                         loadable = true;
                     }
                 }
-            }
-            else
-            {
-                overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
-                if (overrideItem.TryGetComponent(out Firearm f))
-                {
-                    firearmSave = f.saveData.firearmNode.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents());
-                    if (defaultLoad != null)
-                    {
-                        defaultLoad.Load(this);
-                        return;
-                    }
-                    firearmSave.value.ApplyToMagazine(this);
-                }
-                else InvokeLoadFinished();
             }
 
             var renderersToBeAdded = new List<MeshRenderer>();
@@ -139,7 +151,7 @@ namespace GhettosFirearmSDKv2
                 item.lightVolumeReceiver.SetRenderers(item.renderers);
             }
 
-            if (overrideItem == null)
+            if (!overrideItem && !overrideAttachment)
                 all.Add(this);
         }
 
@@ -153,7 +165,7 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnUnSnapEvent(Holder holder)
         {
-            foreach (Cartridge car in cartridges)
+            foreach (var car in cartridges)
             {
                 car.DisableCull();
             }
@@ -161,7 +173,7 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnDespawnEvent(EventTime eventTime)
         {
-            foreach (Cartridge c in cartridges)
+            foreach (var c in cartridges)
             {
                 if (c!=null) c.item.Despawn();
             }
@@ -252,7 +264,7 @@ namespace GhettosFirearmSDKv2
                 {
                     Util.SpawnItem(c.item.itemId, "[Loaded round in magazine]",car =>
                     {
-                        Cartridge newC = car.GetComponent<Cartridge>();
+                        var newC = car.GetComponent<Cartridge>();
                         InsertRound(newC, true, true, true, true);
                     }, transform.position + Vector3.up * 10, null, null, false);
                 }
@@ -270,11 +282,12 @@ namespace GhettosFirearmSDKv2
 
         public void Mount(MagazineWell well, Rigidbody rb, bool silent = false)
         {
-            if (overrideItem == null) item.DisallowDespawn = true;
+            if (!overrideItem && !overrideAttachment) item.DisallowDespawn = true;
 
-            //renderers reassignment to fix dungeon lighting
-            if (originalRenderers == null) originalRenderers = item.renderers.ToList();
-            foreach (Renderer ren in originalRenderers)
+            #region Fix dungeon lighting
+
+            if (_originalRenderers == null) _originalRenderers = item.renderers.ToList();
+            foreach (var ren in _originalRenderers)
             {
                 well.firearm.item.renderers.Add(ren);
                 item.renderers.Remove(ren);
@@ -282,52 +295,62 @@ namespace GhettosFirearmSDKv2
             well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
             item.lightVolumeReceiver.SetRenderers(item.renderers);
 
-            //if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(false);
+            #endregion
+
             currentWell = well;
             currentWell.currentMagazine = this;
-            RagdollHand[] hands = item.handlers.Where(h => handles.Contains(h.grabbedHandle)).ToArray();
-            foreach (RagdollHand hand in hands)
+            var hands = item.handlers.Where(h => handles.Contains(h.grabbedHandle)).ToArray();
+            foreach (var hand in hands)
             {
                 hand.UnGrab(false);
             }
-            foreach (Cartridge c in cartridges)
+            
+            foreach (var c in cartridges)
             {
                 Util.IgnoreCollision(c.gameObject, currentWell.firearm.gameObject, true);
             }
             if (!silent) Util.PlayRandomAudioSource(magazineInsertSounds);
             Util.IgnoreCollision(gameObject, currentWell.firearm.gameObject, true);
-            if (overrideItem == null)
+
+            #region Parent to firearm
+
+            if (!overrideItem && !overrideAttachment)
                 item.physicBody.isKinematic = true;
             
             transform.SetParent(well.mountPoint);
             transform.position = well.mountPoint.position;
             transform.rotation = well.mountPoint.rotation;
-            
-            //// Collider fix attempt
-            colliderGroups = item.colliderGroups.ToList();
-            foreach (ColliderGroup group in colliderGroups)
+
+            #endregion
+
+            #region Collider fix
+
+            _colliderGroups = item.colliderGroups.ToList();
+            foreach (var group in _colliderGroups)
             {
                 group.transform.SetParent(currentWell.mountPoint);
             }
-            item.colliderGroups.RemoveAll(x => colliderGroups.Contains(x));
-            currentWell.firearm.item.colliderGroups.AddRange(colliderGroups);
+            item.colliderGroups.RemoveAll(x => _colliderGroups.Contains(x));
+            currentWell.firearm.item.colliderGroups.AddRange(_colliderGroups);
             currentWell.firearm.item.RefreshCollision();
-            
-            foreach (Handle handle in handles)
-            {
-                if (!canBeGrabbedInWell)
-                {
-                    handle.SetTouch(false);
-                }
-                handle.SetTelekinesis(false);
-            }
 
-            if (overrideItem == null)
+            #endregion
+            
+            foreach (var handle in handles)
             {
-                //Saving firearm's magazine
-                firearmSave = FirearmSaveData.GetNode(currentWell.firearm).GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents());
-                firearmSave.value.GetContentsFromMagazine(this);
-                firearmSave.value.itemID = item.itemId;
+                 if (!canBeGrabbedInWell)
+                 {
+                     handle.SetTouch(false);
+                 }
+                 handle.SetTelekinesis(false);
+            }
+            
+            // save mag to firearm
+            if (!overrideItem && !overrideAttachment)
+            {
+                _firearmSave = FirearmSaveData.GetNode(currentWell.firearm).GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents());
+                _firearmSave.value.GetContentsFromMagazine(this);
+                _firearmSave.value.itemID = item.itemId;
             }
 
             partOfPrebuilt = false;
@@ -337,17 +360,23 @@ namespace GhettosFirearmSDKv2
             Invoke(nameof(ResetRagdollCollision), 0.2f);
         }
 
+        private void ResetRagdollCollision()
+        {
+            if (currentWell != null)
+                currentWell.firearm.item.RefreshCollision();
+        }
+
         public void Eject()
         {
             if (currentWell != null)
             {
-                MagazineWell lastWell = currentWell;
+                var lastWell = currentWell;
                 OnEjectEvent?.Invoke(lastWell);
                 
-                if (overrideItem == null) item.DisallowDespawn = false;
+                if (!overrideItem && !overrideAttachment) item.DisallowDespawn = false;
 
                 //Revert dungeon lighting fix
-                foreach (Renderer ren in originalRenderers)
+                foreach (var ren in _originalRenderers)
                 {
                     lastWell.firearm.item.renderers.Remove(ren);
                     item.renderers.Add(ren);
@@ -356,37 +385,37 @@ namespace GhettosFirearmSDKv2
                 item.lightVolumeReceiver.SetRenderers(item.renderers);
                 
                 //// Collider fix attempt
-                lastWell.firearm.item.colliderGroups.RemoveAll(x => colliderGroups.Contains(x));
-                item.colliderGroups.AddRange(colliderGroups);
-                foreach (ColliderGroup group in colliderGroups)
+                lastWell.firearm.item.colliderGroups.RemoveAll(x => _colliderGroups.Contains(x));
+                item.colliderGroups.AddRange(_colliderGroups);
+                foreach (var group in _colliderGroups)
                 {
                     group.transform.SetParent(item.transform);
                 }
 
                 Util.PlayRandomAudioSource(magazineEjectSounds);
                 Util.DelayIgnoreCollision(gameObject, lastWell.firearm.gameObject, false, 0.5f, item);
-                foreach (Cartridge c in cartridges)
+                foreach (var c in cartridges)
                 {
                     if (c != null && lastWell != null && lastWell.firearm != null)
                         Util.DelayIgnoreCollision(c.gameObject, lastWell.firearm.gameObject, false, 0.5f, item);
                 }
-                firearmSave.value.Clear();
+                _firearmSave.value.Clear();
                 lastWell.currentMagazine = null;
                 currentWell = null;
-                foreach (Handle handle in handles)
+                foreach (var handle in handles)
                 {
-                    handle.SetTouch(true);
+                    handle.SetTouch(true); 
                     handle.SetTelekinesis(true);
                 }
                 //Destroy(joint);
                 item.transform.SetParent(null);
-                if (overrideItem == null)
+                if (!overrideItem && !overrideAttachment)
                 {
                     item.physicBody.isKinematic = false;
                     item.physicBody.rigidBody.WakeUp();
                     item.physicBody.velocity = lastWell.firearm.item.physicBody.velocity * 0.7f;
                 }
-                if (destroyOnEject && overrideItem == null)
+                if (destroyOnEject && !overrideItem && !overrideAttachment)
                     item.Despawn();
                 //if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(true);
                 lastEjectTime = Time.time;
@@ -395,15 +424,9 @@ namespace GhettosFirearmSDKv2
             item.lastInteractionTime = Time.time;
         }
 
-        private void ResetRagdollCollision()
-        {
-            if (currentWell != null)
-                currentWell.firearm.item.RefreshCollision();
-        }
-
         private void OnCollisionEnter(Collision collision)
         {
-            if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge car && Util.CheckForCollisionWithThisCollider(collision, roundInsertCollider) && Time.time - lastEjectTime > 1f)
+            if (collision.collider.GetComponentInParent<Cartridge>() is { } car && Util.CheckForCollisionWithThisCollider(collision, roundInsertCollider) && Time.time - lastEjectTime > 1f)
             {
                 InsertRound(car, false, false);
             }
@@ -411,7 +434,7 @@ namespace GhettosFirearmSDKv2
 
         public void UpdateCartridgePositions()
         {
-            foreach (Cartridge c in cartridges)
+            foreach (var c in cartridges)
             {
                 if (c != null && c.transform != null)
                 {
@@ -433,7 +456,7 @@ namespace GhettosFirearmSDKv2
 
         public void ToggleCollision(bool active)
         {
-            foreach (Collider c in colliders)
+            foreach (var c in colliders)
             {
                 c.enabled = active;
             }
@@ -441,25 +464,25 @@ namespace GhettosFirearmSDKv2
 
         public void SaveCustomData()
         {
-            if (overrideItem == null)
+            if (!overrideItem && !overrideAttachment)
             {
-                saveData.itemID = item.itemId;
-                saveData.GetContentsFromMagazine(this);
+                _saveData.itemID = item.itemId;
+                _saveData.GetContentsFromMagazine(this);
 
-                if (firearmSave != null)
+                if (_firearmSave != null)
                 {
-                    saveData.CloneTo(firearmSave.value);
+                    _saveData.CloneTo(_firearmSave.value);
                 }
             }
             else
             {
-                firearmSave.value.GetContentsFromMagazine(this);
+                _firearmSave.value.GetContentsFromMagazine(this);
             }
         }
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
+            foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
             {
                 Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
             }
@@ -498,7 +521,7 @@ namespace GhettosFirearmSDKv2
 
         public void ClearRounds()
         {
-            foreach (Cartridge car in cartridges)
+            foreach (var car in cartridges)
             {
                 car.item.Despawn(0.05f);
             } 

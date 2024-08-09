@@ -18,6 +18,7 @@ namespace GhettosFirearmSDKv2
             if (contents == null || contents.Length == 0)
             {
                 magazine.loadable = true;
+                magazine.InvokeLoadFinished();
                 return;
             }
             ApplyToMagazineRecurve(contents.Length - 1, magazine, contents.CloneJson());

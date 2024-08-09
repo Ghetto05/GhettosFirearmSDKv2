@@ -49,16 +49,15 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnDespawnEvent(EventTime eventTime)
         {
-            if (currentMagazine != null && currentMagazine.overrideItem == null) currentMagazine.item.Despawn();
+            if (currentMagazine != null && !currentMagazine.overrideItem && !currentMagazine.overrideAttachment) currentMagazine.item.Despawn();
         }
 
         void Update()
         {
             if (currentMagazine != null)
             {
-                if (currentMagazine.overrideItem == null)
+                if (!currentMagazine.overrideItem && !currentMagazine.overrideAttachment)
                 {
-                    //currentMagazine.item.SetColliderLayer(firearm.item.currentPhysicsLayer);
                     currentMagazine.item.SetMeshLayer(firearm.item.gameObject.layer);
                 }
                 roundCounterMessage = currentMagazine.cartridges.Count.ToString();
@@ -130,7 +129,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Eject(bool forced = false)
         {
-            if (currentMagazine == null || currentMagazine.overrideItem != null || !forced && !BoltExistsAndIsPulled() || !(canEject | forced) && currentMagazine.canBeGrabbedInWell)
+            if (!currentMagazine || currentMagazine.overrideItem || currentMagazine.overrideAttachment || (!forced && !BoltExistsAndIsPulled()) || !(canEject | forced) && currentMagazine.canBeGrabbedInWell)
                 return;
             Magazine mag = currentMagazine;
             currentMagazine.Eject();

@@ -20,7 +20,7 @@ namespace GhettosFirearmSDKv2
                     }
                 }
 
-                foreach (Magazine magazine in Magazine.all.Where(m => m.overrideItem == null).ToArray())
+                foreach (Magazine magazine in Magazine.all.Where(m => !m.overrideItem && !m.overrideAttachment).ToArray())
                 {
                     if (magazine.item != null && Time.time - magazine.item.spawnTime > 10f && !magazine.item.physicBody.rigidBody.isKinematic && !magazine.item.handlers.Any() && !magazine.item.tkHandlers.Any() && !magazine.item.isGripped && magazine.item.holder == null && Time.time - magazine.item.lastInteractionTime > Settings.firearmDespawnTime)
                         magazine.item.Despawn();
