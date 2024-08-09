@@ -49,6 +49,8 @@
     <Compile Include="Firearms\Ammunition\ICaliberGettable.cs" />
     <Compile Include="Firearms\Ammunition\PowderGrain.cs" />
     <Compile Include="Firearms\Ammunition\StripperClip.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearmModeManager.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFireModeSeletor.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\BoltAttacher.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\ForeGripSling.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="Firearms\FirearmMechanics\BeltFedCover.cs" />
     <Compile Include="Firearms\FirearmMechanics\BeltFedCoverAxis.cs" />
     <Compile Include="Firearms\FirearmMechanics\LeverActionSnapFeeder.cs" />
+    <Compile Include="Firearms\FirearmMechanics\MagazineWellLatch.cs" />
     <Compile Include="Firearms\FirearmMechanics\PowderPouch.cs" />
     <Compile Include="Firearms\FirearmMechanics\PowderReceiver.cs" />
     <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs" />
@@ -222,6 +225,7 @@
     <Compile Include="UI\GunVice\ViceUIAttachmentSlot.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\LineAttacher.cs" />
+    <Compile Include="Util\ModderTool.cs" />
     <Compile Include="Util\Util.cs" />
     <Compile Include="Firearms\Ammunition\Magazine.cs" />
     <Compile Include="Firearms\Ammunition\ProjectileData.cs" />
