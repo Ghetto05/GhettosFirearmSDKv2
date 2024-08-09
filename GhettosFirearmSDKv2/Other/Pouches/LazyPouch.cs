@@ -20,7 +20,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         public void InvokedStart()
@@ -95,7 +95,7 @@ namespace GhettosFirearmSDKv2
                         firearm = item.GetComponent<Firearm>();
                     }
 
-                    if (firearm != null && firearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is AttachmentFirearm ff)
+                    if (firearm != null && firearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is { } ff)
                         firearm = ff;
 
                     lastFirearm = firearm;

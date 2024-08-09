@@ -110,7 +110,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         public void InvokedStart()
@@ -228,7 +228,7 @@ namespace GhettosFirearmSDKv2
                     if (hand.alternateUsePressed)
                         triggerPull = 0f;
                     else
-                        triggerPull = Mathf.Clamp01(hand.useAxis / (triggerPullMax - FirearmsSettings.revolverTriggerDeadzone));
+                        triggerPull = Mathf.Clamp01(hand.useAxis / (triggerPullMax - Settings.revolverTriggerDeadzone));
                 }
                 else triggerPull = 0;
 
@@ -252,7 +252,7 @@ namespace GhettosFirearmSDKv2
                                 weight = onTriggerWeight + (1 - onTriggerWeight) * triggerPull;
                                 _lastTriggerPull = Time.time;
                             }
-                            else if (Time.time - _lastTriggerPull <= FirearmsSettings.triggerDisciplineTime)
+                            else if (Time.time - _lastTriggerPull <= Settings.triggerDisciplineTime)
                                 weight = onTriggerWeight;
                             else
                                 weight = 0f;
@@ -453,7 +453,7 @@ namespace GhettosFirearmSDKv2
 
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
-            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !FirearmsSettings.infiniteAmmo);
+            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !Settings.infiniteAmmo);
             InvokeFireEvent();
             InvokeFireLogicFinishedEvent();
         }

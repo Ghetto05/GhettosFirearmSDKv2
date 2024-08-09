@@ -36,7 +36,7 @@ namespace GhettosFirearmSDKv2
 
         public void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
             leverHandle.SetTouch(false);
         }
         

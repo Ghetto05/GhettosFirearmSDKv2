@@ -73,7 +73,7 @@ namespace GhettosFirearmSDKv2
 
         public void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         public void InvokedStart()
@@ -313,7 +313,7 @@ namespace GhettosFirearmSDKv2
                 }
                 
                 //Racked
-                if (Util.AbsDist(bolt.position, startPoint.position) < FirearmsSettings.boltPointTreshold && state == BoltState.Moving)
+                if (Util.AbsDist(bolt.position, startPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
                 {
                     bolt.localPosition = startPoint.localPosition;
                     closedAfterLoad = true;
@@ -325,7 +325,7 @@ namespace GhettosFirearmSDKv2
                     Util.PlayRandomAudioSource(rackSoundsHeld);
                 }
                 //Pulled
-                else if (Util.AbsDist(bolt.position, endPoint.position) < FirearmsSettings.boltPointTreshold && state == BoltState.Moving)
+                else if (Util.AbsDist(bolt.position, endPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Back;
@@ -362,7 +362,7 @@ namespace GhettosFirearmSDKv2
                         TryLoadRound();
                 }
                 //caught
-                else if (state == BoltState.Moving && caught && Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < FirearmsSettings.boltPointTreshold)
+                else if (state == BoltState.Moving && caught && Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < Settings.boltPointTreshold)
                 {
                     if (chargingHandle == null)
                         letGoBeforeClosed = false;
@@ -372,7 +372,7 @@ namespace GhettosFirearmSDKv2
                     state = BoltState.LockedBack;
                 }
                 //moving
-                else if (state != BoltState.Moving && !(caught && state == BoltState.LockedBack && Util.AbsDist(bolt.position, catchPoint.position) < FirearmsSettings.boltPointTreshold) && Util.AbsDist(bolt.position, endPoint.position) > FirearmsSettings.boltPointTreshold && Util.AbsDist(bolt.position, startPoint.position) > FirearmsSettings.boltPointTreshold)
+                else if (state != BoltState.Moving && !(caught && state == BoltState.LockedBack && Util.AbsDist(bolt.position, catchPoint.position) < Settings.boltPointTreshold) && Util.AbsDist(bolt.position, endPoint.position) > Settings.boltPointTreshold && Util.AbsDist(bolt.position, startPoint.position) > Settings.boltPointTreshold)
                 {
                     laststate = state;
                     state = BoltState.Moving;
@@ -412,7 +412,7 @@ namespace GhettosFirearmSDKv2
                 }
 
                 //Charging handle racked
-                if (chargingHandle != null && Util.AbsDist(chargingHandle.position, startPoint.position) < FirearmsSettings.boltPointTreshold && chargingHandleState == BoltState.Moving)
+                if (chargingHandle != null && Util.AbsDist(chargingHandle.position, startPoint.position) < Settings.boltPointTreshold && chargingHandleState == BoltState.Moving)
                 {
                     Util.PlayRandomAudioSource(chargingHandleRackSounds);
                     previousChargingHandleState = chargingHandleState;
@@ -420,7 +420,7 @@ namespace GhettosFirearmSDKv2
                     chargingHandleState = BoltState.Front;
                 }
                 //Charging handle moving
-                else if (chargingHandle != null && chargingHandleState != BoltState.Moving && Util.AbsDist(chargingHandle.position, endPoint.position) > FirearmsSettings.boltPointTreshold && Util.AbsDist(chargingHandle.position, startPoint.position) > FirearmsSettings.boltPointTreshold)
+                else if (chargingHandle != null && chargingHandleState != BoltState.Moving && Util.AbsDist(chargingHandle.position, endPoint.position) > Settings.boltPointTreshold && Util.AbsDist(chargingHandle.position, startPoint.position) > Settings.boltPointTreshold)
                 {
                     previousChargingHandleState = chargingHandleState;
                     chargingHandleState = BoltState.Moving;

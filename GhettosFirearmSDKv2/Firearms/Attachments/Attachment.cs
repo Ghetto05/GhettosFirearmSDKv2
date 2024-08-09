@@ -82,7 +82,7 @@ namespace GhettosFirearmSDKv2
             attachmentPoint.parentFirearm.UpdateAttachments(initialSetup);
             attachmentPoint.parentFirearm.item.OnDespawnEvent += Item_OnDespawnEvent;
 
-            if (FirearmsSettings.debugMode)
+            if (Settings.debugMode)
             {
                 foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
                 {

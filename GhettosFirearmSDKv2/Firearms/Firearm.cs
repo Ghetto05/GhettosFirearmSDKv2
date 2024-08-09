@@ -62,7 +62,7 @@ namespace GhettosFirearmSDKv2
 
             if (item == null) item = GetComponent<Item>();
             item.OnDespawnEvent += Item_OnDespawnEvent;
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
             all.Add(this);
         }
 
@@ -100,7 +100,7 @@ namespace GhettosFirearmSDKv2
             CalculateMuzzle();
 
             #region handle type validation
-            if (FirearmsSettings.debugMode)
+            if (Settings.debugMode)
             {
                 foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
                 {

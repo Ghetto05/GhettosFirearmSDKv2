@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
         private void Start()
         {
             loadedCartridges = new List<Cartridge>();
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         private void InvokedStart()
@@ -80,7 +80,7 @@ namespace GhettosFirearmSDKv2
             if (_currentWell == null && collision.contacts[0].otherCollider.GetComponentInParent<StripperClipWell>() != null)
             {
                 StripperClipWell well = collision.contacts[0].otherCollider.GetComponentInParent<StripperClipWell>();
-                if ((well.clipType.Equals(clipType) || !FirearmsSettings.doMagazineTypeChecks) && Util.CheckForCollisionWithBothColliders(collision, mountCollider, well.mountCollider))
+                if ((well.clipType.Equals(clipType) || !Settings.doMagazineTypeChecks) && Util.CheckForCollisionWithBothColliders(collision, mountCollider, well.mountCollider))
                     MountToGun(well);
             }
             if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge c && Util.CheckForCollisionWithThisCollider(collision, roundLoadCollider) && Time.time - _lastEjectTime > 1f)
@@ -124,7 +124,7 @@ namespace GhettosFirearmSDKv2
 
         public void InsertRound(Cartridge c, bool silent = false, bool forced = false, bool save = true)
         {
-            if ((loadable || forced) && loadedCartridges.Count < capacity && !c.loaded && (c.caliber.Equals(caliber) || !FirearmsSettings.doCaliberChecks || forced))
+            if ((loadable || forced) && loadedCartridges.Count < capacity && !c.loaded && (c.caliber.Equals(caliber) || !Settings.doCaliberChecks || forced))
             {
                 if (!silent)
                     Util.PlayRandomAudioSource(loadSounds);
@@ -189,7 +189,7 @@ namespace GhettosFirearmSDKv2
                 Time.time - _lastRemoveTime < 0.5f ||
                 well.currentClip != null ||
                 (well.bolt.state != well.allowedState && !well.alwaysAllow) ||
-                (!well.clipType.Equals(clipType) && FirearmsSettings.doMagazineTypeChecks) ||
+                (!well.clipType.Equals(clipType) && Settings.doMagazineTypeChecks) ||
                 well.blockingAttachmentPoints.Any(at => at.currentAttachments.Any()))
             {
                 return;

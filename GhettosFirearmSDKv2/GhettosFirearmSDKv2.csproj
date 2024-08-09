@@ -69,10 +69,11 @@
     <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs" />
     <Compile Include="Firearms\FirearmMechanics\RotationLimitedFollower.cs" />
     <Compile Include="Firearms\FirearmMechanics\StripperClipWell.cs" />
-    <Compile Include="LevelModules\FirearmCleaner.cs" />
-    <Compile Include="LevelModules\FirearmsSettingsValues.cs" />
-    <Compile Include="LevelModules\HomeAdjustments.cs" />
-    <Compile Include="LevelModules\UpdateChecker.cs" />
+    <Compile Include="StaticScripts\FirearmCleaner.cs" />
+    <Compile Include="StaticScripts\FirearmsSettingsValues.cs" />
+    <Compile Include="StaticScripts\HomeAdjustments.cs" />
+    <Compile Include="StaticScripts\Initialization.cs" />
+    <Compile Include="StaticScripts\UpdateChecker.cs" />
     <Compile Include="Other\ChemLight.cs" />
     <Compile Include="Other\CollapsibleBaton.cs" />
     <Compile Include="Other\Data\CaliberSortingData.cs" />
@@ -123,8 +124,8 @@
     <Compile Include="Firearms\BoltAssemblies\HandleFolder.cs" />
     <Compile Include="Firearms\FirearmMechanics\Hammer.cs" />
     <Compile Include="Firearms\FirearmMechanics\RevolverEjectorRod.cs" />
-    <Compile Include="LevelModules\GunGame\GunGameWeaponData.cs" />
-    <Compile Include="LevelModules\GunGame\GunGame.cs" />
+    <Compile Include="StaticScripts\GunGame\GunGameWeaponData.cs" />
+    <Compile Include="StaticScripts\GunGame\GunGame.cs" />
     <Compile Include="Imaging\NVGOnlyRenderer.cs" />
     <Compile Include="Imaging\NVGOnlyRendererMeshModule.cs" />
     <Compile Include="Other\GhettoHandle.cs" />
@@ -142,7 +143,7 @@
     <Compile Include="SaveData\SaveNodeValueInt.cs" />
     <Compile Include="SaveData\SaveNodeValue.cs" />
     <Compile Include="SaveData\FirearmSaveData.cs" />
-    <Compile Include="LevelModules\FirearmsScore.cs" />
+    <Compile Include="StaticScripts\FirearmsScore.cs" />
     <Compile Include="Other\Switches\SwitchRelation.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltBase.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearm.cs" />
@@ -220,7 +221,7 @@
     <Compile Include="Firearms\Ammunition\Magazine.cs" />
     <Compile Include="Firearms\Ammunition\ProjectileData.cs" />
     <Compile Include="Explosives\ExplosiveData.cs" />
-    <Compile Include="LevelModules\FirearmsSettings.cs" />
+    <Compile Include="StaticScripts\Settings.cs" />
     <Compile Include="FireMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WTFInator.cs" />

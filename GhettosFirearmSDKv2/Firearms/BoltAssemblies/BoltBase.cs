@@ -59,7 +59,7 @@ namespace GhettosFirearmSDKv2
 
         public static void AddTorqueToCartridge(Cartridge c)
         {
-            float f = FirearmsSettings.cartridgeEjectionTorque;
+            float f = Settings.cartridgeEjectionTorque;
             Vector3 torque = new Vector3
             {
                 x = Random.Range(-f, f),
@@ -71,7 +71,7 @@ namespace GhettosFirearmSDKv2
 
         public static void AddForceToCartridge(Cartridge c, Transform direction, float force)
         {
-            float f = FirearmsSettings.cartridgeEjectionForceRandomizationDevision;
+            float f = Settings.cartridgeEjectionForceRandomizationDevision;
             c.item.physicBody.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
         }
 

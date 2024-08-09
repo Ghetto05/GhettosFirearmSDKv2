@@ -15,7 +15,7 @@ namespace GhettosFirearmSDKv2
 
         private void Awake()
         {
-            if (breathingLoop == null && FirearmsSettings.debugMode)
+            if (breathingLoop == null && Settings.debugMode)
                 Debug.Log($"GAS MASK BREATHING LOOP MISSING: {string.Join("/", gameObject.GetComponentsInParent<Transform>().Reverse().Select(t => t.name).ToArray())}");
         }
 
@@ -23,8 +23,8 @@ namespace GhettosFirearmSDKv2
         {
             if (breathingLoop != null)
             {
-                if (FirearmsSettings.playGasMaskSound && !breathingLoop.isPlaying) breathingLoop.Play();
-                else if (!FirearmsSettings.playGasMaskSound && breathingLoop.isPlaying) breathingLoop.Stop();
+                if (Settings.playGasMaskSound && !breathingLoop.isPlaying) breathingLoop.Play();
+                else if (!Settings.playGasMaskSound && breathingLoop.isPlaying) breathingLoop.Stop();
             }
 
             if (creature == null)

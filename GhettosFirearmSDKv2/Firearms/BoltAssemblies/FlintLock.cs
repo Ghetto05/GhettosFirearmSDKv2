@@ -85,7 +85,7 @@ namespace GhettosFirearmSDKv2
         {
             GenerateFireData();
             OpenPan(true);
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime * 2);
+            Invoke(nameof(InvokedStart), Settings.invokeTime * 2);
         }
 
         private void GenerateFireData()
@@ -226,7 +226,7 @@ namespace GhettosFirearmSDKv2
                 return;
             }
 
-            if (!FirearmsSettings.infiniteAmmo)
+            if (!Settings.infiniteAmmo)
                 panReceiver.currentAmount = 0;
             Util.PlayRandomAudioSource(sizzleSound);
             if (panEffect != null)
@@ -246,18 +246,18 @@ namespace GhettosFirearmSDKv2
                 return;
             }
 
-            if (!FirearmsSettings.infiniteAmmo)
+            if (!Settings.infiniteAmmo)
                 mainReceiver.currentAmount = 0;
             if (loadedCartridge != null)
             {
-                if (Vector3.Distance(loadedCartridge.transform.position, rodRearEnd.position) < FirearmsSettings.boltPointTreshold)
+                if (Vector3.Distance(loadedCartridge.transform.position, rodRearEnd.position) < Settings.boltPointTreshold)
                 {
                     firearm.PlayFireSound(loadedCartridge);
                     if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                         firearm.PlayMuzzleFlash(loadedCartridge);
                     FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hitPoints, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                     FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-                    loadedCartridge.Fire(hitPoints, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !HeldByAI() && !FirearmsSettings.infiniteAmmo);
+                    loadedCartridge.Fire(hitPoints, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !HeldByAI() && !Settings.infiniteAmmo);
                 }
             }
             else
@@ -340,11 +340,11 @@ namespace GhettosFirearmSDKv2
             #region Ram rod movement
             
             if (currentRamRod != null && !rodAwayFromBreach &&
-                Vector3.Distance(currentRamRod.transform.position, rodRearEnd.position) < FirearmsSettings.boltPointTreshold)
+                Vector3.Distance(currentRamRod.transform.position, rodRearEnd.position) < Settings.boltPointTreshold)
                 rodAwayFromBreach = true;
 
             if (currentRamRod != null && rodAwayFromBreach &&
-                Vector3.Distance(currentRamRod.transform.position, rodFrontEnd.position) < FirearmsSettings.boltPointTreshold)
+                Vector3.Distance(currentRamRod.transform.position, rodFrontEnd.position) < Settings.boltPointTreshold)
             {
                 InitializeRamRodJoint(null);
                 Util.DisableCollision(currentRamRod, false);
@@ -371,11 +371,11 @@ namespace GhettosFirearmSDKv2
             #region Ram rod store movement
             
             if (currentStoredRamRod != null && !rodAwayFromStoreEnd &&
-                Vector3.Distance(currentStoredRamRod.transform.position, rodStoreRearEnd.position) < FirearmsSettings.boltPointTreshold)
+                Vector3.Distance(currentStoredRamRod.transform.position, rodStoreRearEnd.position) < Settings.boltPointTreshold)
                 rodAwayFromStoreEnd = true;
 
             if (currentStoredRamRod != null && rodAwayFromStoreEnd &&
-                Vector3.Distance(currentStoredRamRod.transform.position, rodStoreFrontEnd.position) < FirearmsSettings.boltPointTreshold)
+                Vector3.Distance(currentStoredRamRod.transform.position, rodStoreFrontEnd.position) < Settings.boltPointTreshold)
             {
                 InitializeRamRodJoint(null, true);
                 Util.DisableCollision(currentStoredRamRod, false);

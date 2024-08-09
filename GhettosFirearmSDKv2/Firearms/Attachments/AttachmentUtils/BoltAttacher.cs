@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         private void Start()
         {
             Debug.Log("Loading converter");
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         private void InvokedStart()

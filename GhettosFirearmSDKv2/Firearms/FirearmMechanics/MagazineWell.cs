@@ -31,7 +31,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         public void InvokedStart()

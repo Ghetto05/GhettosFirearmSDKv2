@@ -32,7 +32,7 @@ namespace GhettosFirearmSDKv2
             {
                 try
                 {
-                    FirearmsSettings.CreateSaveFolder();
+                    Settings.CreateSaveFolder();
                     ItemData itemData = Catalog.GetData<ItemData>(itemId).CloneJson();
                     itemData.modules = itemData.modules.CloneJson();
                     itemData.id = id;
@@ -47,7 +47,7 @@ namespace GhettosFirearmSDKv2
                                                 itemData = itemData
                                             };
                     itemData.modules.Add(loader);
-                    Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), FirearmsSettings.GetSaveFolderPath() + "\\Saves\\" + id + ".json", "!GhettosFirearmSDKv2_Saves");
+                    Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), Settings.GetSaveFolderPath() + "\\Saves\\" + id + ".json", "!GhettosFirearmSDKv2_Saves");
                     allPrebuilts.Add(itemData);
                 }
                 catch (Exception)

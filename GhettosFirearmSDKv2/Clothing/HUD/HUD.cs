@@ -29,7 +29,7 @@ namespace GhettosFirearmSDKv2
 
         private void Settings_LevelModule_OnValueChangedEvent()
         {
-            try { scaleRoot.localScale = Vector3.one * FirearmsSettings.hudScale; } catch (Exception) { }
+            try { scaleRoot.localScale = Vector3.one * Settings.hudScale; } catch (Exception) { }
         }
 
         private void OnDestroy()

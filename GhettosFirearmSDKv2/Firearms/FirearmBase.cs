@@ -65,7 +65,7 @@ namespace GhettosFirearmSDKv2
             Util.ApplyAudioConfig(fireSounds);
             Util.ApplyAudioConfig(suppressedFireSounds, true);
             
-            longPressTime = FirearmsSettings.longPressTime;
+            longPressTime = Settings.longPressTime;
             if (item != null && item.data.moduleAI != null)
             {
                 item.data.moduleAI.primaryClass =
@@ -252,7 +252,7 @@ namespace GhettosFirearmSDKv2
                 StartCoroutine(Explosives.Explosive.delayedDestroy(sourceInstance, source.clip.length + 1f)); 
             }
             
-            float deviation =  FirearmsSettings.firingSoundDeviation / pitch;
+            float deviation =  Settings.firingSoundDeviation / pitch;
             source.pitch = pitch + Random.Range(-deviation, deviation);
             source.Play();
         }

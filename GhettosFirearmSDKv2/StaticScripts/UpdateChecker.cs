@@ -15,7 +15,7 @@ namespace GhettosFirearmSDKv2
 
         public static string CheckForUpdates()
         {
-            if (!FirearmsSettings.hideUpdateNotifications && AttemptDownload(out string content))
+            if (!Settings.hideUpdateNotifications && AttemptDownload(out string content))
             {
                 EventManager.onLevelLoad += EventManager_onLevelLoad;
                 List<ModManager.ModData> modsToUpdate = new List<ModManager.ModData>();

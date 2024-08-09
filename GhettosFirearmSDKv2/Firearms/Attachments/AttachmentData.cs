@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
         {
             if (point == null)
             {
-                if (FirearmsSettings.debugMode)
+                if (Settings.debugMode)
                     Debug.LogError("Tried to attach attachment to no point!");
                 return;
             }

@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
         {
             if (unfiredOnlyObject != null)
                 unfiredOnlyObject.SetActive(true);
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         private void InvokedStart()
@@ -56,7 +56,7 @@ namespace GhettosFirearmSDKv2
         {
             if (keepRotationAtZero && loaded && transform.localEulerAngles != Vector3.zero)
                 transform.localEulerAngles = Vector3.zero;
-            if (!disallowDespawn && !loaded && fired && !Mathf.Approximately(FirearmsSettings.cartridgeDespawnTime, 0f))
+            if (!disallowDespawn && !loaded && fired && !Mathf.Approximately(Settings.cartridgeDespawnTime, 0f))
                 StartCoroutine(Despawn());
         }
 
@@ -64,7 +64,7 @@ namespace GhettosFirearmSDKv2
         {
             do
             {
-                yield return new WaitForSeconds(FirearmsSettings.cartridgeDespawnTime);
+                yield return new WaitForSeconds(Settings.cartridgeDespawnTime);
             } while (loaded || item.physicBody.rigidBody.isKinematic || item.DisallowDespawn);
             item.Despawn();
         }

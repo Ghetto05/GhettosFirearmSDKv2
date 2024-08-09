@@ -46,13 +46,13 @@ namespace GhettosFirearmSDKv2
 
         public void UpdateOffsets()
         {
-            if (upwardAxis != null) upwardAxis.localPosition = Offset(FirearmsSettings.NvgUpwardOffset);
-            if (forwardAxis != null) forwardAxis.localPosition = Offset(FirearmsSettings.NvgForwardOffset);
-            if (sidewaysAxisLeft != null) sidewaysAxisLeft.localPosition = Offset(FirearmsSettings.NvgSidewaysOffset);
-            if (sidewaysAxisRight != null) sidewaysAxisRight.localPosition = Offset(FirearmsSettings.NvgSidewaysOffset);
+            if (upwardAxis != null) upwardAxis.localPosition = Offset(Settings.NvgUpwardOffset);
+            if (forwardAxis != null) forwardAxis.localPosition = Offset(Settings.NvgForwardOffset);
+            if (sidewaysAxisLeft != null) sidewaysAxisLeft.localPosition = Offset(Settings.NvgSidewaysOffset);
+            if (sidewaysAxisRight != null) sidewaysAxisRight.localPosition = Offset(Settings.NvgSidewaysOffset);
             if (foldAxis != null)
             {
-                if (FirearmsSettings.FoldNvgs)
+                if (Settings.FoldNvgs)
                     foldAxis.SetLocalPositionAndRotation(foldedPosition.localPosition, foldedPosition.localRotation);
                 else
                     foldAxis.SetLocalPositionAndRotation(idlePosition.localPosition, idlePosition.localRotation);

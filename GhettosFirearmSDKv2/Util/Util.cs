@@ -34,7 +34,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadCartridge(Cartridge cartridge, IAmmunitionLoadable magazine)
         {
-            if (!FirearmsSettings.doCaliberChecks && !magazine.GetForceCorrectCaliber())
+            if (!Settings.doCaliberChecks && !magazine.GetForceCorrectCaliber())
                 return true;
 
             return AllowLoadCartridge(cartridge.caliber, magazine);
@@ -70,7 +70,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool CheckCaliberMatch(string insertedCaliber, string targetCaliber, bool ignoreCheat = false)
         {
-            if (!FirearmsSettings.doCaliberChecks && !ignoreCheat)
+            if (!Settings.doCaliberChecks && !ignoreCheat)
                 return true;
             if (insertedCaliber.Equals("DEBUG UNIVERSAL"))
                 return true;
@@ -80,7 +80,7 @@ namespace GhettosFirearmSDKv2
         public static bool AllowLoadMagazine(Magazine magazine, MagazineWell well)
         {
             if (magazine.currentWell != null || magazine.item.holder != null || well.currentMagazine != null) return false;
-            if (!FirearmsSettings.doMagazineTypeChecks) return true;
+            if (!Settings.doMagazineTypeChecks) return true;
             if (magazine.magazineType.Equals("DEBUG UNIVERSAL")) return true;
 
             bool sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
@@ -88,7 +88,10 @@ namespace GhettosFirearmSDKv2
             {
                 if (t.Equals(magazine.magazineType)) sameType = true;
             }
-            bool compatibleCaliber = (magazine.cartridges.Count == 0) || !FirearmsSettings.doCaliberChecks || ((well.caliber.Equals(magazine.cartridges[0].caliber))||(ListContainsString(well.alternateCalibers, magazine.cartridges[0].caliber)));
+            bool compatibleCaliber = magazine.cartridges.Count == 0 ||
+                                     !Settings.doCaliberChecks ||
+                                     well.caliber.Equals(magazine.cartridges[0].caliber) ||
+                                     well.alternateCalibers.Any(x => x.Equals(magazine.cartridges[0].caliber));
 
             return sameType && compatibleCaliber;
         }
@@ -364,7 +367,7 @@ namespace GhettosFirearmSDKv2
                                      bool pooled = true,
                                      List<ContentCustomData> customDataList = null)
         {
-            Catalog.GetData<ItemData>(GetSubstituteId(id, handler), FirearmsSettings.debugMode)?.SpawnAsync(callback, position, rotation, parent, pooled, customDataList);
+            Catalog.GetData<ItemData>(GetSubstituteId(id, handler), Settings.debugMode)?.SpawnAsync(callback, position, rotation, parent, pooled, customDataList);
         }
 
         private static ObsoleteIdData _obsoleteIdData;
@@ -381,7 +384,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (_obsoleteIdData.idMatches.TryGetValue(id, out string substituteId))
                 {
-                    if (FirearmsSettings.debugMode)
+                    if (Settings.debugMode)
                     {
                         Debug.Log($"OBSOLETE ID! {id} was replaced by {substituteId}! Handler: {handler}");
                     }

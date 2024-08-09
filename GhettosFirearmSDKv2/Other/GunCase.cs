@@ -33,7 +33,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
             if (isStatic)
             {
                 item.physicBody.isKinematic = true;

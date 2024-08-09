@@ -31,10 +31,18 @@ namespace GhettosFirearmSDKv2
         
         public void SpawnHomeItems()
         {
-            if (FirearmsSettings.spawnWorkbenchAndLocker)
+            if (Settings.spawnWorkbenchAndLocker && AllowSpawnLocker)
                 Level.current.StartCoroutine(DelayedLockerSpawn());
-            if (FirearmsSettings.spawnLiam)
+            if (Settings.spawnLiam)
                 Level.current.StartCoroutine(DelayedRigEditorSpawn());
+        }
+
+        private bool AllowSpawnLocker
+        {
+            get
+            {
+                return !GameModeManager.instance.currentGameMode.name.Equals("CrystalHunt");
+            }
         }
 
         private IEnumerator DelayedLockerSpawn()

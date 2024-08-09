@@ -52,7 +52,7 @@ namespace GhettosFirearmSDKv2
         public virtual void Start()
         {
             if (lens != null) lenses.Add(lens);
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         private void InvokedStart()
@@ -139,7 +139,7 @@ namespace GhettosFirearmSDKv2
 
         public void SetFOVFromMagnification(float magnification)
         {
-            float factor = 2.0f * Mathf.Tan(0.5f * FirearmsSettings.scopeX1MagnificationFOV * Mathf.Deg2Rad);
+            float factor = 2.0f * Mathf.Tan(0.5f * Settings.scopeX1MagnificationFOV * Mathf.Deg2Rad);
             float fov = 2.0f * Mathf.Atan(factor / (2.0f * magnification)) * Mathf.Rad2Deg;
             
             cam.fieldOfView = fov;

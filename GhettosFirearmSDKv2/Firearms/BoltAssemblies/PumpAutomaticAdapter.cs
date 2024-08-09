@@ -31,7 +31,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime * 2);
+            Invoke(nameof(InvokedStart), Settings.invokeTime * 2);
             pumpAction.fireOnTriggerPress = false;
         }
 

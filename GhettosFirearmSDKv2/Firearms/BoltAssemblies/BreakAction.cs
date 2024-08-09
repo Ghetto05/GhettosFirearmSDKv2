@@ -76,7 +76,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
             firearm.actualHitscanMuzzle = muzzles.First();
 
             if (editorChamberSets.Any())
@@ -245,7 +245,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridges[i] != null)
             {
                 Cartridge c = loadedCartridges[i];
-                if (FirearmsSettings.breakActionsEjectOnlyFired && !c.fired && !ignoreFiredState)
+                if (Settings.breakActionsEjectOnlyFired && !c.fired && !ignoreFiredState)
                     return;
                 if (chamberSets.Any() && !chamberSets[currentChamberSet].Contains(i))
                     return;
@@ -387,7 +387,7 @@ namespace GhettosFirearmSDKv2
                     }
                     FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
                     FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
-                    loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, !FirearmsSettings.infiniteAmmo);
+                    loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, !Settings.infiniteAmmo);
                     InvokeFireEvent();
                 }
             }
@@ -426,7 +426,7 @@ namespace GhettosFirearmSDKv2
         {
             if (state == BoltState.Locked)
                 Unlock();
-            else if (FirearmsSettings.breakActionsEjectOnlyFired)
+            else if (Settings.breakActionsEjectOnlyFired)
                 for (int i = 0; i < loadedCartridges.Length; i++)
                 {
                     TryEjectSingle(i, true);

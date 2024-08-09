@@ -20,7 +20,7 @@ namespace GhettosFirearmSDKv2
 
         private void OnCollisionEnter(Collision collision)
         {
-            if ((lockingCondition == null || lockingCondition.IsUnlocked()) && Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.collider.GetComponentInParent<Cartridge>() is Cartridge c && Util.AllowLoadCartridge(c, caliber))
+            if ((lockingCondition == null || lockingCondition.IsUnlocked()) && Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.collider.GetComponentInParent<Cartridge>() is { } c && Util.AllowLoadCartridge(c, caliber))
             {
                 if (boltToBeLoaded.LoadChamber(c))
                 {

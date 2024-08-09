@@ -26,9 +26,9 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            if (FirearmsSettings.debugMode)
+            if (Settings.debugMode)
                 StartCoroutine(Alert());
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime + 0.01f);
+            Invoke(nameof(InvokedStart), Settings.invokeTime + 0.01f);
         }
 
         private void InvokedStart()

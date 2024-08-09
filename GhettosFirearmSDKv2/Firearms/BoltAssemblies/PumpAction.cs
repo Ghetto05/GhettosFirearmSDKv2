@@ -44,7 +44,7 @@ namespace GhettosFirearmSDKv2
 
         public void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         public void InvokedStart()
@@ -178,7 +178,7 @@ namespace GhettosFirearmSDKv2
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             bool fire = false;
-            if (!FirearmsSettings.infiniteAmmo || (FirearmsSettings.infiniteAmmo && firearm.magazineWell != null))
+            if (!Settings.infiniteAmmo || (Settings.infiniteAmmo && firearm.magazineWell != null))
             {
                 fire = true;
                 Lock(false);
@@ -235,7 +235,7 @@ namespace GhettosFirearmSDKv2
                 if (nonHeldLockJoint != null) Destroy(nonHeldLockJoint);
 
                 if (lockJoint == null) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
-                if (Util.AbsDist(bolt.position, startPoint.position) < FirearmsSettings.boltPointTreshold && state == BoltState.Moving)
+                if (Util.AbsDist(bolt.position, startPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Locked;
@@ -249,7 +249,7 @@ namespace GhettosFirearmSDKv2
                     if (wentToFrontSinceLastLock) Lock(true);
                     Util.PlayRandomAudioSource(rackSounds);
                 }
-                else if (Util.AbsDist(bolt.position, endPoint.position) < FirearmsSettings.boltPointTreshold && state == BoltState.Moving)
+                else if (Util.AbsDist(bolt.position, endPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Back;
@@ -258,7 +258,7 @@ namespace GhettosFirearmSDKv2
                     if (closedSinceLastEject) EjectRound();
                     closedSinceLastEject = false;
                 }
-                else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > FirearmsSettings.boltPointTreshold && Util.AbsDist(bolt.position, startPoint.position) > FirearmsSettings.boltPointTreshold)
+                else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > Settings.boltPointTreshold && Util.AbsDist(bolt.position, startPoint.position) > Settings.boltPointTreshold)
                 {
                     laststate = state;
                     state = BoltState.Moving;
@@ -296,7 +296,7 @@ namespace GhettosFirearmSDKv2
             //firing
             if (state == BoltState.Locked && firearm.triggerState && fireOnTriggerPress && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && ((slamFire && !FirearmsSettings.infiniteAmmo) || shotsSinceTriggerReset == 0 || actsAsRelay)) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && ((slamFire && !Settings.infiniteAmmo) || shotsSinceTriggerReset == 0 || actsAsRelay)) TryFire();
             }
 
             CalculatePercentage();

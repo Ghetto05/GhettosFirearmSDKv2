@@ -34,7 +34,7 @@ namespace GhettosFirearmSDKv2
 
         public static void ApplyRecoil(Transform transform, Rigidbody rb, float force, float upwardsModifier, float firearmRecoilModifier, List<FirearmBase.RecoilModifier> modifiers)
         {
-            if (FirearmsSettings.noRecoil)
+            if (Settings.noRecoil)
                 return;
             
             float upMod = 1f;
@@ -68,7 +68,7 @@ namespace GhettosFirearmSDKv2
                     if (!useAISpread || data.projectileCount > 1)
                         tempMuz.localEulerAngles = new Vector3(Random.Range(-data.projectileSpread, data.projectileSpread), Random.Range(-data.projectileSpread, data.projectileSpread), 0);
                     else
-                        tempMuz.localEulerAngles = new Vector3(Random.Range(-FirearmsSettings.aiFirearmSpread, FirearmsSettings.aiFirearmSpread), Random.Range(-FirearmsSettings.aiFirearmSpread, FirearmsSettings.aiFirearmSpread), 0);
+                        tempMuz.localEulerAngles = new Vector3(Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), 0);
                     List<Creature> cr = HitScan(tempMuz, data, item, out Vector3 endpoint, damageMultiplier);
                     returnedEndpoints.Add(endpoint);
                     returnedTrajectories.Add(tempMuz.forward);
@@ -258,9 +258,9 @@ namespace GhettosFirearmSDKv2
                             break;
                         case RagdollPart.Type.Torso: //damage = damage, push(2)
                             {
-                                if (penetrated && FirearmsSettings.incapacitateOnTorsoShot > 0f && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
+                                if (penetrated && Settings.incapacitateOnTorsoShot > 0f && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
                                 {
-                                    gunItem.StartCoroutine(TemporaryKnockout(FirearmsSettings.incapacitateOnTorsoShot, 0, cr));
+                                    gunItem.StartCoroutine(TemporaryKnockout(Settings.incapacitateOnTorsoShot, 0, cr));
                                 }
                             }
                             break;
@@ -323,9 +323,9 @@ namespace GhettosFirearmSDKv2
                     #endregion Damage level determination
 
                     #region Damaging
-                    CollisionInstance coll = new CollisionInstance(new DamageStruct(FirearmsSettings.bulletsAreBlunt ? DamageType.Blunt : DamageType.Pierce, data.damagePerProjectile));
+                    var coll = new CollisionInstance(new DamageStruct(Settings.bulletsAreBlunt ? DamageType.Blunt : DamageType.Pierce, data.damagePerProjectile));
                     coll.damageStruct.damage = EvaluateDamage(data.damagePerProjectile * damageModifier, cr);
-                    coll.damageStruct.damageType = FirearmsSettings.bulletsAreBlunt ? DamageType.Blunt : DamageType.Pierce;
+                    coll.damageStruct.damageType = Settings.bulletsAreBlunt ? DamageType.Blunt : DamageType.Pierce;
                     coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
                     coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
                     coll.targetColliderGroup = ragdollPart.colliderGroup;
@@ -433,12 +433,12 @@ namespace GhettosFirearmSDKv2
 
         public static bool Slice(RagdollPart part)
         {
-            return !FirearmsSettings.disableGore && (part.sliceAllowed || part.name.Equals("Spine")) && !part.ragdoll.creature.isPlayer;
+            return !Settings.disableGore && (part.sliceAllowed || part.name.Equals("Spine")) && !part.ragdoll.creature.isPlayer;
         }
 
         private static void DrawDecal(RagdollPart rp, RaycastHit hit, string customDecal, bool isGore = true)
         {
-            if (FirearmsSettings.disableGore && isGore) return;
+            if (Settings.disableGore && isGore) return;
 
             EffectModuleReveal rem;
             if (string.IsNullOrWhiteSpace(customDecal))
@@ -467,7 +467,7 @@ namespace GhettosFirearmSDKv2
 
         private static void BloodSplatter(Vector3 origin, Vector3 direction, float force, int projectileCount, int penetrationPower, bool penetratedArmor)
         {
-            if (FirearmsSettings.disableGore || FirearmsSettings.disableBloodSpatters || penetrationPower < 2 || !penetratedArmor)
+            if (Settings.disableGore || Settings.disableBloodSpatters || penetrationPower < 2 || !penetratedArmor)
                 return;
             int layer = LayerMask.GetMask("Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject");
             if (Physics.Raycast(origin, direction, out RaycastHit hit, force * projectileCount / 30, layer, QueryTriggerInteraction.Ignore))
@@ -480,9 +480,9 @@ namespace GhettosFirearmSDKv2
                 ei.SetIntensity(100f);
 
                 EffectDecal particle = (EffectDecal)ei.effects[0];
-                particle.baseLifeTime = particle.baseLifeTime * 20f * FirearmsSettings.bloodSplatterLifetimeMultiplier;
-                particle.emissionLifeTime = particle.emissionLifeTime * 20 * FirearmsSettings.bloodSplatterLifetimeMultiplier;
-                particle.size = particle.size * force / 40 * projectileCount * FirearmsSettings.bloodSplatterSizeMultiplier;
+                particle.baseLifeTime = particle.baseLifeTime * 20f * Settings.bloodSplatterLifetimeMultiplier;
+                particle.emissionLifeTime = particle.emissionLifeTime * 20 * Settings.bloodSplatterLifetimeMultiplier;
+                particle.size = particle.size * force / 40 * projectileCount * Settings.bloodSplatterSizeMultiplier;
                 
                 ei.Play();
             }
@@ -604,7 +604,7 @@ namespace GhettosFirearmSDKv2
 
         private static IEnumerator ExplodeCreature(Vector3 point, ExplosiveData data, Creature hitCreature)
         {
-            if (!hitCreature.isPlayer && FirearmsSettings.explosionsDismember && !FirearmsSettings.disableGore)
+            if (!hitCreature.isPlayer && Settings.explosionsDismember && !Settings.disableGore)
             {
                 foreach (RagdollPart rp in hitCreature.ragdoll.parts.ToArray().Reverse())
                 {
@@ -632,7 +632,7 @@ namespace GhettosFirearmSDKv2
 
         public static float EvaluateDamage(float perFifty, Creature c)
         {
-            float perFiftyDamage = perFifty * FirearmsSettings.damageMultiplier;
+            float perFiftyDamage = perFifty * Settings.damageMultiplier;
             float aspect = perFiftyDamage / 50;
             float damageToBeDone = Mathf.Clamp(c.maxHealth, 50f, 100f) * aspect;
 

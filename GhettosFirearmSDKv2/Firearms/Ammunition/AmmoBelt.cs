@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
             magazine.OnConsumeEvent += MagazineOnOnConsumeEvent;
             magazine.OnInsertEvent += well => Insert();
             magazine.OnEjectEvent += well => Remove();
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         private void InvokedStart()
@@ -57,9 +57,9 @@ namespace GhettosFirearmSDKv2
         private IEnumerator LinkEject(Item item)
         {
             yield return new WaitForSeconds(0.01f);
-            float f = FirearmsSettings.cartridgeEjectionForceRandomizationDevision;
+            float f = Settings.cartridgeEjectionForceRandomizationDevision;
             item.physicBody.AddForce(magazine.currentWell.beltLinkEjectDir.forward * (beltLinkEjectForce + Random.Range(-(beltLinkEjectForce / f), beltLinkEjectForce / f)), ForceMode.Impulse);
-            f = FirearmsSettings.cartridgeEjectionTorque;
+            f = Settings.cartridgeEjectionTorque;
             Vector3 torque = new Vector3
                              {
                                  x = Random.Range(-f, f),

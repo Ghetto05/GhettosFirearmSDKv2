@@ -71,7 +71,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), FirearmsSettings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         public void InvokedStart()
@@ -248,7 +248,7 @@ namespace GhettosFirearmSDKv2
                 OnConsumeEvent?.Invoke(c);
                 Util.IgnoreCollision(c.gameObject, gameObject, false);
                 cartridges.RemoveAt(0);
-                if (infinite || FirearmsSettings.infiniteAmmo)
+                if (infinite || Settings.infiniteAmmo)
                 {
                     Util.SpawnItem(c.item.itemId, "[Loaded round in magazine]",car =>
                     {

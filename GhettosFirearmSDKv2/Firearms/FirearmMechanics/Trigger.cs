@@ -84,7 +84,7 @@ namespace GhettosFirearmSDKv2
                             weight = onSecondMode ? secondModePullWeight : 1f;
                             lastTriggerPull = Time.time;
                         }
-                        else if (Time.time - lastTriggerPull <= FirearmsSettings.triggerDisciplineTime)
+                        else if (Time.time - lastTriggerPull <= Settings.triggerDisciplineTime)
                             weight = onTriggerWeight;
                         else
                             weight = 0f;
@@ -112,7 +112,7 @@ namespace GhettosFirearmSDKv2
         {
             if (fireModeSelectionMode && (selector == null || allowedIndexesForSecondMode.Contains(selector.currentIndex)))
             {
-                float actual = pull + FirearmsSettings.progressiveTriggerDeadZone;
+                float actual = pull + Settings.progressiveTriggerDeadZone;
                 if (actual > SecondModeTriggerPull)
                 {
                     onSecondMode = true;
