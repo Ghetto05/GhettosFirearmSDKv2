@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
@@ -17,6 +13,8 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            if (attachment == null)
+                Debug.LogError($"Attachment for AttachableItemDetacher on {GetComponentInParent<Attachment>()?.name} is not assigned!");
             attachment.OnHeldActionEvent += Attachment_OnHeldActionEvent;
         }
 
