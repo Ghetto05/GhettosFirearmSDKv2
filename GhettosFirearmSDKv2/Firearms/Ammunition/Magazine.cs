@@ -43,7 +43,7 @@ namespace GhettosFirearmSDKv2
         private SaveNodeValueMagazineContents _firearmSave;
         public List<GameObject> feederObjects;
         public bool loadable;
-        public bool partOfPrebuilt = true;
+        public bool partOfPrebuilt;
         public float lastEjectTime;
         public BoltBase bolt;
         public bool onlyAllowLoadWhenBoltIsBack;
