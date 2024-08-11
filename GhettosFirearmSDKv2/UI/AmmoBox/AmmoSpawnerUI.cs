@@ -484,8 +484,8 @@ namespace GhettosFirearmSDKv2
         {
             public int Compare(string x, string y)
             {
-                var intX = int.Parse(x.Substring(0, 4));
-                var intY = int.Parse(y.Substring(0, 4));
+                var intX = int.Parse(x!.Substring(0, 4));
+                var intY = int.Parse(y!.Substring(0, 4));
 
                 int result;
                 if (intX == intY)
