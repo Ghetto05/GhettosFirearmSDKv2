@@ -26,7 +26,7 @@ namespace GhettosFirearmSDKv2
 
         private void TargetPoint_OnAttachmentAddedEvent(Attachment attachment)
         {
-            if (attachment.GetComponent<AttachmentFirearm>() is AttachmentFirearm targetFire)
+            if (attachment.GetComponent<AttachmentFirearm>() is { } targetFire)
             {
                 target = targetFire;
                 if (target != null)

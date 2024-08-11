@@ -12,7 +12,7 @@ namespace GhettosFirearmSDKv2
         
         private void Start()
         {
-            if (!itemId.IsNullOrEmptyOrWhitespace() && Catalog.GetData<ItemData>(itemId) is ItemData data)
+            if (!itemId.IsNullOrEmptyOrWhitespace() && Catalog.GetData<ItemData>(itemId) is { } data)
             {
                 data.SpawnAsync(item =>
                 {

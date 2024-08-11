@@ -198,7 +198,7 @@ namespace GhettosFirearmSDKv2
         private void OnCollisionEvent(Collision collision)
         {
             if (!allowInsert) return;
-            if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge car && !car.loaded)
+            if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded)
             {
                 foreach (Collider insertCollider in loadColliders)
                 {

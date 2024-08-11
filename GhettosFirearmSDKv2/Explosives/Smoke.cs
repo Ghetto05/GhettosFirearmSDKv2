@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2.Explosives
             loop.Play();
             particle.Play();
             timestamp = Time.time;
-            if (gameObject.GetComponentInParent<Rigidbody>() is Rigidbody rb) rb.velocity = Vector3.zero;
+            if (gameObject.GetComponentInParent<Rigidbody>() is { } rb) rb.velocity = Vector3.zero;
             ready = true;
             base.ActualDetonate();
         }

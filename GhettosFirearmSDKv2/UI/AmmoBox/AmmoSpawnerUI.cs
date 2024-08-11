@@ -428,7 +428,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
                 {
-                    if (handle.Result.GetComponent<ProjectileData>() is ProjectileData data)
+                    if (handle.Result.GetComponent<ProjectileData>() is { } data)
                     {
                         string descriptionText = "";
                         if (!data.isHitscan)

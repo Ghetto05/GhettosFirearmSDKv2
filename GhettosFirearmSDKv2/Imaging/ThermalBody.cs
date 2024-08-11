@@ -74,7 +74,7 @@ namespace GhettosFirearmSDKv2
 
             foreach (Transform b in bones)
             {
-                if (cc.ragdoll.bones?.FirstOrDefault(cb => cb.mesh.gameObject.name.Equals(b.gameObject.name + "_Mesh"))?.mesh is Transform t)
+                if (cc.ragdoll.bones?.FirstOrDefault(cb => cb.mesh.gameObject.name.Equals(b.gameObject.name + "_Mesh"))?.mesh is { } t)
                 {
                     b.SetParent(t);
                     b.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);

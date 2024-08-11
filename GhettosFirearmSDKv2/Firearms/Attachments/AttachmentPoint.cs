@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
 
         private void ParentFirearm_OnCollisionEvent(Collision collision)
         {
-            if (!currentAttachments.Any() && collision.contacts[0].otherCollider.gameObject.GetComponentInParent<AttachableItem>() is AttachableItem ati)
+            if (!currentAttachments.Any() && collision.contacts[0].otherCollider.gameObject.GetComponentInParent<AttachableItem>() is { } ati)
             {
                 if ((ati.attachmentType.Equals(type) || alternateTypes.Contains(ati.attachmentType)) && Util.CheckForCollisionWithColliders(attachColliders, ati.attachColliders, collision))
                 {

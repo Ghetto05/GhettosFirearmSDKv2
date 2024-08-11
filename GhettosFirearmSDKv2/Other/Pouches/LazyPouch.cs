@@ -81,7 +81,7 @@ namespace GhettosFirearmSDKv2
         private void GetHeldFirearm()
         {
             Handle h = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
-            if (h != null && h.item is Item item)
+            if (h != null && h.item is { } item)
             {
                 FirearmBase firearm;
                 if (lastHeldHandle != h)

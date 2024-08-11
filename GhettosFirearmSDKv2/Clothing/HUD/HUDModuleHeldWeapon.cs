@@ -58,11 +58,11 @@ namespace GhettosFirearmSDKv2
 
         public void SetIcon()
         {
-            if (GetHeldFirearm() is Firearm firearm && icon.sprite == null)
+            if (GetHeldFirearm() is { } firearm && icon.sprite == null)
             {
                 ToggleHUD(true);
                 currentFirearm = firearm;
-                if (firearm.GetComponent<HUDModuleHeldWeaponOverrideIcon>() is HUDModuleHeldWeaponOverrideIcon ico)
+                if (firearm.GetComponent<HUDModuleHeldWeaponOverrideIcon>() is { } ico)
                 {
                     icon.sprite = Sprite.Create(ico.overrideIcon, new Rect(0, 0, ico.overrideIcon.width, ico.overrideIcon.height), new Vector2(0.5f, 0.5f));
                 }
@@ -98,11 +98,11 @@ namespace GhettosFirearmSDKv2
             Firearm f = null;
             if (Player.local == null || Player.local.creature == null)
                 return null;
-            if (Player.local.GetHand(Side.Right).ragdollHand.grabbedHandle is Handle h && h.item is Item i && i.GetComponent<Firearm>() != null)
+            if (Player.local.GetHand(Side.Right).ragdollHand.grabbedHandle is { } h && h.item is { } i && i.GetComponent<Firearm>() != null)
             {
                 f = Player.local.GetHand(Side.Right).ragdollHand.grabbedHandle.item.GetComponent<Firearm>();
             }
-            else if (Player.local.GetHand(Side.Left).ragdollHand.grabbedHandle is Handle h2 && h2.item is Item i2 && i2.GetComponent<Firearm>() != null)
+            else if (Player.local.GetHand(Side.Left).ragdollHand.grabbedHandle is { } h2 && h2.item is { } i2 && i2.GetComponent<Firearm>() != null)
             {
                 f = Player.local.GetHand(Side.Left).ragdollHand.grabbedHandle.item.GetComponent<Firearm>();
             }

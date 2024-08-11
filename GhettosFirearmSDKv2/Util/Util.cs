@@ -100,7 +100,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (Creature cr in Creature.allActive)
             {
-                if (cr.animator.GetBoneTransform(HumanBodyBones.Head) is Transform bone && Vector3.Distance(bone.position, point) <= range)
+                if (cr.animator.GetBoneTransform(HumanBodyBones.Head) is { } bone && Vector3.Distance(bone.position, point) <= range)
                 {
                     cr.brain.SetState(Brain.State.Alert);
                 }

@@ -27,7 +27,7 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            if (attachment.attachmentPoint.parentFirearm.magazineWell is MagazineWell well && well.currentMagazine is Magazine mag)
+            if (attachment.attachmentPoint.parentFirearm.magazineWell is { } well && well.currentMagazine is { } mag)
             {
                 magazine = mag;
                 Apply();

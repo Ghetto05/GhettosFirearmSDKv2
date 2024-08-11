@@ -239,7 +239,7 @@ namespace GhettosFirearmSDKv2
 
         private void SpawnSave(string saveId)
         {
-            if (holder.items.Count > 0 && holder.UnSnapOne() is Item i) i.Despawn();
+            if (holder.items.Count > 0 && holder.UnSnapOne() is { } i) i.Despawn();
             GunLockerSaveData data = Catalog.GetData<GunLockerSaveData>(saveId);
             Util.SpawnItem(data.itemId, $"[Gun Locker - Save {saveId}]", gun => 
             {

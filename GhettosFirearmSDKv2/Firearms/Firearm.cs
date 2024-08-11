@@ -234,7 +234,7 @@ namespace GhettosFirearmSDKv2
             }
 
             //default
-            if (!overridden && defaultMuzzleFlash is ParticleSystem mf)
+            if (!overridden && defaultMuzzleFlash is { } mf)
             {
                 mf.Play();
                 StartCoroutine(PlayMuzzleFlashLight(cartridge));
@@ -258,7 +258,7 @@ namespace GhettosFirearmSDKv2
 
         public void AIFire()
         {
-            if (fireMode == FireModes.Safe && GetComponentInChildren<FiremodeSelector>() is FiremodeSelector fs)
+            if (fireMode == FireModes.Safe && GetComponentInChildren<FiremodeSelector>() is { } fs)
                 fs.CycleFiremode();
             StartCoroutine(AIFireCoroutine());
         }

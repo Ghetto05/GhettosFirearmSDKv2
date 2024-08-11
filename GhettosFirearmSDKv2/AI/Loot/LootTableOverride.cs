@@ -11,7 +11,7 @@ namespace GhettosFirearmSDKv2
 
         public void ApplyToTable()
         {
-            if (Catalog.GetData<LootTable>(targetTableId, false) is LootTable table)
+            if (Catalog.GetData<LootTable>(targetTableId, false) is { } table)
             {
                 List<LootTable.Drop> tableDrops = new List<LootTable.Drop>();
                 foreach (Drop drop in drops)

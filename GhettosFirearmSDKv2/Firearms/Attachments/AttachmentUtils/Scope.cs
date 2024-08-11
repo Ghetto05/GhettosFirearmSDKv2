@@ -130,7 +130,7 @@ namespace GhettosFirearmSDKv2
                 }
                 Reticles[currentIndex].SetActive(true);
             }
-            if (Selector != null && SelectorPositions[currentIndex] is Transform t)
+            if (Selector != null && SelectorPositions[currentIndex] is { } t)
             {
                 Selector.localPosition = t.localPosition;
                 Selector.localEulerAngles = t.localEulerAngles;

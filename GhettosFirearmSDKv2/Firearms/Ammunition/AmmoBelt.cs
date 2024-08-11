@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
         {
             if (c != null && magazine.currentWell.beltLinkEjectDir != null)
             {
-                if (Catalog.GetData<ItemData>(linkItem, false) is ItemData data)
+                if (Catalog.GetData<ItemData>(linkItem, false) is { } data)
                 {
                     data.SpawnAsync(item =>
                     {

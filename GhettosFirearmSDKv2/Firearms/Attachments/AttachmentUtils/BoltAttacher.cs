@@ -22,11 +22,11 @@ namespace GhettosFirearmSDKv2
         private void InvokedStart()
         {
             attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
-            if (GetParent() is Transform p)
+            if (GetParent() is { } p)
             {
                 boltChild?.SetParent(p);
             }
-            if (GetParentRB() is Transform rb)
+            if (GetParentRB() is { } rb)
             {
                 boltRBChild?.SetParent(rb);
             }

@@ -40,7 +40,7 @@ namespace GhettosFirearmSDKv2
                 {
                     _saveData = attachment.Node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {value = true});
                 }
-                else if (item.GetComponent<Firearm>() is Firearm firearm)
+                else if (item.GetComponent<Firearm>() is { } firearm)
                 {
                     _saveData = firearm.saveData.firearmNode.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {value = true});
                 }

@@ -573,7 +573,7 @@ namespace GhettosFirearmSDKv2
                 firearm.magazineWell.currentMagazine.infinite = true;
             }
 
-            if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
+            if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is { } c)
             {
                 closedAfterLoad = false;
                 loadedCartridge = c;

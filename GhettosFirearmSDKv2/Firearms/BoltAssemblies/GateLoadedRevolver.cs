@@ -180,7 +180,7 @@ namespace GhettosFirearmSDKv2
 
         private void Firearm_OnCollisionEvent(Collision collision)
         {
-            if (loadMode && allowLoad && Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.gameObject.GetComponentInParent<Cartridge>() is Cartridge c && !c.loaded)
+            if (loadMode && allowLoad && Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.gameObject.GetComponentInParent<Cartridge>() is { } c && !c.loaded)
             {
                 LoadChamber(LoadModeChamber(), c, true);
             }

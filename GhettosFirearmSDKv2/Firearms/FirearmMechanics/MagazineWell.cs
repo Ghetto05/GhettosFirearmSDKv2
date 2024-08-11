@@ -98,7 +98,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void TryMount(Collision collision)
         {
-            if (allowLoad && Util.AllLocksUnlocked(insertionLocks) && collision.collider.GetComponentInParent<Magazine>() is Magazine mag && collision.contacts[0].thisCollider == loadingCollider && BoltExistsAndIsPulled())
+            if (allowLoad && Util.AllLocksUnlocked(insertionLocks) && collision.collider.GetComponentInParent<Magazine>() is { } mag && collision.contacts[0].thisCollider == loadingCollider && BoltExistsAndIsPulled())
             {
                 if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this) && mag.loadable)
                 {

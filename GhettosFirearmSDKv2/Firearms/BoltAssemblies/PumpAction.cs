@@ -342,7 +342,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryLoadRound()
         {
-            if (!actsAsRelay && loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
+            if (!actsAsRelay && loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is { } c)
             {
                 loadedCartridge = c;
                 c.GetComponent<Rigidbody>().isKinematic = true;

@@ -64,7 +64,7 @@ namespace GhettosFirearmSDKv2
 
         private void OnCollisionEvent(Collision collision)
         {
-            if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge car && Util.CheckForCollisionWithThisCollider(collision, mountCollider))
+            if (collision.collider.GetComponentInParent<Cartridge>() is { } car && Util.CheckForCollisionWithThisCollider(collision, mountCollider))
             {
                 InsertRound(car, false);
             }

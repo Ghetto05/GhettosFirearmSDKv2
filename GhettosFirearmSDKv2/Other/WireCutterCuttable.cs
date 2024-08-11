@@ -54,7 +54,7 @@ namespace GhettosFirearmSDKv2
             List<WireCutterCuttable> found = new List<WireCutterCuttable>();
             foreach (Collider c in results)
             {
-                if (c.GetComponentInParent<WireCutterCuttable>() is WireCutterCuttable wcc && !found.Contains(wcc) && !wcc.cut)
+                if (c.GetComponentInParent<WireCutterCuttable>() is { } wcc && !found.Contains(wcc) && !wcc.cut)
                 {
                     found.Add(wcc);
                     wcc.cut = true;

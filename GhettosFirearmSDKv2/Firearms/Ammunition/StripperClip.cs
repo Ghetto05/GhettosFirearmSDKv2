@@ -83,7 +83,7 @@ namespace GhettosFirearmSDKv2
                 if ((well.clipType.Equals(clipType) || !Settings.doMagazineTypeChecks) && Util.CheckForCollisionWithBothColliders(collision, mountCollider, well.mountCollider))
                     MountToGun(well);
             }
-            if (collision.collider.GetComponentInParent<Cartridge>() is Cartridge c && Util.CheckForCollisionWithThisCollider(collision, roundLoadCollider) && Time.time - _lastEjectTime > 1f)
+            if (collision.collider.GetComponentInParent<Cartridge>() is { } c && Util.CheckForCollisionWithThisCollider(collision, roundLoadCollider) && Time.time - _lastEjectTime > 1f)
             {
                 InsertRound(c);
             }

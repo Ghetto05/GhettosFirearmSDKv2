@@ -47,7 +47,7 @@ namespace GhettosFirearmSDKv2
 
         public override void PlayMuzzleFlash(Cartridge cartridge)
         {
-            if (defaultMuzzleFlash is ParticleSystem mf)
+            if (defaultMuzzleFlash is { } mf)
             {
                 mf.Play();
                 StartCoroutine(PlayMuzzleFlashLight(cartridge));
