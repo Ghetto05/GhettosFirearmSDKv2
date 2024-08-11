@@ -46,8 +46,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            var results = new Collider[512];
-            Physics.OverlapSphereNonAlloc(root, range, results);
+            var results = Physics.OverlapSphere(root, range);
             
             var found = new List<WireCutterCuttable>();
             foreach (var c in results)

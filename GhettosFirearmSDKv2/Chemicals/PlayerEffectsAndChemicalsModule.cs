@@ -73,8 +73,7 @@ namespace GhettosFirearmSDKv2.Chemicals
                 if (gasMasks[i] == null) gasMasks.RemoveAt(i);
             }
 
-            var hits = new Collider[512];
-            Physics.OverlapSphereNonAlloc(Player.local.head.cam.transform.position, 0.1f, hits);
+            var hits = Physics.OverlapSphere(Player.local.head.cam.transform.position, 0.1f);
             foreach (var c in hits)
             {
                 if (c.gameObject.name.Equals("CSgas_Zone") && !WearingGasMask())

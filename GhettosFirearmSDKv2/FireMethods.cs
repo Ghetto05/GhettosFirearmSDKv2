@@ -92,9 +92,7 @@ namespace GhettosFirearmSDKv2
 
             #region physics toggle
 
-            var physicsToggleHits = new RaycastHit[4096];
-            Physics.RaycastNonAlloc(muzzle.position, muzzle.forward, physicsToggleHits, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion"));
-            foreach (var physicsToggleHit in physicsToggleHits)
+            foreach (var physicsToggleHit in Physics.RaycastAll(muzzle.position, muzzle.forward, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion")))
             {
                 if (physicsToggleHit.collider.gameObject.GetComponentInParent<Creature>() is { } cr)
                 {
@@ -135,10 +133,10 @@ namespace GhettosFirearmSDKv2
                 "ItemAndRagdollOnly");
 
             var forward = muzzle.forward;
-            var hitsBuffer = new RaycastHit[4096];
-            Physics.RaycastNonAlloc(muzzle.position, forward, hitsBuffer, data.projectileRange, layer);
-            var hits = hitsBuffer.ToList();
-            hits = hits.OrderBy(h => Vector3.Distance(h.point, muzzle.position)).ToList();
+            ;
+            var hits = Physics.RaycastAll(muzzle.position, forward, data.projectileRange, layer)
+                              .OrderBy(h => Vector3.Distance(h.point, muzzle.position))
+                              .ToList();
             var power = (int)data.penetrationPower;
 
             #region no hits
@@ -584,9 +582,7 @@ namespace GhettosFirearmSDKv2
         public static void HitscanExplosion(Vector3 point, ExplosiveData data, Item item, out List<Creature> hitCreatures, out List<Item> hitItems)
         {
             //PHYSICS TOGGLE
-            var locomotionHits = new Collider[4096];
-            Physics.OverlapSphereNonAlloc(point, data.radius, locomotionHits, LayerMask.GetMask("BodyLocomotion"));
-            foreach (var locomotionHit in locomotionHits)
+            foreach (var locomotionHit in Physics.OverlapSphere(point, data.radius, LayerMask.GetMask("BodyLocomotion")))
             {
                 if (locomotionHit.GetComponentInParent<Creature>() != null)
                 {
@@ -603,10 +599,8 @@ namespace GhettosFirearmSDKv2
             var hitShootables = new List<Shootable>();
             var hitSimpleBreakables = new List<SimpleBreakable>();
             var hitBreakables = new List<Breakable>();
-
-            var hits = new Collider[4096];
-            Physics.OverlapSphereNonAlloc(point, data.radius, hits);
-            foreach (var c in hits)
+            
+            foreach (var c in Physics.OverlapSphere(point, data.radius))
             {
                 if (c.GetComponentInParent<Ragdoll>() is { } hitRag && !hitCreatures.Contains(hitRag.creature))
                     hitCreatures.Add(hitRag.creature);
