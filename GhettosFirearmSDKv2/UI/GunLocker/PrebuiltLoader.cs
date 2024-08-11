@@ -1,19 +1,18 @@
 ﻿using System.Linq;
-using UnityEngine;
 using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
     public class PrebuiltLoader : ItemModule
     {
-        public string prebuiltId;
-        public string originalId;
-        public bool forced;
+        public string PrebuiltId;
+        public string OriginalId;
+        public bool Forced;
 
-        public override void OnItemLoaded(Item item)
+        public override void OnItemLoaded(Item loadedItem)
         {
-            if (!item.TryGetCustomData(out FirearmSaveData fsd) || forced)
-                item.OverrideCustomData(Catalog.GetData<GunLockerSaveData>(prebuiltId).dataList.CloneJson()/*.Where(d => d.GetType() == typeof(FirearmSaveData))*/.ToList());
+            if (!loadedItem.TryGetCustomData(out FirearmSaveData _) || Forced)
+                loadedItem.OverrideCustomData(Catalog.GetData<GunLockerSaveData>(PrebuiltId).DataList.CloneJson().ToList());
         }
     }
 }

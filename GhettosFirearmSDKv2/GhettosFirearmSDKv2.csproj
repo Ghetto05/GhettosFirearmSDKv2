@@ -150,7 +150,7 @@
     <Compile Include="Explosives\GrenadeMechanics\StickyBomb.cs" />
     <Compile Include="Explosives\Detonators\TimedDetonator.cs" />
     <Compile Include="Explosives\GrenadeJumpCharge.cs" />
-    <Compile Include="Firearms\FirearmMechanics\AKMagazineSlap.cs" />
+    <Compile Include="Firearms\FirearmMechanics\AkMagazineSlap.cs" />
     <Compile Include="Firearms\FirearmMechanics\StockTogglerAdditional.cs" />
     <Compile Include="SaveData\PouchSaveData.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\TacLight.cs" />

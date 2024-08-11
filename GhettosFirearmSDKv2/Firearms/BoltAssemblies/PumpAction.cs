@@ -1,9 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using ThunderRoad;
 using System.Linq;
+using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -31,16 +30,16 @@ namespace GhettosFirearmSDKv2
         public Cartridge loadedCartridge;
         public Hammer hammer;
 
-        bool behindLoadPoint = false;
-        int shotsSinceTriggerReset;
-        FixedJoint lockJoint;
-        FixedJoint nonHeldLockJoint;
-        ConfigurableJoint joint;
-        bool closedSinceLastEject = false;
-        bool wentToFrontSinceLastLock = false;
-        bool currentRoundRemounted;
-        bool ready = false;
-        bool beforeHammerPoint = true;
+        private bool _behindLoadPoint;
+        private int _shotsSinceTriggerReset;
+        private FixedJoint _lockJoint;
+        private FixedJoint _nonHeldLockJoint;
+        private ConfigurableJoint _joint;
+        private bool _closedSinceLastEject;
+        private bool _wentToFrontSinceLastLock;
+        private bool _currentRoundRemounted;
+        private bool _ready;
+        private bool _beforeHammerPoint = true;
 
         public void Start()
         {
@@ -57,7 +56,7 @@ namespace GhettosFirearmSDKv2
             ChamberSaved();
             if (loadedCartridge != null) Invoke(nameof(DelayedReparent), 0.03f);
             Lock(true);
-            ready = true;
+            _ready = true;
             Invoke(nameof(UpdateChamberedRounds), 1f);
         }
 
@@ -103,11 +102,12 @@ namespace GhettosFirearmSDKv2
 
                 foreach (var h in boltHandles)
                 {
-                    h.customRigidBody = lockJoint == null ? rb : firearm.item.physicBody.rigidBody;
+                    h.customRigidBody = _lockJoint == null ? rb : firearm.item.physicBody.rigidBody;
                 }
             }
-            catch (System.Exception)
+            catch (Exception)
             {
+                // ignored
             }
         }
 
@@ -117,7 +117,7 @@ namespace GhettosFirearmSDKv2
             if (boltHandles.Contains(handle))
             {
             }
-            if (loadedCartridge != null && roundReparent != null && currentRoundRemounted)
+            if (loadedCartridge != null && roundReparent != null && _currentRoundRemounted)
             {
                 loadedCartridge.transform.SetParent(roundReparent);
             }
@@ -128,7 +128,7 @@ namespace GhettosFirearmSDKv2
             base.UpdateChamberedRounds();
             if (loadedCartridge == null) return;
             loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
-            loadedCartridge.transform.parent = currentRoundRemounted && roundReparent != null ? roundReparent : roundMount;
+            loadedCartridge.transform.parent = _currentRoundRemounted && roundReparent != null ? roundReparent : roundMount;
             loadedCartridge.transform.localPosition = Vector3.zero;
             loadedCartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
         }
@@ -144,16 +144,16 @@ namespace GhettosFirearmSDKv2
                 foreach (var hand in hands)
                 {
                     //hand.Grab(handle, false);
-                    var targetRB = locked ? firearm.item.physicBody.rigidBody : rb;
-                    hand.gripInfo.joint.connectedAnchor = targetRB.transform.InverseTransformPoint(hand.gripInfo.transform.position);
-                    hand.gripInfo.joint.connectedBody = targetRB;
+                    var targetRb = locked ? firearm.item.physicBody.rigidBody : rb;
+                    hand.gripInfo.joint.connectedAnchor = targetRb.transform.InverseTransformPoint(hand.gripInfo.transform.position);
+                    hand.gripInfo.joint.connectedBody = targetRb;
                 }
             }
         }
 
         private void Firearm_OnTriggerChangeEvent(bool isPulled)
         {
-            if (!isPulled) shotsSinceTriggerReset = 0;
+            if (!isPulled) _shotsSinceTriggerReset = 0;
         }
 
         public override void TryFire()
@@ -169,13 +169,13 @@ namespace GhettosFirearmSDKv2
                 if (hand.playerHand != null && hand.playerHand.controlHand != null)
                     hand.playerHand.controlHand.HapticShort(50f);
             }
-            shotsSinceTriggerReset++;
+            _shotsSinceTriggerReset++;
             if (hammer)
                 hammer.Fire();
             IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
             firearm.PlayMuzzleFlash(loadedCartridge);
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             var fire = false;
             if (!Settings.infiniteAmmo || (Settings.infiniteAmmo && firearm.magazineWell != null))
@@ -196,18 +196,18 @@ namespace GhettosFirearmSDKv2
                 Util.DelayedExecute(0.005f, DelayedReparent, this);
                 bolt.localPosition = startPoint.localPosition;
                 rb.transform.localPosition = startPoint.localPosition;
-                if (lockJoint == null) lockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
-                lockJoint.connectedBody = rb;
-                lockJoint.connectedMassScale = 100f;
-                closedSinceLastEject = true;
-                wentToFrontSinceLastLock = false;
+                if (_lockJoint == null) _lockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
+                _lockJoint.connectedBody = rb;
+                _lockJoint.connectedMassScale = 100f;
+                _closedSinceLastEject = true;
+                _wentToFrontSinceLastLock = false;
                 SetStateOnAllHandlers(true);
-                Destroy(joint);
+                Destroy(_joint);
             }
-            else if (lockJoint != null)
+            else if (_lockJoint != null)
             {
                 InitializeJoint();
-                Destroy(lockJoint);
+                Destroy(_lockJoint);
                 SetStateOnAllHandlers(false);
             }
         }
@@ -224,7 +224,7 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            if (!ready) return;
+            if (!_ready) return;
 
             //UpdateChamberedRound();
             isHeld = BoltHandleHeld();
@@ -232,21 +232,21 @@ namespace GhettosFirearmSDKv2
             //state check
             if (isHeld)
             {
-                if (nonHeldLockJoint != null) Destroy(nonHeldLockJoint);
+                if (_nonHeldLockJoint != null) Destroy(_nonHeldLockJoint);
 
-                if (lockJoint == null) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
+                if (_lockJoint == null) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
                 if (Util.AbsDist(bolt.position, startPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Locked;
                     if (loadedCartridge != null && roundReparent != null)
                     {
-                        currentRoundRemounted = true;
+                        _currentRoundRemounted = true;
                         loadedCartridge.transform.SetParent(roundReparent);
                         loadedCartridge.transform.localPosition = Vector3.zero;
                         loadedCartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
                     }
-                    if (wentToFrontSinceLastLock) Lock(true);
+                    if (_wentToFrontSinceLastLock) Lock(true);
                     Util.PlayRandomAudioSource(rackSounds);
                 }
                 else if (Util.AbsDist(bolt.position, endPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
@@ -254,9 +254,9 @@ namespace GhettosFirearmSDKv2
                     laststate = BoltState.Moving;
                     state = BoltState.Back;
                     Util.PlayRandomAudioSource(pullSounds);
-                    wentToFrontSinceLastLock = true;
-                    if (closedSinceLastEject) EjectRound();
-                    closedSinceLastEject = false;
+                    _wentToFrontSinceLastLock = true;
+                    if (_closedSinceLastEject) EjectRound();
+                    _closedSinceLastEject = false;
                 }
                 else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > Settings.boltPointTreshold && Util.AbsDist(bolt.position, startPoint.position) > Settings.boltPointTreshold)
                 {
@@ -266,37 +266,37 @@ namespace GhettosFirearmSDKv2
                 //loading
                 if (state == BoltState.Moving && (laststate == BoltState.Back || laststate == BoltState.LockedBack))
                 {
-                    if (roundLoadPoint != null && behindLoadPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition))
+                    if (roundLoadPoint != null && _behindLoadPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition))
                     {
                         if (loadedCartridge == null && !actsAsRelay) TryLoadRound();
-                        behindLoadPoint = false;
+                        _behindLoadPoint = false;
                     }
-                    else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) behindLoadPoint = true;
+                    else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) _behindLoadPoint = true;
                 }
                 //hammer
                 if (state == BoltState.Moving && laststate == BoltState.Locked && !actsAsRelay)
                 {
-                    if (hammer != null && !hammer.cocked && beforeHammerPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition))
+                    if (hammer != null && !hammer.cocked && _beforeHammerPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition))
                     {
                         hammer.Cock();
                     }
-                    else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition)) beforeHammerPoint = true;
+                    else if (hammer != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(hammerCockPoint.localPosition, startPoint.localPosition)) _beforeHammerPoint = true;
                 }
             }
             else
             {
-                if (nonHeldLockJoint == null)
+                if (_nonHeldLockJoint == null)
                 {
-                    nonHeldLockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
-                    nonHeldLockJoint.connectedBody = rb;
-                    nonHeldLockJoint.connectedMassScale = 100f;
+                    _nonHeldLockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
+                    _nonHeldLockJoint.connectedBody = rb;
+                    _nonHeldLockJoint.connectedMassScale = 100f;
                 }
             }
 
             //firing
             if (state == BoltState.Locked && firearm.triggerState && fireOnTriggerPress && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && ((slamFire && !Settings.infiniteAmmo) || shotsSinceTriggerReset == 0 || actsAsRelay)) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && ((slamFire && !Settings.infiniteAmmo) || _shotsSinceTriggerReset == 0 || actsAsRelay)) TryFire();
             }
 
             CalculatePercentage();
@@ -312,7 +312,7 @@ namespace GhettosFirearmSDKv2
             if (actsAsRelay || loadedCartridge == null)
                 return;
             SaveChamber("");
-            currentRoundRemounted = false;
+            _currentRoundRemounted = false;
             var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
@@ -355,22 +355,22 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeJoint()
         {
-            joint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
-            joint.connectedBody = rb;
+            _joint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
+            _joint.connectedBody = rb;
             //pJoint.massScale = 0.00001f;
-            joint.connectedMassScale = 100f;
+            _joint.connectedMassScale = 100f;
             var limit = new SoftJointLimit();
-            joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
+            _joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
             limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
-            joint.linearLimit = limit;
-            joint.autoConfigureConnectedAnchor = false;
-            joint.connectedAnchor = Vector3.zero;
-            joint.xMotion = ConfigurableJointMotion.Locked;
-            joint.yMotion = ConfigurableJointMotion.Locked;
-            joint.zMotion = ConfigurableJointMotion.Limited;
-            joint.angularXMotion = ConfigurableJointMotion.Locked;
-            joint.angularYMotion = ConfigurableJointMotion.Locked;
-            joint.angularZMotion = ConfigurableJointMotion.Locked;
+            _joint.linearLimit = limit;
+            _joint.autoConfigureConnectedAnchor = false;
+            _joint.connectedAnchor = Vector3.zero;
+            _joint.xMotion = ConfigurableJointMotion.Locked;
+            _joint.yMotion = ConfigurableJointMotion.Locked;
+            _joint.zMotion = ConfigurableJointMotion.Limited;
+            _joint.angularXMotion = ConfigurableJointMotion.Locked;
+            _joint.angularYMotion = ConfigurableJointMotion.Locked;
+            _joint.angularZMotion = ConfigurableJointMotion.Locked;
             rb.transform.localPosition = startPoint.localPosition;
             rb.transform.localRotation = startPoint.localRotation;
         }
@@ -400,12 +400,12 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null) return;
             loadedCartridge.transform.SetParent(roundReparent != null ? roundReparent : roundMount);
-            currentRoundRemounted = true;
+            _currentRoundRemounted = true;
         }
 
         public override void TryRelease(bool forced = false)
         {
-            if (lockJoint != null) Lock(false);
+            if (_lockJoint != null) Lock(false);
         }
 
         public void CalculatePercentage()

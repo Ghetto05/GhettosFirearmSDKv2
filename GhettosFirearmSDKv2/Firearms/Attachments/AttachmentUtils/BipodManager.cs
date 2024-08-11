@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
@@ -14,26 +12,26 @@ namespace GhettosFirearmSDKv2
         public List<Transform> groundFollowers;
         public float linearRecoilModifier;
         public float muzzleRiseModifier;
-        private bool lastFrameOverriden;
-        private bool active;
+        private bool _lastFrameOverriden;
+        private bool _active;
 
         private void Start()
         {
             if (firearm == null && attachment != null)
                 attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
             else if (firearm != null)
-                active = true;
+                _active = true;
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
             firearm = attachment.attachmentPoint.parentFirearm;
-            active = true;
+            _active = true;
         }
 
         private void FixedUpdate()
         {
-            if (!active)
+            if (!_active)
                 return;
             var extended = true;
             foreach (var bp in bipods)
@@ -47,12 +45,12 @@ namespace GhettosFirearmSDKv2
                     extended = false;
             }
 
-            if (extended && !lastFrameOverriden)
+            if (extended && !_lastFrameOverriden)
                 firearm.AddRecoilModifier(linearRecoilModifier, muzzleRiseModifier, this);
-            else if (!extended && lastFrameOverriden)
+            else if (!extended && _lastFrameOverriden)
                 firearm.RemoveRecoilModifier(this);
 
-            lastFrameOverriden = extended;
+            _lastFrameOverriden = extended;
         }
     }
 }

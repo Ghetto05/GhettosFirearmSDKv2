@@ -23,18 +23,18 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             IsNewButton = attachment == null;
             selectButton.onClick.AddListener(delegate { vice.SelectRailAttachment(this); });
             selectButton.onClick.AddListener(delegate { vice.PlaySound(ViceUI.SoundTypes.Select); });
-            if (attachment?.Data?.iconAddress?.IsNullOrEmptyOrWhitespace() ?? true)
+            if (attachment?.Data?.IconAddress?.IsNullOrEmptyOrWhitespace() ?? true)
                 return;
-            Catalog.LoadAssetAsync<Sprite>(attachment.Data.iconAddress, t => { _loadedIconFromAddressable = true; icon.sprite = t; }, "UI Rail Attachment Icon");
+            Catalog.LoadAssetAsync<Sprite>(attachment.Data.IconAddress, t => { _loadedIconFromAddressable = true; icon.sprite = t; }, "UI Rail Attachment Icon");
         }
 
         public void Convert(AttachmentData data, Attachment attachment)
         {
             CurrentAttachment = attachment;
             IsNewButton = false;
-            if (data.iconAddress.IsNullOrEmptyOrWhitespace())
+            if (data.IconAddress.IsNullOrEmptyOrWhitespace())
                 return;
-            Catalog.LoadAssetAsync<Sprite>(data.iconAddress, t =>
+            Catalog.LoadAssetAsync<Sprite>(data.IconAddress, t =>
             {
                 _loadedIconFromAddressable = true;
                 icon.sprite = t;

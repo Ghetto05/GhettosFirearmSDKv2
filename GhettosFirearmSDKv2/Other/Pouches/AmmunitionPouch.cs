@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -10,7 +9,7 @@ namespace GhettosFirearmSDKv2
     {
         public Holder holder;
         public Item pouchItem;
-        public PouchSaveData savedData;
+        public PouchSaveData SavedData;
 
         private void Start()
         {
@@ -24,14 +23,14 @@ namespace GhettosFirearmSDKv2
             pouchItem.OnHeldActionEvent += PouchItem_OnHeldActionEvent;
             pouchItem.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
 
-            if (pouchItem.TryGetCustomData(out savedData))
+            if (pouchItem.TryGetCustomData(out SavedData))
             {
                 SpawnSavedItem();
             }
             else
             {
-                savedData = new PouchSaveData();
-                pouchItem.AddCustomData(savedData);
+                SavedData = new PouchSaveData();
+                pouchItem.AddCustomData(SavedData);
             }
         }
 
@@ -51,34 +50,34 @@ namespace GhettosFirearmSDKv2
         {
             item.Hide(true);
             if (item.GetComponent<Firearm>()) holder.UnSnap(item);
-            if (string.IsNullOrEmpty(savedData.itemID)) SaveItem();
+            if (string.IsNullOrEmpty(SavedData.ItemID)) SaveItem();
             Util.IgnoreCollision(gameObject, item.gameObject, true);
         }
 
         public void SaveItem()
         {
             pouchItem.RemoveCustomData<PouchSaveData>();
-            savedData = new PouchSaveData();
+            SavedData = new PouchSaveData();
             if (holder.items.Count < 1)
             {
                 return;
             }
-            savedData.itemID = holder.items[0].data.id;
-            savedData.dataList = holder.items[0].contentCustomData.CloneJson();
-            pouchItem.AddCustomData(savedData);
+            SavedData.ItemID = holder.items[0].data.id;
+            SavedData.DataList = holder.items[0].contentCustomData.CloneJson();
+            pouchItem.AddCustomData(SavedData);
         }
 
         public void SpawnSavedItem()
         {
-            if (savedData == null || string.IsNullOrEmpty(savedData.itemID)) return;
-            Util.SpawnItem(savedData.itemID, "Ammunition Pouch", newItem =>
+            if (SavedData == null || string.IsNullOrEmpty(SavedData.ItemID)) return;
+            Util.SpawnItem(SavedData.ItemID, "Ammunition Pouch", newItem =>
             {
                 if (newItem.TryGetComponent(out Magazine mag))
                 {
                     mag.OnLoadFinished += Mag_onLoadFinished;
                 }
                 else holder.Snap(newItem);
-            }, transform.position, transform.rotation, null, true, savedData.dataList.CloneJson());
+            }, transform.position, transform.rotation, null, true, SavedData.DataList.CloneJson());
         }
 
         private void Mag_onLoadFinished(Magazine mag)
@@ -88,10 +87,10 @@ namespace GhettosFirearmSDKv2
 
         public void Reset()
         {
-            savedData = new PouchSaveData();
+            SavedData = new PouchSaveData();
             holder.UnSnapOne();
             pouchItem.RemoveCustomData<PouchSaveData>();
-            pouchItem.AddCustomData(savedData);
+            pouchItem.AddCustomData(SavedData);
         }
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)

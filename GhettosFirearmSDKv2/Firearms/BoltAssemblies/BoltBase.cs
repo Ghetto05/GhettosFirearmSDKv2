@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using ThunderRoad;
 using System.Linq;
+using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -17,9 +16,9 @@ namespace GhettosFirearmSDKv2
         public bool fireOnTriggerPress = true;
         public ReciprocatingBarrel reciprocatingBarrel;
         public float cyclePercentage;
-        public bool externalTriggerState = false;
-        public bool disallowRelease = false;
-        private float breachSmokeTime;
+        public bool externalTriggerState;
+        public bool disallowRelease;
+        private float _breachSmokeTime;
         public ParticleSystem[] breachSmokeEffects;
 
         private void Awake()
@@ -75,11 +74,6 @@ namespace GhettosFirearmSDKv2
             c.item.physicBody.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
         }
 
-        public virtual bool LoadChamber(Cartridge c, bool forced = false)
-        {
-            return false;
-        }
-
         public virtual bool CanPlayBreachSmoke()
         {
             return true;
@@ -89,15 +83,15 @@ namespace GhettosFirearmSDKv2
         {
             foreach (var par in breachSmokeEffects)
             {
-                if (CanPlayBreachSmoke() && breachSmokeTime > 0 && !par.isPlaying)
+                if (CanPlayBreachSmoke() && _breachSmokeTime > 0 && !par.isPlaying)
                     par.Play();
-                if ((!CanPlayBreachSmoke() || breachSmokeTime <= 0) && par.isPlaying)
+                if ((!CanPlayBreachSmoke() || _breachSmokeTime <= 0) && par.isPlaying)
                     par.Stop();
             }
 
-            breachSmokeTime -= Time.deltaTime;
-            if (breachSmokeTime < 0)
-                breachSmokeTime = 0;
+            _breachSmokeTime -= Time.deltaTime;
+            if (_breachSmokeTime < 0)
+                _breachSmokeTime = 0;
         }
 
         public void IncrementBreachSmokeTime()
@@ -105,17 +99,17 @@ namespace GhettosFirearmSDKv2
             float breachSmokeBaseTime = 4;
             var breachSmokeIncrement = 2.2f;
 
-            if (breachSmokeTime < breachSmokeBaseTime)
-                breachSmokeTime = breachSmokeBaseTime;
+            if (_breachSmokeTime < breachSmokeBaseTime)
+                _breachSmokeTime = breachSmokeBaseTime;
             else
-                breachSmokeTime += breachSmokeIncrement;
+                _breachSmokeTime += breachSmokeIncrement;
         }
 
         public void ChamberSaved()
         {
             if (FirearmSaveData.GetNode(firearm) != null && FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber))
             {
-                Util.SpawnItem(chamber.value, "Bolt Chamber", carItem =>
+                Util.SpawnItem(chamber.Value, "Bolt Chamber", carItem =>
                 {
                     var car = carItem.gameObject.GetComponent<Cartridge>();
                     LoadChamber(car);
@@ -123,7 +117,12 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        void LoadChamber(Cartridge c)
+        public virtual bool LoadChamber(Cartridge c, bool forced)
+        {
+            return false;
+        }
+
+        private void LoadChamber(Cartridge c)
         {
             var succ = LoadChamber(c, true);
             if (!succ)
@@ -136,7 +135,7 @@ namespace GhettosFirearmSDKv2
             if (firearm.GetType() == typeof(Firearm))
             {
                 var f = (Firearm)firearm;
-                node = f.saveData.firearmNode;
+                node = f.SaveData.FirearmNode;
             }
             else
             {
@@ -146,7 +145,7 @@ namespace GhettosFirearmSDKv2
 
             if (node != null)
             {
-                node.GetOrAddValue("ChamberSaveData", new SaveNodeValueString()).value = id;
+                node.GetOrAddValue("ChamberSaveData", new SaveNodeValueString()).Value = id;
             }
         }
 
@@ -160,7 +159,7 @@ namespace GhettosFirearmSDKv2
 
         public bool HeldByAI()
         {
-            return !firearm?.item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? false;
+            return !(firearm?.item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? true);
         }
 
         public enum BoltState

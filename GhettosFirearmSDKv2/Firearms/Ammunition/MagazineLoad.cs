@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using ThunderRoad;
 using UnityEngine;
-using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
@@ -32,7 +31,7 @@ namespace GhettosFirearmSDKv2
         public MagazineSaveData ToSaveData()
         {
             var data = new MagazineSaveData();
-            data.contents = ids.CloneJson();
+            data.Contents = ids.CloneJson();
             return data;
         }
     }

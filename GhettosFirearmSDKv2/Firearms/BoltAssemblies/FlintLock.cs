@@ -1,6 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -32,7 +30,7 @@ namespace GhettosFirearmSDKv2
         public Collider roundInsertCollider;
         public Transform roundMountPoint;
         public Cartridge loadedCartridge;
-        private float lastRoundPosition;
+        private float _lastRoundPosition;
         public Transform roundEjectDir;
         public Transform roundEjectPoint;
         public float roundEjectForce;
@@ -41,18 +39,18 @@ namespace GhettosFirearmSDKv2
         public Transform rodFrontEnd;
         public Transform rodRearEnd;
         public string ramRodItem;
-        private Item currentRamRod;
+        private Item _currentRamRod;
         public Collider ramRodInsertCollider;
-        private ConfigurableJoint joint;
-        private bool rodAwayFromBreach;
+        private ConfigurableJoint _joint;
+        private bool _rodAwayFromBreach;
 
         [Header("Ram rod store")]
         public Transform rodStoreFrontEnd;
         public Transform rodStoreRearEnd;
-        private Item currentStoredRamRod;
+        private Item _currentStoredRamRod;
         public Collider ramRodStoreInsertCollider;
-        private ConfigurableJoint storeJoint;
-        private bool rodAwayFromStoreEnd;
+        private ConfigurableJoint _storeJoint;
+        private bool _rodAwayFromStoreEnd;
 
         [Header("Audio")]
         public AudioSource[] sizzleSound; 
@@ -71,15 +69,15 @@ namespace GhettosFirearmSDKv2
         [Space]
         public AudioSource[] roundInsertSounds;
 
-        private ProjectileData emptyFireData;
-        private bool ramRodLocked;
-        private bool ramRodStoreLocked;
+        private ProjectileData _emptyFireData;
+        private bool _ramRodLocked;
+        private bool _ramRodStoreLocked;
 
-        private SaveNodeValueInt panFillLevelSaveData;
-        private SaveNodeValueInt barrelFillLevelSaveData;
-        private SaveNodeValueBool rodStoreSaveData;
-        private SaveNodeValueBool hammerStateSaveData;
-        private SaveNodeValueBool panStateSaveData;
+        private SaveNodeValueInt _panFillLevelSaveData;
+        private SaveNodeValueInt _barrelFillLevelSaveData;
+        private SaveNodeValueBool _rodStoreSaveData;
+        private SaveNodeValueBool _hammerStateSaveData;
+        private SaveNodeValueBool _panStateSaveData;
 
         private void Start()
         {
@@ -90,21 +88,21 @@ namespace GhettosFirearmSDKv2
 
         private void GenerateFireData()
         {
-            emptyFireData = gameObject.AddComponent<ProjectileData>();
-            emptyFireData.recoil = 10;
-            emptyFireData.forceDestabilize = false;
-            emptyFireData.forceIncapitate = false;
-            emptyFireData.isHitscan = true;
-            emptyFireData.lethalHeadshot = false;
-            emptyFireData.penetrationPower = ProjectileData.PenetrationLevels.None;
-            emptyFireData.projectileCount = 30;
-            emptyFireData.projectileRange = 1;
-            emptyFireData.projectileSpread = 25;
-            emptyFireData.damagePerProjectile = 0.3f;
-            emptyFireData.hasBodyImpactEffect = false;
-            emptyFireData.hasImpactEffect = false;
-            emptyFireData.forcePerProjectile = 0f;
-            emptyFireData.drawsImpactDecal = false;
+            _emptyFireData = gameObject.AddComponent<ProjectileData>();
+            _emptyFireData.recoil = 10;
+            _emptyFireData.forceDestabilize = false;
+            _emptyFireData.forceIncapitate = false;
+            _emptyFireData.isHitscan = true;
+            _emptyFireData.lethalHeadshot = false;
+            _emptyFireData.penetrationPower = ProjectileData.PenetrationLevels.None;
+            _emptyFireData.projectileCount = 30;
+            _emptyFireData.projectileRange = 1;
+            _emptyFireData.projectileSpread = 25;
+            _emptyFireData.damagePerProjectile = 0.3f;
+            _emptyFireData.hasBodyImpactEffect = false;
+            _emptyFireData.hasImpactEffect = false;
+            _emptyFireData.forcePerProjectile = 0f;
+            _emptyFireData.drawsImpactDecal = false;
         }
 
         private void InvokedStart()
@@ -115,32 +113,32 @@ namespace GhettosFirearmSDKv2
             firearm.OnAltActionEvent += FirearmOnOnAltActionEvent;
 
             var node = FirearmSaveData.GetNode(firearm);
-            panFillLevelSaveData = node.GetOrAddValue("FlintLock_PanPowderFillLevel", new SaveNodeValueInt());
-            barrelFillLevelSaveData = node.GetOrAddValue("FlintLock_BarrelPowderFillLevel", new SaveNodeValueInt());
+            _panFillLevelSaveData = node.GetOrAddValue("FlintLock_PanPowderFillLevel", new SaveNodeValueInt());
+            _barrelFillLevelSaveData = node.GetOrAddValue("FlintLock_BarrelPowderFillLevel", new SaveNodeValueInt());
             var newRodData = new SaveNodeValueBool();
-            newRodData.value = true;
-            rodStoreSaveData = node.GetOrAddValue("FlintLock_RodStored", newRodData);
-            hammerStateSaveData = node.GetOrAddValue("FlintLock_HammerCockState", new SaveNodeValueBool());
-            panStateSaveData = node.GetOrAddValue("FlintLock_PanOpenState", new SaveNodeValueBool());
+            newRodData.Value = true;
+            _rodStoreSaveData = node.GetOrAddValue("FlintLock_RodStored", newRodData);
+            _hammerStateSaveData = node.GetOrAddValue("FlintLock_HammerCockState", new SaveNodeValueBool());
+            _panStateSaveData = node.GetOrAddValue("FlintLock_PanOpenState", new SaveNodeValueBool());
             
-            if (hammerStateSaveData.value)
+            if (_hammerStateSaveData.Value)
                 CockHammer(true);
-            if (panStateSaveData.value)
+            if (_panStateSaveData.Value)
                 ClosePan(true);
-            mainReceiver.currentAmount = barrelFillLevelSaveData.value;
-            panReceiver.currentAmount = panFillLevelSaveData.value;
+            mainReceiver.currentAmount = _barrelFillLevelSaveData.Value;
+            panReceiver.currentAmount = _panFillLevelSaveData.Value;
             mainReceiver.UpdatePositions();
 
-            if (rodStoreSaveData.value && !string.IsNullOrWhiteSpace(ramRodItem))
+            if (_rodStoreSaveData.Value && !string.IsNullOrWhiteSpace(ramRodItem))
             {
                 Util.SpawnItem(ramRodItem, "Flint lock rod", rod =>
                 {
                     InitializeRamRodJoint(rod, true);
-                    currentStoredRamRod = rod;
-                    ramRodStoreLocked = true;
-                    storeJoint.anchor = GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform);
-                    storeJoint.zMotion = ConfigurableJointMotion.Locked;
-                    storeJoint.angularZMotion = ConfigurableJointMotion.Locked;
+                    _currentStoredRamRod = rod;
+                    _ramRodStoreLocked = true;
+                    _storeJoint.anchor = GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform);
+                    _storeJoint.zMotion = ConfigurableJointMotion.Locked;
+                    _storeJoint.angularZMotion = ConfigurableJointMotion.Locked;
                 }, rodStoreRearEnd.position, rodStoreRearEnd.rotation);
             }
             ChamberSaved();
@@ -174,31 +172,31 @@ namespace GhettosFirearmSDKv2
         {
             if (collision.rigidbody != null && collision.rigidbody.TryGetComponent(out Item hitItem))
             {
-                if (currentRamRod == null && (currentStoredRamRod == null || hitItem != currentStoredRamRod) && hitItem.itemId.Equals(ramRodItem) && Util.CheckForCollisionWithThisCollider(collision, ramRodInsertCollider))
+                if (_currentRamRod == null && (_currentStoredRamRod == null || hitItem != _currentStoredRamRod) && hitItem.itemId.Equals(ramRodItem) && Util.CheckForCollisionWithThisCollider(collision, ramRodInsertCollider))
                 {
                     InitializeRamRodJoint(hitItem);
-                    currentRamRod = hitItem;
-                    currentRamRod.DisallowDespawn = true;
-                    rodAwayFromBreach = false;
+                    _currentRamRod = hitItem;
+                    _currentRamRod.DisallowDespawn = true;
+                    _rodAwayFromBreach = false;
                     Util.PlayRandomAudioSource(ramRodInsertSound);
                 }
-                if (currentStoredRamRod == null && (currentRamRod == null || hitItem != currentRamRod) && hitItem.itemId.Equals(ramRodItem) && Util.CheckForCollisionWithThisCollider(collision, ramRodStoreInsertCollider))
+                if (_currentStoredRamRod == null && (_currentRamRod == null || hitItem != _currentRamRod) && hitItem.itemId.Equals(ramRodItem) && Util.CheckForCollisionWithThisCollider(collision, ramRodStoreInsertCollider))
                 {
                     InitializeRamRodJoint(hitItem, true);
-                    currentStoredRamRod = hitItem;
-                    currentStoredRamRod.DisallowDespawn = true;
-                    rodAwayFromStoreEnd = false;
+                    _currentStoredRamRod = hitItem;
+                    _currentStoredRamRod.DisallowDespawn = true;
+                    _rodAwayFromStoreEnd = false;
                     Util.PlayRandomAudioSource(ramRodStoreInsertSound);
                 }
                 else if (hitItem.TryGetComponent(out Cartridge c) && Util.CheckForCollisionWithThisCollider(collision, roundInsertCollider))
                 {
-                    nextLoadIsMuzzle = true;
-                    LoadChamber(c);
+                    _nextLoadIsMuzzle = true;
+                    LoadChamber(c, false);
                 }
             }
         }
 
-        [EasyButtons.Button]
+        [Button]
         public override void TryFire()
         {
             if (!_hammerState)
@@ -210,7 +208,7 @@ namespace GhettosFirearmSDKv2
             Util.PlayRandomAudioSource(hammerFireSounds);
             hammer.SetPositionAndRotation(hammerIdlePosition.position, hammerIdlePosition.rotation);
             _hammerState = false;
-            hammerStateSaveData.value = false;
+            _hammerStateSaveData.Value = false;
 
             if (!_panClosed)
             {
@@ -256,31 +254,31 @@ namespace GhettosFirearmSDKv2
                     if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                         firearm.PlayMuzzleFlash(loadedCartridge);
                     FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hitPoints, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
-                    FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+                    FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
                     loadedCartridge.Fire(hitPoints, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !HeldByAI() && !Settings.infiniteAmmo);
                 }
             }
             else
             {
                 firearm.PlayFireSound(null);
-                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, emptyFireData, out var hitPoints, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
-                FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, baseRecoil, 1, firearm.recoilModifier, firearm.recoilModifiers);
+                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, _emptyFireData, out _, out _, out _, firearm.CalculateDamageMultiplier(), HeldByAI());
+                FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, baseRecoil, 1, firearm.recoilModifier, firearm.RecoilModifiers);
                 firearm.PlayMuzzleFlash(null);
             }
             IncrementBreachSmokeTime();
 
-            if (currentRamRod != null)
+            if (_currentRamRod != null)
             { 
                 InitializeRamRodJoint(null);
-                Util.DisableCollision(currentRamRod, false);
-                currentRamRod.DisallowDespawn = false;
-                currentRamRod = null;
+                Util.DisableCollision(_currentRamRod, false);
+                _currentRamRod.DisallowDespawn = false;
+                _currentRamRod = null;
                 Util.PlayRandomAudioSource(ramRodExtractSound);
             }
             EjectRound();
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void CockHammer(bool forced = false)
         {
             if (_hammerState)
@@ -289,10 +287,10 @@ namespace GhettosFirearmSDKv2
                 Util.PlayRandomAudioSource(hammerCockSounds);
             hammer.SetPositionAndRotation(hammerCockedPosition.position, hammerCockedPosition.rotation);
             _hammerState = true;
-            hammerStateSaveData.value = true;
+            _hammerStateSaveData.Value = true;
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void OpenPan(bool forced = false)
         {
             if (!_panClosed && !forced)
@@ -302,10 +300,10 @@ namespace GhettosFirearmSDKv2
             pan.SetPositionAndRotation(panOpenedPosition.position, panOpenedPosition.rotation);
             _panClosed = false;
             if (!forced)
-                panStateSaveData.value = false;
+                _panStateSaveData.Value = false;
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void ClosePan(bool forced = false)
         {
             if (_panClosed || !_hammerState)
@@ -314,89 +312,89 @@ namespace GhettosFirearmSDKv2
                 Util.PlayRandomAudioSource(panCloseSounds);
             pan.SetPositionAndRotation(panClosedPosition.position, panClosedPosition.rotation);
             _panClosed = true;
-            panStateSaveData.value = true;
+            _panStateSaveData.Value = true;
         }
 
         private void FixedUpdate()
         {
             panReceiver.blocked = _panClosed || !_hammerState;
-            mainReceiver.blocked = loadedCartridge != null || currentRamRod != null;
+            mainReceiver.blocked = loadedCartridge != null || _currentRamRod != null;
 
-            if (barrelFillLevelSaveData != null)
-                barrelFillLevelSaveData.value = mainReceiver.currentAmount;
-            if (panFillLevelSaveData != null)
-                panFillLevelSaveData.value = panReceiver.currentAmount;
+            if (_barrelFillLevelSaveData != null)
+                _barrelFillLevelSaveData.Value = mainReceiver.currentAmount;
+            if (_panFillLevelSaveData != null)
+                _panFillLevelSaveData.Value = panReceiver.currentAmount;
 
-            if (currentRamRod != null && loadedCartridge != null)
+            if (_currentRamRod != null && loadedCartridge != null)
             {
-                var currentPos = Vector3.Distance(rodFrontEnd.position, currentRamRod.transform.position);
+                var currentPos = Vector3.Distance(rodFrontEnd.position, _currentRamRod.transform.position);
                 var targetPos = Vector3.Distance(rodFrontEnd.position, rodRearEnd.position);
                 var posTime = currentPos / targetPos;
-                if (posTime > lastRoundPosition)
-                    lastRoundPosition = posTime;
-                loadedCartridge.transform.position = Vector3.LerpUnclamped(rodFrontEnd.position, rodRearEnd.position, lastRoundPosition);
+                if (posTime > _lastRoundPosition)
+                    _lastRoundPosition = posTime;
+                loadedCartridge.transform.position = Vector3.LerpUnclamped(rodFrontEnd.position, rodRearEnd.position, _lastRoundPosition);
             }
 
             #region Ram rod movement
             
-            if (currentRamRod != null && !rodAwayFromBreach &&
-                Vector3.Distance(currentRamRod.transform.position, rodRearEnd.position) < Settings.boltPointTreshold)
-                rodAwayFromBreach = true;
+            if (_currentRamRod != null && !_rodAwayFromBreach &&
+                Vector3.Distance(_currentRamRod.transform.position, rodRearEnd.position) < Settings.boltPointTreshold)
+                _rodAwayFromBreach = true;
 
-            if (currentRamRod != null && rodAwayFromBreach &&
-                Vector3.Distance(currentRamRod.transform.position, rodFrontEnd.position) < Settings.boltPointTreshold)
+            if (_currentRamRod != null && _rodAwayFromBreach &&
+                Vector3.Distance(_currentRamRod.transform.position, rodFrontEnd.position) < Settings.boltPointTreshold)
             {
                 InitializeRamRodJoint(null);
-                Util.DisableCollision(currentRamRod, false);
-                currentRamRod.DisallowDespawn = false;
-                currentRamRod = null;
+                Util.DisableCollision(_currentRamRod, false);
+                _currentRamRod.DisallowDespawn = false;
+                _currentRamRod = null;
                 Util.PlayRandomAudioSource(ramRodExtractSound);
             }
 
-            if (currentRamRod != null && currentRamRod.handlers.Count == 0 && !ramRodLocked)
+            if (_currentRamRod != null && _currentRamRod.handlers.Count == 0 && !_ramRodLocked)
             {
-                ramRodLocked = true;
-                joint.anchor = new Vector3(GrandparentLocalPosition(rodRearEnd, firearm.item.transform).x, GrandparentLocalPosition(rodRearEnd, firearm.item.transform).y, GrandparentLocalPosition(currentRamRod.transform, firearm.item.transform).z);
-                joint.zMotion = ConfigurableJointMotion.Locked;
+                _ramRodLocked = true;
+                _joint.anchor = new Vector3(GrandparentLocalPosition(rodRearEnd, firearm.item.transform).x, GrandparentLocalPosition(rodRearEnd, firearm.item.transform).y, GrandparentLocalPosition(_currentRamRod.transform, firearm.item.transform).z);
+                _joint.zMotion = ConfigurableJointMotion.Locked;
             }
-            else if (currentRamRod != null && currentRamRod.handlers.Count > 0 && ramRodLocked)
+            else if (_currentRamRod != null && _currentRamRod.handlers.Count > 0 && _ramRodLocked)
             {
-                ramRodLocked = false;
-                joint.anchor = new Vector3(GrandparentLocalPosition(rodRearEnd, firearm.item.transform).x, GrandparentLocalPosition(rodRearEnd, firearm.item.transform).y, GrandparentLocalPosition(rodRearEnd, firearm.item.transform).z + ((rodFrontEnd.localPosition.z - rodRearEnd.localPosition.z) / 2));
-                joint.zMotion = ConfigurableJointMotion.Limited;
+                _ramRodLocked = false;
+                _joint.anchor = new Vector3(GrandparentLocalPosition(rodRearEnd, firearm.item.transform).x, GrandparentLocalPosition(rodRearEnd, firearm.item.transform).y, GrandparentLocalPosition(rodRearEnd, firearm.item.transform).z + ((rodFrontEnd.localPosition.z - rodRearEnd.localPosition.z) / 2));
+                _joint.zMotion = ConfigurableJointMotion.Limited;
             }
 
             #endregion
 
             #region Ram rod store movement
             
-            if (currentStoredRamRod != null && !rodAwayFromStoreEnd &&
-                Vector3.Distance(currentStoredRamRod.transform.position, rodStoreRearEnd.position) < Settings.boltPointTreshold)
-                rodAwayFromStoreEnd = true;
+            if (_currentStoredRamRod != null && !_rodAwayFromStoreEnd &&
+                Vector3.Distance(_currentStoredRamRod.transform.position, rodStoreRearEnd.position) < Settings.boltPointTreshold)
+                _rodAwayFromStoreEnd = true;
 
-            if (currentStoredRamRod != null && rodAwayFromStoreEnd &&
-                Vector3.Distance(currentStoredRamRod.transform.position, rodStoreFrontEnd.position) < Settings.boltPointTreshold)
+            if (_currentStoredRamRod != null && _rodAwayFromStoreEnd &&
+                Vector3.Distance(_currentStoredRamRod.transform.position, rodStoreFrontEnd.position) < Settings.boltPointTreshold)
             {
                 InitializeRamRodJoint(null, true);
-                Util.DisableCollision(currentStoredRamRod, false);
-                currentStoredRamRod.DisallowDespawn = false;
-                currentStoredRamRod = null;
+                Util.DisableCollision(_currentStoredRamRod, false);
+                _currentStoredRamRod.DisallowDespawn = false;
+                _currentStoredRamRod = null;
                 Util.PlayRandomAudioSource(ramRodStoreExtractSound);
             }
 
-            if (currentStoredRamRod != null && currentStoredRamRod.handlers.Count == 0 && !ramRodStoreLocked)
+            if (_currentStoredRamRod != null && _currentStoredRamRod.handlers.Count == 0 && !_ramRodStoreLocked)
             {
-                ramRodStoreLocked = true;
-                storeJoint.anchor = new Vector3(GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).x, GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).y, GrandparentLocalPosition(currentStoredRamRod.transform, firearm.item.transform).z);
-                storeJoint.zMotion = ConfigurableJointMotion.Locked;
-                storeJoint.angularZMotion = ConfigurableJointMotion.Locked;
+                _ramRodStoreLocked = true;
+                _storeJoint.anchor = new Vector3(GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).x, GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).y, GrandparentLocalPosition(_currentStoredRamRod.transform, firearm.item.transform).z);
+                _storeJoint.zMotion = ConfigurableJointMotion.Locked;
+                _storeJoint.angularZMotion = ConfigurableJointMotion.Locked;
             }
-            else if (currentStoredRamRod != null && currentStoredRamRod.handlers.Count > 0 && ramRodStoreLocked)
+            else if (_currentStoredRamRod != null && _currentStoredRamRod.handlers.Count > 0 && _ramRodStoreLocked)
             {
-                ramRodStoreLocked = false;
-                storeJoint.anchor = new Vector3(GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).x, GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).y, GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).z + ((rodStoreFrontEnd.localPosition.z - rodStoreRearEnd.localPosition.z) / 2));
-                storeJoint.zMotion = ConfigurableJointMotion.Limited;
-                storeJoint.angularZMotion = ConfigurableJointMotion.Free;
+                _ramRodStoreLocked = false;
+                _storeJoint.anchor = new Vector3(GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).x, GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).y, GrandparentLocalPosition(rodStoreRearEnd, firearm.item.transform).z + ((rodStoreFrontEnd.localPosition.z - rodStoreRearEnd.localPosition.z) / 2));
+                _storeJoint.zMotion = ConfigurableJointMotion.Limited;
+                _storeJoint.angularZMotion = ConfigurableJointMotion.Free;
             }
 
             #endregion
@@ -409,7 +407,7 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeRamRodJoint(Item item, bool store = false)
         {
-            var j = store ? storeJoint : joint;
+            var j = store ? _storeJoint : _joint;
             var frontEnd = store ? rodStoreFrontEnd : rodFrontEnd;
             var rearEnd = store ? rodStoreRearEnd : rodRearEnd;
             
@@ -418,12 +416,12 @@ namespace GhettosFirearmSDKv2
             if (item == null)
             {
                 if (store)
-                    rodStoreSaveData.value = false;
+                    _rodStoreSaveData.Value = false;
                 return;
             }
 
             if (store)
-                rodStoreSaveData.value = true;
+                _rodStoreSaveData.Value = true;
             var oldHandlers = item.handlers.ToArray();
             foreach (var handle in item.handles)
             {
@@ -457,9 +455,9 @@ namespace GhettosFirearmSDKv2
             Util.DisableCollision(item, true);
 
             if (store)
-                storeJoint = j;
+                _storeJoint = j;
             else
-                joint = j;
+                _joint = j;
         }
 
         public override Cartridge GetChamber()
@@ -470,17 +468,17 @@ namespace GhettosFirearmSDKv2
         private void SetPositionToPowder()
         {
             if (loadedCartridge != null)
-                loadedCartridge.transform.position = Vector3.LerpUnclamped(rodFrontEnd.position, rodRearEnd.position, (float)mainReceiver.currentAmount / (float)mainReceiver.grainCapacity);
+                loadedCartridge.transform.position = Vector3.LerpUnclamped(rodFrontEnd.position, rodRearEnd.position, mainReceiver.currentAmount / (float)mainReceiver.grainCapacity);
         }
 
-        private bool nextLoadIsMuzzle;
-        public override bool LoadChamber(Cartridge c, bool forced = false)
+        private bool _nextLoadIsMuzzle;
+        public override bool LoadChamber(Cartridge c, bool forced)
         {
             if (loadedCartridge == null && (Util.AllowLoadCartridge(c, caliber) || forced))
             {
                 if (!forced)
                     Util.PlayRandomAudioSource(roundInsertSounds);
-                lastRoundPosition = 0f;
+                _lastRoundPosition = 0f;
                 loadedCartridge = c;
                 c.item.DisallowDespawn = true;
                 c.loaded = true;
@@ -494,10 +492,10 @@ namespace GhettosFirearmSDKv2
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                 SaveChamber(c.item.itemId);
                 Invoke(nameof(Rechamber), 1f);
-                if (!nextLoadIsMuzzle)
+                if (!_nextLoadIsMuzzle)
                 { 
                     Invoke(nameof(SetPositionToPowder), 1.2f);
-                    nextLoadIsMuzzle = false;
+                    _nextLoadIsMuzzle = false;
                 }
 
                 return true;

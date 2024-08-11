@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using ThunderRoad;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using UnityEngine;
 
 namespace GhettosFirearmSDKv2.Chemicals
 {
@@ -16,41 +16,41 @@ namespace GhettosFirearmSDKv2.Chemicals
         public Volume volume;
 
         //---STATE---
-        bool inCSgas = false;
-        bool inSmoke = false;
-        bool inPoisonGas = false;
+        private bool _inCSgas;
+        private bool _inSmoke;
+        private bool _inPoisonGas;
 
         //---SPEECH---
-        AudioSource speech;
-        float nextSpeechTime;
-        float delayBetweenSpeechMin = 2f;
-        float delayBetweenSpeechMax = 5f;
+        private AudioSource _speech;
+        private float _nextSpeechTime;
+        private float _delayBetweenSpeechMin = 2f;
+        private float _delayBetweenSpeechMax = 5f;
 
         //CS gas
-        readonly string CSgasCoughAudioContainerId = "CoughingAgony_Ghetto05_FirearmSDKv2";
-        AudioContainer CSgasCoughAudioContainer;
+        private readonly string _cSgasCoughAudioContainerId = "CoughingAgony_Ghetto05_FirearmSDKv2";
+        private AudioContainer _cSgasCoughAudioContainer;
 
         //---EFFECTS---
-        readonly string flashBangRingingClipId = "EarRingSoundEffect_Ghetto05_FirearmSDKv2";
-        AudioSource flashBangRingingSource;
+        private readonly string _flashBangRingingClipId = "EarRingSoundEffect_Ghetto05_FirearmSDKv2";
+        private AudioSource _flashBangRingingSource;
 
-        void Awake()
+        private void Awake()
         {
             local = this;
 
             gasMasks = new List<GameObject>();
 
             //speech
-            speech = Player.local.head.cam.gameObject.AddComponent<AudioSource>();
-            speech.transform.position = Player.local.head.cam.transform.position;
+            _speech = Player.local.head.cam.gameObject.AddComponent<AudioSource>();
+            _speech.transform.position = Player.local.head.cam.transform.position;
 
             //cs gas
-            Catalog.LoadAssetAsync<AudioContainer>(CSgasCoughAudioContainerId, AC => { CSgasCoughAudioContainer = AC; }, "Player chemicals module");
+            Catalog.LoadAssetAsync<AudioContainer>(_cSgasCoughAudioContainerId, ac => { _cSgasCoughAudioContainer = ac; }, "Player chemicals module");
 
             //flash bang
-            flashBangRingingSource = Player.local.head.cam.gameObject.AddComponent<AudioSource>();
-            flashBangRingingSource.loop = true;
-            Catalog.LoadAssetAsync<AudioClip>(flashBangRingingClipId, FBRAC => { flashBangRingingSource.clip = FBRAC; }, "Player chemicals module");
+            _flashBangRingingSource = Player.local.head.cam.gameObject.AddComponent<AudioSource>();
+            _flashBangRingingSource.loop = true;
+            Catalog.LoadAssetAsync<AudioClip>(_flashBangRingingClipId, fbrac => { _flashBangRingingSource.clip = fbrac; }, "Player chemicals module");
 
             //post process volume
             volume = Player.local.head.cam.gameObject.AddComponent<Volume>();
@@ -61,25 +61,25 @@ namespace GhettosFirearmSDKv2.Chemicals
             volume.profile.Add<LiftGammaGain>();
         }
 
-        void Update()
+        private void Update()
         {
             var foundCSgas = false;
             var foundSmoke = false;
             var foundPoisonGas = false;
             var highestPoisonGasDamage = 0f;
-            GameObject csgasCollider = null;
 
             for (var i = 0; i < gasMasks.Count; i++)
             {
                 if (gasMasks[i] == null) gasMasks.RemoveAt(i);
             }
 
-            foreach (var c in Physics.OverlapSphere(Player.local.head.cam.transform.position, 0.1f))
+            var hits = new Collider[Physics.OverlapSphereNonAlloc(Player.local.head.cam.transform.position, 0.1f, null)];
+            Physics.OverlapSphereNonAlloc(Player.local.head.cam.transform.position, 0.1f, hits);
+            foreach (var c in hits)
             {
                 if (c.gameObject.name.Equals("CSgas_Zone") && !WearingGasMask())
                 {
                     foundCSgas = true;
-                    csgasCollider = c.gameObject;
                 }
                 if (c.gameObject.name.Equals("Smoke_Zone"))
                 {
@@ -93,90 +93,90 @@ namespace GhettosFirearmSDKv2.Chemicals
                 }
             }
 
-            if (foundSmoke && !inSmoke) EnterSmoke();
-            else if (!foundSmoke && inSmoke) ExitSmoke();
+            if (foundSmoke && !_inSmoke) EnterSmoke();
+            else if (!foundSmoke && _inSmoke) ExitSmoke();
 
-            if (foundCSgas && !inCSgas) EnterCSgas(csgasCollider);
-            else if (!foundCSgas && inCSgas) ExitCSgas();
+            if (foundCSgas && !_inCSgas) EnterCSgas();
+            else if (!foundCSgas && _inCSgas) ExitCSgas();
 
-            if (foundPoisonGas && !inPoisonGas) EnterPoisonGas();
-            else if (!foundPoisonGas && inPoisonGas) ExitPoisonGas();
+            if (foundPoisonGas && !_inPoisonGas) EnterPoisonGas();
+            else if (!foundPoisonGas && _inPoisonGas) ExitPoisonGas();
 
             UpdateCSgas();
             UpdateSmoke();
             UpdatePoisonGas(highestPoisonGasDamage * Time.deltaTime);
 
-            if (Time.time >= nextSpeechTime) Speak();
+            if (Time.time >= _nextSpeechTime) Speak();
         }
 
-        void Speak()
+        private void Speak()
         {
-            if (inCSgas && CSgasCoughAudioContainer != null)
+            if (_inCSgas && _cSgasCoughAudioContainer != null)
             {
-                speech.clip = CSgasCoughAudioContainer.PickAudioClip();
+                _speech.clip = _cSgasCoughAudioContainer.PickAudioClip();
             }
             else
             {
-                speech.clip = null;
+                _speech.clip = null;
             }
 
             //---END---
-            if (speech.clip != null)
+            if (_speech.clip != null)
             {
-                speech.Play();
-                nextSpeechTime = Time.time + Random.Range(delayBetweenSpeechMin, delayBetweenSpeechMax) + speech.clip.length;
+                _speech.Play();
+                _nextSpeechTime = Time.time + Random.Range(_delayBetweenSpeechMin, _delayBetweenSpeechMax) + _speech.clip.length;
             }
         }
 
         public bool IsInSmoke()
         {
-            return inSmoke;
+            return _inSmoke;
         }
 
-        void UpdateSmoke()
+        private void UpdateSmoke()
         {
-            if (!inSmoke) return;
+            
         }
 
-        void EnterSmoke()
+        private void EnterSmoke()
         {
-            inSmoke = true;
+            _inSmoke = true;
         }
 
-        void ExitSmoke()
+        private void ExitSmoke()
         {
-            inSmoke = false;
+            _inSmoke = false;
         }
 
-        void UpdateCSgas()
+        private void UpdateCSgas()
         {
-            if (!inCSgas) return;
+            
         }
 
-        void EnterCSgas(GameObject obj)
+        private void EnterCSgas()
         {
-            inCSgas = true;
+            _inCSgas = true;
         }
 
-        void ExitCSgas()
+        private void ExitCSgas()
         {
-            inCSgas = false;
+            _inCSgas = false;
         }
 
-        void UpdatePoisonGas(float damage)
+        private void UpdatePoisonGas(float damage)
         {
-            if (!inPoisonGas) return;
+            if (!_inPoisonGas) return;
             Player.local.creature.Damage(new CollisionInstance(new DamageStruct(DamageType.Energy, damage)));
         }
 
-        void EnterPoisonGas()
+        private void EnterPoisonGas()
         {
-            inPoisonGas = true;
+            _inPoisonGas = true;
         }
 
-        void ExitPoisonGas()
+        private void ExitPoisonGas()
         {
-            inPoisonGas = false;
+            _inPoisonGas = false;
         }
 
         public static void Flashbang(float time)
@@ -190,22 +190,22 @@ namespace GhettosFirearmSDKv2.Chemicals
             }
         }
 
-        static IEnumerator FlashbangCoroutine(float time, LiftGammaGain lgg)
+        private static IEnumerator FlashbangCoroutine(float time, LiftGammaGain lgg)
         {
-            local.flashBangRingingSource.Play();
-            local.flashBangRingingSource.volume = 1f;
+            local._flashBangRingingSource.Play();
+            local._flashBangRingingSource.volume = 1f;
             if (time > 4f) yield return new WaitForSeconds(time - 4f);
             yield return FadeOut(lgg, 4f);
         }
 
-        public static IEnumerator FadeOut(LiftGammaGain lgg, float FadeTime)
+        public static IEnumerator FadeOut(LiftGammaGain lgg, float fadeTime)
         {
             var val = 1f;
             while (lgg.lift.value.w > 0)
             {
-                val -= Time.deltaTime / FadeTime;
+                val -= Time.deltaTime / fadeTime;
                 val = Mathf.Clamp01(val);
-                local.flashBangRingingSource.volume = val;
+                local._flashBangRingingSource.volume = val;
                 lgg.lift.Override(new Vector4(1, 1, 1, val));
                 yield return null;
             }

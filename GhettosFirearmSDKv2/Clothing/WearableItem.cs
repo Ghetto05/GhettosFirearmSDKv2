@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2.Clothing
 {
@@ -11,7 +10,7 @@ namespace GhettosFirearmSDKv2.Clothing
         public HumanBodyBones baseBone;
         public List<Handle> unequipHandles;
 
-        private Creature currentCreature;
+        private Creature _currentCreature;
 
         public void Start()
         {
@@ -27,7 +26,7 @@ namespace GhettosFirearmSDKv2.Clothing
 
         private void ItemOnOnGrabEvent(Handle handle, RagdollHand ragdollhand)
         {
-            if (unequipHandles.Contains(handle) && currentCreature != null)
+            if (unequipHandles.Contains(handle) && _currentCreature != null)
                 Unequip();
         }
 
@@ -37,10 +36,10 @@ namespace GhettosFirearmSDKv2.Clothing
 
         public void Equip(Creature target)
         {
-            if (currentCreature != null)
+            if (_currentCreature != null)
                 return;
-            currentCreature = target;
-            var bone = currentCreature.animator.GetBoneTransform(baseBone);
+            _currentCreature = target;
+            var bone = _currentCreature.animator.GetBoneTransform(baseBone);
             if (Vector3.Distance(bone.position, transform.position) > 0.3f)
                 return;
             item.DisallowDespawn = true;
@@ -54,14 +53,14 @@ namespace GhettosFirearmSDKv2.Clothing
 
         public void Unequip()
         {
-            if (currentCreature == null)
+            if (_currentCreature == null)
                 return;
 
             item.physicBody.rigidBody.isKinematic = false;
             item.DisallowDespawn = false;
             item.disableSnap = false;
             transform.SetParent(null);
-            currentCreature = null;
+            _currentCreature = null;
         }
     }
 }

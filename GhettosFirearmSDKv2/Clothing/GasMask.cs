@@ -1,17 +1,16 @@
-﻿using System.Collections;
-using UnityEngine;
-using ThunderRoad;
+﻿using System.Linq;
 using GhettosFirearmSDKv2.Chemicals;
-using System.Linq;
+using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class GasMask : MonoBehaviour
     {
         public AudioSource breathingLoop;
-        private Creature creature;
-        private NPCChemicalsModule npcModule;
-        private bool ready = false;
+        private Creature _creature;
+        private NpcChemicalsModule _npcModule;
+        private bool _ready;
 
         private void Awake()
         {
@@ -27,30 +26,30 @@ namespace GhettosFirearmSDKv2
                 else if (!Settings.playGasMaskSound && breathingLoop.isPlaying) breathingLoop.Stop();
             }
 
-            if (creature == null)
+            if (_creature == null)
             {
-                creature = GetComponentInParent<Creature>();
-                if (!creature.brain.instance.id.Equals("Player")) npcModule = creature.GetComponent<NPCChemicalsModule>();
+                _creature = GetComponentInParent<Creature>();
+                if (!_creature.brain.instance.id.Equals("Player")) _npcModule = _creature.GetComponent<NpcChemicalsModule>();
             }
-            if (!ready && creature != null)
+            if (!_ready && _creature != null)
             {
-                ready = true;
+                _ready = true;
                 if (enabled) OnEnable();
             }
         }
 
         private void OnEnable()
         {
-            if (!ready || creature == null) return;
-            if (creature.isPlayer) AddMaskPlayer();
-            //else AddMask();
+            if (!_ready || _creature == null) return;
+            if (_creature.isPlayer) AddMaskPlayer();
+            else AddMask();
         }
 
         private void OnDisable()
         {
-            if (!ready || creature == null) return;
-            if (creature.isPlayer) RemoveMaskPlayer();
-            //else RemoveMask();
+            if (!_ready || _creature == null) return;
+            if (_creature.isPlayer) RemoveMaskPlayer();
+            else RemoveMask();
         }
 
         private void AddMaskPlayer()
@@ -71,18 +70,18 @@ namespace GhettosFirearmSDKv2
 
         private void AddMask()
         {
-            if (!npcModule.gasMasks.Contains(gameObject))
+            if (!_npcModule.gasMasks.Contains(gameObject))
             {
-                npcModule.gasMasks.Add(gameObject);
+                _npcModule.gasMasks.Add(gameObject);
             }
         }
 
         private void RemoveMask()
         {
-            if (npcModule == null) return;
-            if (npcModule.gasMasks.Contains(gameObject))
+            if (_npcModule == null) return;
+            if (_npcModule.gasMasks.Contains(gameObject))
             {
-                npcModule.gasMasks.Remove(gameObject);
+                _npcModule.gasMasks.Remove(gameObject);
             }
         }
     }

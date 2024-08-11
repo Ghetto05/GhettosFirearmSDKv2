@@ -1,7 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
+using GhettosFirearmSDKv2.Chemicals;
 using ThunderRoad;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2.Explosives
 {
@@ -13,10 +14,6 @@ namespace GhettosFirearmSDKv2.Explosives
         public float time;
         public string effectId;
 
-        private void Awake()
-        {
-        }
-
         public override void ActualDetonate()
         {
             try
@@ -24,7 +21,7 @@ namespace GhettosFirearmSDKv2.Explosives
                 if (effect != null)
                 {
                     effect.gameObject.transform.SetParent(null);
-                    Player.local.StartCoroutine(delayedDestroy(effect.gameObject, effect.main.duration + 1f));
+                    Player.local.StartCoroutine(DelayedDestroy(effect.gameObject, effect.main.duration + 1f));
                     effect.Play();
                 }
 
@@ -37,10 +34,10 @@ namespace GhettosFirearmSDKv2.Explosives
                 foreach (var s in audioEffects)
                 {
                     s.gameObject.transform.SetParent(null);
-                    Player.local.StartCoroutine(delayedDestroy(s.gameObject, s.clip.length + 1f));
+                    Player.local.StartCoroutine(DelayedDestroy(s.gameObject, s.clip.length + 1f));
                 }
 
-                if (Vector3.Distance(transform.position, Player.local.head.cam.transform.position) < range && !Raycast(Player.currentCreature)) Chemicals.PlayerEffectsAndChemicalsModule.Flashbang(time);
+                if (Vector3.Distance(transform.position, Player.local.head.cam.transform.position) < range && !Raycast(Player.currentCreature)) PlayerEffectsAndChemicalsModule.Flashbang(time);
 
                 foreach (var cr in Creature.allActive)
                 {
@@ -52,8 +49,11 @@ namespace GhettosFirearmSDKv2.Explosives
                     }
                 }
             }
-            catch (System.Exception)
-            { }
+            catch (Exception)
+            {
+                // ignored
+            }
+
             base.ActualDetonate();
         }
 
@@ -61,7 +61,7 @@ namespace GhettosFirearmSDKv2.Explosives
         {
             var layer = LayerMask.GetMask("Default");
             var pos = cr.animator.GetBoneTransform(HumanBodyBones.Head).position;
-            return Physics.Raycast(cr.centerEyes.position, (transform.position - pos).normalized, out var hit, Vector3.Distance(pos, transform.position) - 0.1f, layer);
+            return Physics.Raycast(cr.centerEyes.position, (transform.position - pos).normalized, out _, Vector3.Distance(pos, transform.position) - 0.1f, layer);
         }
     }
 }

@@ -1,16 +1,13 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace GhettosFirearmSDKv2
 {
     public class Handcuffs : MonoBehaviour
     {
-        public static List<RagdollPart> allAttachedParts = new List<RagdollPart>();
+        public static List<RagdollPart> allAttachedParts = new();
         
         public Item item;
         public bool canBeReopened;
@@ -58,7 +55,7 @@ namespace GhettosFirearmSDKv2
                 
             };
             var relay = item.gameObject.AddComponent<CollisionRelay>();
-            relay.onCollisionEnterEvent += OnCollisionEnterEvent;
+            relay.OnCollisionEnterEvent += OnCollisionEnterEvent;
             UnlockAnimation(true);
         }
 
@@ -103,20 +100,7 @@ namespace GhettosFirearmSDKv2
 
             var notAlreadyAttached = !allAttachedParts.Contains(part);
             
-            return correctType && noOtherPartAttached && notAlreadyAttached /*&& TypeMatches(part, side)*/;
-        }
-
-        private bool TypeMatches(RagdollPart part, Side side)
-        {
-            if (_leftConnectedPart == null && _rightConnectedPart == null)
-                return true;
-
-            var presentPart = side == Side.Right ? _leftConnectedPart : _rightConnectedPart;
-
-            if (presentPart == null)
-                return true;
-            
-            return part.type == presentPart.type;
+            return correctType && noOtherPartAttached && notAlreadyAttached;
         }
 
         public void LockTo(RagdollPart part, Side side)
@@ -129,8 +113,6 @@ namespace GhettosFirearmSDKv2
             allAttachedParts.Add(part);
 
             var joint = item.gameObject.AddComponent<HingeJoint>();
-            //item.transform.MoveAlign(anchor, part.physicBody.rigidBody.transform);
-            //part.physicBody.rigidBody.transform.SetPositionAndRotation(anchor.position, anchor.rotation);
             item.transform.AlignRotationWith(part.physicBody.rigidBody.transform, anchor, joint.axis);
             joint.axis = Vector3.up;
             joint.anchor = anchor.localPosition;
@@ -183,20 +165,7 @@ namespace GhettosFirearmSDKv2
             LockAnimation(side);
         }
 
-        private IEnumerator PreventDamage(Creature creature)
-        {
-            creature.OnDamageEvent += CreatureOnOnDamageEvent;
-            yield return new WaitForSeconds(2f);
-            creature.OnDamageEvent -= CreatureOnOnDamageEvent;
-        }
-
-        private void CreatureOnOnDamageEvent(CollisionInstance collisioninstance, EventTime eventtime)
-        {
-            if (eventtime == EventTime.OnStart)
-                collisioninstance.ignoreDamage = true;
-        }
-
-        [EasyButtons.Button]
+        [Button]
         public void Unlock(bool withTool, bool onDespawn = false)
         {
             if (canBeReopened || withTool)
@@ -237,7 +206,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void LockAnimation(Side side)
         {
             Util.PlayRandomAudioSource(closeSounds);
@@ -257,7 +226,7 @@ namespace GhettosFirearmSDKv2
                 openedRightObject.SetActive(false);
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void UnlockAnimation(bool silent = false)
         {
             if (!silent) 

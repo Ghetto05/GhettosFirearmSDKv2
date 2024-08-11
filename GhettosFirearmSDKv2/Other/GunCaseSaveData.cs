@@ -1,13 +1,11 @@
-﻿using System;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using ThunderRoad;
-using System.Collections.Generic;
 
 namespace GhettosFirearmSDKv2
 {
     public class GunCaseSaveData : ContentCustomData
     {
-        public string firearm;
-        public List<ContentCustomData> firearmData;
+        public string Firearm;
+        public List<ContentCustomData> FirearmData;
     }
 }

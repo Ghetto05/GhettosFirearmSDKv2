@@ -1,11 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using ThunderRoad;
-using UnityEngine.UI;
-using UnityEngine.AddressableAssets;
 using TMPro;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.UI;
 
 namespace GhettosFirearmSDKv2
 {
@@ -13,7 +13,7 @@ namespace GhettosFirearmSDKv2
     {
         #region Values
 
-        public CaliberSortingData sortingData;
+        public CaliberSortingData SortingData;
         public bool alwaysFrozen;
 
         [Space]
@@ -65,7 +65,7 @@ namespace GhettosFirearmSDKv2
                 Lock();
             }
 
-            sortingData = Catalog.GetDataList<CaliberSortingData>().FirstOrDefault();
+            SortingData = Catalog.GetDataList<CaliberSortingData>().FirstOrDefault();
             
             SetupCategories();
         }
@@ -195,7 +195,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!string.IsNullOrWhiteSpace(currentItemId))
             {
-                Util.SpawnItem(currentItemId, "Ammo Spawner", car => {}, spawnPosition.position, spawnPosition.rotation);
+                Util.SpawnItem(currentItemId, "Ammo Spawner", _ => {}, spawnPosition.position, spawnPosition.rotation);
             }
         }
 
@@ -241,7 +241,7 @@ namespace GhettosFirearmSDKv2
                 variants.Clear();
             }
 
-            var list = AmmoModule.AllCategories().OrderBy(c => sortingData?.sortedCategories.IndexOf(c)).ToList();
+            var list = AmmoModule.AllCategories().OrderBy(c => SortingData?.SortedCategories.IndexOf(c)).ToList();
             foreach (var s in list)
             {
                 AddCategory(s);
@@ -267,7 +267,7 @@ namespace GhettosFirearmSDKv2
                 variants.Clear();
             }
 
-            var list = AmmoModule.AllCalibersOfCategory(category).OrderBy(c => sortingData?.sortedCalibers.IndexOf(c)).ToList();
+            var list = AmmoModule.AllCalibersOfCategory(category).OrderBy(c => SortingData?.SortedCalibers.IndexOf(c)).ToList();
             foreach (var s in list)
             {
                 AddCaliber(s);
@@ -298,9 +298,8 @@ namespace GhettosFirearmSDKv2
             if (categories == null) categories = new List<Transform>();
             if (!ContainsName(category, categories))
             {
-                var obj = Instantiate(categoryPref);
+                var obj = Instantiate(categoryPref, categoriesContent, true);
                 obj.gameObject.name = category;
-                obj.transform.SetParent(categoriesContent);
                 obj.transform.localScale = Vector3.one;
                 obj.transform.localEulerAngles = Vector3.zero;
                 obj.transform.localPosition = Vector3.zero;
@@ -317,9 +316,8 @@ namespace GhettosFirearmSDKv2
             if (calibers == null) calibers = new List<Transform>();
             if (!ContainsName(caliber, calibers))
             {
-                var obj = Instantiate(caliberPref);
+                var obj = Instantiate(caliberPref, calibersContent, true);
                 obj.gameObject.name = caliber;
-                obj.transform.SetParent(calibersContent);
                 obj.transform.localScale = Vector3.one;
                 obj.transform.localEulerAngles = Vector3.zero;
                 obj.transform.localPosition = Vector3.zero;
@@ -336,9 +334,8 @@ namespace GhettosFirearmSDKv2
             if (variants == null) variants = new List<Transform>();
             if (!ContainsName(variant, variants))
             {
-                var obj = Instantiate(variantPref);
+                var obj = Instantiate(variantPref, variantContent, true);
                 obj.gameObject.name = variant;
-                obj.transform.SetParent(variantContent);
                 obj.transform.localScale = Vector3.one;
                 obj.transform.localEulerAngles = Vector3.zero;
                 obj.transform.localPosition = Vector3.zero;
@@ -426,7 +423,7 @@ namespace GhettosFirearmSDKv2
 
             Addressables.LoadAssetAsync<GameObject>(Catalog.GetData<ItemData>(currentItemId).prefabLocation).Completed += (handle =>
             {
-                if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
                     if (handle.Result.GetComponent<ProjectileData>() is { } data)
                     {
@@ -457,10 +454,10 @@ namespace GhettosFirearmSDKv2
                                     descriptionText += "Force per projectile: " + data.forcePerProjectile + "\n";
                                 }
                                 descriptionText += "Range: " + data.projectileRange + "\n";
-                                descriptionText += "Penetration level: " + data.penetrationPower.ToString();
+                                descriptionText += "Penetration level: " + data.penetrationPower;
                                 if (handle.Result.GetComponentInChildren<TracerModule>() != null) descriptionText += "\nHas tracer function";
                                 if (data.forceDestabilize && !data.knocksOutTemporarily) descriptionText += "\nAlways destabilizes hit target";
-                                if (data.forceIncapitate) descriptionText += $"\nIncapacitates hit target permanently";
+                                if (data.forceIncapitate) descriptionText += "\nIncapacitates hit target permanently";
                                 else if (data.knocksOutTemporarily) descriptionText += $"\nincapacitates hit target for {data.temporaryKnockoutTime} seconds";
                                 if (data.isElectrifying) descriptionText += $"\nElectrifies targets for {data.tasingDuration} with a force of {data.tasingForce}";
                                 if (data.isExplosive && data.explosiveData.radius > 0) descriptionText += $"\nExplodes: {data.explosiveData.radius} meters radius, {data.explosiveData.force} force, {data.explosiveData.damage} damage";

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using GhettosFirearmSDKv2.Chemicals;
 using ThunderRoad;
 using UnityEngine;
 
@@ -13,13 +13,13 @@ namespace GhettosFirearmSDKv2
 
             var version = ModManager.TryGetModData(GetType().Assembly, out var data) ? data.ModVersion : "?";
 
-            var initialMessage = $"\n\n" +
-                                 $"----> Loaded FirearmSDKv2!\n" +
+            var initialMessage = "\n\n" +
+                                 "----> Loaded FirearmSDKv2!\n" +
                                  $"----> Version: {version}\n" +
-                                 $"----> \n" +
-                                 $"----> Mod versions check:\n" +
-                                 $"{UpdateChecker.CheckForUpdates()}" +
-                                 $"\n\n";
+                                 "----> \n" +
+                                 "----> Mod versions check:\n" +
+                                 UpdateChecker.CheckForUpdates() +
+                                 "\n\n";
 
             Debug.Log(initialMessage);
 
@@ -66,7 +66,7 @@ namespace GhettosFirearmSDKv2
             //Chemicals (NPC)
             if (!creature.isPlayer)
             {
-                creature.gameObject.AddComponent<Chemicals.NPCChemicalsModule>();
+                creature.gameObject.AddComponent<NpcChemicalsModule>();
 
                 var id = "NoneFound";
                 if (creature.data.prefabAddress.Equals("Bas.Creature.HumanMale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Male";
@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
         private void EventManager_OnPlayerSpawned()
         {
             //Chemicals (Player)
-            Player.local.gameObject.AddComponent<Chemicals.PlayerEffectsAndChemicalsModule>();
+            Player.local.gameObject.AddComponent<PlayerEffectsAndChemicalsModule>();
 
             //Penetration Levels
             foreach (var rppd in Catalog.GetDataList<RequiredPenetrationPowerData>())
@@ -100,9 +100,9 @@ namespace GhettosFirearmSDKv2
                 HomeAdjustments.local.SpawnHomeItems();
 
             //First person only renderer
-            var ren = Player.local.head.cam.gameObject.AddComponent<NVGOnlyRenderer>();
+            var ren = Player.local.head.cam.gameObject.AddComponent<NvgOnlyRenderer>();
             ren.renderCamera = Player.local.head.cam;
-            ren.renderType = NVGOnlyRenderer.Types.FirstPerson;
+            ren.renderType = NvgOnlyRenderer.Types.FirstPerson;
         }
     }
 }

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -13,42 +11,42 @@ namespace GhettosFirearmSDKv2
         public float rotationTime = 1.0f;
         public bool openingEditorOverride;
 
-        private Transform targetTransform;
-        private float rotationStartTime;
+        private Transform _targetTransform;
+        private float _rotationStartTime;
 
         private void Start()
         {
             rotationTime = 0.3f;
-            targetTransform = idle;
+            _targetTransform = idle;
         }
 
         private void Update()
         {
             if (CartridgesInTrigger())
             {
-                if (targetTransform != opened)
+                if (_targetTransform != opened)
                 {
-                    targetTransform = opened;
-                    rotationStartTime = Time.time;
+                    _targetTransform = opened;
+                    _rotationStartTime = Time.time;
                 }
             }
             else
             {
-                if (targetTransform != idle)
+                if (_targetTransform != idle)
                 {
-                    targetTransform = idle;
-                    rotationStartTime = Time.time;
+                    _targetTransform = idle;
+                    _rotationStartTime = Time.time;
                 }
             }
 
-            var t = (Time.time - rotationStartTime) / rotationTime;
+            var t = (Time.time - _rotationStartTime) / rotationTime;
             t = Mathf.Clamp01(t);
 
-            root.rotation = Quaternion.Slerp(root.rotation, targetTransform.rotation, t);
+            root.rotation = Quaternion.Slerp(root.rotation, _targetTransform.rotation, t);
 
             if (t >= 1.0f)
             {
-                targetTransform = CartridgesInTrigger() ? opened : idle;
+                _targetTransform = CartridgesInTrigger() ? opened : idle;
             }
         }
 
@@ -58,7 +56,8 @@ namespace GhettosFirearmSDKv2
             var bounds = triggerCollider.bounds;
             var triggerCenter = bounds.center;
             var triggerSize = bounds.size;
-            var colliders = Physics.OverlapBox(triggerCenter, triggerSize * 0.5f, Quaternion.identity);
+            var colliders = new Collider[Physics.OverlapBoxNonAlloc(triggerCenter, triggerSize * 0.5f, null, Quaternion.identity)];
+            Physics.OverlapBoxNonAlloc(triggerCenter, triggerSize * 0.5f, colliders, Quaternion.identity);
             foreach (var collider in colliders)
             {
                 var cartridgeScript = collider.GetComponentInParent<Cartridge>();

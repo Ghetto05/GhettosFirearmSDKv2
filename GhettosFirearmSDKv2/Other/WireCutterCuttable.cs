@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -26,7 +24,7 @@ namespace GhettosFirearmSDKv2
 
         public UnityEvent onCut;
         public Collider[] cuttableColliders;
-        private bool cut = false;
+        private bool _cut;
 
         public static void CutFound(Vector3 root, float range)
         {
@@ -54,10 +52,10 @@ namespace GhettosFirearmSDKv2
             var found = new List<WireCutterCuttable>();
             foreach (var c in results)
             {
-                if (c.GetComponentInParent<WireCutterCuttable>() is { } wcc && !found.Contains(wcc) && !wcc.cut)
+                if (c.GetComponentInParent<WireCutterCuttable>() is { } wcc && !found.Contains(wcc) && !wcc._cut)
                 {
                     found.Add(wcc);
-                    wcc.cut = true;
+                    wcc._cut = true;
                     wcc.onCut.Invoke();
                 }
             }

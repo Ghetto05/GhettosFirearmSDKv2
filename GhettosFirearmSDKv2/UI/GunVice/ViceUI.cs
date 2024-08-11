@@ -1,19 +1,16 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEngine.UI;
+using EasyButtons;
 using ThunderRoad;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using TMPro;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class ViceUI : MonoBehaviour
     {
-        public bool AlwaysFrozen;
+        public bool alwaysFrozen;
         public bool allowFreeze = true;
 
         public Item item;
@@ -22,7 +19,7 @@ namespace GhettosFirearmSDKv2
 
         public Canvas canvas;
         public AttachmentPoint currentSlot;
-        public AttachmentPoint lastSlot = null;
+        public AttachmentPoint lastSlot;
         public Holder holder;
 
         public Transform slotContentReference;
@@ -40,14 +37,12 @@ namespace GhettosFirearmSDKv2
         public float categroyHeaderHeight;
         public float categoryGapHeight;
 
-        private bool _triggeredLastFrame;
-
         private void Awake()
         {
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
-            if (!AlwaysFrozen && allowFreeze && item != null) item.OnHeldActionEvent += Item_OnHeldActionEvent;
-            if (AlwaysFrozen && item != null)
+            if (!alwaysFrozen && allowFreeze && item != null) item.OnHeldActionEvent += Item_OnHeldActionEvent;
+            if (alwaysFrozen && item != null)
             {
                 item.physicBody.isKinematic = true;
                 item.DisallowDespawn = true;
@@ -60,22 +55,22 @@ namespace GhettosFirearmSDKv2
             {
                 firearm.ChangeTrigger(FirearmClicker.Trigger());
                 firearm.triggerState = FirearmClicker.Trigger();
-                _triggeredLastFrame = FirearmClicker.Trigger();
+                FirearmClicker.Trigger();
             }
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (!AlwaysFrozen && item != null && action == Interactable.Action.UseStart || action == Interactable.Action.AlternateUseStart)
+            if (!alwaysFrozen && item != null && action == Interactable.Action.UseStart || action == Interactable.Action.AlternateUseStart)
             {
                 item.physicBody.isKinematic = !item.physicBody.isKinematic;
                 item.DisallowDespawn = item.physicBody.isKinematic;
             }
         }
 
-        private void Holder_UnSnapped(Item item)
+        private void Holder_UnSnapped(Item unsnappedItem)
         {
-            if (item.TryGetComponent(out Firearm firearm))
+            if (unsnappedItem.TryGetComponent(out Firearm firearm))
             {
                 firearm.triggerState = false;
             }
@@ -122,12 +117,12 @@ namespace GhettosFirearmSDKv2
             return cat;
         }
 
-        private void Holder_Snapped(Item item)
+        private void Holder_Snapped(Item snappedItem)
         {
             SetupFirearm();
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void SetupFirearm()
         {
             if (holder.items.Count > 0)
@@ -169,13 +164,13 @@ namespace GhettosFirearmSDKv2
             {
                 if (point.gameObject.activeInHierarchy)
                 {
-                    AddPoint(point, attachment.Data.iconAddress, point.id);
+                    AddPoint(point, attachment.Data.IconAddress, point.id);
                     point.currentAttachments.ForEach(AddSlotsFromAttachment);
                 }
             }
         }
 
-        private void AddPoint(AttachmentPoint slot, string iconAddress, string name)
+        private void AddPoint(AttachmentPoint slot, string iconAddress, string pointName)
         {
             var obj = Instantiate(slotButtonPrefab, slotContentReference, true);
             obj.transform.localScale = Vector3.one;
@@ -188,12 +183,12 @@ namespace GhettosFirearmSDKv2
             {
                 slotUIElement.image.texture = t;
             }, "Vice UI Attachment Point Icon Loader");
-            slotUIElement.slotName.text = name;
+            slotUIElement.slotName.text = pointName;
             if (slot.currentAttachments.Any())
             {
                 slotUIElement.selectedAttachmentBackground.enabled = true;
                 slotUIElement.selectedAttachmentIcon.enabled = true;
-                Catalog.LoadAssetAsync<Texture2D>(slot.currentAttachments.First().Data.iconAddress, tex =>
+                Catalog.LoadAssetAsync<Texture2D>(slot.currentAttachments.First().Data.IconAddress, tex =>
                 {
                     slotUIElement.selectedAttachmentIcon.texture = tex;
                 }, "ViceUI");
@@ -208,17 +203,16 @@ namespace GhettosFirearmSDKv2
             slotButtons.Add(slotUIElement);
         }
 
-        public void AddAttachment(string id, Texture2D icon, string name, string category)
+        public void AddAttachment(string id, Texture2D icon, string attachmentName, string category)
         {
-            var obj = Instantiate(attachmentButtonPrefab);
-            obj.transform.SetParent(GetOrAddCategory(category).GetChild(0));
+            var obj = Instantiate(attachmentButtonPrefab, GetOrAddCategory(category).GetChild(0), true);
             obj.transform.localScale = Vector3.one;
             obj.transform.localEulerAngles = Vector3.zero;
             obj.transform.localPosition = Vector3.zero;
             obj.SetActive(true);
 
             var attach = obj.GetComponent<ViceUIAttachment>();
-            attach.attachmentName.text = name;
+            attach.attachmentName.text = attachmentName;
             attach.id = id;
             attach.button.onClick.AddListener(delegate { SpawnAttachment(id); });
             attachmentButtons.Add(attach);
@@ -288,7 +282,7 @@ namespace GhettosFirearmSDKv2
 
             var trans = (RectTransform)categoriesContentReference;
             var headers = 0;
-            foreach (var prevCat in categories)
+            foreach (var unused in categories)
             {
                 headers++;
             }
@@ -305,8 +299,8 @@ namespace GhettosFirearmSDKv2
                     gaps--;
                 }
             }
-            var Y = rows * categoryElementHeight + headers * categroyHeaderHeight + gaps * categoryGapHeight;
-            trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Y);
+            var y = rows * categoryElementHeight + headers * categroyHeaderHeight + gaps * categoryGapHeight;
+            trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, y);
         }
 
         private void SetupAttachmentList(string attachmentType, List<string> alternateTypes)
@@ -334,28 +328,28 @@ namespace GhettosFirearmSDKv2
             AddAttachment("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING", null, "Nothing", "Default");
             foreach (var data in datas)
             {
-                Catalog.LoadAssetAsync<Texture2D>(data.iconAddress, tex => 
+                Catalog.LoadAssetAsync<Texture2D>(data.IconAddress, tex => 
                 {
-                    AddAttachment(data.id, tex, data.displayName, data.GetID());
+                    AddAttachment(data.id, tex, data.DisplayName, data.GetID());
                 }, "ViceUI");
             }
         }
 
         private bool TypeMatch(string type, List<string> alternateTypes, AttachmentData data)
         {
-            if (data.type.Equals(type))
+            if (data.Type.Equals(type))
                 return true;
             if (alternateTypes == null || !alternateTypes.Any())
                 return false;
             foreach (var s in alternateTypes)
             {
-                if (data.type.Equals(s))
+                if (data.Type.Equals(s))
                     return true;
             }
             return false;
         }
 
-        IEnumerator DelayedRefresh()
+        private IEnumerator DelayedRefresh()
         {
             yield return new WaitForSeconds(0.3f);
             SetupFirearm();

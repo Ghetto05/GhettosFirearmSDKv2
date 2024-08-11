@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
@@ -41,11 +40,11 @@ namespace GhettosFirearmSDKv2
             var id = "";
             if (attachment != null && attachment.Node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueString value))
             {
-                id = value.value;
+                id = value.Value;
             }
-            else if (firearm != null && firearm.saveData.firearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueString value2))
+            else if (firearm != null && firearm.SaveData.FirearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueString value2))
             {
-                id = value2.value;
+                id = value2.Value;
             }
 
             if (!id.Equals(""))
@@ -88,7 +87,7 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge = null;
 
                 if (attachment != null) attachment.Node.RemoveValue("CartridgeHolder" + slot);
-                else if (firearm != null) firearm.saveData.firearmNode.RemoveValue("CartridgeHolder" + slot);
+                else if (firearm != null) firearm.SaveData.FirearmNode.RemoveValue("CartridgeHolder" + slot);
             }
             UpdateCartridgePositions();
             return loadedCartridge;
@@ -115,8 +114,8 @@ namespace GhettosFirearmSDKv2
 
                 c.item.OnGrabEvent += Item_OnGrabEvent;
 
-                if (attachment != null) attachment.Node.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).value = c.item.itemId;
-                else if (firearm != null) firearm.saveData.firearmNode.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).value = c.item.itemId;
+                if (attachment != null) attachment.Node.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).Value = c.item.itemId;
+                else if (firearm != null) firearm.SaveData.FirearmNode.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).Value = c.item.itemId;
             }
             UpdateCartridgePositions();
         }

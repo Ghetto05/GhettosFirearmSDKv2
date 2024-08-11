@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
@@ -14,7 +12,7 @@ namespace GhettosFirearmSDKv2
         public Transform caughtPosition;
         public Collider release;
 
-        void Start()
+        private void Start()
         {
             firearm.OnCollisionEvent += Firearm_OnCollisionEvent;
         }
@@ -24,7 +22,7 @@ namespace GhettosFirearmSDKv2
             OnCollisionEnter(collision);
         }
 
-        void Update()
+        private void Update()
         {
             if (button != null)
             {
@@ -41,7 +39,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        void OnCollisionEnter(Collision collision)
+        private void OnCollisionEnter(Collision collision)
         {
             if (release == null) return;
             if (collision.contacts[0].thisCollider == release && collision.contacts[0].otherCollider.GetComponentInParent<Player>() != null)

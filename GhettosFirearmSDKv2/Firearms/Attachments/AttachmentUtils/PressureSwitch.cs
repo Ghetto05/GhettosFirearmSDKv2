@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
@@ -38,15 +37,15 @@ namespace GhettosFirearmSDKv2
             {
                 if (attachment != null)
                 {
-                    _saveData = attachment.Node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {value = true});
+                    _saveData = attachment.Node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
                 }
                 else if (item.GetComponent<Firearm>() is { } firearm)
                 {
-                    _saveData = firearm.saveData.firearmNode.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {value = true});
+                    _saveData = firearm.SaveData.FirearmNode.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
                 }
 
                 if (_saveData != null)
-                    _active = _saveData.value;
+                    _active = _saveData.Value;
             }
 
             Invoke(nameof(InitialSet), 1f);
@@ -95,7 +94,7 @@ namespace GhettosFirearmSDKv2
 
         private void OnAttachmentsAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (handle != handle.item.mainHandler && !attachment.attachmentPoint.parentFirearm.AllTriggerHandles().Contains(handle))
+            if (handle != handle.item.mainHandleLeft && !attachment.attachmentPoint.parentFirearm.AllTriggerHandles().Contains(handle))
             {
                 if (action == Interactable.Action.UseStart)
                 {
@@ -108,7 +107,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void Toggle(bool active, Item item)
+        public void Toggle(bool active, Item itemToToggleOn)
         {
             if (toggleMode && active)
                 _active = !_active;
@@ -120,13 +119,13 @@ namespace GhettosFirearmSDKv2
             else
                 Util.PlayRandomAudioSource(releaseSounds);
 
-            foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
+            foreach (var td in itemToToggleOn.GetComponentsInChildren<TacticalDevice>())
             {
                 td.tacSwitch = _active;
             }
             
             if (_saveData != null)
-                _saveData.value = _active;
+                _saveData.Value = _active;
         }
     }
 }

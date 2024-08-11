@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -7,13 +5,13 @@ namespace GhettosFirearmSDKv2
     public class MagazineWellSwitcher : MonoBehaviour
     {
         public Attachment attachment;
-        private string originalType;
+        private string _originalType;
         public string newType;
 
-        private string originalCaliber;
+        private string _originalCaliber;
         public string newCaliber;
 
-        private string originalDefaultAmmo;
+        private string _originalDefaultAmmo;
         public string newDefaultAmmo;
 
         private void Awake()
@@ -28,19 +26,19 @@ namespace GhettosFirearmSDKv2
 
             if (!string.IsNullOrWhiteSpace(newType))
             {
-                originalType = attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType;
+                _originalType = attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType;
                 attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType = newType;
             }
 
             if (!string.IsNullOrWhiteSpace(newCaliber))
             {
-                originalCaliber = attachment.attachmentPoint.parentFirearm.magazineWell.caliber;
+                _originalCaliber = attachment.attachmentPoint.parentFirearm.magazineWell.caliber;
                 attachment.attachmentPoint.parentFirearm.magazineWell.caliber = newCaliber;
             }
 
             if (!string.IsNullOrWhiteSpace(newDefaultAmmo))
             {
-                originalDefaultAmmo = attachment.attachmentPoint.parentFirearm.defaultAmmoItem;
+                _originalDefaultAmmo = attachment.attachmentPoint.parentFirearm.defaultAmmoItem;
                 attachment.attachmentPoint.parentFirearm.defaultAmmoItem = newDefaultAmmo;
             }
 
@@ -53,17 +51,17 @@ namespace GhettosFirearmSDKv2
 
             if (!string.IsNullOrWhiteSpace(newType))
             {
-                attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType = originalType;
+                attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType = _originalType;
             }
 
             if (!string.IsNullOrWhiteSpace(newCaliber))
             {
-                attachment.attachmentPoint.parentFirearm.magazineWell.caliber = originalCaliber;
+                attachment.attachmentPoint.parentFirearm.magazineWell.caliber = _originalCaliber;
             }
 
             if (!string.IsNullOrWhiteSpace(newDefaultAmmo))
             {
-                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = originalDefaultAmmo;
+                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = _originalDefaultAmmo;
             }
         }
     }

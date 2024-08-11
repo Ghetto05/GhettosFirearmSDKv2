@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using EasyButtons;
 using ThunderRoad;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace GhettosFirearmSDKv2
@@ -27,8 +28,8 @@ namespace GhettosFirearmSDKv2
         public List<Handle> toggleHandles;
 
         private bool _closed = true;
-        private bool _open = false;
-        private bool _moving = false;
+        private bool _open;
+        private bool _moving;
         private GunCaseSaveData _data;
 
         private void Start()
@@ -56,15 +57,15 @@ namespace GhettosFirearmSDKv2
             holder.UnSnapped += Holder_UnSnapped;
             if (item.TryGetCustomData(out _data))
             {
-                if (string.IsNullOrWhiteSpace(_data.firearm))
+                if (string.IsNullOrWhiteSpace(_data.Firearm))
                     return;
 
-                Util.SpawnItem(_data.firearm, $"[Gun case - Save {_data.firearm}]", f =>
+                Util.SpawnItem(_data.Firearm, $"[Gun case - Save {_data.Firearm}]", f =>
                 {
                     f.physicBody.isKinematic = true;
                     f.SetOwner(Item.Owner.Player);
                     StartCoroutine(DelayedSnap(f));
-                }, holder.transform.position - Vector3.down * 10, holder.transform.rotation, null, true, _data.firearmData.CloneJson());
+                }, holder.transform.position - Vector3.down * 10, holder.transform.rotation, null, true, _data.FirearmData.CloneJson());
             }
             else
             {
@@ -86,16 +87,16 @@ namespace GhettosFirearmSDKv2
             f.Hide(false);
             if (!f.isCulled)
             {
-                _data.firearm = "";
-                _data.firearmData = null;
+                _data.Firearm = "";
+                _data.FirearmData = null;
             }
         }
 
         private void Holder_Snapped(Item f)
         {
             f.Hide(_closed);
-            _data.firearm = f.itemId;
-            _data.firearmData = f.contentCustomData.CloneJson();
+            _data.Firearm = f.itemId;
+            _data.FirearmData = f.contentCustomData.CloneJson();
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -115,14 +116,14 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Open()
         {
             if (_open || _moving) return;
             StartCoroutine(OpenIE());
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Close()
         {
             if (_closed || _moving) return;

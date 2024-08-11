@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2.UI
 {
@@ -9,7 +7,7 @@ namespace GhettosFirearmSDKv2.UI
     {
         public Canvas canvas;
 
-        void Awake()
+        private void Awake()
         {
             PointerInputModule.SetUICameraToAllCanvas();
         }

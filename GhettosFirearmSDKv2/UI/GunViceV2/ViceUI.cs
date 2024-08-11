@@ -209,7 +209,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             if (attachment == null)
                 return;
             
-            var address = attachment.Data.iconAddress;
+            var address = attachment.Data.IconAddress;
             
             foreach (var point in attachment.attachmentPoints)
             {
@@ -338,9 +338,9 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
             var data = Catalog.GetDataList<AttachmentData>();
             data = slot.AttachmentPoint.usesRail ?
-                data.Where(x => x.railLength <= slot.AttachmentPoint.railSlots.Count && x.type.Equals(slot.AttachmentPoint.railType)).ToList() :
-                data.Where(x => x.type == slot.AttachmentPoint.type || slot.AttachmentPoint.alternateTypes.Contains(x.type)).ToList();
-            data.OrderBy(x => x.categoryName).ThenBy(y => y.displayName).ToList().ForEach(AddAttachment);
+                data.Where(x => x.RailLength <= slot.AttachmentPoint.railSlots.Count && x.Type.Equals(slot.AttachmentPoint.railType)).ToList() :
+                data.Where(x => x.Type == slot.AttachmentPoint.type || slot.AttachmentPoint.alternateTypes.Contains(x.Type)).ToList();
+            data.OrderBy(x => x.CategoryName).ThenBy(y => y.DisplayName).ToList().ForEach(AddAttachment);
             if (_attachmentCategories.FirstOrDefault(x => x.headerText.text.Equals("Default")) is { } category)
             {
                 category.transform.SetAsFirstSibling();
@@ -369,7 +369,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private void AddAttachment(AttachmentData data)
         {
-            var category = GetOrAddCategory(data.categoryName);
+            var category = GetOrAddCategory(data.CategoryName);
             var attachment = Instantiate(attachmentTemplate, category.foldoutContent).GetComponent<UIAttachment>();
             category.Attachments.Add(attachment);
             attachment.gameObject.SetActive(true);

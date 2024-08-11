@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class AKMagazineSlap : MonoBehaviour
+    public class AkMagazineSlap : MonoBehaviour
     {
         public FirearmBase firearm;
         public List<Collider> triggers;

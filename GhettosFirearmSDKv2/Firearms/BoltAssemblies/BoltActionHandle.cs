@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,7 +13,7 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> handleUpSounds;
         public List<AudioSource> handleDownSounds;
 
-        private bool lastFrameIsHeld = false;
+        private bool _lastFrameIsHeld;
 
         private void FixedUpdate()
         {
@@ -27,13 +26,13 @@ namespace GhettosFirearmSDKv2
                 else
                 {
                     handle.localEulerAngles = bolt.isHeld ? openedPosition.localEulerAngles : lockedPosition.localEulerAngles;
-                    if (lastFrameIsHeld != bolt.isHeld)
+                    if (_lastFrameIsHeld != bolt.isHeld)
                     {
                         Util.PlayRandomAudioSource(bolt.isHeld ? handleUpSounds : handleDownSounds);
                     }
                 }
 
-                lastFrameIsHeld = bolt.isHeld;
+                _lastFrameIsHeld = bolt.isHeld;
             }
             else
             {

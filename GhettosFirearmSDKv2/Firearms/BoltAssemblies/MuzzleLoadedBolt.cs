@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using ThunderRoad;
-using System.Collections.Generic;
 
 namespace GhettosFirearmSDKv2
 {
@@ -17,7 +14,7 @@ namespace GhettosFirearmSDKv2
         public float roundEjectForce;
         public Transform roundEjectDir;
         public bool ejectOnFire;
-        int shotsSinceTriggerReset = 0;
+        private int _shotsSinceTriggerReset;
         public List<Lock> locks;
 
         public Hammer hammer;
@@ -50,7 +47,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            shotsSinceTriggerReset++;
+            _shotsSinceTriggerReset++;
             if (!Util.AllLocksUnlocked(locks))
             {
                 InvokeFireLogicFinishedEvent();
@@ -81,7 +78,7 @@ namespace GhettosFirearmSDKv2
             firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 firearm.PlayMuzzleFlash(loadedCartridge);
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !Settings.infiniteAmmo);
             if (ejectOnFire && !Settings.infiniteAmmo)
@@ -109,13 +106,13 @@ namespace GhettosFirearmSDKv2
         {
             if (fireOnTriggerPress && isPulled && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
-                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && _shotsSinceTriggerReset == 0) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Burst && _shotsSinceTriggerReset < firearm.burstSize) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Auto) TryFire();
             }
             if (!isPulled)
             {
-                shotsSinceTriggerReset = 0;
+                _shotsSinceTriggerReset = 0;
             }
         }
 
@@ -135,7 +132,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null) return;
             Util.PlayRandomAudioSource(ejectSounds);
-            if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.value = "";
+            if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.Value = "";
             var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
 
@@ -48,7 +49,7 @@ namespace GhettosFirearmSDKv2
                     if (s != null)
                     {
                         s.transform.SetParent(transform);
-                        StartCoroutine(Explosives.Explosive.delayedDestroy(s.gameObject, s.clip.length + 1f));
+                        StartCoroutine(Explosive.DelayedDestroy(s.gameObject, s.clip.length + 1f));
                     } 
                     ati.item.handles.ForEach(h => h.Release());
                     ati.item.Despawn();
@@ -114,7 +115,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void InvokeAttachmentAdded(Attachment attachment) => OnAttachmentAddedEvent?.Invoke(attachment);
+        public void InvokeAttachmentAdded(Attachment addedAttachment) => OnAttachmentAddedEvent?.Invoke(addedAttachment);
         public delegate void OnAttachmentAdded(Attachment attachment);
         public event OnAttachmentAdded OnAttachmentAddedEvent;
     }

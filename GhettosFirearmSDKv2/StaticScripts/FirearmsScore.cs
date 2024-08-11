@@ -6,9 +6,9 @@ namespace GhettosFirearmSDKv2
     {
         public static FirearmsScore local;
 
-        public int shotsFired;
-        public int shotsHit;
-        public int headshots;
+        public int ShotsFired;
+        public int ShotsHit;
+        public int Headshots;
 
         public override void ScriptEnable()
         {
@@ -17,7 +17,7 @@ namespace GhettosFirearmSDKv2
 
         public float CalculateAccuracy()
         {
-            return (float)shotsHit / (float)shotsFired * 100f;
+            return ShotsHit / (float)ShotsFired * 100f;
         }
     }
 }

@@ -1,17 +1,12 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class BeltFedCover : Lock
     {
-        public bool EDITOR_HELD;
-        public float Angle;
-        
         private const float Threshold = 4f;
         
         public Transform axis;
@@ -50,7 +45,6 @@ namespace GhettosFirearmSDKv2
         
         private void FixedUpdate()
         {
-            Angle = CurrentAngle();
             if (_joint == null)
                 return;
             if (!coverHandles.Any(h => h.handlers.Count > 0))

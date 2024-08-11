@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -9,7 +8,7 @@ namespace GhettosFirearmSDKv2
     {
         public Attachment attachment;
         public Transform boltChild;
-        public Transform boltRBChild;
+        public Transform boltRbChild;
         public List<GhettoHandle> additionalBoltHandles;
         public bool disableDefaultBoltHandles;
 
@@ -26,9 +25,9 @@ namespace GhettosFirearmSDKv2
             {
                 boltChild?.SetParent(p);
             }
-            if (GetParentRB() is { } rb)
+            if (GetParentRb() is { } rb)
             {
-                boltRBChild?.SetParent(rb);
+                boltRbChild?.SetParent(rb);
             }
             SetHandles();
         }
@@ -40,10 +39,12 @@ namespace GhettosFirearmSDKv2
             try
             {
                 Destroy(boltChild?.gameObject);
-                Destroy(boltRBChild?.gameObject);
+                Destroy(boltRbChild?.gameObject);
             }
             catch (Exception)
-            { }
+            {
+                // ignored
+            }
         }
 
         private Transform GetParent()
@@ -61,7 +62,7 @@ namespace GhettosFirearmSDKv2
             return null;
         }
 
-        private Transform GetParentRB()
+        private Transform GetParentRb()
         {
             var bolt = attachment.attachmentPoint.parentFirearm.bolt;
             if (bolt == null)

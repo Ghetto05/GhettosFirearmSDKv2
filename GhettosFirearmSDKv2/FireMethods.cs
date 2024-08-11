@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using ThunderRoad.Reveal;
-using System.Collections;
-using GhettosFirearmSDKv2.Explosives;
-using System;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2
@@ -46,8 +46,8 @@ namespace GhettosFirearmSDKv2
             {
                 foreach (var mod in modifiers)
                 {
-                    upMod *= mod.muzzleRiseModifier;
-                    linMod *= mod.modifier;
+                    upMod *= mod.MuzzleRiseModifier;
+                    linMod *= mod.Modifier;
                 }
             }
 
@@ -88,7 +88,7 @@ namespace GhettosFirearmSDKv2
 
         private static List<Creature> HitScan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 endpoint, float damageMultiplier)
         {
-            FirearmsScore.local.shotsFired++;
+            FirearmsScore.local.ShotsFired++;
 
             #region physics toggle
 
@@ -160,14 +160,14 @@ namespace GhettosFirearmSDKv2
                 {
                     data.explosiveEffect.gameObject.transform.SetParent(null);
                     data.explosiveEffect.transform.position = hit.point;
-                    Player.local.StartCoroutine(Explosive.delayedDestroy(data.explosiveEffect.gameObject, data.explosiveEffect.main.duration + 9f));
+                    Player.local.StartCoroutine(Explosive.DelayedDestroy(data.explosiveEffect.gameObject, data.explosiveEffect.main.duration + 9f));
                     data.explosiveEffect.Play();
 
                     var audio = Util.GetRandomFromList(data.explosiveSoundEffects);
                     audio.gameObject.transform.SetParent(null);
                     audio.transform.position = hit.point;
                     audio.Play();
-                    Player.local.StartCoroutine(Explosive.delayedDestroy(audio.gameObject, audio.clip.length + 1f));
+                    Player.local.StartCoroutine(Explosive.DelayedDestroy(audio.gameObject, audio.clip.length + 1f));
                 }
             }
             #endregion explosive
@@ -278,7 +278,7 @@ namespace GhettosFirearmSDKv2
 
                     var cr = rag.creature;
                     var ragdollPart = hit.collider.gameObject.GetComponentInParent<RagdollPart>();
-                    FirearmsScore.local.shotsHit++;
+                    FirearmsScore.local.ShotsHit++;
 
                     var penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= penetrationPower;
 
@@ -307,7 +307,7 @@ namespace GhettosFirearmSDKv2
                     {
                         case RagdollPart.Type.Head: //damage = infinity, remove voice, push(3)
                             {
-                                FirearmsScore.local.headshots++;
+                                FirearmsScore.local.Headshots++;
                                 if (penetrated && data.lethalHeadshot)
                                     damageModifier = Mathf.Infinity;
                                 else
@@ -454,29 +454,25 @@ namespace GhettosFirearmSDKv2
                     lowerDamageLevel = true;
                     return cr;
                 }
-                else
-                {
-                    lowerDamageLevel = false;
-                    cancel = false;
-                    return null;
-                }
+
+                lowerDamageLevel = false;
+                cancel = false;
+                return null;
             }
             #endregion creature hit
             #region non creature hit
-            else
-            {
-                if (data.hasImpactEffect)
-                {
-                    var ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal));
-                    ei.SetIntensity(100f);
-                    ei.Play();
-                }
-                hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
 
-                lowerDamageLevel = true;
-                cancel = GetRequiredPenetrationLevel(hit.collider) > penetrationPower;
-                return null;
+            if (data.hasImpactEffect)
+            {
+                var ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal));
+                ei.SetIntensity(100f);
+                ei.Play();
             }
+            hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
+
+            lowerDamageLevel = true;
+            cancel = GetRequiredPenetrationLevel(hit.collider) > penetrationPower;
+            return null;
             #endregion non creature hit
         }
 

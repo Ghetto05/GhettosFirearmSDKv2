@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -25,13 +22,13 @@ namespace GhettosFirearmSDKv2
         public List<Collider> loadColliders;
         public List<Transform> ejectDirections;
         public List<Transform> ejectPoints;
-        private Cartridge[] loadedCartridges;
+        private Cartridge[] _loadedCartridges;
         public List<float> ejectForces;
 
-        private int shotsSinceTriggerReset = 0;
-        private bool allowInsert = false;
+        private int _shotsSinceTriggerReset;
+        private bool _allowInsert;
 
-        private MagazineSaveData data;
+        private MagazineSaveData _data;
 
         private void Start()
         {
@@ -40,19 +37,19 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            loadedCartridges = new Cartridge[mountPoints.Count];
+            _loadedCartridges = new Cartridge[mountPoints.Count];
             actualMuzzles = muzzles;
             firearm.OnMuzzleCalculatedEvent += Firearm_OnMuzzleCalculatedEvent;
             firearm.OnCollisionEvent += OnCollisionEvent;
             Initialize();
-            if (firearm.item.TryGetCustomData(out data))
+            if (firearm.item.TryGetCustomData(out _data))
             {
-                for (var i = 0; i < data.contents.Length; i++)
+                for (var i = 0; i < _data.Contents.Length; i++)
                 {
-                    if (data.contents[i] != null)
+                    if (_data.Contents[i] != null)
                     {
                         var index = i;
-                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { var c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        Util.SpawnItem(_data.Contents[index], "Bolt Chamber", ci => { var c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -60,10 +57,10 @@ namespace GhettosFirearmSDKv2
             else
             {
                 firearm.item.AddCustomData(new MagazineSaveData());
-                firearm.item.TryGetCustomData(out data);
-                data.contents = new string[loadedCartridges.Length];
+                firearm.item.TryGetCustomData(out _data);
+                _data.Contents = new string[_loadedCartridges.Length];
             }
-            allowInsert = true;
+            _allowInsert = true;
         }
 
         private void Firearm_OnMuzzleCalculatedEvent()
@@ -82,7 +79,7 @@ namespace GhettosFirearmSDKv2
 
         private void OnCollisionEvent(Collision collision)
         {
-            if (!allowInsert) return;
+            if (!_allowInsert) return;
             if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded)
             {
                 foreach (var insertCollider in loadColliders)
@@ -98,10 +95,10 @@ namespace GhettosFirearmSDKv2
 
         public void LoadChamber(int index, Cartridge cartridge, bool overrideSave = true)
         {
-            if (loadedCartridges[index] == null && Util.AllowLoadCartridge(cartridge, calibers[index]))
+            if (_loadedCartridges[index] == null && Util.AllowLoadCartridge(cartridge, calibers[index]))
             {
                 if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
-                loadedCartridges[index] = cartridge;
+                _loadedCartridges[index] = cartridge;
                 cartridge.item.DisallowDespawn = true;
                 cartridge.loaded = true;
                 cartridge.ToggleHandles(false);
@@ -119,7 +116,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryEject()
         {
-            for (var i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < _loadedCartridges.Length; i++)
             {
                 TryEjectSingle(i);
             }
@@ -127,11 +124,11 @@ namespace GhettosFirearmSDKv2
 
         public void TryEjectSingle(int i)
         {
-            if (loadedCartridges[i] != null)
+            if (_loadedCartridges[i] != null)
             {
                 Util.PlayRandomAudioSource(ejectSounds);
-                var c = loadedCartridges[i];
-                loadedCartridges[i] = null;
+                var c = _loadedCartridges[i];
+                _loadedCartridges[i] = null;
                 if (ejectPoints.Count > i && ejectPoints[i] != null)
                 {
                     c.transform.position = ejectPoints[i].position;
@@ -161,11 +158,11 @@ namespace GhettosFirearmSDKv2
         {
             if (firearm.triggerState)
             {
-                if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
-                else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
-                else if (firearm.fireMode == FirearmBase.FireModes.Auto) for (var i = 0; i < mountPoints.Count; i++) { TryFire(); };
+                if (firearm.fireMode == FirearmBase.FireModes.Semi && _shotsSinceTriggerReset == 0) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Burst && _shotsSinceTriggerReset < firearm.burstSize) TryFire();
+                else if (firearm.fireMode == FirearmBase.FireModes.Auto) for (var i = 0; i < mountPoints.Count; i++) { TryFire(); }
             }
-            else shotsSinceTriggerReset = 0;
+            else _shotsSinceTriggerReset = 0;
         }
 
         private void Update()
@@ -176,10 +173,10 @@ namespace GhettosFirearmSDKv2
         private int GetFirstFireableChamber()
         {
             var car = -1;
-            for (var i = loadedCartridges.Length - 1; i >= 0; i--)
+            for (var i = _loadedCartridges.Length - 1; i >= 0; i--)
             {
                 var hammerCocked = hammers.Count - 1 < i || hammers[i] == null || hammers[i].cocked;
-                var cartridge = loadedCartridges[i] != null && !loadedCartridges[i].fired;
+                var cartridge = _loadedCartridges[i] != null && !_loadedCartridges[i].fired;
                 if (hammerCocked && cartridge) car = i;
             }
             return car;
@@ -199,7 +196,7 @@ namespace GhettosFirearmSDKv2
                 return;
             }
 
-            shotsSinceTriggerReset++;
+            _shotsSinceTriggerReset++;
             if (hammers.Count > ca && hammers[ca] != null)
                 hammers[ca].Fire();
             foreach (var hand in firearm.item.handlers)
@@ -208,7 +205,7 @@ namespace GhettosFirearmSDKv2
                     hand.playerHand.controlHand.HapticShort(50f);
             }
             var muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[ca];
-            var loadedCartridge = loadedCartridges[ca];
+            var loadedCartridge = _loadedCartridges[ca];
             IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
@@ -218,7 +215,7 @@ namespace GhettosFirearmSDKv2
                 else
                     firearm.PlayMuzzleFlash(loadedCartridge);
             }
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
             FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, !Settings.infiniteAmmo);
             InvokeFireEvent();
@@ -246,10 +243,10 @@ namespace GhettosFirearmSDKv2
 
         public void SaveCartridges()
         {
-            data.contents = new string[loadedCartridges.Length];
-            for (var i = 0; i < loadedCartridges.Length; i++)
+            _data.Contents = new string[_loadedCartridges.Length];
+            for (var i = 0; i < _loadedCartridges.Length; i++)
             {
-                data.contents[i] = loadedCartridges[i]?.item.itemId;
+                _data.Contents[i] = _loadedCartridges[i]?.item.itemId;
             }
         }
 
@@ -258,12 +255,12 @@ namespace GhettosFirearmSDKv2
             base.UpdateChamberedRounds();
             for (var i = 0; i < mountPoints.Count; i++)
             {
-                if (loadedCartridges[i] != null)
+                if (_loadedCartridges[i] != null)
                 {
-                    loadedCartridges[i].GetComponent<Rigidbody>().isKinematic = true;
-                    loadedCartridges[i].transform.parent = mountPoints[i];
-                    loadedCartridges[i].transform.localPosition = Vector3.zero;
-                    loadedCartridges[i].transform.localEulerAngles = Util.RandomCartridgeRotation();
+                    _loadedCartridges[i].GetComponent<Rigidbody>().isKinematic = true;
+                    _loadedCartridges[i].transform.parent = mountPoints[i];
+                    _loadedCartridges[i].transform.localPosition = Vector3.zero;
+                    _loadedCartridges[i].transform.localEulerAngles = Util.RandomCartridgeRotation();
                 }
             }
         }
@@ -271,9 +268,9 @@ namespace GhettosFirearmSDKv2
         private int GetFirstFreeChamber()
         {
             var availableChambers = new List<int>();
-            for (var i = loadedCartridges.Length - 1; i >= 0; i--)
+            for (var i = _loadedCartridges.Length - 1; i >= 0; i--)
             {
-                if (loadedCartridges[i] == null)
+                if (_loadedCartridges[i] == null)
                     availableChambers.Add(i);
             }
 
@@ -290,12 +287,12 @@ namespace GhettosFirearmSDKv2
 
         public int GetCapacity()
         {
-            return loadedCartridges.Length;
+            return _loadedCartridges.Length;
         }
 
         public List<Cartridge> GetLoadedCartridges()
         {
-            return loadedCartridges.ToList();
+            return _loadedCartridges.ToList();
         }
 
         public void LoadRound(Cartridge cartridge)
@@ -305,7 +302,7 @@ namespace GhettosFirearmSDKv2
 
         public void ClearRounds()
         {
-            foreach (var cartridge in loadedCartridges)
+            foreach (var cartridge in _loadedCartridges)
             {
                 EjectRound();
                 cartridge.item.Despawn(0.05f);

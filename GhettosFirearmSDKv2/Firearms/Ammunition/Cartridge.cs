@@ -1,23 +1,23 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
+using UnityEngine;
 using UnityEngine.Events;
-using System.Collections;
 
 namespace GhettosFirearmSDKv2
 {
     public class Cartridge : MonoBehaviour
     {
-        public bool disallowDespawn = false;
+        public bool disallowDespawn;
         public bool keepRotationAtZero;
         public GameObject firedOnlyObject;
         public GameObject unfiredOnlyObject;
         public string caliber;
         public bool destroyOnFire;
         public ProjectileData data;
-        public bool fired = false;
-        public bool loaded = false;
+        public bool fired;
+        public bool loaded;
         public Item item;
         public ParticleSystem detonationParticle;
         public AudioSource[] detonationSounds;
@@ -60,7 +60,7 @@ namespace GhettosFirearmSDKv2
                 StartCoroutine(Despawn());
         }
 
-        IEnumerator Despawn()
+        private IEnumerator Despawn()
         {
             do
             {
@@ -76,7 +76,7 @@ namespace GhettosFirearmSDKv2
                 firedOnlyObject.SetActive(true);
             if (unfiredOnlyObject != null)
                 unfiredOnlyObject.SetActive(false);
-            ToggleTK(false);
+            ToggleTk(false);
             onFireEvent?.Invoke();
             OnFiredWithHitPointsAndMuzzle?.Invoke(hits, directions, muzzle);
             OnFiredWithHitPointsAndMuzzleAndCreatures?.Invoke(hits, directions, hitCreatures, muzzle);
@@ -86,7 +86,7 @@ namespace GhettosFirearmSDKv2
                 additionalMuzzleFlashInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
                 additionalMuzzleFlashInstance.GetComponent<ParticleSystem>().Play();
                 var main = additionalMuzzleFlash.main;
-                StartCoroutine(Explosives.Explosive.delayedDestroy(additionalMuzzleFlashInstance, main.duration + main.startLifetime.constantMax * 4));
+                StartCoroutine(Explosive.DelayedDestroy(additionalMuzzleFlashInstance, main.duration + main.startLifetime.constantMax * 4));
             }
             if (destroyOnFire && fire)
                 item.Despawn();
@@ -119,7 +119,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void ToggleTK(bool active)
+        public void ToggleTk(bool active)
         {
             foreach (var handle in item.handles)
             {

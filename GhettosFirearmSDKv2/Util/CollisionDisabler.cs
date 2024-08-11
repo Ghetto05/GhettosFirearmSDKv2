@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ namespace GhettosFirearmSDKv2
         public List<Collider> obj1Colliders;
         public List<Collider> obj2Colliders;
 
-        void Start()
+        private void Start()
         {
             foreach (var c1 in obj1Colliders)
             {

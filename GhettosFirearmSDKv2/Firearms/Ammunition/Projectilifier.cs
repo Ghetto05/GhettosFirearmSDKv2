@@ -1,34 +1,33 @@
-﻿using System;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using ThunderRoad;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class Projectilifier : ItemModule
     {
-        public string caliber;
-        public float recoil;
-        public float velocity;
+        public string Caliber;
+        public float Recoil;
+        public float Velocity;
 
-        public Cartridge cartridge;
+        public Cartridge Cartridge;
 
-        public override void OnItemLoaded(Item item)
+        public override void OnItemLoaded(Item loadedItem)
         {
-            cartridge = item.gameObject.AddComponent<Cartridge>();
-            cartridge.item = item;
-            cartridge.destroyOnFire = true;
-            cartridge.colliders = new List<Collider>();
-            foreach (var c in item.GetComponentsInChildren<Collider>())
+            Cartridge = loadedItem.gameObject.AddComponent<Cartridge>();
+            Cartridge.item = loadedItem;
+            Cartridge.destroyOnFire = true;
+            Cartridge.colliders = new List<Collider>();
+            foreach (var c in loadedItem.GetComponentsInChildren<Collider>())
             {
-                cartridge.colliders.Add(c);
+                Cartridge.colliders.Add(c);
             }
-            cartridge.caliber = caliber;
-            cartridge.data = new ProjectileData();
-            cartridge.data.isHitscan = false;
-            cartridge.data.projectileItemId = item.data.id;
-            cartridge.data.recoil = recoil;
-            cartridge.data.muzzleVelocity = velocity;
+            Cartridge.caliber = Caliber;
+            Cartridge.data = loadedItem.gameObject.AddComponent<ProjectileData>();
+            Cartridge.data.isHitscan = false;
+            Cartridge.data.projectileItemId = loadedItem.data.id;
+            Cartridge.data.recoil = Recoil;
+            Cartridge.data.muzzleVelocity = Velocity;
         }
     }
 }

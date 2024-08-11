@@ -40,7 +40,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             if (!attachment)
                 return;
             
-            Catalog.LoadAssetAsync<Sprite>(attachment.Data.iconAddress, t => { attachmentIcon.sprite = t; }, "UI Slot attachment icon Load");
+            Catalog.LoadAssetAsync<Sprite>(attachment.Data.IconAddress, t => { attachmentIcon.sprite = t; }, "UI Slot attachment icon Load");
         }
 
         private void OnDestroy()

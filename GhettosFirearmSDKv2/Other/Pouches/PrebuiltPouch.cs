@@ -1,8 +1,8 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
-using System.Linq;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2
 {
@@ -10,7 +10,7 @@ namespace GhettosFirearmSDKv2
     {
         public Item pouchItem;
         public Holder holder;
-        private bool spawning = false;
+        private bool _spawning;
 
         private void Start()
         {
@@ -30,15 +30,15 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (!spawning && holder.items.Count > 0 && (holder.items[0] == null || holder.items[0].holder == null))
+            if (!_spawning && holder.items.Count > 0 && (holder.items[0] == null || holder.items[0].holder == null))
             {
                 holder.items.Clear();
                 holder.currentQuantity = 0;
             }
 
-            if (!spawning && holder.HasSlotFree())
+            if (!_spawning && holder.HasSlotFree())
             {
-                spawning = true;
+                _spawning = true;
                 try
                 {
                     var data = GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count)];
@@ -48,9 +48,9 @@ namespace GhettosFirearmSDKv2
                         StartCoroutine(DelayedSnap(item));
                     }, holder.transform.position);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    spawning = false;
+                    _spawning = false;
                 }
             }
         }
@@ -59,7 +59,7 @@ namespace GhettosFirearmSDKv2
         {
             yield return new WaitForSeconds(Settings.invokeTime + 0.06f);
             if (item != null) holder.Snap(item);
-            spawning = false;
+            _spawning = false;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
@@ -21,17 +20,17 @@ namespace GhettosFirearmSDKv2
             if (!item.TryGetCustomData(out _data))
             {
                 _data = new HolsterSaveData();
-                _data.itemIDs = new Dictionary<string, string>();
-                _data.dataLists = new Dictionary<string, List<ContentCustomData>>();
+                _data.ItemIDs = new Dictionary<string, string>();
+                _data.DataLists = new Dictionary<string, List<ContentCustomData>>();
                 item.AddCustomData(_data);
             }
 
-            if (_data.itemIDs.TryGetValue(holder.name, out var id))
+            if (_data.ItemIDs.TryGetValue(holder.name, out var id))
             {
                 Util.SpawnItem(id, $"[Holster {item.itemId} - Holder {holder.name}, Item {id}", i =>
                 {
                     holder.Snap(i);
-                }, holder.transform.position, null, null, true, _data.dataLists[holder.name]);
+                }, holder.transform.position, null, null, true, _data.DataLists[holder.name]);
             }
         }
 
@@ -47,14 +46,14 @@ namespace GhettosFirearmSDKv2
 
         private void HolderOnUnSnapped(Item item1)
         {
-            _data.itemIDs.Remove(holder.name);
-            _data.dataLists.Remove(holder.name);
+            _data.ItemIDs.Remove(holder.name);
+            _data.DataLists.Remove(holder.name);
         }
 
         private void HolderOnSnapped(Item item1)
         {
-            _data.itemIDs.Add(holder.name, item1.data.id);
-            _data.dataLists.Add(holder.name, item1.contentCustomData);
+            _data.ItemIDs.Add(holder.name, item1.data.id);
+            _data.DataLists.Add(holder.name, item1.contentCustomData);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace GhettosFirearmSDKv2
 {
     public class ObsoleteIdData : CustomData
     {
-        public Dictionary<string, string> idMatches;
+        // ReSharper disable once CollectionNeverUpdated.Global - loaded from JSON
+        public Dictionary<string, string> IdMatches;
     }
 }

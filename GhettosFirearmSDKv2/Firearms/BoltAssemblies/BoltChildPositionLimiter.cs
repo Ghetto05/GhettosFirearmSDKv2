@@ -10,7 +10,7 @@ namespace GhettosFirearmSDKv2
         public Transform backEnd;
         public Transform objectToBeMoved;
 
-        void Update()
+        private void Update()
         {
             if (boltToFollow.localPosition.z <= frontEnd.localPosition.z && boltToFollow.localPosition.z >= backEnd.localPosition.z)
             {

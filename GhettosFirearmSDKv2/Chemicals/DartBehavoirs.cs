@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -65,10 +65,10 @@ namespace GhettosFirearmSDKv2
         {
             foreach (var c in creatures)
             {
-                var v = c.transform.position;
+                var v = c.ragdoll.GetPart(RagdollPart.Type.Torso).bone.mesh.position;
                 c.Despawn();
                 if (GunLockerSaveData.allPrebuilts.Count > 0)
-                    GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count - 1)].SpawnAsync(item => { }, v + Vector3.up);
+                    GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count - 1)].SpawnAsync(_ => { }, v + Vector3.up);
             }
         }
 

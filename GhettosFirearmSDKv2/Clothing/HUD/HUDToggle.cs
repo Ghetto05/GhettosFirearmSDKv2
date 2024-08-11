@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -9,7 +9,7 @@ namespace GhettosFirearmSDKv2
         public List<Collider> toggleColliders;
         public List<GameObject> componentsToToggle;
         public bool hudActive;
-        private bool lastFramePressed;
+        private bool _lastFramePressed;
 
         private void Update()
         {
@@ -17,12 +17,12 @@ namespace GhettosFirearmSDKv2
             {
                 if (CheckInteraction(Side.Left) || CheckInteraction(Side.Right))
                 {
-                    if (!lastFramePressed) Toggle();
-                    lastFramePressed = true;
+                    if (!_lastFramePressed) Toggle();
+                    _lastFramePressed = true;
                 }
                 else
                 {
-                    lastFramePressed = false;
+                    _lastFramePressed = false;
                 }
             }
         }

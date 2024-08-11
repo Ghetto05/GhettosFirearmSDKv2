@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2
 {
     public class SaveNodeValueBool : SaveNodeValue
     {
-        public bool value = false;
+        public bool Value = false;
     }
 }

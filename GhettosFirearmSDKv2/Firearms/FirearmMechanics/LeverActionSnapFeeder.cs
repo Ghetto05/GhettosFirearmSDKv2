@@ -8,16 +8,16 @@ namespace GhettosFirearmSDKv2
         public Transform axis;
         public Transform idlePosition;
         public Transform loadingPosition;
-        private BoltBase.BoltState lastState = BoltBase.BoltState.Locked;
+        private BoltBase.BoltState _lastState = BoltBase.BoltState.Locked;
 
         private void FixedUpdate()
         {
-            if (lastState != BoltBase.BoltState.Back && bolt.state == BoltBase.BoltState.Back)
+            if (_lastState != BoltBase.BoltState.Back && bolt.state == BoltBase.BoltState.Back)
                 axis.SetLocalPositionAndRotation(loadingPosition.localPosition, loadingPosition.localRotation);
             
-            if (lastState != BoltBase.BoltState.Locked && bolt.state == BoltBase.BoltState.Locked)
+            if (_lastState != BoltBase.BoltState.Locked && bolt.state == BoltBase.BoltState.Locked)
                 axis.SetLocalPositionAndRotation(idlePosition.localPosition, idlePosition.localRotation);
-            lastState = bolt.state;
+            _lastState = bolt.state;
         }
     }
 }

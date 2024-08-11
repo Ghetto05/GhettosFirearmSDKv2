@@ -1,23 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class Firearm : FirearmBase
     {
-        #region TheftPrevention
-
-        public bool GhettoMade_23103012730712037091283 = false;
-
-        #endregion
         public List<AttachmentPoint> attachmentPoints;
         public List<Attachment> allAttachments;
         public Texture icon;
         public List<Handle> preSnapActiveHandles;
-        public FirearmSaveData saveData;
+        public FirearmSaveData SaveData;
 
         public override List<Handle> AllTriggerHandles()
         {
@@ -44,21 +39,11 @@ namespace GhettosFirearmSDKv2
 
         public override void Start()
         {
-            #region TheftPrevention
-
-            if (!GhettoMade_23103012730712037091283)
-            {
-                Debug.LogError($"No you don't. ({item.data.id})");
-                Application.Quit();
-            }
-
             if (GameModeManager.instance.currentGameMode.name.Equals("CrystalHunt"))
             {
                 item.Despawn();
                 return;
             }
-
-            #endregion
 
             base.Start();
             if (attachmentPoints.Count == 0 || attachmentPoints.Any(a => a == null))
@@ -71,7 +56,7 @@ namespace GhettosFirearmSDKv2
             Invoke(nameof(InvokedStart), Settings.invokeTime);
             all.Add(this);
 
-            var aiModule = new ItemModuleAI()
+            var aiModule = new ItemModuleAI
                            {
                                primaryClass = ItemModuleAI.WeaponClass.Melee,
                                secondaryClass = ItemModuleAI.WeaponClass.Melee,
@@ -80,13 +65,13 @@ namespace GhettosFirearmSDKv2
                                weaponAttackTypes = ItemModuleAI.AttackTypeFlags.Swing,
                                ignoredByDefense = false,
                                alwaysPrimary = false,
-                               defaultStanceInfo = new ItemModuleAI.StanceInfo()
+                               defaultStanceInfo = new ItemModuleAI.StanceInfo
                                                    {
                                                        offhand = ItemModuleAI.StanceInfo.Offhand.SameItem,
                                                        stanceDataID = "HumanMeleeDualWieldStance",
                                                        grabAIHandleRadius = 0
                                                    },
-                               rangedWeaponData = new ItemModuleAI.RangedWeaponData()
+                               rangedWeaponData = new ItemModuleAI.RangedWeaponData
                                                   {
                                                       spread = Vector2.zero,
                                                       ammoType = defaultAmmoItem,
@@ -129,14 +114,14 @@ namespace GhettosFirearmSDKv2
             }
             StartCoroutine(DelayedLoad());
             
-            if (!item.TryGetCustomData(out saveData))
+            if (!item.TryGetCustomData(out SaveData))
             {
-                saveData = new FirearmSaveData();
-                saveData.firearmNode = new FirearmSaveData.AttachmentTreeNode();
-                item.AddCustomData(saveData);
+                SaveData = new FirearmSaveData();
+                SaveData.FirearmNode = new FirearmSaveData.AttachmentTreeNode();
+                item.AddCustomData(SaveData);
             }
 
-            saveData.ApplyToFirearm(this);
+            SaveData.ApplyToFirearm(this);
             CalculateMuzzle();
 
             #region handle type validation

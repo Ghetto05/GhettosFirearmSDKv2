@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace GhettosFirearmSDKv2
 {
@@ -29,26 +28,30 @@ namespace GhettosFirearmSDKv2
         public Material whiteMaterial;
         public List<MeshRenderer> tracerRenderers;
 
-        bool fired = false;
-        Vector3 dir;
-        float speed;
+        private bool _fired;
+        private Vector3 _dir;
+        private float _speed;
 
         private void OnValidate()
         {
             foreach (Renderer tracerRenderer in tracerRenderers)
             {
-                tracerRenderer.material = getMaterial(color);
+                tracerRenderer.material = GetMaterial(color);
             }
         }
 
-        public Material getMaterial(Colors targetColor)
+        public Material GetMaterial(Colors targetColor)
         {
             if (targetColor == Colors.Red) return redMaterial;
-            else if (targetColor == Colors.Green) return greenMaterial;
-            else if (targetColor == Colors.Blue) return blueMaterial;
-            else if (targetColor == Colors.Orange) return orangeMaterial;
-            else if (targetColor == Colors.White) return whiteMaterial;
-            else return null;
+
+            if (targetColor == Colors.Green) return greenMaterial;
+
+            if (targetColor == Colors.Blue) return blueMaterial;
+
+            if (targetColor == Colors.Orange) return orangeMaterial;
+            if (targetColor == Colors.White) return whiteMaterial;
+
+            return null;
         }
 
         public void DestroyDelayed(float delay)
@@ -64,22 +67,22 @@ namespace GhettosFirearmSDKv2
 
         public void Fire(Transform muzzle, Vector3 hit, Vector3 direction, float pSpeed)
         {
-            dir = direction;
-            speed = pSpeed;
+            _dir = direction;
+            _speed = pSpeed;
             if (hit == Vector3.one)
             {
                 StartCoroutine(DestroyDelayedIE(10f));
             }
             else
             {
-                StartCoroutine(DestroyDelayedIE(Vector3.Distance(muzzle.position, hit) / speed));
+                StartCoroutine(DestroyDelayedIE(Vector3.Distance(muzzle.position, hit) / _speed));
             }
-            fired = true;
+            _fired = true;
         }
 
         public void Update()
         {
-            if (fired) transform.position += dir * speed * Time.deltaTime;
+            if (_fired) transform.position += _dir * _speed * Time.deltaTime;
         }
     }
 }

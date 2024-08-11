@@ -1,10 +1,11 @@
-﻿using ThunderRoad;
-using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using ThunderRoad;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2
 {
@@ -25,7 +26,8 @@ namespace GhettosFirearmSDKv2
         public bool isSuppressing;
         public bool multiplyDamage;
         public float damageMultiplier;
-        public string ColliderGroupId = "PropMetal";
+        [FormerlySerializedAs("ColliderGroupId")]
+        public string colliderGroupId = "PropMetal";
         public bool overridesMuzzleFlash;
         public ParticleSystem newFlash;
         public Transform minimumMuzzlePosition;
@@ -33,13 +35,15 @@ namespace GhettosFirearmSDKv2
         public List<string> damagerIds;
         public List<Renderer> nonLightVolumeRenderers;
 
-        public List<UnityEvent> OnAttachEvents;
-        public List<UnityEvent> OnDetachEvents;
+        [FormerlySerializedAs("OnAttachEvents")]
+        public List<UnityEvent> onAttachEvents;
+        [FormerlySerializedAs("OnDetachEvents")]
+        public List<UnityEvent> onDetachEvents;
 
-        private List<Renderer> renderers;
-        private List<RevealDecal> decals;
+        private List<Renderer> _renderers;
+        private List<RevealDecal> _decals;
 
-        public bool initialized = false;
+        public bool initialized;
 
         private void Update()
         {
@@ -49,8 +53,8 @@ namespace GhettosFirearmSDKv2
 
         public void Hide(bool hidden)
         {
-            if (renderers == null) return;
-            foreach (var ren in renderers)
+            if (_renderers == null) return;
+            foreach (var ren in _renderers)
             {
                 ren.enabled = !hidden;
             }
@@ -59,19 +63,20 @@ namespace GhettosFirearmSDKv2
         public void Initialize(FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
             if (thisNode != null) Node = thisNode;
-            renderers = new List<Renderer>();
-            decals = new List<RevealDecal>();
+            _renderers = new List<Renderer>();
+            _decals = new List<RevealDecal>();
             foreach (var ren in gameObject.GetComponentsInChildren<Renderer>(true))
             {
-                if (!renderers.Contains(ren)) renderers.Add(ren);
+                if (!_renderers.Contains(ren)) _renderers.Add(ren);
                 if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.parentFirearm.item.renderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
             }
             foreach (var dec in gameObject.GetComponentsInChildren<RevealDecal>(true))
             {
-                if (!decals.Contains(dec)) decals.Add(dec);
+                if (!_decals.Contains(dec)) _decals.Add(dec);
                 if (!attachmentPoint.parentFirearm.item.revealDecals.Contains(dec)) attachmentPoint.parentFirearm.item.revealDecals.Add(dec);
             }
-            try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); };
+            try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
+
             transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             foreach (var ap in attachmentPoints)
             {
@@ -90,14 +95,14 @@ namespace GhettosFirearmSDKv2
                 }
             }
             if (thisNode != null) ApplyNode();
-            foreach (var eve in OnAttachEvents)
+            foreach (var eve in onAttachEvents)
             {
                 eve.Invoke();
             }
 
             if (colliderGroup != null)
             {
-                colliderGroup.Load(Catalog.GetData<ColliderGroupData>(ColliderGroupId));
+                colliderGroup.Load(Catalog.GetData<ColliderGroupData>(colliderGroupId));
                 attachmentPoint.parentFirearm.item.colliderGroups.Add(colliderGroup);
                 attachmentPoint.parentFirearm.item.RefreshCollision();
                 foreach (var c in colliderGroup.colliders)
@@ -147,10 +152,10 @@ namespace GhettosFirearmSDKv2
 
         private void ApplyNode()
         {
-            foreach (var n in Node.childs)
+            foreach (var n in Node.Childs)
             {
-                var point = GetSlotFromId(n.slot);
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.attachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, null, n);
+                var point = GetSlotFromId(n.Slot);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.AttachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, null, n);
             }
         }
 
@@ -178,9 +183,9 @@ namespace GhettosFirearmSDKv2
             if (attachmentPoint != null && attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.item.OnHeldActionEvent -= InvokeHeldAction;
             OnDetachEvent?.Invoke(despawnDetach);
             if (despawnDetach) return;
-            if (attachmentPoint.attachment != null) attachmentPoint.attachment.Node.childs.Remove(Node);
-            else if (attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.saveData.firearmNode.childs.Remove(Node);
-            foreach (var eve in OnDetachEvents)
+            if (attachmentPoint.attachment != null) attachmentPoint.attachment.Node.Childs.Remove(Node);
+            else if (attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.SaveData.FirearmNode.Childs.Remove(Node);
+            foreach (var eve in onDetachEvents)
             {
                 eve.Invoke();
             }
@@ -211,16 +216,17 @@ namespace GhettosFirearmSDKv2
             {
                 firearm.item.colliderGroups.Remove(colll);
             }
-            foreach (var ren in renderers)
+            foreach (var ren in _renderers)
             {
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.renderers.Remove(ren);
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.lightVolumeReceiver.renderers.Remove(ren);
             }
-            foreach (var dec in decals)
+            foreach (var dec in _decals)
             {
                 firearm.item.revealDecals.Remove(dec);
             }
-            try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); };
+            try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); }
+
             if (this == null || gameObject == null) return;
 
             if (AssetLoadHandle != null)
@@ -234,20 +240,20 @@ namespace GhettosFirearmSDKv2
             if (!attachmentPoint.usesRail)
                 return;
 
-            if ((forwards && RailPosition + Data.railLength >= attachmentPoint.railSlots.Count) || (!forwards && RailPosition == 0))
+            if ((forwards && RailPosition + Data.RailLength >= attachmentPoint.railSlots.Count) || (!forwards && RailPosition == 0))
                 return;
 
             if (forwards)
-                Node.slotPosition++;
+                Node.SlotPosition++;
             else
-                Node.slotPosition--;
+                Node.SlotPosition--;
             
             UpdatePosition();
         }
 
         public int RailPosition
         {
-            get { return Node.slotPosition; }
+            get { return Node.SlotPosition; }
         }
 
         private void UpdatePosition()
@@ -255,7 +261,7 @@ namespace GhettosFirearmSDKv2
             if (!attachmentPoint.usesRail)
                 return;
             
-            transform.SetParent(attachmentPoint.railSlots[Node.slotPosition]);
+            transform.SetParent(attachmentPoint.railSlots[Node.SlotPosition]);
             transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 

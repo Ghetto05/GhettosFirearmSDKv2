@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
+using ThunderRoad;
 using UnityEngine;
 using UnityEngine.UI;
-using ThunderRoad;
 
 namespace GhettosFirearmSDKv2.Drone
 {
@@ -24,12 +23,12 @@ namespace GhettosFirearmSDKv2.Drone
         public RawImage lightBulb;
         public Color lightActiveColor;
         public Color lightDisabledColor;
-        public bool lightActive = false;
-        bool controlMode = false;
+        public bool lightActive;
+        private bool _controlMode;
 
-        void FixedUpdate()
+        private void FixedUpdate()
         {
-            if (controlMode && currentDrone != null && controlCanvas.activeInHierarchy)
+            if (_controlMode && currentDrone != null && controlCanvas.activeInHierarchy)
             {
                 currentDrone.Move(PlayerControl.handLeft.JoystickAxis.y, PlayerControl.handRight.JoystickAxis.x, PlayerControl.handLeft.JoystickAxis.x, PlayerControl.handRight.JoystickAxis.y);
             }
@@ -37,7 +36,7 @@ namespace GhettosFirearmSDKv2.Drone
 
         public void ToggleControlMode(bool active)
         {
-            controlMode = active && item.handlers.Count == 2;
+            _controlMode = active && item.handlers.Count == 2;
             //PlayerControl.moveActive = !controlMode;
             //PlayerControl.turnActive = !controlMode;
             Player.local.locomotion.allowMove = !active;
@@ -121,7 +120,7 @@ namespace GhettosFirearmSDKv2.Drone
         {
             if (currentDrone != null && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
             {
-                currentDrone.MoveCamera(Drone40.cameraDirections.Up);
+                currentDrone.MoveCamera(Drone40.CameraDirections.Up);
             }
         }
 
@@ -129,7 +128,7 @@ namespace GhettosFirearmSDKv2.Drone
         {
             if (currentDrone != null && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
             {
-                currentDrone.MoveCamera(Drone40.cameraDirections.Down);
+                currentDrone.MoveCamera(Drone40.CameraDirections.Down);
             }
         }
 
@@ -137,7 +136,7 @@ namespace GhettosFirearmSDKv2.Drone
         {
             if (currentDrone != null && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
             {
-                currentDrone.MoveCamera(Drone40.cameraDirections.Left);
+                currentDrone.MoveCamera(Drone40.CameraDirections.Left);
             }
         }
 
@@ -145,7 +144,7 @@ namespace GhettosFirearmSDKv2.Drone
         {
             if (currentDrone != null && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
             {
-                currentDrone.MoveCamera(Drone40.cameraDirections.Right);
+                currentDrone.MoveCamera(Drone40.CameraDirections.Right);
             }
         }
 

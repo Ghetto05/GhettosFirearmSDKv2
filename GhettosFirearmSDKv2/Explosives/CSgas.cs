@@ -1,16 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using GhettosFirearmSDKv2.Chemicals;
 using UnityEngine;
-using ThunderRoad;
-using UnityEngine.Rendering;
-using GhettosFirearmSDKv2.Chemicals;
 
 namespace GhettosFirearmSDKv2.Explosives
 {
     public class CSgas : Explosive
     {
-        bool active = false;
-        bool ready = false;
+        private bool _active;
+        private bool _ready;
         public float range;
         public float duration;
         public float emissionDuration;
@@ -18,10 +14,10 @@ namespace GhettosFirearmSDKv2.Explosives
         public AudioSource loop;
         public ParticleSystem particle;
         public GameObject volume;
-        CapsuleCollider zone;
-        GameObject zoneObj;
+        private CapsuleCollider _zone;
+        private GameObject _zoneObj;
 
-        void Awake()
+        private void Awake()
         {
             if (item != null)
             {
@@ -31,38 +27,38 @@ namespace GhettosFirearmSDKv2.Explosives
 
         public override void ActualDetonate()
         {
-            active = true;
-            zoneObj = new GameObject("CSgas_Zone");
-            zoneObj.layer = LayerMask.NameToLayer("Zone");
-            zone = zoneObj.AddComponent<CapsuleCollider>();
-            zone.isTrigger = true;
-            zoneObj.transform.parent = transform;
-            zone.radius = range;
-            zoneObj.transform.localPosition = Vector3.zero;
+            _active = true;
+            _zoneObj = new GameObject("CSgas_Zone");
+            _zoneObj.layer = LayerMask.NameToLayer("Zone");
+            _zone = _zoneObj.AddComponent<CapsuleCollider>();
+            _zone.isTrigger = true;
+            _zoneObj.transform.parent = transform;
+            _zone.radius = range;
+            _zoneObj.transform.localPosition = Vector3.zero;
             loop?.Play();
             particle?.Play();
             timestamp = Time.time;
             if (gameObject.GetComponentInParent<Rigidbody>() is { } rb) rb.velocity = Vector3.zero;
-            ready = true;
+            _ready = true;
             base.ActualDetonate();
         }
 
-        void Update()
+        private void Update()
         {
-            if (!detonated || !ready) return;
+            if (!detonated || !_ready) return;
 
             if (Time.time >= timestamp + emissionDuration && loop.isPlaying)
             {
                 loop?.Stop();
             }
 
-            if (!active) return;
+            if (!_active) return;
             volume?.SetActive(!PlayerEffectsAndChemicalsModule.local.WearingGasMask());
 
             if (Time.time >= timestamp + duration)
             {
-                active = false;
-                Destroy(zoneObj);
+                _active = false;
+                Destroy(_zoneObj);
                 volume?.SetActive(false);
                 if (item != null)
                 {

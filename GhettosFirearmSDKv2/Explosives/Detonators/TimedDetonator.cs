@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using GhettosFirearmSDKv2.Explosives;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -11,8 +9,8 @@ namespace GhettosFirearmSDKv2
         public Explosive explosive;
         public bool startAtAwake;
         public float delay;
-        private float startTime;
-        private bool armed = false;
+        private float _startTime;
+        private bool _armed;
 
         private void Awake()
         {
@@ -21,13 +19,13 @@ namespace GhettosFirearmSDKv2
 
         public void Arm()
         {
-            startTime = Time.time;
-            armed = true;
+            _startTime = Time.time;
+            _armed = true;
         }
 
         private void Update()
         {
-            if (armed && Time.time - delay >= startTime)
+            if (_armed && Time.time - delay >= _startTime)
             {
                 explosive.Detonate();
             }

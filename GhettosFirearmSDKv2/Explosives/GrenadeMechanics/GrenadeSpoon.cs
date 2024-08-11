@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class GrenadeSpoon : MonoBehaviour
     {
-        public Explosives.Explosive explosive;
+        public Explosive explosive;
         public float fuseTime;
         public Transform startPosition;
         public Transform endPosition;
@@ -19,9 +20,9 @@ namespace GhettosFirearmSDKv2
         public Item grenadeItem;
         public float deployTime;
         public AudioSource[] deploySounds;
-        float startTime = 0f;
-        bool moving = false;
-        bool triggered = false;
+        private float _startTime;
+        private bool _moving;
+        private bool _triggered;
 
         private void Start()
         {
@@ -35,7 +36,7 @@ namespace GhettosFirearmSDKv2
 
         private void L_ChangedEvent()
         {
-            StartCoroutine(delayedCheck());
+            StartCoroutine(DelayedCheck());
         }
 
         private void GrenadeItem_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -48,13 +49,13 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (moving && body != null && !triggered)
+            if (_moving && body != null && !_triggered)
             {
-                body.localRotation = Quaternion.Lerp(startPosition.localRotation, endPosition.localRotation, (Time.time - startTime) / deployTime);
+                body.localRotation = Quaternion.Lerp(startPosition.localRotation, endPosition.localRotation, (Time.time - _startTime) / deployTime);
             }
-            if (Quaternion.Angle(endPosition.localRotation, body.transform.localRotation) < 0.01f && !triggered)
+            if (Quaternion.Angle(endPosition.localRotation, body.transform.localRotation) < 0.01f && !_triggered)
             {
-                triggered = true;
+                _triggered = true;
                 rb = body.gameObject.AddComponent<Rigidbody>();
                 explosive.Detonate(fuseTime);
                 body.SetParent(null);
@@ -66,18 +67,18 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        IEnumerator DelayedAddForce(Rigidbody rb)
+        private IEnumerator DelayedAddForce(Rigidbody targetRb)
         {
             yield return new WaitForSeconds(0.01f);
-            rb.AddForce(forceDir.forward * deployForce * 10);
+            targetRb.AddForce(forceDir.forward * deployForce * 10);
         }
 
         private void GrenadeItem_OnUngrabEvent(Handle handle, RagdollHand ragdollHand, bool throwing)
         {
-            if (handle == grenadeItem.mainHandleLeft) StartCoroutine(delayedCheck());
+            if (handle == grenadeItem.mainHandleLeft) StartCoroutine(DelayedCheck());
         }
 
-        IEnumerator delayedCheck()
+        private IEnumerator DelayedCheck()
         {
             yield return new WaitForSeconds(0.01f);
             if (grenadeItem.mainHandleRight.handlers.Count < 1)
@@ -88,12 +89,12 @@ namespace GhettosFirearmSDKv2
 
         public void Release(bool forced = false)
         {
-            if (moving) return;
+            if (_moving) return;
             if (forced || AllLocksReleased())
             {
-                startTime = Time.time;
+                _startTime = Time.time;
                 Util.PlayRandomAudioSource(deploySounds);
-                moving = true;
+                _moving = true;
             }
         }
 

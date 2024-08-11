@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace GhettosFirearmSDKv2.UI
@@ -13,9 +12,9 @@ namespace GhettosFirearmSDKv2.UI
 
         private void Update()
         {
-            shotsFired.text = FirearmsScore.local.shotsFired.ToString();
-            hits.text = FirearmsScore.local.shotsHit.ToString();
-            headshots.text = FirearmsScore.local.headshots.ToString();
+            shotsFired.text = FirearmsScore.local.ShotsFired.ToString();
+            hits.text = FirearmsScore.local.ShotsHit.ToString();
+            headshots.text = FirearmsScore.local.Headshots.ToString();
             accuracy.text = FirearmsScore.local.CalculateAccuracy() + "%";
         }
     }

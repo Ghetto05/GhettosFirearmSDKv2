@@ -1,19 +1,17 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class NVGAdjuster : MonoBehaviour
+    public class NvgAdjuster : MonoBehaviour
     {
-        private static List<NVGAdjuster> _all;
-        public static List<NVGAdjuster> All
+        private static List<NvgAdjuster> _all;
+        public static List<NvgAdjuster> All
         {
             get
             {
                 if (_all == null)
-                    _all = new List<NVGAdjuster>();
+                    _all = new List<NvgAdjuster>();
                 return _all;
             }
             set

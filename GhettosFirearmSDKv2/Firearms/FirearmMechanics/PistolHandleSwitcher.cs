@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using ThunderRoad;
 using UnityEngine;
-using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
@@ -10,7 +9,7 @@ namespace GhettosFirearmSDKv2
         public Handle secondaryHandle;
         public Firearm firearm;
         public Attachment attachment;
-        private bool lastFrameDualHeld = false;
+        private bool _lastFrameDualHeld;
 
         public void Update()
         {
@@ -21,7 +20,8 @@ namespace GhettosFirearmSDKv2
                     Debug.Log("Handle switcher on " + GetComponentInParent<Item>().itemId + " is not set up!");
                     return;
                 }
-                else if (attachment?.attachmentPoint?.parentFirearm != null)
+
+                if (attachment?.attachmentPoint?.parentFirearm != null)
                     firearm = attachment.attachmentPoint.parentFirearm;
             }
 
@@ -36,11 +36,11 @@ namespace GhettosFirearmSDKv2
             }
 
             var dualHeld = mainHandle.handlers.Count > 0 && secondaryHandle.handlers.Count > 0;
-            if (!lastFrameDualHeld && dualHeld)
+            if (!_lastFrameDualHeld && dualHeld)
                 firearm.AddRecoilModifier(0.3f, 1f, this);
-            else if (lastFrameDualHeld && !dualHeld)
+            else if (_lastFrameDualHeld && !dualHeld)
                 firearm.RemoveRecoilModifier(this);
-            lastFrameDualHeld = dualHeld;
+            _lastFrameDualHeld = dualHeld;
         }
     }
 }

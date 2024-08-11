@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -30,9 +27,9 @@ namespace GhettosFirearmSDKv2
         public void UpdatePositions()
         {
             if (fillRoot != null)
-                fillRoot.localScale = new Vector3(1, 1, (float)currentAmount / (float)minimum);
+                fillRoot.localScale = new Vector3(1, 1, currentAmount / (float)minimum);
             if (fillPosition != null)
-                fillPosition.position = Vector3.LerpUnclamped(emptyPosition.position, filledPosition.position, (float)currentAmount / (float)minimum);
+                fillPosition.position = Vector3.LerpUnclamped(emptyPosition.position, filledPosition.position, currentAmount / (float)minimum);
         }
     }
 }

@@ -1,25 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2
 {
     public class FiremodeSelector : MonoBehaviour
     {
         public FirearmBase firearm;
-        public Transform SafetySwitch;
-        public Transform SafePosition;
-        public Transform SemiPosition;
-        public Transform BurstPosition;
-        public Transform AutoPosition;
-        public Transform AttachmentFirearmPosition;
+        public Transform safetySwitch;
+        public Transform safePosition;
+        public Transform semiPosition;
+        public Transform burstPosition;
+        public Transform autoPosition;
+        public Transform attachmentFirearmPosition;
         public AudioSource switchSound;
         public FirearmBase.FireModes[] firemodes;
         public float[] fireRates;
         public Transform[] irregularPositions;
-        public int currentIndex = 0;
-        SaveNodeValueInt fireModeIndex;
+        public int currentIndex;
+        private SaveNodeValueInt _fireModeIndex;
         public Hammer hammer;
         public bool allowSwitchingModeIfHammerIsUncocked = true;
         public bool onlyAllowSwitchingIfBoltHasState;
@@ -36,11 +33,11 @@ namespace GhettosFirearmSDKv2
             firearm.fireMode = firemodes[currentIndex];
             UpdatePosition();
 
-            fireModeIndex = FirearmSaveData.GetNode(firearm).GetOrAddValue("Firemode", new SaveNodeValueInt());
-            firearm.SetFiremode(firemodes[fireModeIndex.value]);
-            currentIndex = fireModeIndex.value;
+            _fireModeIndex = FirearmSaveData.GetNode(firearm).GetOrAddValue("Firemode", new SaveNodeValueInt());
+            firearm.SetFiremode(firemodes[_fireModeIndex.Value]);
+            currentIndex = _fireModeIndex.Value;
             UpdatePosition();
-            onFiremodeChanged?.Invoke(firearm.fireMode);
+            OnFiremodeChanged?.Invoke(firearm.fireMode);
         }
 
         private void Firearm_OnAltActionEvent(bool longPress)
@@ -61,48 +58,48 @@ namespace GhettosFirearmSDKv2
             if (switchSound != null)
                 switchSound.Play();
             if (irregularPositions != null && irregularPositions.Length > currentIndex)
-                SafetySwitch.SetPositionAndRotation(irregularPositions[currentIndex].position, irregularPositions[currentIndex].rotation);
+                safetySwitch.SetPositionAndRotation(irregularPositions[currentIndex].position, irregularPositions[currentIndex].rotation);
             else
                 UpdatePosition();
-            fireModeIndex.value = currentIndex;
-            onFiremodeChanged?.Invoke(firearm.fireMode);
+            _fireModeIndex.Value = currentIndex;
+            OnFiremodeChanged?.Invoke(firearm.fireMode);
         }
 
         private void UpdatePosition()
         {
-            if (SafetySwitch == null)
+            if (safetySwitch == null)
             {
                 return;
             }
             var mode = firearm.fireMode;
-            if (mode == FirearmBase.FireModes.Safe && SafePosition != null)
+            if (mode == FirearmBase.FireModes.Safe && safePosition != null)
             {
-                SafetySwitch.position = SafePosition.position;
-                SafetySwitch.rotation = SafePosition.rotation;
+                safetySwitch.position = safePosition.position;
+                safetySwitch.rotation = safePosition.rotation;
             }
-            else if (mode == FirearmBase.FireModes.Semi && SemiPosition != null)
+            else if (mode == FirearmBase.FireModes.Semi && semiPosition != null)
             {
-                SafetySwitch.position = SemiPosition.position;
-                SafetySwitch.rotation = SemiPosition.rotation;
+                safetySwitch.position = semiPosition.position;
+                safetySwitch.rotation = semiPosition.rotation;
             }
-            else if (mode == FirearmBase.FireModes.Burst && BurstPosition != null)
+            else if (mode == FirearmBase.FireModes.Burst && burstPosition != null)
             {
-                SafetySwitch.position = BurstPosition.position;
-                SafetySwitch.rotation = BurstPosition.rotation;
+                safetySwitch.position = burstPosition.position;
+                safetySwitch.rotation = burstPosition.rotation;
             }
-            else if (mode == FirearmBase.FireModes.Auto && AutoPosition != null)
+            else if (mode == FirearmBase.FireModes.Auto && autoPosition != null)
             {
-                SafetySwitch.position = AutoPosition.position;
-                SafetySwitch.rotation = AutoPosition.rotation;
+                safetySwitch.position = autoPosition.position;
+                safetySwitch.rotation = autoPosition.rotation;
             }
-            else if (mode == FirearmBase.FireModes.AttachmentFirearm && AttachmentFirearmPosition != null)
+            else if (mode == FirearmBase.FireModes.AttachmentFirearm && attachmentFirearmPosition != null)
             {
-                SafetySwitch.position = AttachmentFirearmPosition.position;
-                SafetySwitch.rotation = AttachmentFirearmPosition.rotation;
+                safetySwitch.position = attachmentFirearmPosition.position;
+                safetySwitch.rotation = attachmentFirearmPosition.rotation;
             }
         }
 
         public delegate void OnModeChangedDelegate(FirearmBase.FireModes newMode);
-        public event OnModeChangedDelegate onFiremodeChanged;
+        public event OnModeChangedDelegate OnFiremodeChanged;
     }
 }

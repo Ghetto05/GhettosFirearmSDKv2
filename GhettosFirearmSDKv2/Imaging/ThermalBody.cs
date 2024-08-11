@@ -1,20 +1,20 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using ThunderRoad;
-using Unity.Mathematics;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class ThermalBody : MonoBehaviour
     {
-        public static List<ThermalBody> all = new List<ThermalBody>();
+        public static List<ThermalBody> all = new();
 
         public Transform rig;
         public List<Transform> bones;
         public List<SkinnedMeshRenderer> renderers;
-        Creature cc;
+        private Creature _cc;
 
         public Material standardMaterial;
         public Material redHotMaterial;
@@ -25,10 +25,11 @@ namespace GhettosFirearmSDKv2
         private Material _rhInst;
         private Material _whInst;
         private Material _bhInst;
+        private static readonly int Temperature = Shader.PropertyToID("_Temperature");
 
         public void ApplyTo(Creature c)
         {
-            cc = c;
+            _cc = c;
             c.OnKillEvent += C_OnKillEvent;
             c.OnDespawnEvent += COnDespawnEvent;
             Invoke(nameof(Apply), 0.1f);
@@ -48,8 +49,10 @@ namespace GhettosFirearmSDKv2
                     if (gameObject != null) Destroy(gameObject);
                 }
             }
-            catch (System.Exception)
-            { }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         private void C_OnKillEvent(CollisionInstance collisionInstance, EventTime eventTime)
@@ -61,20 +64,22 @@ namespace GhettosFirearmSDKv2
                     StartCoroutine(Fade());
                 }
             }
-            catch (System.Exception)
-            { }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         private void Apply()
         {
-            rig.SetParent(cc.ragdoll.meshRig);
+            rig.SetParent(_cc.ragdoll.meshRig);
             rig.localPosition = Vector3.zero;
             rig.localEulerAngles = new Vector3(0, 0, 0);
             rig.localScale = Vector3.one;
 
             foreach (var b in bones)
             {
-                if (cc.ragdoll.bones?.FirstOrDefault(cb => cb.mesh.gameObject.name.Equals(b.gameObject.name + "_Mesh"))?.mesh is { } t)
+                if (_cc.ragdoll.bones?.FirstOrDefault(cb => cb.mesh.gameObject.name.Equals(b.gameObject.name + "_Mesh"))?.mesh is { } t)
                 {
                     b.SetParent(t);
                     b.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -99,23 +104,23 @@ namespace GhettosFirearmSDKv2
             all.Add(this);
         }
 
-        public void SetColor(NVGOnlyRenderer.ThermalTypes t)
+        public void SetColor(NvgOnlyRenderer.ThermalTypes t)
         {
             if (_smInst == null || renderers.Count == 0 || renderers[0] == null) return;
             Material m = null;
-            if (t == NVGOnlyRenderer.ThermalTypes.Standard)
+            if (t == NvgOnlyRenderer.ThermalTypes.Standard)
             {
                 m = _smInst;
             }
-            else if (t == NVGOnlyRenderer.ThermalTypes.BlackHot)
+            else if (t == NvgOnlyRenderer.ThermalTypes.BlackHot)
             {
                 m = _bhInst;
             }
-            else if (t == NVGOnlyRenderer.ThermalTypes.RedHot)
+            else if (t == NvgOnlyRenderer.ThermalTypes.RedHot)
             {
                 m = _rhInst;
             }
-            else if (t == NVGOnlyRenderer.ThermalTypes.WhiteHot)
+            else if (t == NvgOnlyRenderer.ThermalTypes.WhiteHot)
             {
                 m = _whInst;
             }
@@ -128,7 +133,7 @@ namespace GhettosFirearmSDKv2
 
         private IEnumerator Fade()
         {
-            var startingTemperature = standardMaterial.GetFloat("_Temperature");
+            var startingTemperature = standardMaterial.GetFloat(Temperature);
             var duration = 20f;
             var elapsedTime = 0f;
             while (elapsedTime < duration)
@@ -150,10 +155,10 @@ namespace GhettosFirearmSDKv2
 
         private void SetAllMaterialTemperatures(float temperature)
         {
-            _smInst.SetFloat("_Temperature", temperature);
-            _rhInst.SetFloat("_Temperature", temperature);
-            _whInst.SetFloat("_Temperature", temperature);
-            _bhInst.SetFloat("_Temperature", temperature);
+            _smInst.SetFloat(Temperature, temperature);
+            _rhInst.SetFloat(Temperature, temperature);
+            _whInst.SetFloat(Temperature, temperature);
+            _bhInst.SetFloat(Temperature, temperature);
         }
     }
 }

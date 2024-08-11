@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -15,17 +15,17 @@ namespace GhettosFirearmSDKv2
         public Collider loadingCollider;
         public Transform mountPoint;
         public bool canEject;
-        public bool ejectOnEmpty = false;
+        public bool ejectOnEmpty;
         public Magazine currentMagazine;
         public bool mountCurrentMagazine = true;
         public bool spawnMagazineOnAwake;
         public string roundCounterMessage;
-        public bool allowLoad = false;
-        public bool onlyAllowEjectionWhenBoltIsPulled = false;
+        public bool allowLoad;
+        public bool onlyAllowEjectionWhenBoltIsPulled;
         public BoltBase.BoltState lockedState;
         public Transform ejectDir;
         public float ejectForce = 0.3f;
-        public bool tryReleasingBoltIfMagazineIsInserted = false;
+        public bool tryReleasingBoltIfMagazineIsInserted;
         public List<Lock> insertionLocks;
         public Transform beltLinkEjectDir;
 
@@ -52,7 +52,7 @@ namespace GhettosFirearmSDKv2
             if (currentMagazine != null && !currentMagazine.overrideItem && !currentMagazine.overrideAttachment) currentMagazine.item.Despawn();
         }
 
-        void Update()
+        private void Update()
         {
             if (currentMagazine != null)
             {
@@ -75,13 +75,13 @@ namespace GhettosFirearmSDKv2
             if (FirearmSaveData.GetNode(firearm).TryGetValue("MagazineSaveData", out SaveNodeValueMagazineContents data))
             {
                 var cdata = new List<ContentCustomData>();
-                cdata.Add(data.value.CloneJson());
-                if (data.value == null || data.value.itemID == null || data.value.itemID.IsNullOrEmptyOrWhitespace())
+                cdata.Add(data.Value.CloneJson());
+                if (data.Value == null || data.Value.ItemID == null || data.Value.ItemID.IsNullOrEmptyOrWhitespace())
                 {
                     allowLoad = true;
                     return;
                 }
-                Util.SpawnItem(data.value.itemID, "Magazine Well Save", magItem =>
+                Util.SpawnItem(data.Value.ItemID, "Magazine Well Save", magItem =>
                 {
                     var mag = magItem.gameObject.GetComponent<Magazine>();
                     mag.OnLoadFinished += Mag_onLoadFinished;

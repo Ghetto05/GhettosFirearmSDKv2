@@ -1,17 +1,16 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using ThunderRoad;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class AmmoModule : ItemModule
     {
-        public string category;
-        public string caliber;
-        public string variant;
-        public string description;
-        public bool hidden = false;
+        public string Category;
+        public string Caliber;
+        public string Variant;
+        public string Description;
+        public bool Hidden = false;
 
         public static List<string> AllCategories()
         {
@@ -21,7 +20,7 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     var module = data.GetModule<AmmoModule>();
-                    if (!list.Contains(module.category)) list.Add(module.category);
+                    if (!list.Contains(module.Category)) list.Add(module.Category);
                 }
             }
             return list;
@@ -35,7 +34,7 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     var module = data.GetModule<AmmoModule>();
-                    if (module.category.Equals(wantedCategory) && !list.Contains(module.caliber)) list.Add(module.caliber);
+                    if (module.Category.Equals(wantedCategory) && !list.Contains(module.Caliber)) list.Add(module.Caliber);
                 }
             }
             return list;
@@ -49,8 +48,8 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     var module = data.GetModule<AmmoModule>();
-                    if (!module.hidden && module.caliber.Equals(wantedCaliber) && !list.Contains(module.variant)) list.Add(module.variant);
-                    else if (module.caliber.Equals(wantedCaliber)) Debug.Log($"Duplicate cartridge variant found! Category: {module.category}, Caliber: {module.caliber}, Variant: {module.variant}");
+                    if (!module.Hidden && module.Caliber.Equals(wantedCaliber) && !list.Contains(module.Variant)) list.Add(module.Variant);
+                    else if (module.Caliber.Equals(wantedCaliber)) Debug.Log($"Duplicate cartridge variant found! Category: {module.Category}, Caliber: {module.Caliber}, Variant: {module.Variant}");
                 }
             }
             return list;
@@ -63,7 +62,7 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     var module = data.GetModule<AmmoModule>();
-                    if (module.category.Equals(wantedCategory) && module.caliber.Equals(wantedCaliber) && module.variant.Remove(0, 5).Equals(wantedVariant)) return data.id;
+                    if (module.Category.Equals(wantedCategory) && module.Caliber.Equals(wantedCaliber) && module.Variant.Remove(0, 5).Equals(wantedVariant)) return data.id;
                 }
             }
             return string.Empty;
@@ -76,7 +75,7 @@ namespace GhettosFirearmSDKv2
                 if (data.HasModule<AmmoModule>())
                 {
                     var module = data.GetModule<AmmoModule>();
-                    if (module.caliber.Equals(wantedCaliber)) return module.category;
+                    if (module.Caliber.Equals(wantedCaliber)) return module.Category;
                 }
             }
             return string.Empty;

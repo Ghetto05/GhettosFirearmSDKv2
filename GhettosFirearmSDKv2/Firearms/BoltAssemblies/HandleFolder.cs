@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -55,7 +55,7 @@ namespace GhettosFirearmSDKv2
                             axis.localEulerAngles = positions[handles.IndexOf(h)].localEulerAngles;
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         if (!positions.Any())
                             Debug.Log($"Position array is empty! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() != null ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");

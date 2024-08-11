@@ -1,6 +1,5 @@
-using UnityEngine;
 using ThunderRoad;
-using System;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -25,11 +24,6 @@ namespace GhettosFirearmSDKv2
                 hudObject.transform.localPosition = Vector3.zero;
                 hudObject.transform.localEulerAngles = Vector3.zero;
             }
-        }
-
-        private void Settings_LevelModule_OnValueChangedEvent()
-        {
-            try { scaleRoot.localScale = Vector3.one * Settings.hudScale; } catch (Exception) { }
         }
 
         private void OnDestroy()

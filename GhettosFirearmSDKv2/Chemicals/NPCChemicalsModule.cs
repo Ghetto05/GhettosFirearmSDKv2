@@ -4,32 +4,32 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2.Chemicals
 {
-    public class NPCChemicalsModule : MonoBehaviour
+    public class NpcChemicalsModule : MonoBehaviour
     {
-        Creature creature;
+        private Creature _creature;
 
         //---BOOLS---
-        bool inCSgas = false;
-        bool inSmoke = false;
-        bool inPoisonGas = true;
+        private bool _inCSgas;
+        private bool _inSmoke;
+        private bool _inPoisonGas = true;
 
         //---EFFECTS---
-        float horFov;
-        float verFov;
-        BrainModuleDetection det;
+        private float _horFov;
+        private float _verFov;
+        private BrainModuleDetection _det;
 
         public List<GameObject> gasMasks;
 
-        void Awake()
+        private void Awake()
         {
-            creature = gameObject.GetComponent<Creature>();
+            _creature = gameObject.GetComponent<Creature>();
             gasMasks = new List<GameObject>();
-            det = creature.brain.instance.GetModule<BrainModuleDetection>();
-            horFov = det.sightDetectionHorizontalFov;
-            verFov = det.sightDetectionVerticalFov;
+            _det = _creature.brain.instance.GetModule<BrainModuleDetection>();
+            _horFov = _det.sightDetectionHorizontalFov;
+            _verFov = _det.sightDetectionVerticalFov;
         }
 
-        void Update()
+        private void Update()
         {
             if (PlayerEffectsAndChemicalsModule.local == null) return;
 
@@ -37,8 +37,11 @@ namespace GhettosFirearmSDKv2.Chemicals
             var foundSmoke = false;
             var foundPoisonGas = false;
             var highestPoisonGasDamage = 0f;
+            var position = _creature.animator.GetBoneTransform(HumanBodyBones.Head) != null ? _creature.animator.GetBoneTransform(HumanBodyBones.Head).position : _creature.brain.transform.position;
 
-            foreach (var c in Physics.OverlapSphere(creature.animator.GetBoneTransform(HumanBodyBones.Head) != null ? creature.animator.GetBoneTransform(HumanBodyBones.Head).position : creature.brain.transform.position, 0.1f))
+            var hits = new Collider[Physics.OverlapSphereNonAlloc(position, 0.1f, null)];
+            Physics.OverlapSphereNonAlloc(position, 0.1f, hits);
+            foreach (var c in hits)
             {
                 if (c.gameObject.name.Equals("CSgas_Zone"))
                 {
@@ -56,93 +59,93 @@ namespace GhettosFirearmSDKv2.Chemicals
                 }
             }
 
-            if (foundSmoke && !inSmoke) EnterSmoke();
-            else if (!foundSmoke && inSmoke) ExitSmoke();
+            if (foundSmoke && !_inSmoke) EnterSmoke();
+            else if (!foundSmoke && _inSmoke) ExitSmoke();
 
-            if (foundCSgas && !inCSgas) EnterCSgas();
-            else if (!foundCSgas && inCSgas) ExitCSgas();
+            if (foundCSgas && !_inCSgas) EnterCSgas();
+            else if (!foundCSgas && _inCSgas) ExitCSgas();
 
-            if (foundPoisonGas && !inPoisonGas) EnterPoisonGas();
-            else if (!foundPoisonGas && inPoisonGas) ExitPoisonGas();
+            if (foundPoisonGas && !_inPoisonGas) EnterPoisonGas();
+            else if (!foundPoisonGas && _inPoisonGas) ExitPoisonGas();
 
             UpdateCSgas();
             UpdateSmoke();
             UpdatePoisonGas(highestPoisonGasDamage * Time.deltaTime);
         }
 
-        void UpdateSmoke()
+        private void UpdateSmoke()
         {
-            if (!inSmoke) return;
+            if (!_inSmoke) return;
 
-            if (det != null)
+            if (_det != null)
             {
-                det.sightDetectionHorizontalFov = 0f;
-                det.sightDetectionVerticalFov = 0f;
+                _det.sightDetectionHorizontalFov = 0f;
+                _det.sightDetectionVerticalFov = 0f;
             }
-            creature.brain.currentTarget = null;
-            creature.brain.SetState(Brain.State.Alert);
+            _creature.brain.currentTarget = null;
+            _creature.brain.SetState(Brain.State.Alert);
         }
 
-        void EnterSmoke()
+        private void EnterSmoke()
         {
-            inSmoke = true;
+            _inSmoke = true;
         }
 
-        void ExitSmoke()
+        private void ExitSmoke()
         {
-            inSmoke = false;
-            if (det != null)
+            _inSmoke = false;
+            if (_det != null)
             {
-                det.sightDetectionHorizontalFov = horFov;
-                det.sightDetectionVerticalFov = verFov;
+                _det.sightDetectionHorizontalFov = _horFov;
+                _det.sightDetectionVerticalFov = _verFov;
             }
         }
 
-        void UpdateCSgas()
+        private void UpdateCSgas()
         {
-            if (!inCSgas) return;
+            if (!_inCSgas) return;
 
-            if (det != null)
+            if (_det != null)
             {
-                det.sightDetectionHorizontalFov = 0f;
-                det.sightDetectionVerticalFov = 0f;
+                _det.sightDetectionHorizontalFov = 0f;
+                _det.sightDetectionVerticalFov = 0f;
             }
-            creature.brain.currentTarget = null;
-            creature.brain.SetState(Brain.State.Idle);
+            _creature.brain.currentTarget = null;
+            _creature.brain.SetState(Brain.State.Idle);
         }
 
-        void EnterCSgas()
+        private void EnterCSgas()
         {
-            inCSgas = true;
-            creature.brain.AddNoStandUpModifier(this);
-            creature.ragdoll.SetState(Ragdoll.State.Destabilized);
+            _inCSgas = true;
+            _creature.brain.AddNoStandUpModifier(this);
+            _creature.ragdoll.SetState(Ragdoll.State.Destabilized);
         }
 
-        void ExitCSgas()
+        private void ExitCSgas()
         {
-            inCSgas = false;
-            if (det != null)
+            _inCSgas = false;
+            if (_det != null)
             {
-                det.sightDetectionHorizontalFov = horFov;
-                det.sightDetectionVerticalFov = verFov;
+                _det.sightDetectionHorizontalFov = _horFov;
+                _det.sightDetectionVerticalFov = _verFov;
             }
-            creature.brain.RemoveNoStandUpModifier(this);
+            _creature.brain.RemoveNoStandUpModifier(this);
         }
 
-        void UpdatePoisonGas(float damage)
+        private void UpdatePoisonGas(float damage)
         {
-            if (!inPoisonGas) return;
-            creature.Damage(new CollisionInstance(new DamageStruct(DamageType.Energy, damage)));
+            if (!_inPoisonGas) return;
+            _creature.Damage(new CollisionInstance(new DamageStruct(DamageType.Energy, damage)));
         }
 
-        void EnterPoisonGas()
+        private void EnterPoisonGas()
         {
-            inPoisonGas = true;
+            _inPoisonGas = true;
         }
 
-        void ExitPoisonGas()
+        private void ExitPoisonGas()
         {
-            inPoisonGas = false;
+            _inPoisonGas = false;
         }
     }
 }

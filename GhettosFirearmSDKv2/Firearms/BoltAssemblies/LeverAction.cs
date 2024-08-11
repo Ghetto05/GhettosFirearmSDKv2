@@ -1,7 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
+using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -21,7 +19,7 @@ namespace GhettosFirearmSDKv2
 
         public float minAngle;
         public float maxAngle;
-        private float targetAngle;
+        private float _targetAngle;
 
         public AudioSource[] openSounds;
         public AudioSource[] closeSounds;
@@ -29,10 +27,10 @@ namespace GhettosFirearmSDKv2
         public Handle grip;
         public Handle leverHandle;
 
-        private HingeJoint joint;
+        private HingeJoint _joint;
 
-        private BoltBase.BoltState state;
-        private bool reachedEnd;
+        private BoltBase.BoltState _state;
+        private bool _reachedEnd;
 
         public void Start()
         {
@@ -42,7 +40,7 @@ namespace GhettosFirearmSDKv2
         
         private void InvokedStart()
         {
-            targetAngle = Quaternion.Angle(start.localRotation, end.localRotation);
+            _targetAngle = Quaternion.Angle(start.localRotation, end.localRotation);
             Lock(true);
             bolt.overrideHeldState = true;
             bolt.firearm.OnAltActionEvent += OnAltAction;
@@ -66,7 +64,7 @@ namespace GhettosFirearmSDKv2
 
         private void OnFireLogicFinished()
         {
-            if (state != BoltBase.BoltState.Locked)
+            if (_state != BoltBase.BoltState.Locked)
                 return;
             //Unlock();
             Invoke(nameof(Unlock), 0.05f);
@@ -74,17 +72,17 @@ namespace GhettosFirearmSDKv2
 
         private void OnAltAction(bool longPress)
         {
-            if (longPress || state != BoltBase.BoltState.Locked)
+            if (longPress || _state != BoltBase.BoltState.Locked)
                 return;
             Unlock();
         }
 
         private void FixedUpdate()
         {
-            leverColliders.parent = state == BoltBase.BoltState.Locked ? lever : rb.transform;
+            leverColliders.parent = _state == BoltBase.BoltState.Locked ? lever : rb.transform;
             leverColliders.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
 
-            if (state == BoltBase.BoltState.Locked)
+            if (_state == BoltBase.BoltState.Locked)
             {
                 bolt.bolt.localPosition = bolt.startPoint.localPosition;
                 return;
@@ -99,18 +97,18 @@ namespace GhettosFirearmSDKv2
             if (LimitLeverChanged(out var limit))
             {
                 var lockAngle = Util.NormalizeAngle(lever.localEulerAngles.x);
-                joint.limits = new JointLimits { max = limit ? lockAngle + 0.001f : maxAngle, min = limit ? lockAngle : minAngle };
+                _joint.limits = new JointLimits { max = limit ? lockAngle + 0.001f : maxAngle, min = limit ? lockAngle : minAngle };
             }
             
-            if (Quaternion.Angle(lever.localRotation, start.localRotation) <= Threshold && state == BoltBase.BoltState.Moving && reachedEnd)
+            if (Quaternion.Angle(lever.localRotation, start.localRotation) <= Threshold && _state == BoltBase.BoltState.Moving && _reachedEnd)
             {
                 Lock();
                 Util.PlayRandomAudioSource(closeSounds);
             }
 
-            if (Quaternion.Angle(lever.localRotation, end.localRotation) <= Threshold && !reachedEnd)
+            if (Quaternion.Angle(lever.localRotation, end.localRotation) <= Threshold && !_reachedEnd)
             {
-                reachedEnd = true;
+                _reachedEnd = true;
                 Util.PlayRandomAudioSource(openSounds);
             }
         }
@@ -118,8 +116,8 @@ namespace GhettosFirearmSDKv2
         private bool LimitLeverChanged(out bool limit)
         {
             var held = leverHandle.handlers.Count > 0;
-            var limited = Mathf.Abs(Mathf.Abs(joint.limits.min) - Mathf.Abs(joint.limits.max)) < 0.001f;
-            var notLimited = Mathf.Abs(Mathf.Abs(joint.limits.max) - Mathf.Abs(maxAngle)) < 0.001f && Mathf.Abs(Mathf.Abs(joint.limits.min) - Mathf.Abs(minAngle)) < 0.001f;
+            var limited = Mathf.Abs(Mathf.Abs(_joint.limits.min) - Mathf.Abs(_joint.limits.max)) < 0.001f;
+            var notLimited = Mathf.Abs(Mathf.Abs(_joint.limits.max) - Mathf.Abs(maxAngle)) < 0.001f && Mathf.Abs(Mathf.Abs(_joint.limits.min) - Mathf.Abs(minAngle)) < 0.001f;
 
             limit = !held;
             return (held && limited) || (!held && notLimited);
@@ -128,18 +126,18 @@ namespace GhettosFirearmSDKv2
         private float Time()
         {
             var currentAngle = Quaternion.Angle(start.localRotation, lever.localRotation);
-            return Mathf.Clamp01(currentAngle / targetAngle);
+            return Mathf.Clamp01(currentAngle / _targetAngle);
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Lock(bool forced = false)
         {
-            if (state == BoltBase.BoltState.Locked && !forced)
+            if (_state == BoltBase.BoltState.Locked && !forced)
                 return;
-            if (joint != null)
-                Destroy(joint);
+            if (_joint != null)
+                Destroy(_joint);
             rb.isKinematic = true;
-            state = BoltBase.BoltState.Locked;
+            _state = BoltBase.BoltState.Locked;
             lever.localRotation = start.localRotation;
             rb.transform.localRotation = start.localRotation;
             //joint.limits = new JointLimits { max = 0, min = 0 };
@@ -162,17 +160,17 @@ namespace GhettosFirearmSDKv2
             bolt.firearm.item.disableSnap = false;
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Unlock()
         {
-            if (state != BoltBase.BoltState.Locked)
+            if (_state != BoltBase.BoltState.Locked)
                 return;
 
             rb.isKinematic = false;
             InitializeJoint();
-            joint.limits = new JointLimits { max = maxAngle, min = minAngle };
-            reachedEnd = false;
-            state = BoltBase.BoltState.Moving;
+            _joint.limits = new JointLimits { max = maxAngle, min = minAngle };
+            _reachedEnd = false;
+            _state = BoltBase.BoltState.Moving;
             bolt.heldState = true;
 
             leverHandle.SetTouch(true);
@@ -192,18 +190,18 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeJoint()
         {
-            if (joint == null)
-                joint = bolt.firearm.gameObject.AddComponent<HingeJoint>();
-            joint.axis = Vector3.left;
+            if (_joint == null)
+                _joint = bolt.firearm.gameObject.AddComponent<HingeJoint>();
+            _joint.axis = Vector3.left;
             rb.transform.position = start.position;
             rb.transform.rotation = start.rotation;
-            joint.connectedBody = rb;
+            _joint.connectedBody = rb;
             //joint.massScale = 0.00001f;
-            joint.anchor = BoltBase.GrandparentLocalPosition(rb.transform, bolt.firearm.item.transform);
-            joint.useLimits = true;
-            joint.limits = new JointLimits { max = maxAngle, min = minAngle }; //{ min = 0, max = 0 };
-            joint.autoConfigureConnectedAnchor = false;
-            joint.connectedAnchor = Vector3.zero;
+            _joint.anchor = BoltBase.GrandparentLocalPosition(rb.transform, bolt.firearm.item.transform);
+            _joint.useLimits = true;
+            _joint.limits = new JointLimits { max = maxAngle, min = minAngle }; //{ min = 0, max = 0 };
+            _joint.autoConfigureConnectedAnchor = false;
+            _joint.connectedAnchor = Vector3.zero;
         }
     }
 }

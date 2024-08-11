@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -7,10 +6,10 @@ namespace GhettosFirearmSDKv2
     {
         private void OnCollisionEnter(Collision collision)
         {
-            onCollisionEnterEvent?.Invoke(collision);
+            OnCollisionEnterEvent?.Invoke(collision);
         }
 
         public delegate void OnCollisionEnterDelegate(Collision collision);
-        public event OnCollisionEnterDelegate onCollisionEnterEvent;
+        public event OnCollisionEnterDelegate OnCollisionEnterEvent;
     }
 }

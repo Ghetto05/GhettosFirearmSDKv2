@@ -1,9 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -32,7 +30,7 @@ namespace GhettosFirearmSDKv2
         
         public List<Cartridge> loadedCartridges;
 
-        public bool loadable = false;
+        public bool loadable;
         private StripperClipWell _currentWell;
         private float _lastEjectTime;
         private float _lastRemoveTime;

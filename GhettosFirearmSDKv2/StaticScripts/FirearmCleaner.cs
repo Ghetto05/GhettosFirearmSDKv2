@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using System.Linq;
 using ThunderRoad;
-using System.Linq;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {

@@ -1,14 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using ThunderRoad;
-using UnityEngine.UI;
-using System.Linq;
-using IngameDebugConsole;
-using System;
 using System.IO;
+using System.Linq;
+using EasyButtons;
 using Newtonsoft.Json;
+using ThunderRoad;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace GhettosFirearmSDKv2
 {
@@ -17,13 +15,13 @@ namespace GhettosFirearmSDKv2
         public Transform categoryContent;
         public GameObject categoryPrefab;
         public List<string> categories;
-        private List<GameObject> categoryButtons;
-        private string currentCategory;
+        private List<GameObject> _categoryButtons;
+        private string _currentCategory;
 
         public Transform savesContent;
         public GameObject savesPrefab;
         public List<string> saves;
-        private List<GameObject> saveButtons;
+        private List<GameObject> _saveButtons;
 
         public List<Button> keys;
         public List<Button> keysCaps;
@@ -35,11 +33,11 @@ namespace GhettosFirearmSDKv2
 
         public Holder holder;
 
-        private bool typing = false;
-        private string typingName = "";
+        private bool _typing;
+        private string _typingName = "";
         public bool shift = true;
         public bool caps = true;
-        private float lastCursorShift = 0.0f; 
+        private float _lastCursorShift; 
 
         private void Awake()
         {
@@ -52,43 +50,43 @@ namespace GhettosFirearmSDKv2
             Cancel();
 
             cancelButton.onClick.AddListener(delegate { Cancel(); });
-            confirmButton.onClick.AddListener(delegate { SaveWeaponWithName(typingName); });
+            confirmButton.onClick.AddListener(delegate { SaveWeaponWithName(_typingName); });
         }
 
         #region Typing
         public void Type(string key)
         {
-            if (typing)
+            if (_typing)
             {
-                if (typingName.EndsWith("|")) typingName = typingName.Remove(typingName.Length - 1, 1);
-                if (typingName.Equals("Type here...")) typingName = "";
-                if (key.Equals("BACKSPACE") && typingName.Length > 0) typingName = typingName.Remove(typingName.Length - 1);
+                if (_typingName.EndsWith("|")) _typingName = _typingName.Remove(_typingName.Length - 1, 1);
+                if (_typingName.Equals("Type here...")) _typingName = "";
+                if (key.Equals("BACKSPACE") && _typingName.Length > 0) _typingName = _typingName.Remove(_typingName.Length - 1);
                 else if (key.Equals("SHIFT")) shift = !shift;
                 else if (key.Equals("CAPS")) caps = !caps;
                 else
                 {
-                    typingName += key;
+                    _typingName += key;
                     shift = false;
                 }
-                typingField.text = typingName;
+                typingField.text = _typingName;
                 UpdateShift();
             }
         }
 
         public void Update()
         {
-            if (typing && !typingName.Equals("Type here...") && Time.time - lastCursorShift > 0.6f)
+            if (_typing && !_typingName.Equals("Type here...") && Time.time - _lastCursorShift > 0.6f)
             {
-                lastCursorShift = Time.time;
-                if (typingName.EndsWith("|"))
+                _lastCursorShift = Time.time;
+                if (_typingName.EndsWith("|"))
                 {
-                    typingName = typingName.Remove(typingName.Length - 1, 1);
+                    _typingName = _typingName.Remove(_typingName.Length - 1, 1);
                 }
                 else
                 {
-                    typingName += "|";
+                    _typingName += "|";
                 }
-                typingField.text = typingName;
+                typingField.text = _typingName;
             }
         }
 
@@ -106,10 +104,10 @@ namespace GhettosFirearmSDKv2
 
         public void OpenTypingPanel()
         {
-            typingName = "Type here...";
-            typingField.text = typingName;
+            _typingName = "Type here...";
+            typingField.text = _typingName;
             typingPanel.SetActive(true);
-            typing = true;
+            _typing = true;
             shift = true;
             caps = false;
             UpdateShift();
@@ -117,31 +115,31 @@ namespace GhettosFirearmSDKv2
 
         public void Cancel()
         {
-            typingName = "Type here...";
-            typingField.text = typingName;
+            _typingName = "Type here...";
+            typingField.text = _typingName;
             typingPanel.SetActive(false);
-            typing = false;
+            _typing = false;
         }
         #endregion
 
         #region Saving
         public void SaveWeapon()
         {
-            if (holder.items.Count == 0 || typing) return;
+            if (holder.items.Count == 0 || _typing) return;
             OpenTypingPanel();
         }
 
-        public void SaveWeaponWithName(string name)
+        public void SaveWeaponWithName(string weaponName)
         {
-            if (!typing) return;
+            if (!_typing) return;
             if (holder.items.Count == 0)
             {
                 Cancel();
                 return;
             }
 
-            if (name.EndsWith("|")) name = name.Remove(name.Length - 1, 1);
-            var idString = name.Replace(" ", "");
+            if (weaponName.EndsWith("|")) weaponName = weaponName.Remove(weaponName.Length - 1, 1);
+            var idString = weaponName.Replace(" ", "");
             idString = idString.Replace(",", "");
             idString = idString.Replace(".", "");
             idString = idString.Replace("-", "");
@@ -157,10 +155,10 @@ namespace GhettosFirearmSDKv2
             var newData = new GunLockerSaveData
                           {
                               id = preb ? "PREBUILT_" + idString : "SAVE_" + idString,
-                              displayName = name,
-                              itemId = holder.items[0].itemId,
-                              category = preb ? "Prebuilts" : holder.items[0].data.displayName,
-                              dataList = holder.items[0].contentCustomData.CloneJson()
+                              DisplayName = weaponName,
+                              ItemId = holder.items[0].itemId,
+                              Category = preb ? "Prebuilts" : holder.items[0].data.displayName,
+                              DataList = holder.items[0].contentCustomData.CloneJson()
                           };
 
             Settings.CreateSaveFolder();
@@ -168,28 +166,28 @@ namespace GhettosFirearmSDKv2
             var content = JsonConvert.SerializeObject(newData, Catalog.jsonSerializerSettings);
             Catalog.LoadJson(newData, content, path, Settings.SaveFolderName + "\\Saves");
             File.WriteAllText(path, content);
-            SetCategory(currentCategory);
+            SetCategory(_currentCategory);
             Cancel();
         }
         #endregion
 
         #region Locker Actions
-        [EasyButtons.Button]
+        [Button]
         public void SetupCategoryList()
         {
             categories = GunLockerSaveData.GetAllCategories();
             categories.Sort();
             categories.Insert(0, "Prebuilts");
 
-            if (categoryButtons != null)
+            if (_categoryButtons != null)
             {
-                foreach (var obj in categoryButtons)
+                foreach (var obj in _categoryButtons)
                 {
                     Destroy(obj);
                 }
-                categoryButtons.Clear();
+                _categoryButtons.Clear();
             }
-            else categoryButtons = new List<GameObject>();
+            else _categoryButtons = new List<GameObject>();
 
             foreach (var cat in categories)
             {
@@ -200,39 +198,39 @@ namespace GhettosFirearmSDKv2
                 var categoryComp = buttonObj.GetComponent<GunLockerUICategory>();
                 categoryComp.button.onClick.AddListener(delegate { SetCategory(cat); });
                 categoryComp.textName.text = cat;
-                categoryButtons.Add(buttonObj);
-                if (currentCategory != null && currentCategory.Equals(cat))
+                _categoryButtons.Add(buttonObj);
+                if (_currentCategory != null && _currentCategory.Equals(cat))
                 {
-                    categoryComp.SelectionOutline.SetActive(true);
+                    categoryComp.selectionOutline.SetActive(true);
                 }
             }
         }
 
         private void SetCategory(string category)
         {
-            currentCategory = category;
-            if (saveButtons != null)
+            _currentCategory = category;
+            if (_saveButtons != null)
             {
-                foreach (var obj in saveButtons)
+                foreach (var obj in _saveButtons)
                 {
                     Destroy(obj);
                 }
-                saveButtons.Clear();
+                _saveButtons.Clear();
             }
-            else saveButtons = new List<GameObject>();
+            else _saveButtons = new List<GameObject>();
 
-            foreach (var data in Catalog.GetDataList<GunLockerSaveData>().Where(i => i.category.Equals(currentCategory)))
+            foreach (var data in Catalog.GetDataList<GunLockerSaveData>().Where(i => i.Category.Equals(_currentCategory)))
             {
                 var buttonObj = Instantiate(savesPrefab, savesContent);
                 buttonObj.SetActive(true);
                 buttonObj.transform.localPosition = Vector3.zero;
                 buttonObj.transform.localEulerAngles = Vector3.zero;
                 var saveComp = buttonObj.GetComponent<GunLockerUISave>();
-                if (data.category.Equals("Prebuilts")) saveComp.deleteButton.gameObject.SetActive(false);
+                if (data.Category.Equals("Prebuilts")) saveComp.deleteButton.gameObject.SetActive(false);
                 saveComp.button.onClick.AddListener(delegate { SpawnSave(data.id); });
                 saveComp.deleteButton.onClick.AddListener(delegate { DeleteSave(data.id); });
-                saveComp.textName.text = data.displayName;
-                saveButtons.Add(buttonObj);
+                saveComp.textName.text = data.DisplayName;
+                _saveButtons.Add(buttonObj);
             }
             SetupCategoryList();
         }
@@ -241,12 +239,12 @@ namespace GhettosFirearmSDKv2
         {
             if (holder.items.Count > 0 && holder.UnSnapOne() is { } i) i.Despawn();
             var data = Catalog.GetData<GunLockerSaveData>(saveId);
-            Util.SpawnItem(data.itemId, $"[Gun Locker - Save {saveId}]", gun => 
+            Util.SpawnItem(data.ItemId, $"[Gun Locker - Save {saveId}]", gun => 
             {
                 holder.Snap(gun);
                 gun.SetOwner(Item.Owner.Player);
-                gun.data.displayName = data.displayName;
-            }, holder.transform.position, holder.transform.rotation, null, true, data.dataList.CloneJson());
+                gun.data.displayName = data.DisplayName;
+            }, holder.transform.position, holder.transform.rotation, null, true, data.DataList.CloneJson());
         }
 
         private void DeleteSave(string saveId)
@@ -258,7 +256,7 @@ namespace GhettosFirearmSDKv2
                 File.Delete(path);
             var category = Catalog.GetCategoryData(Catalog.GetCategory(data.GetType()));
             category.catalogDatas.Remove(data);
-            SetCategory(currentCategory);
+            SetCategory(_currentCategory);
         }
         #endregion
     }

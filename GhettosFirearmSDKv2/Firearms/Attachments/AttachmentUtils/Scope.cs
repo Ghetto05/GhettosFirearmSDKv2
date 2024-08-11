@@ -1,8 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
 using ThunderRoad;
-using System.Collections;
-using System.Collections.Generic;
-using IngameDebugConsole;
+using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Serialization;
 
@@ -29,25 +28,25 @@ namespace GhettosFirearmSDKv2
         public MeshRenderer lens;
         [FormerlySerializedAs("additionalLenses")]
         public List<MeshRenderer> lenses;
-        public int materialIndex = 0;
+        public int materialIndex;
         public Camera cam;
         public List<Camera> additionalCameras;
         public LensSizes size;
         [Header("Zoom")]
-        public bool overrideX1CameraFOV = false;
+        public bool overrideX1CameraFOV;
         public float noZoomMagnification;
         public bool hasZoom;
         public Handle controllingHandle;
         public Firearm connectedFirearm;
-        public Attachment connectedAtatchment;
-        public List<float> MagnificationLevels;
-        public Transform Selector;
-        public List<Transform> SelectorPositions;
-        public List<GameObject> Reticles;
-        public AudioSource CycleUpSound;
-        public AudioSource CycleDownSound;
+        public Attachment connectedAttachment;
+        public List<float> magnificationLevels;
+        public Transform selector;
+        public List<Transform> selectorPositions;
+        public List<GameObject> reticles;
+        public AudioSource cycleUpSound;
+        public AudioSource cycleDownSound;
         public int currentIndex;
-        SaveNodeValueInt zoomIndex;
+        private SaveNodeValueInt _zoomIndex;
 
         public virtual void Start()
         {
@@ -57,26 +56,26 @@ namespace GhettosFirearmSDKv2
 
         private void InvokedStart()
         {
-            var rt = new RenderTexture(1024, 1024, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
-            rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
+            var rt = new RenderTexture(1024, 1024, 1, DefaultFormat.HDR);
+            rt.graphicsFormat = GraphicsFormat.R16G16B16A16_UNorm;
             cam.targetTexture = rt;
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 
             if (hasZoom && connectedFirearm != null)
             {
                 connectedFirearm.item.OnHeldActionEvent += Item_OnHeldActionEvent;
-                zoomIndex = connectedFirearm.saveData.firearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
+                _zoomIndex = connectedFirearm.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
             }
-            else if (hasZoom && connectedAtatchment != null)
+            else if (hasZoom && connectedAttachment != null)
             {
-                connectedAtatchment.OnHeldActionEvent += Item_OnHeldActionEvent;
-                zoomIndex = connectedAtatchment.Node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
+                connectedAttachment.OnHeldActionEvent += Item_OnHeldActionEvent;
+                _zoomIndex = connectedAttachment.Node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
             }
             else SetFOVFromMagnification(noZoomMagnification);
 
             if (hasZoom)
             {
-                currentIndex = zoomIndex.value;
+                currentIndex = _zoomIndex.Value;
                 SetZoom();
                 UpdatePosition();
             }
@@ -95,24 +94,24 @@ namespace GhettosFirearmSDKv2
         {
             if (up)
             {
-                CycleUpSound.Play();
-                if (currentIndex == MagnificationLevels.Count - 1) currentIndex = -1;
+                cycleUpSound.Play();
+                if (currentIndex == magnificationLevels.Count - 1) currentIndex = -1;
                 currentIndex++;
             }
             else
             {
-                CycleDownSound.Play();
-                if (currentIndex == 0) currentIndex = MagnificationLevels.Count;
+                cycleDownSound.Play();
+                if (currentIndex == 0) currentIndex = magnificationLevels.Count;
                 currentIndex--;
             }
-            zoomIndex.value = currentIndex;
+            _zoomIndex.Value = currentIndex;
             SetZoom();
             UpdatePosition();
         }
 
         public void SetZoom()
         {
-            SetFOVFromMagnification(MagnificationLevels[currentIndex]);
+            SetFOVFromMagnification(magnificationLevels[currentIndex]);
         }
 
         public float GetScale()
@@ -122,18 +121,18 @@ namespace GhettosFirearmSDKv2
 
         public void UpdatePosition()
         {
-            if (Reticles.Count > currentIndex && Reticles[currentIndex] != null)
+            if (reticles.Count > currentIndex && reticles[currentIndex] != null)
             {
-                foreach (var reticle in Reticles)
+                foreach (var reticle in reticles)
                 {
                     reticle.SetActive(false);
                 }
-                Reticles[currentIndex].SetActive(true);
+                reticles[currentIndex].SetActive(true);
             }
-            if (Selector != null && SelectorPositions[currentIndex] is { } t)
+            if (selector != null && selectorPositions[currentIndex] is { } t)
             {
-                Selector.localPosition = t.localPosition;
-                Selector.localEulerAngles = t.localEulerAngles;
+                selector.localPosition = t.localPosition;
+                selector.localEulerAngles = t.localEulerAngles;
             }
         }
 
@@ -150,13 +149,14 @@ namespace GhettosFirearmSDKv2
             UpdateRenderers();
         }
 
+        private static readonly int BaseMap = Shader.PropertyToID("_BaseMap");
         public void UpdateRenderers()
         {
             foreach (var l in lenses)
             {
-                l.materials[materialIndex].SetTexture("_BaseMap", cam.targetTexture);
-                l.materials[materialIndex].SetTextureScale("_BaseMap", Vector2.one * GetScale());
-                l.materials[materialIndex].SetTextureOffset("_BaseMap", Vector3.one * ((1 - GetScale()) / 2));
+                l.materials[materialIndex].SetTexture(BaseMap, cam.targetTexture);
+                l.materials[materialIndex].SetTextureScale(BaseMap, Vector2.one * GetScale());
+                l.materials[materialIndex].SetTextureOffset(BaseMap, Vector3.one * ((1 - GetScale()) / 2));
             }
         }
     }

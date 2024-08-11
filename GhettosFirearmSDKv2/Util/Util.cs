@@ -129,7 +129,7 @@ namespace GhettosFirearmSDKv2
                     }
                 }
             }
-            else if (theseColliders != null && otherColliders != null)
+            else if (theseColliders != null)
             {
                 foreach (var con in collision.contacts)
                 {
@@ -189,8 +189,10 @@ namespace GhettosFirearmSDKv2
                     }
                 }
             }
-            catch (System.Exception)
-            { }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         public static void DelayIgnoreCollision(GameObject obj1, GameObject obj2, bool ignore, float delay, Item handler)
@@ -364,7 +366,7 @@ namespace GhettosFirearmSDKv2
 
             if (_obsoleteIdData != null)
             {
-                if (_obsoleteIdData.idMatches.TryGetValue(id, out var substituteId))
+                if (_obsoleteIdData.IdMatches.TryGetValue(id, out var substituteId))
                 {
                     if (Settings.debugMode)
                     {

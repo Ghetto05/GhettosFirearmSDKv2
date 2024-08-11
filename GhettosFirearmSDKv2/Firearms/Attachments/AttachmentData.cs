@@ -1,34 +1,34 @@
-﻿using UnityEngine;
-using ThunderRoad;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections;
+using System.Linq;
+using ThunderRoad;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using System;
-using System.Linq;
 
 namespace GhettosFirearmSDKv2
 {
     public class AttachmentData : CustomData
     {
-        public string displayName;
-        public string type;
-        public string prefabAddress;
-        public string iconAddress;
-        public string categoryName = "Default";
-        public int railLength = 1;
-        public int forwardClearance;
-        public int rearwardClearance;
+        public string DisplayName;
+        public string Type;
+        public string PrefabAddress;
+        public string IconAddress;
+        public string CategoryName = "Default";
+        public int RailLength = 1;
+        public int ForwardClearance;
+        public int RearwardClearance;
 
         public string GetID()
         {
-            if (string.IsNullOrWhiteSpace(categoryName)) return "Default";
-            else return categoryName;
+            if (string.IsNullOrWhiteSpace(CategoryName)) return "Default";
+
+            return CategoryName;
         }
 
         public static List<AttachmentData> AllOfType(string requestedType)
         {
-            return Catalog.GetDataList<AttachmentData>().Where(d => d.type.Equals(requestedType)).OrderBy(d => d.displayName).ToList();
+            return Catalog.GetDataList<AttachmentData>().Where(d => d.Type.Equals(requestedType)).OrderBy(d => d.DisplayName).ToList();
         }
 
         public void SpawnAndAttach(AttachmentPoint point, int? railPosition = null, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
@@ -49,7 +49,7 @@ namespace GhettosFirearmSDKv2
                 point.transform :
                 point.railSlots != null ?
                     thisNode != null ?
-                        point.railSlots[thisNode.slotPosition] :
+                        point.railSlots[thisNode.SlotPosition] :
                         railPosition != null ?
                             point.railSlots[railPosition.Value] :
                             point.railSlots[0] :
@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             if (point.usesRail && target == point.transform&& thisNode != null)
                 Debug.LogError($"Couldn't use rail points on point '{point.name}' on attachment '{id}'!");
             
-            Addressables.InstantiateAsync(prefabAddress, target.position, target.rotation, target, false).Completed += (handle =>
+            Addressables.InstantiateAsync(PrefabAddress, target.position, target.rotation, target, false).Completed += (handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
@@ -70,23 +70,23 @@ namespace GhettosFirearmSDKv2
                     if (thisNode == null)
                     {
                         attachment.Node = new FirearmSaveData.AttachmentTreeNode();
-                        attachment.Node.attachmentId = id;
-                        attachment.Node.slot = point.id;
-                        attachment.Node.slotPosition = point.usesRail ? point.railSlots.IndexOf(target) : 0;
+                        attachment.Node.AttachmentId = id;
+                        attachment.Node.Slot = point.id;
+                        attachment.Node.SlotPosition = point.usesRail ? point.railSlots.IndexOf(target) : 0;
                     }
                     else
                         attachment.Node = thisNode;
                     if (point.attachment != null && thisNode == null)
-                        point.attachment.Node.childs.Add(attachment.Node);
+                        point.attachment.Node.Childs.Add(attachment.Node);
                     else if (thisNode == null)
-                        point.parentFirearm.saveData.firearmNode.childs.Add(attachment.Node);
+                        point.parentFirearm.SaveData.FirearmNode.Childs.Add(attachment.Node);
                     attachment.Initialize(thisNode, initialSetup);
                     point.InvokeAttachmentAdded(attachment);
                     callback?.Invoke(attachment);
                 }
                 else
                 {
-                    Debug.LogWarning("Unable to instantiate attachment " + id + " from address " + prefabAddress);
+                    Debug.LogWarning("Unable to instantiate attachment " + id + " from address " + PrefabAddress);
                     Addressables.ReleaseInstance(handle);
                 }
             });

@@ -1,6 +1,5 @@
-using UnityEngine;
 using ThunderRoad;
-using System.Collections;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -10,22 +9,22 @@ namespace GhettosFirearmSDKv2
         public GameObject lights;
         public Item item;
         public Attachment attachment;
-        private Item actualItem;
+        private Item _actualItem;
 
         public void Start()
         {
-            if (item != null) actualItem = item;
+            if (item != null) _actualItem = item;
             else if (attachment != null)
             {
                 if (attachment.initialized) Attachment_OnDelayedAttachEvent();
                 else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
             }
-            else actualItem = null;
+            else _actualItem = null;
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            actualItem = attachment.attachmentPoint.parentFirearm.item;
+            _actualItem = attachment.attachmentPoint.parentFirearm.item;
         }
 
         public void SetActive()
@@ -40,7 +39,7 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            lights.SetActive(tacSwitch && physicalSwitch && (actualItem == null || actualItem.holder == null));
+            lights.SetActive(tacSwitch && physicalSwitch && (_actualItem == null || _actualItem.holder == null));
         }
     }
 }

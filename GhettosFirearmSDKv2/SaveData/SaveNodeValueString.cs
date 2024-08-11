@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2
 {
     public class SaveNodeValueString : SaveNodeValue
     {
-        public string value = "";
+        public string Value = "";
     }
 }

@@ -27,14 +27,14 @@ namespace GhettosFirearmSDKv2
         public Transform secondModePulledPosition;
         public FirearmBase.FireModes firstMode;
         public FirearmBase.FireModes secondMode;
-        private bool onSecondMode;
+        private bool _onSecondMode;
         [Space]
         public FiremodeSelector selector;
         public int[] allowedIndexesForSecondMode;
 
         private const float SecondModeTriggerPull = 0.9f;
 
-        void Start()
+        private void Start()
         {
             if (firearm != null) 
                 firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
@@ -81,7 +81,7 @@ namespace GhettosFirearmSDKv2
                         float weight;
                         if (PlayerControl.GetHand(h.handlers[0].side).usePressed)
                         {
-                            weight = onSecondMode ? secondModePullWeight : 1f;
+                            weight = _onSecondMode ? secondModePullWeight : 1f;
                             lastTriggerPull = Time.time;
                         }
                         else if (Time.time - lastTriggerPull <= Settings.triggerDisciplineTime)
@@ -115,19 +115,17 @@ namespace GhettosFirearmSDKv2
                 var actual = pull + Settings.progressiveTriggerDeadZone;
                 if (actual > SecondModeTriggerPull)
                 {
-                    onSecondMode = true;
+                    _onSecondMode = true;
                     firearm.fireMode = secondMode;
                     return secondModePulledPosition;
                 }
 
                 firearm.fireMode = firstMode;
-                onSecondMode = false;
+                _onSecondMode = false;
                 return firearm.triggerState ? pulledPosition : idlePosition;
             }
-            else
-            {
-                return firearm.triggerState ? pulledPosition : idlePosition;
-            }
+
+            return firearm.triggerState ? pulledPosition : idlePosition;
         }
     }
 }

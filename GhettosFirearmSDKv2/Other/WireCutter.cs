@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -14,11 +12,11 @@ namespace GhettosFirearmSDKv2
         public Transform clipRoot;
         public float clipRange = 0.02f;
         public AudioSource[] clipSounds;
-        private float _lastClipTime = 0f;
+        private float _lastClipTime;
 
         private void Start()
         {
-            item.OnHeldActionEvent += delegate(RagdollHand hand, Handle handle, Interactable.Action action) 
+            item.OnHeldActionEvent += delegate(RagdollHand _, Handle _, Interactable.Action action) 
             { 
                 if (action == Interactable.Action.UseStart)
                     Clip();

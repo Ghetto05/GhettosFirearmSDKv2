@@ -1,6 +1,7 @@
 ﻿using System;
-using UnityEngine;
+using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -11,12 +12,12 @@ namespace GhettosFirearmSDKv2
         public string audioClipAddress;
         public AudioMixerName audioMixer;
         [NonSerialized]
-        public AudioSource audioSource;
+        public AudioSource AudioSource;
 
         protected void Awake()
         {
-            audioSource = GetComponent<AudioSource>();
-            audioSource.outputAudioMixerGroup = ThunderRoadSettings.GetAudioMixerGroup(audioMixer);
+            AudioSource = GetComponent<AudioSource>();
+            AudioSource.outputAudioMixerGroup = ThunderRoadSettings.GetAudioMixerGroup(audioMixer);
             OnEnable();
         }
 
@@ -39,7 +40,7 @@ namespace GhettosFirearmSDKv2
                     }
                     else
                     {
-                        audioSource.clip = handle.Result;
+                        AudioSource.clip = handle.Result;
                     }
                 }
                 else Debug.LogError("Could not find audio at address: " + audioClipAddress);
@@ -49,15 +50,15 @@ namespace GhettosFirearmSDKv2
 
         public void PlayAndDestroy()
         {
-            audioSource.transform.SetParent(null);
-            audioSource.Play((ulong)0.1);
-            StartCoroutine(Explosives.Explosive.delayedDestroy(audioSource.gameObject, audioSource.clip.length + 3f));
+            AudioSource.transform.SetParent(null);
+            AudioSource.Play((ulong)0.1);
+            StartCoroutine(Explosive.DelayedDestroy(AudioSource.gameObject, AudioSource.clip.length + 3f));
         }
 
         protected void OnDisable()
         {
-            if (audioSource.clip != null) Addressables.Release(audioSource.clip);
-            audioSource.clip = null;
+            if (AudioSource.clip != null) Addressables.Release(AudioSource.clip);
+            AudioSource.clip = null;
         }
     }
 }

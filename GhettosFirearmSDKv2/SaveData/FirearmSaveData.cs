@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ThunderRoad;
-using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class FirearmSaveData : ContentCustomData
     {
-        public AttachmentTreeNode firearmNode;
+        public AttachmentTreeNode FirearmNode;
 
         public void ApplyToFirearm(Firearm firearm)
         {
-            foreach (var node in firearmNode.childs)
+            foreach (var node in FirearmNode.Childs)
             {
-                var point = firearm.GetSlotFromId(node.slot);
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(node.attachmentId, $"[Firearm save data - slot {node.slot} on {firearm.item?.data?.displayName} | {firearm.item?.itemId}]"))?.SpawnAndAttach(point, null, node, true);
+                var point = firearm.GetSlotFromId(node.Slot);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(node.AttachmentId, $"[Firearm save data - slot {node.Slot} on {firearm.item?.data?.displayName} | {firearm.item?.itemId}]"))?.SpawnAndAttach(point, null, node, true);
             }
         }
 
@@ -23,7 +21,7 @@ namespace GhettosFirearmSDKv2
             if (firearm.GetType() == typeof(Firearm))
             {
                 var f = (Firearm)firearm;
-                return f.saveData.firearmNode;
+                return f.SaveData.FirearmNode;
             }
             else
             {
@@ -34,23 +32,23 @@ namespace GhettosFirearmSDKv2
 
         public class AttachmentTreeNode
         {
-            public string slot;
-            public int slotPosition;
-            public string attachmentId;
-            public List<AttachmentTreeNode> childs;
-            public List<SaveNodeValue> values;
+            public string Slot;
+            public int SlotPosition;
+            public string AttachmentId;
+            public List<AttachmentTreeNode> Childs;
+            public List<SaveNodeValue> Values;
 
             public AttachmentTreeNode()
             {
-                childs = new List<AttachmentTreeNode>();
-                values = new List<SaveNodeValue>();
+                Childs = new List<AttachmentTreeNode>();
+                Values = new List<SaveNodeValue>();
             }
 
             public bool TryGetValue<T>(string id, out T value) where T : SaveNodeValue
             {
-                foreach (var v in values)
+                foreach (var v in Values)
                 {
-                    if (v != null && v.id.Equals(id))
+                    if (v != null && v.ID.Equals(id))
                     {
                         value = v as T;
                         return true;
@@ -62,7 +60,7 @@ namespace GhettosFirearmSDKv2
 
             public T GetOrAddValue<T>(string id, T newObject) where T : SaveNodeValue
             {
-                SaveNodeValue value = GetOrAddValue(id, newObject, out var addedNew);
+                SaveNodeValue value = GetOrAddValue(id, newObject, out _);
                 return value as T;
             }
             
@@ -74,27 +72,25 @@ namespace GhettosFirearmSDKv2
                     addedNew = false;
                     return value as T;
                 }
-                else
-                {
-                    addedNew = true;
-                    value = newObject;
-                    value.id = id;
-                    values.Add(value as T);
-                }
+
+                addedNew = true;
+                value = newObject;
+                value.ID = id;
+                Values.Add(value as T);
                 return value as T;
             }
 
             public void RemoveValue(string id)
             {
                 SaveNodeValue vtd = null;
-                foreach (var v in values)
+                foreach (var v in Values)
                 {
-                    if (v != null && v.id.Equals(id))
+                    if (v != null && v.ID.Equals(id))
                     {
                         vtd = v;
                     }
                 }
-                if (vtd != null) values.Remove(vtd);
+                if (vtd != null) Values.Remove(vtd);
             }
         }
     }

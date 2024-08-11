@@ -1,7 +1,6 @@
-﻿using System.Collections;
+﻿using ThunderRoad;
 using UnityEngine;
 using UnityEngine.UI;
-using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
@@ -16,29 +15,29 @@ namespace GhettosFirearmSDKv2
         public Text distanceDisplay;
         public Item item;
         public Attachment attachment;
-        private Item actualItem;
+        private Item _actualItem;
         public float lastHitDistance;
 
         private void Start()
         {
             physicalSwitch = activeByDefault;
-            if (item != null) actualItem = item;
+            if (item != null) _actualItem = item;
             else if (attachment != null)
             {
                 if (attachment.initialized) Attachment_OnDelayedAttachEvent();
                 else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
             }
-            else actualItem = null;
+            else _actualItem = null;
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            actualItem = attachment.attachmentPoint.parentFirearm.item;
+            _actualItem = attachment.attachmentPoint.parentFirearm.item;
         }
 
         private void Update()
         {
-            if (!tacSwitch || !physicalSwitch || (actualItem != null && actualItem.holder != null))
+            if (!tacSwitch || !physicalSwitch || (_actualItem != null && _actualItem.holder != null))
             {
                 if (cylinderRoot != null)
                 {
@@ -73,12 +72,12 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        Vector3 LengthScale(float length)
+        private Vector3 LengthScale(float length)
         {
             return new Vector3(1, 1, length);
         }
 
-        Vector3 LengthPosition(float length)
+        private Vector3 LengthPosition(float length)
         {
             return new Vector3(0, 0, length);
         }

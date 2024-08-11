@@ -41,11 +41,9 @@ namespace GhettosFirearmSDKv2
                     }
                     return message;
                 }
-                else
-                {
-                    message = "----> All checkable mods are up to date!";
-                    return message;
-                }
+
+                message = "----> All checkable mods are up to date!";
+                return message;
             }
             return "";
         }

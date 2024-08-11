@@ -18,9 +18,9 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         public void Setup(AttachmentData data, ViceUI vice)
         {
-            nameText.text = data.displayName;
+            nameText.text = data.DisplayName;
             Data = data.CloneJson();
-            Catalog.LoadAssetAsync<Sprite>(data.iconAddress, t => { icon.sprite = t; }, "UI Attachment Icon Load");
+            Catalog.LoadAssetAsync<Sprite>(data.IconAddress, t => { icon.sprite = t; }, "UI Attachment Icon Load");
             selectButton.onClick.AddListener(delegate { vice.SelectAttachment(this); });
             selectButton.onClick.AddListener(delegate { vice.PlaySound(ViceUI.SoundTypes.Interact); });
         }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
-using System.Collections;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -15,10 +14,10 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> hitSounds;
         public List<AudioSource> cockSounds;
         public bool cocked;
-        public bool hasDecocker = false;
-        public bool allowManualCock = false;
+        public bool hasDecocker;
+        public bool allowManualCock;
         public bool allowCockUncockWhenSafetyIsOn = true;
-        SaveNodeValueBool hammerState;
+        private SaveNodeValueBool _hammerState;
 
         private void Start()
         {
@@ -31,8 +30,8 @@ namespace GhettosFirearmSDKv2
                 firearm = f;
             firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
             firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
-            hammerState = firearm.saveData.firearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
-            if (hammerState.value)
+            _hammerState = firearm.SaveData.FirearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
+            if (_hammerState.Value)
                 Cock(true, true);
             else
                 Fire(true, true);
@@ -58,7 +57,7 @@ namespace GhettosFirearmSDKv2
         {
             if (cocked && !forced)
                 return;
-            hammerState.value = true;
+            _hammerState.Value = true;
             cocked = true;
             if (hammer != null)
             {
@@ -73,7 +72,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!cocked && !forced)
                 return;
-            hammerState.value = false;
+            _hammerState.Value = false;
             cocked = false;
             if (hammer != null)
             {

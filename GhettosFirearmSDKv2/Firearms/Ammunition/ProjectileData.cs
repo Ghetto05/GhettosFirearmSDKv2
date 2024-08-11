@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using GhettosFirearmSDKv2.Explosives;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -27,18 +23,18 @@ namespace GhettosFirearmSDKv2
         public float recoil;
         public float recoilUpwardsModifier = 2f;
         public bool playFirearmDefaultMuzzleFlash = true;
-        public bool alwaysSuppressed = false;
+        public bool alwaysSuppressed;
         public bool allowPitchVariation = true;
-        public bool overrideFireSounds = false;
+        public bool overrideFireSounds;
         public List<AudioSource> fireSounds;
         public List<AudioSource> suppressedFireSounds;
-        public bool overrideMuzzleFlashLightColor = false;
+        public bool overrideMuzzleFlashLightColor;
         public Color muzzleFlashLightColorOne;
         public Color muzzleFlashLightColorTwo;
 
         //hitscan
         public int projectileCount = 1;
-        public float projectileSpread = 0;
+        public float projectileSpread;
         public float projectileRange = 200;
         public float damagePerProjectile = 20;
         public float forcePerProjectile = 100;
@@ -49,18 +45,18 @@ namespace GhettosFirearmSDKv2
         public string customRagdollImpactEffectId;
         public string customImpactEffectId;
         public PenetrationLevels penetrationPower;
-        public bool isExplosive = false;
-        public bool isElectrifying = false;
-        public bool slicesBodyParts = false;
+        public bool isExplosive;
+        public bool isElectrifying;
+        public bool slicesBodyParts;
         public bool enoughToIncapitate = true;
         public bool lethalHeadshot = true;
-        public bool forceDestabilize = false;
-        public bool forceIncapitate = false;
+        public bool forceDestabilize;
+        public bool forceIncapitate;
 
         //temporary knockout
-        public bool knocksOutTemporarily = false;
-        public float temporaryKnockoutTime = 0f;
-        public float kockoutDelay = 0f;
+        public bool knocksOutTemporarily;
+        public float temporaryKnockoutTime;
+        public float kockoutDelay;
 
         //hitscan explosive
         public ExplosiveData explosiveData;
@@ -75,9 +71,9 @@ namespace GhettosFirearmSDKv2
         //physical
         public string projectileItemId;
         public float muzzleVelocity = 200;
-        public float destroyTime = 0f;
+        public float destroyTime;
 
-        void Awake()
+        private void Awake()
         {
             if (projectileCount <= 1) projectileSpread = 0f;
         }

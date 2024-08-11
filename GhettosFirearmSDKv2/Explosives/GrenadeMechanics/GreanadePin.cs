@@ -1,20 +1,18 @@
-﻿using System;
-using ThunderRoad;
+﻿using ThunderRoad;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace GhettosFirearmSDKv2
 {
     public class GreanadePin : Lock
     {
         public AudioSource[] pullSounds;
-        bool broken = false;
+        private bool _broken;
         public Item parentItem;
         public Handle handle;
         public Joint joint;
         public float breakForce;
 
-        void Start()
+        private void Start()
         {
             parentItem.OnGrabEvent += ParentItem_OnGrabEvent;
             parentItem.OnUngrabEvent += ParentItem_OnUngrabEvent;
@@ -39,12 +37,12 @@ namespace GhettosFirearmSDKv2
 
         public override bool GetIsUnlocked()
         {
-            return broken;
+            return _broken;
         }
 
-        void OnJointBreak(float breakForce)
+        private void OnJointBreak(float force)
         {
-            broken = true;
+            _broken = true;
             InvokeChange();
             Util.PlayRandomAudioSource(pullSounds);
             GetComponent<Rigidbody>().useGravity = true;

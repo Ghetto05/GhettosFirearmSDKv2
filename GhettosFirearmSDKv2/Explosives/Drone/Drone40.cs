@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,12 +44,12 @@ namespace GhettosFirearmSDKv2.Drone
         public Vector3 horizontalStart;
         public Vector3 horizontalEnd;
         public float camVerticalSpeed;
-        Quaternion targetRotation = Quaternion.Euler(90, 0, 0);
-        Quaternion startRot;
-        float activationTime;
+        private Quaternion _targetRotation = Quaternion.Euler(90, 0, 0);
+        private Quaternion _startRot;
+        private float _activationTime;
         public bool active;
-        float startHeight;
-        bool beforeSpin = true;
+        private float _startHeight;
+        private bool _beforeSpin = true;
         [Space]
         public float driveShaftSpeed;
         [Space]
@@ -65,10 +64,10 @@ namespace GhettosFirearmSDKv2.Drone
         [Space]
         public Transform driveShaft4;
         public Vector3 driveShaft4Axis;
-        float currentVertical = 0f;
-        bool gottaAddConstrains = true;
+        private float _currentVertical;
+        private bool _gottaAddConstrains = true;
 
-        public enum cameraDirections
+        public enum CameraDirections
         {
             Up,
             Down,
@@ -78,7 +77,7 @@ namespace GhettosFirearmSDKv2.Drone
 
         private void Awake()
         {
-            startHeight = transform.position.y;
+            _startHeight = transform.position.y;
             droneId = $"Drone_{type}_{ Random.Range(0, 10)}{Random.Range(0, 10)}{Random.Range(0, 10)}{Random.Range(0, 10)}";
         }
 
@@ -88,26 +87,27 @@ namespace GhettosFirearmSDKv2.Drone
             transform.Rotate(new Vector3(0, 0, -leftHandX * speed));
         }
 
-        void FixedUpdate()
+        private void FixedUpdate()
         {
-            if (!active && beforeSpin && transform.position.y >= startHeight + activationHeight)
+            if (!active && _beforeSpin && transform.position.y >= _startHeight + activationHeight)
             {
                 Activate();
             }
             else if (active)
             {
-                if ((Time.time - activationTime) / turnTime > 1f && gottaAddConstrains)
+                if ((Time.time - _activationTime) / turnTime > 1f && _gottaAddConstrains)
                 {
-                    gottaAddConstrains = false;
+                    _gottaAddConstrains = false;
+                    // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
                     rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
                 }
-                else if (gottaAddConstrains) transform.rotation = Quaternion.Slerp(startRot, targetRotation, (Time.time - activationTime) / turnTime);
+                else if (_gottaAddConstrains) transform.rotation = Quaternion.Slerp(_startRot, _targetRotation, (Time.time - _activationTime) / turnTime);
 
-                camPivot.localEulerAngles = Vector3.Lerp(horizontalStart, horizontalEnd, currentVertical);
+                camPivot.localEulerAngles = Vector3.Lerp(horizontalStart, horizontalEnd, _currentVertical);
             }
         }
 
-        void Update()
+        private void Update()
         {
             if (!extendAnimation.isPlaying && active)
             {
@@ -125,13 +125,13 @@ namespace GhettosFirearmSDKv2.Drone
 
         public void Activate()
         {
-            activationTime = Time.time;
+            _activationTime = Time.time;
             extendAnimation.Play();
             active = true;
-            beforeSpin = false;
+            _beforeSpin = false;
             rb.useGravity = false;
             rb.velocity = Vector3.zero;
-            startRot = transform.rotation;
+            _startRot = transform.rotation;
             loop.Play();
             if (all == null) all = new List<Drone40>();
             all.Add(this);
@@ -146,29 +146,29 @@ namespace GhettosFirearmSDKv2.Drone
             all.Remove(this);
         }
 
-        public void MoveCamera(cameraDirections direction)
+        public void MoveCamera(CameraDirections direction)
         {
-            if (direction == cameraDirections.Up)
+            if (direction == CameraDirections.Up)
             {
-                currentVertical += camVerticalSpeed;
+                _currentVertical += camVerticalSpeed;
             }
-            else if (direction == cameraDirections.Down)
+            else if (direction == CameraDirections.Down)
             {
-                currentVertical -= camVerticalSpeed;
+                _currentVertical -= camVerticalSpeed;
             }
-            else if (direction == cameraDirections.Left)
+            else if (direction == CameraDirections.Left)
             {
                 camRoot.localEulerAngles += camLeftAxis * camHorizontalSpeed;
             }
-            else if (direction == cameraDirections.Right)
+            else if (direction == CameraDirections.Right)
             {
                 camRoot.localEulerAngles += camRightAxis * camHorizontalSpeed;
             }
         }
 
-        public void ToggleLight(bool active)
+        public void ToggleLight(bool lightActive)
         {
-            spotlight.enabled = active;
+            spotlight.enabled = lightActive;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2

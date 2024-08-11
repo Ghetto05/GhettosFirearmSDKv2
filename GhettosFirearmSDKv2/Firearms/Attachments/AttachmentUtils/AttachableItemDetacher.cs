@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
 
@@ -34,7 +35,7 @@ namespace GhettosFirearmSDKv2
                 if (s != null)
                 {
                     s.transform.SetParent(ragdollHand.transform);
-                    ragdollHand.StartCoroutine(Explosives.Explosive.delayedDestroy(s.gameObject, s.clip.length + 1f));
+                    ragdollHand.StartCoroutine(Explosive.DelayedDestroy(s.gameObject, s.clip.length + 1f));
                 }
 
                 attachment.handles.ForEach(h => h.Release());

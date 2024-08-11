@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -8,7 +6,7 @@ using UnityEngine.Rendering;
 namespace GhettosFirearmSDKv2
 {
     [AddComponentMenu("Firearm SDK v2/Attachments/Systems/Illuminators/NVG Only Renderer")]
-    public class NVGOnlyRenderer : MonoBehaviour
+    public class NvgOnlyRenderer : MonoBehaviour
     {
         public enum Types
         {
@@ -16,7 +14,7 @@ namespace GhettosFirearmSDKv2
             FirstPerson,
             Thermal,
             DirectMode,
-            XM157Marker
+            Xm157Marker
         }
 
         public enum ThermalTypes
@@ -27,7 +25,7 @@ namespace GhettosFirearmSDKv2
             BlackHot
         }
 
-        public NVGOnlyRendererMeshModule[] directModules;
+        public NvgOnlyRendererMeshModule[] directModules;
         public Types renderType;
         public Camera renderCamera;
         public ThermalTypes thermalType;
@@ -92,10 +90,10 @@ namespace GhettosFirearmSDKv2
         {
             if (cam == renderCamera)
             {
-                if (NVGOnlyRendererMeshModule.all == null)
+                if (NvgOnlyRendererMeshModule.all == null)
                     return;
 
-                foreach (var module in NVGOnlyRendererMeshModule.all)
+                foreach (var module in NvgOnlyRendererMeshModule.all)
                 {
                     if (module.renderType.Equals(renderType))
                     {
@@ -122,9 +120,9 @@ namespace GhettosFirearmSDKv2
         {
             if (cam == renderCamera)
             {
-                if (NVGOnlyRendererMeshModule.all == null) return;
+                if (NvgOnlyRendererMeshModule.all == null) return;
 
-                foreach (var module in NVGOnlyRendererMeshModule.all)
+                foreach (var module in NvgOnlyRendererMeshModule.all)
                 {
                     if (module.renderType.Equals(renderType))
                     {

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Dynamic;
 using System.Linq;
 using ThunderRoad;
 using UnityEngine;
@@ -15,9 +14,10 @@ namespace GhettosFirearmSDKv2
         public override void ScriptEnable()
         {
             local = this;
-            //EventManager.OnPlayerPrefabSpawned += EventManagerOnOnPlayerPrefabSpawned;
+            // EventManager.OnPlayerPrefabSpawned += EventManagerOnOnPlayerPrefabSpawned;
         }
 
+        // ReSharper disable once UnusedMember.Local - currently unused
         private void EventManagerOnOnPlayerPrefabSpawned()
         {
             if (Level.current.data.id.Equals("Home"))
@@ -26,8 +26,8 @@ namespace GhettosFirearmSDKv2
 
         #region Gun Locker / Liam
         
-        public GameObject workbenchAndLocker;
-        public GameObject liam;
+        public GameObject WorkbenchAndLocker;
+        public GameObject Liam;
         
         public void SpawnHomeItems()
         {
@@ -59,7 +59,7 @@ namespace GhettosFirearmSDKv2
 
         public void SpawnLiam()
         {
-            if (liam != null || !Level.current.data.id.Equals("Home"))
+            if (Liam != null || !Level.current.data.id.Equals("Home"))
                 return;
             var position = new Vector3(44.03f, 2.5f, -44.37f);
             var rotation = new Vector3(0, -36, 0);
@@ -70,13 +70,13 @@ namespace GhettosFirearmSDKv2
                     Debug.LogWarning(("Unable to instantiate rig editor!"));
                     Addressables.ReleaseInstance(handle);
                 }
-                liam = handle.Result;
+                Liam = handle.Result;
             };
         }
 
         public void SpawnWorkbenchAndLocker()
         {
-            if (workbenchAndLocker != null || !Level.current.data.id.Equals("Home"))
+            if (WorkbenchAndLocker != null || !Level.current.data.id.Equals("Home"))
                 return;
             var position = new Vector3(41.3f, 2.5f, -43.0f);
             var rotation = new Vector3(0, 120, 0);
@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
                     Debug.LogWarning(("Unable to instantiate gun locker!"));
                     Addressables.ReleaseInstance(handle);
                 }
-                workbenchAndLocker = handle.Result;
+                WorkbenchAndLocker = handle.Result;
             };
         }
 
@@ -95,8 +95,7 @@ namespace GhettosFirearmSDKv2
 
         #region Remove Drawers
 
-        private static string[] _naughtyList = new[]
-                                              {
+        private static string[] _naughtyList = {
                                                   "Drawer1",
                                                   "Table4m",
                                                   "Bench2m",

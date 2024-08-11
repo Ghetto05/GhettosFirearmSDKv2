@@ -1,14 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using ThunderRoad;
+﻿using UnityEngine;
 
 namespace GhettosFirearmSDKv2.Explosives
 {
     public class PoisonGas : Explosive
     {
-        bool active = false;
-        bool ready = false;
+        private bool _active;
+        private bool _ready;
         public float range;
         public float duration;
         public float emissionDuration;
@@ -16,9 +13,9 @@ namespace GhettosFirearmSDKv2.Explosives
         public float damagePerSecond;
         public AudioSource loop;
         public ParticleSystem particle;
-        CapsuleCollider zone;
+        private CapsuleCollider _zone;
 
-        void Awake()
+        private void Awake()
         {
             if (item != null)
             {
@@ -28,41 +25,41 @@ namespace GhettosFirearmSDKv2.Explosives
 
         public override void ActualDetonate()
         {
-            active = true;
+            _active = true;
             var obj = new GameObject("PoisonGas_Zone");
             var amObj = new GameObject(damagePerSecond.ToString());
             amObj.transform.SetParent(obj.transform);
             amObj.transform.localPosition = Vector3.zero;
             obj.layer = 28;
-            zone = obj.AddComponent<CapsuleCollider>();
-            zone.isTrigger = true;
+            _zone = obj.AddComponent<CapsuleCollider>();
+            _zone.isTrigger = true;
             obj.transform.parent = transform;
-            zone.radius = range;
+            _zone.radius = range;
             obj.transform.localPosition = Vector3.zero;
             loop.Play();
             particle.Play();
             timestamp = Time.time;
             if (gameObject.GetComponentInParent<Rigidbody>() is { } rb) rb.velocity = Vector3.zero;
-            ready = true;
+            _ready = true;
             base.ActualDetonate();
         }
 
-        void Update()
+        private void Update()
         {
-            if (!detonated || !ready) return;
+            if (!detonated || !_ready) return;
 
             if (Time.time >= timestamp + emissionDuration && loop.isPlaying)
             {
                 loop.Stop();
-                zone.gameObject.transform.SetParent(null);
+                _zone.gameObject.transform.SetParent(null);
             }
 
-            if (!active) return;
+            if (!_active) return;
 
             if (Time.time >= timestamp + duration)
             {
-                active = false;
-                Destroy(zone.gameObject);
+                _active = false;
+                Destroy(_zone.gameObject);
                 if (item != null)
                 {
                     item.DisallowDespawn = false;

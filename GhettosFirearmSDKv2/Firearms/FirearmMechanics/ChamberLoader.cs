@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -22,7 +20,7 @@ namespace GhettosFirearmSDKv2
         {
             if ((lockingCondition == null || lockingCondition.IsUnlocked()) && Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.collider.GetComponentInParent<Cartridge>() is { } c && Util.AllowLoadCartridge(c, caliber))
             {
-                if (boltToBeLoaded.LoadChamber(c))
+                if (boltToBeLoaded.LoadChamber(c, false))
                 {
                     Util.PlayRandomAudioSource(insertSounds);
                 }

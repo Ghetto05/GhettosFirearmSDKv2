@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -12,8 +11,8 @@ namespace GhettosFirearmSDKv2
         public Transform front;
         public Transform rear;
         public float pauseTime;
-        private States state;
-        float moveStartTime;
+        private States _state;
+        private float _moveStartTime;
 
         private enum States
         {
@@ -26,19 +25,20 @@ namespace GhettosFirearmSDKv2
         private void Start()
         {
             bolt.OnFireEvent += Bolt_OnFireEvent;
-            state = States.Front;
+            _state = States.Front;
         }
 
         private void Bolt_OnFireEvent()
         {
-            moveStartTime = Time.time;
-            state = States.GoingBack;
+            _moveStartTime = Time.time;
+            _state = States.GoingBack;
         }
 
         public bool AllowBoltReturn()
         {
-            if (lockBoltBack) return state == States.Front;
-            else return true;
+            if (lockBoltBack) return _state == States.Front;
+
+            return true;
         }
 
         private float Lerp(float startTime)
@@ -48,22 +48,22 @@ namespace GhettosFirearmSDKv2
             return timeThatPassed / (timeForOneRound / 2f);
         }
 
-        private float pauseElapsed = 0;
+        private float _pauseElapsed;
         private void FixedUpdate()
         {
-            if (state == States.Back)
+            if (_state == States.Back)
             {
                 bool proceed;
                 if (pauseTime != 0)
                 {
-                    pauseElapsed += Time.fixedDeltaTime;
-                    proceed = pauseElapsed >= pauseTime;
+                    _pauseElapsed += Time.fixedDeltaTime;
+                    proceed = _pauseElapsed >= pauseTime;
                 }
                 else proceed = true;
                 if (proceed)
                 {
-                    moveStartTime = Time.time;
-                    state = States.GoingFront;
+                    _moveStartTime = Time.time;
+                    _state = States.GoingFront;
                     if (lockBoltBack)
                     {
                         bolt.EjectRound();
@@ -72,24 +72,24 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            if (state == States.GoingBack)
+            if (_state == States.GoingBack)
             {
-                pauseElapsed = 0;
-                pivot.localPosition = Vector3.Lerp(front.localPosition, rear.localPosition, Lerp(moveStartTime));
+                _pauseElapsed = 0;
+                pivot.localPosition = Vector3.Lerp(front.localPosition, rear.localPosition, Lerp(_moveStartTime));
             }
-            else if (state == States.GoingFront)
+            else if (_state == States.GoingFront)
             {
-                pivot.localPosition = Vector3.Lerp(rear.localPosition, front.localPosition, Lerp(moveStartTime));
+                pivot.localPosition = Vector3.Lerp(rear.localPosition, front.localPosition, Lerp(_moveStartTime));
             }
 
-            if (Util.AbsDist(pivot.localPosition, rear.localPosition) < 0.0001f && state == States.GoingBack)
+            if (Util.AbsDist(pivot.localPosition, rear.localPosition) < 0.0001f && _state == States.GoingBack)
             {
-                state = States.Back;
+                _state = States.Back;
                 pivot.localPosition = rear.localPosition;
             }
-            else if (Util.AbsDist(pivot.localPosition, front.localPosition) < 0.0001f && state == States.GoingFront)
+            else if (Util.AbsDist(pivot.localPosition, front.localPosition) < 0.0001f && _state == States.GoingFront)
             {
-                state = States.Front;
+                _state = States.Front;
                 pivot.localPosition = front.localPosition;
                 if (lockBoltBack)
                 {

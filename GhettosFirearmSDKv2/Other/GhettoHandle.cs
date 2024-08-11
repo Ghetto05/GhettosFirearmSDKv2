@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using System.Linq;
 using ThunderRoad;
-using System.Linq;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -180,7 +179,8 @@ namespace GhettosFirearmSDKv2
                 ghettoHandle = (GhettoHandle)handle;
                 return true;
             }
-            else return false;
+
+            return false;
         }
 
         public virtual void SetJointConfigV2(

@@ -1,37 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class MagazineSaveData : ContentCustomData
     {
-        public string itemID;
-        public string[] contents;
+        public string ItemID;
+        public string[] Contents;
 
         public void ApplyToMagazine(Magazine magazine)
         {
-            if (contents == null || contents.Length == 0)
+            if (Contents == null || Contents.Length == 0)
             {
                 magazine.loadable = true;
                 magazine.InvokeLoadFinished();
                 return;
             }
-            ApplyToMagazineRecurve(contents.Length - 1, magazine, contents.CloneJson());
+            ApplyToMagazineRecurve(Contents.Length - 1, magazine, Contents.CloneJson());
         }
         
         public void ApplyToMagazine(StripperClip clip)
         {
-            if (contents == null || contents.Length == 0)
+            if (Contents == null || Contents.Length == 0)
             {
                 clip.loadable = true;
                 return;
             }
-            ApplyToClipRecurve(contents.Length - 1, clip, contents.CloneJson());
+            ApplyToClipRecurve(Contents.Length - 1, clip, Contents.CloneJson());
         }
 
         private void ApplyToMagazineRecurve(int index, Magazine mag, string[] con)
@@ -88,11 +84,11 @@ namespace GhettosFirearmSDKv2
         public void GetContentsFromMagazine(Magazine magazine)
         {
             if (magazine == null || magazine.cartridges == null) return;
-            contents = new string[magazine.cartridges.Count];
+            Contents = new string[magazine.cartridges.Count];
             for (var i = 0; i < magazine.cartridges.Count; i++)
             {
                 var car = magazine.cartridges[i];
-                contents[i] = car.item.itemId;
+                Contents[i] = car.item.itemId;
             }
         }
 
@@ -100,25 +96,25 @@ namespace GhettosFirearmSDKv2
         {
             if (clip == null || clip.loadedCartridges == null)
                 return;
-            contents = new string[clip.loadedCartridges.Count];
+            Contents = new string[clip.loadedCartridges.Count];
             for (var i = 0; i < clip.loadedCartridges.Count; i++)
             {
                 var car = clip.loadedCartridges[i];
-                contents[i] = car.item.itemId;
+                Contents[i] = car.item.itemId;
             }
         }
 
         public void CloneTo(MagazineSaveData data)
         {
-            data.itemID = itemID;
-            data.contents = new string[contents.Length];
-            contents.CopyTo(data.contents, 0);
+            data.ItemID = ItemID;
+            data.Contents = new string[Contents.Length];
+            Contents.CopyTo(data.Contents, 0);
         }
 
         public void Clear()
         {
-            itemID = null;
-            contents = null;
+            ItemID = null;
+            Contents = null;
         }
     }
 }

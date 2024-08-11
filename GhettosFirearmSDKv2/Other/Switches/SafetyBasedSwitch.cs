@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -15,7 +13,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            selector.onFiremodeChanged += Selector_onFiremodeChanged;
+            selector.OnFiremodeChanged += Selector_onFiremodeChanged;
             Util.DelayedExecute(1f, Init, this);
         }
 

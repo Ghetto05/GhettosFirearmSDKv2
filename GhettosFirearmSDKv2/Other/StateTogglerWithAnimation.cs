@@ -1,24 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using ThunderRoad;
 using UnityEngine;
-using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
     public class StateTogglerWithAnimation : MonoBehaviour
     {
-        public enum Actions
-        {
-            TriggerPull,
-            TriggerRelease,
-            AlternateUsePress,
-            AlternateUseRelease,
-            None
-        }
-
-        public Actions toggleAction;
-
-        public Interactable.Action toggleActionBAS;
+        public Interactable.Action toggleAction;
         public Handle handle;
         public Item item;
         public Animation animationPlayer;
@@ -29,31 +16,14 @@ namespace GhettosFirearmSDKv2
         public AudioSource[] toState2Sounds;
         public Animator animator;
 
-        void Start()
+        private void Start()
         {
-            if (toggleAction == Actions.TriggerPull)
-            {
-                toggleActionBAS = Interactable.Action.UseStart;
-            }
-            else if (toggleAction == Actions.TriggerRelease)
-            {
-                toggleActionBAS = Interactable.Action.UseStop;
-            }
-            else if (toggleAction == Actions.AlternateUsePress)
-            {
-                toggleActionBAS = Interactable.Action.AlternateUseStart;
-            }
-            else if (toggleAction == Actions.AlternateUseRelease)
-            {
-                toggleActionBAS = Interactable.Action.AlternateUseStop;
-            }
-
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
         }
 
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle2, Interactable.Action action)
         {
-            if (handle == handle2 && action == toggleActionBAS)
+            if (handle == handle2 && action == toggleAction)
             {
                 TryToggle();
             }

@@ -1,9 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
-using UnityEngine.Serialization;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -21,14 +17,15 @@ namespace GhettosFirearmSDKv2
         public float lightIntensity;
         public Light[] lights;
 
-        private bool triggered;
-        private float triggerTime;
-        private bool appliedConstant;
-        private bool burntOut;
+        private bool _triggered;
+        private float _triggerTime;
+        private bool _appliedConstant;
+        private bool _burntOut;
+        private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
         private void Start()
         {
-            item.OnHeldActionEvent += (hand, handle, action) =>
+            item.OnHeldActionEvent += (_, _, action) =>
             {
                 if (action == Interactable.Action.UseStart)
                     Trigger();
@@ -37,25 +34,25 @@ namespace GhettosFirearmSDKv2
 
         public void Trigger()
         {
-            if (triggered) return;
-            triggered = true;
-            triggerTime = Time.time;
+            if (_triggered) return;
+            _triggered = true;
+            _triggerTime = Time.time;
             item.DisallowDespawn = true;
             Util.PlayRandomAudioSource(triggerSounds);
         }
 
         private void Update()
         {
-            if (burntOut || !triggered)
+            if (_burntOut || !_triggered)
                 return;
             
-            var timePassed = Time.time - triggerTime;
-            var timeRemaining = triggerTime + burnTime - Time.time;
+            var timePassed = Time.time - _triggerTime;
+            var timeRemaining = _triggerTime + burnTime - Time.time;
 
             if (timePassed > burnTime)
             {
                 ApplyLightLevel(0);
-                burntOut = true;
+                _burntOut = true;
                 item.DisallowDespawn = false;
             }
 
@@ -63,9 +60,9 @@ namespace GhettosFirearmSDKv2
                 ApplyLightLevel(timePassed / lightUpTime);
             else if (timeRemaining <= lightDownTime)
                 ApplyLightLevel(timeRemaining / lightDownTime);
-            else if (!appliedConstant)
+            else if (!_appliedConstant)
             {
-                appliedConstant = true;
+                _appliedConstant = true;
                 ApplyLightLevel(1f);
             }
 
@@ -79,7 +76,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (var r in renderers)
             {
-                r.material.SetColor("_EmissionColor", color * strength * Mathf.Clamp01(level));
+                r.material.SetColor(EmissionColor, color * strength * Mathf.Clamp01(level));
             }
 
             foreach (var l in lights)

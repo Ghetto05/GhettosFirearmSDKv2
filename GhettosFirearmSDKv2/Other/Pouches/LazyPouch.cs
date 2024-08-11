@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -13,10 +13,10 @@ namespace GhettosFirearmSDKv2
         public List<Item> spawnedItems;
         public List<string> containedItems;
         public Handle lastHeldHandle;
-        bool setup = false;
-        bool nextUnsnapIsCleaning = false;
-        FirearmBase lastFirearm;
-        bool spawning = false;
+        private bool _setup;
+        private bool _nextUnsnapIsCleaning;
+        private FirearmBase _lastFirearm;
+        private bool _spawning;
 
         private void Start()
         {
@@ -39,41 +39,41 @@ namespace GhettosFirearmSDKv2
                 holder.slots.Add(holder.transform);
             }
 
-            setup = true;
+            _setup = true;
         }
 
         private void Update()
         {
-            if (!setup || Player.local == null || Player.local.creature == null || Player.local.creature.ragdoll == null)
+            if (!_setup || Player.local == null || Player.local.creature == null || Player.local.creature.ragdoll == null)
                 return;
 
             foreach (var i in holder.items.ToArray())
             {
                 if (!spawnedItems.Contains(i))
                 {
-                    nextUnsnapIsCleaning = true;
+                    _nextUnsnapIsCleaning = true;
                     holder.UnSnap(i, true);
                 }
             }
             
             GetHeldFirearm();
             
-            if (lastFirearm != null)
+            if (_lastFirearm != null)
             {
-                if (!containedItems.Contains(lastFirearm.defaultAmmoItem) && !lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
+                if (!containedItems.Contains(_lastFirearm.defaultAmmoItem) && !_lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
                 {
-                    containedItems.Add(lastFirearm.defaultAmmoItem);
-                    spawning = true;
-                    Util.SpawnItem(lastFirearm.defaultAmmoItem, $"LazyPouch", newItem =>
+                    containedItems.Add(_lastFirearm.defaultAmmoItem);
+                    _spawning = true;
+                    Util.SpawnItem(_lastFirearm.defaultAmmoItem, "LazyPouch", newItem =>
                     {
                         newItem.DisallowDespawn = true;
                         StartCoroutine(DelayedSnap(newItem));
                         spawnedItems.Add(newItem);
                     });
                 }
-                else if (!lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !spawning)
+                else if (!_lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !_spawning)
                 {
-                    GetById(lastFirearm.defaultAmmoItem);
+                    GetById(_lastFirearm.defaultAmmoItem);
                 }
             }
         }
@@ -98,7 +98,7 @@ namespace GhettosFirearmSDKv2
                     if (firearm != null && firearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is { } ff)
                         firearm = ff;
 
-                    lastFirearm = firearm;
+                    _lastFirearm = firearm;
                 }
                 
                 lastHeldHandle = h;
@@ -123,18 +123,18 @@ namespace GhettosFirearmSDKv2
         private void Holder_UnSnapped(Item item)
         {
             item.Hide(false);
-            if (nextUnsnapIsCleaning)
+            if (_nextUnsnapIsCleaning)
             {
-                nextUnsnapIsCleaning = false;
+                _nextUnsnapIsCleaning = false;
                 return;
             }
-            if (!setup) return;
+            if (!_setup) return;
             item.DisallowDespawn = false;
             Util.IgnoreCollision(gameObject, item.gameObject, false);
             spawnedItems.Remove(item);
-            if (item.TryGetComponent(out Firearm f)) return;
-            spawning = true;
-            Util.SpawnItem(item.data.id, $"[Lazy Pouch - Default ammo on {lastFirearm?.item?.itemId}]", newItem =>
+            if (item.TryGetComponent(out Firearm _)) return;
+            _spawning = true;
+            Util.SpawnItem(item.data.id, $"[Lazy Pouch - Default ammo on {_lastFirearm?.item?.itemId}]", newItem =>
             {
                 item.DisallowDespawn = true;
                 StartCoroutine(DelayedSnap(newItem));
@@ -145,15 +145,15 @@ namespace GhettosFirearmSDKv2
         private void Holder_Snapped(Item item)
         {
             item.Hide(true);
-            if (!setup) return;
+            if (!_setup) return;
             Util.IgnoreCollision(gameObject, item.gameObject, true);
         }
 
-        IEnumerator DelayedSnap(Item item)
+        private IEnumerator DelayedSnap(Item item)
         {
             yield return new WaitForSeconds(0.05f);
             holder.Snap(item, true);
-            spawning = false;
+            _spawning = false;
         }
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)

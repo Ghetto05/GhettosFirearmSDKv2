@@ -1,4 +1,5 @@
 using System.Linq;
+using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace GhettosFirearmSDKv2
 {
     public class PowderPouch : MonoBehaviour
     {
-        private readonly float Delay = 0.02f;
+        private readonly float _delay = 0.02f;
 
         public Item item;
         public bool opened;
@@ -44,7 +45,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Open()
         {
             if (opened)
@@ -54,7 +55,7 @@ namespace GhettosFirearmSDKv2
                 lid.SetPositionAndRotation(lidOpenedPosition.position, lidOpenedPosition.rotation);
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Close()
         {
             if (!opened)
@@ -64,7 +65,7 @@ namespace GhettosFirearmSDKv2
                 lid.SetPositionAndRotation(lidClosedPosition.position, lidClosedPosition.rotation);
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Tap()
         {
             if (opened)
@@ -85,7 +86,7 @@ namespace GhettosFirearmSDKv2
 
         private void Spawn()
         {
-            if (Time.time - _lastEject > Delay)
+            if (Time.time - _lastEject > _delay)
             {
                 var grainIn = Instantiate(grain, source.position, Quaternion.Euler(Util.RandomRotation()));
                 _lastEject = Time.time;

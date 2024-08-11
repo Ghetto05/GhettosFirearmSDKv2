@@ -1,9 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -15,10 +14,10 @@ namespace GhettosFirearmSDKv2
         public Transform[] positions;
         public Firearm connectedFirearm;
         public Attachment connectedAttachment;
-        public int currentIndex = 0;
-        SaveNodeValueInt stockPosition;
+        public int currentIndex;
+        private SaveNodeValueInt _stockPosition;
 
-        void Start()
+        private void Start()
         {
             Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
@@ -28,9 +27,9 @@ namespace GhettosFirearmSDKv2
             if (connectedFirearm != null)
             {
                 connectedFirearm.item.OnHeldActionEvent += OnAction;
-                stockPosition = connectedFirearm.saveData.firearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
-                currentIndex = stockPosition.value;
-                ApplyPosition(stockPosition.value, false);
+                _stockPosition = connectedFirearm.SaveData.FirearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
+                currentIndex = _stockPosition.Value;
+                ApplyPosition(_stockPosition.Value, false);
             }
             else if (connectedAttachment != null)
             {
@@ -42,9 +41,9 @@ namespace GhettosFirearmSDKv2
         private void ConnectedAttachment_OnDelayedAttachEvent()
         {
             connectedAttachment.OnHeldActionEvent += OnAction;
-            stockPosition = connectedAttachment.Node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
-            currentIndex = stockPosition.value;
-            ApplyPosition(stockPosition.value, false);
+            _stockPosition = connectedAttachment.Node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
+            currentIndex = _stockPosition.Value;
+            ApplyPosition(_stockPosition.Value, false);
         }
 
         private void OnAction(RagdollHand hand, Handle handle, Interactable.Action action)
@@ -61,7 +60,7 @@ namespace GhettosFirearmSDKv2
                 else currentIndex--;
                 ApplyPosition(currentIndex);
             }
-            stockPosition.value = currentIndex;
+            _stockPosition.Value = currentIndex;
         }
 
         public void ApplyPosition(int index, bool playSound = true)
@@ -82,7 +81,7 @@ namespace GhettosFirearmSDKv2
                     foreach (var pair in handlers)
                     {
                         Debug.Log($"{toggleHandle?.gameObject.name}, {pair.Item1?.gameObject.name}, {pair.Item2?.gameObject.name}, {pair.Item3}");
-                        pair.Item1.Grab(toggleHandle, pair.Item2, pair.Item3);
+                        pair.Item1!.Grab(toggleHandle, pair.Item2, pair.Item3);
                     }
                 }
             }

@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-using ThunderRoad;
-using System.Collections;
+﻿using System.Collections.Generic;
 using System.Linq;
+using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class Speedloader : MonoBehaviour, IAmmunitionLoadable
     {
         public Item item;
-        public bool deleteIfEmpty = false;
+        public bool deleteIfEmpty;
         public List<Transform> mountPoints;
         public List<Collider> loadColliders;
         public List<string> calibers;
         public List<AudioSource> insertSounds;
 
         public Cartridge[] loadedCartridges;
-        private MagazineSaveData data;
-        private bool allowInsert = false;
-        private bool startRemoving = false;
+        private MagazineSaveData _data;
+        private bool _allowInsert;
+        private bool _startRemoving;
 
         private void Start()
         {
@@ -33,13 +31,13 @@ namespace GhettosFirearmSDKv2
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
 
-            if (item.TryGetCustomData(out data))
+            if (item.TryGetCustomData(out _data))
             {
                 for (var i = 0; i < loadedCartridges.Length; i++)
                 {
                     var i2 = i;
-                    if (data.contents[i2] != null)
-                        Util.SpawnItem(data.contents[i], $"[Saved speedloader rounds - Index {i2} on {item?.itemId}]", ci =>
+                    if (_data.Contents[i2] != null)
+                        Util.SpawnItem(_data.Contents[i], $"[Saved speedloader rounds - Index {i2} on {item?.itemId}]", ci =>
                         {
                             var c = ci.GetComponent<Cartridge>();
                             LoadSlot(i2, c, false);
@@ -49,10 +47,10 @@ namespace GhettosFirearmSDKv2
             else
             {
                 item.AddCustomData(new MagazineSaveData());
-                item.TryGetCustomData(out data);
+                item.TryGetCustomData(out _data);
             }
-            allowInsert = true;
-            if (item.holder != null) Item_OnSnapEvent(item.holder);
+            _allowInsert = true;
+            if (item != null && item.holder != null) Item_OnSnapEvent(item.holder);
         }
 
         private void Item_OnUnSnapEvent(Holder holder)
@@ -74,12 +72,12 @@ namespace GhettosFirearmSDKv2
         private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
         {
             UpdateCartridges();
-            startRemoving = true;
+            _startRemoving = true;
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (!allowInsert) return;
+            if (!_allowInsert) return;
             if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded)
             {
                 foreach (var insertCollider in loadColliders)
@@ -140,7 +138,7 @@ namespace GhettosFirearmSDKv2
                 if (loadedCartridges[i] != null && loadedCartridges[i].transform.parent == null)
                     UpdateCartridges();
 
-                if (startRemoving && loadedCartridges[i] != null && loadedCartridges[i].loaded)
+                if (_startRemoving && loadedCartridges[i] != null && loadedCartridges[i].loaded)
                 {
                     loadedCartridges[i] = null;
                     if (Empty() && deleteIfEmpty)
@@ -160,10 +158,10 @@ namespace GhettosFirearmSDKv2
 
         public void SaveCartridges()
         {
-            data.contents = new string[loadedCartridges.Length];
+            _data.Contents = new string[loadedCartridges.Length];
             for (var i = 0; i < loadedCartridges.Length; i++)
             {
-                data.contents[i] = loadedCartridges[i]?.item.itemId;
+                _data.Contents[i] = loadedCartridges[i]?.item.itemId;
             }
         }
 

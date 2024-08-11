@@ -1,7 +1,6 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
+using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -28,8 +27,8 @@ namespace GhettosFirearmSDKv2
             _cappedPositions = original.ToArray();
             magazine.cartridgePositions = _cappedPositions;
             magazine.OnConsumeEvent += MagazineOnOnConsumeEvent;
-            magazine.OnInsertEvent += well => Insert();
-            magazine.OnEjectEvent += well => Remove();
+            magazine.OnInsertEvent += _ => Insert();
+            magazine.OnEjectEvent += _ => Remove();
             Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
@@ -69,7 +68,7 @@ namespace GhettosFirearmSDKv2
             item.physicBody.AddTorque(torque, ForceMode.Impulse);
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Insert()
         {
             if (_inserted)
@@ -84,7 +83,7 @@ namespace GhettosFirearmSDKv2
             }
         }
         
-        [EasyButtons.Button]
+        [Button]
         public void Remove(bool initial = false)
         {
             if (!_inserted && !initial)

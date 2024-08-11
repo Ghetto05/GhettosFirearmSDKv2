@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using GhettosFirearmSDKv2.Explosives;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -14,16 +12,16 @@ namespace GhettosFirearmSDKv2
         public float minimumArmingTime;
         public float minimumImpactForce;
         public float selfDestructDelay;
-        bool armed = false;
-        Vector3 startPoint;
-        float clearance = 0.3f;
+        private bool _armed;
+        private Vector3 _startPoint;
+        private float _clearance = 0.3f;
 
-        private float startTime;
+        private float _startTime;
 
         private void Awake()
         {
             if (startAtAwake) StartArming();
-            startPoint = transform.position;
+            _startPoint = transform.position;
         }
 
         public override void ActualDetonate()
@@ -34,8 +32,8 @@ namespace GhettosFirearmSDKv2
 
         public void StartArming()
         {
-            startTime = Time.time;;
-            armed = true;
+            _startTime = Time.time;
+            _armed = true;
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -52,7 +50,7 @@ namespace GhettosFirearmSDKv2
 
         public bool IsArmed()
         {
-            return armed && Time.time - startTime >= minimumArmingTime && Vector3.Distance(startPoint, transform.position) > clearance;
+            return _armed && Time.time - _startTime >= minimumArmingTime && Vector3.Distance(_startPoint, transform.position) > _clearance;
         }
 
         private bool TriggerColliderHit(Collision collision)
@@ -66,7 +64,7 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (selfDestructDelay > 0.2f && Time.time > startTime + selfDestructDelay)
+            if (selfDestructDelay > 0.2f && Time.time > _startTime + selfDestructDelay)
             {
                 explosive.Detonate(delay);
                 explosive.impactNormal = transform.forward;

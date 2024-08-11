@@ -1,16 +1,13 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using EasyButtons;
 using ThunderRoad;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace GhettosFirearmSDKv2
 {
     [ExecuteInEditMode]
-    public class XM157 : MonoBehaviour
+    public class Xm157 : MonoBehaviour
     {
         public enum Pages
         {
@@ -65,18 +62,18 @@ namespace GhettosFirearmSDKv2
 
         private void InvokedStart()
         {
-            _compassSaveData = scope.connectedAtatchment.Node.GetOrAddValue("XM157_Compass", new SaveNodeValueBool() { value = true });
-            _rangeFinderSaveData = scope.connectedAtatchment.Node.GetOrAddValue("XM157_RangeFinder", new SaveNodeValueBool() { value = true });
-            _visualLaserSaveData = scope.connectedAtatchment.Node.GetOrAddValue("XM157_VisualLaser", new SaveNodeValueBool() { value = false });
-            _colorSaveData = scope.connectedAtatchment.Node.GetOrAddValue("XM157_Color", new SaveNodeValueInt() { value = (int)UiColors.Yellow });
+            _compassSaveData = scope.connectedAttachment.Node.GetOrAddValue("XM157_Compass", new SaveNodeValueBool { Value = true });
+            _rangeFinderSaveData = scope.connectedAttachment.Node.GetOrAddValue("XM157_RangeFinder", new SaveNodeValueBool { Value = true });
+            _visualLaserSaveData = scope.connectedAttachment.Node.GetOrAddValue("XM157_VisualLaser", new SaveNodeValueBool { Value = false });
+            _colorSaveData = scope.connectedAttachment.Node.GetOrAddValue("XM157_Color", new SaveNodeValueInt { Value = (int)UiColors.Yellow });
 
-            compassEnabled = _compassSaveData.value;
-            rangeFinderEnabled = _rangeFinderSaveData.value;
-            visualLaser.physicalSwitch = _visualLaserSaveData.value;
-            uiColor = (UiColors)_colorSaveData.value;
+            compassEnabled = _compassSaveData.Value;
+            rangeFinderEnabled = _rangeFinderSaveData.Value;
+            visualLaser.physicalSwitch = _visualLaserSaveData.Value;
+            uiColor = (UiColors)_colorSaveData.Value;
             ApplyColor();
-            scope.connectedAtatchment.OnHeldActionEvent += ConnectedAttachmentOnOnHeldActionEvent;
-            scope.connectedAtatchment.attachmentPoint.parentFirearm.item.OnGrabEvent += MenuHandleOnGrabbed;
+            scope.connectedAttachment.OnHeldActionEvent += ConnectedAttachmentOnOnHeldActionEvent;
+            scope.connectedAttachment.attachmentPoint.parentFirearm.item.OnGrabEvent += MenuHandleOnGrabbed;
         }
 
         private void ConnectedAttachmentOnOnHeldActionEvent(RagdollHand hand, Handle handle, Interactable.Action action)
@@ -96,8 +93,8 @@ namespace GhettosFirearmSDKv2
         {
             if (menuHandle == null)
                 return;
-            scope.connectedAtatchment.attachmentPoint.parentFirearm.item.OnGrabEvent -= MenuHandleOnGrabbed;
-            scope.connectedAtatchment.OnHeldActionEvent -= ConnectedAttachmentOnOnHeldActionEvent;
+            scope.connectedAttachment.attachmentPoint.parentFirearm.item.OnGrabEvent -= MenuHandleOnGrabbed;
+            scope.connectedAttachment.OnHeldActionEvent -= ConnectedAttachmentOnOnHeldActionEvent;
         }
 
         private void MenuHandleOnGrabbed(Handle handle, RagdollHand hand)
@@ -211,8 +208,6 @@ namespace GhettosFirearmSDKv2
                     ApplyColor();
                     currentPage = Pages.MainMenu;
                     break;
-                default:
-                    break;
             }
         }
 
@@ -320,10 +315,10 @@ namespace GhettosFirearmSDKv2
 
         private void SaveOptions()
         {
-            _compassSaveData.value = compassEnabled;
-            _rangeFinderSaveData.value = rangeFinderEnabled;
-            _visualLaserSaveData.value = visualLaser.physicalSwitch;
-            _colorSaveData.value = (int)uiColor;
+            _compassSaveData.Value = compassEnabled;
+            _rangeFinderSaveData.Value = rangeFinderEnabled;
+            _visualLaserSaveData.Value = visualLaser.physicalSwitch;
+            _colorSaveData.Value = (int)uiColor;
         }
 
         #endregion

@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using ThunderRoad;
 using System.Linq;
+using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -19,7 +19,7 @@ namespace GhettosFirearmSDKv2
         public List<Cartridge> cartridges;
         public int maximumCapacity;
         public bool canEjectRounds;
-        public bool destroyOnEject = false;
+        public bool destroyOnEject;
         public Collider roundInsertCollider;
         public AudioSource[] roundInsertSounds;
         public Transform roundEjectPoint;
@@ -97,13 +97,13 @@ namespace GhettosFirearmSDKv2
                 overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
                 if (overrideItem.TryGetComponent(out Firearm f))
                 {
-                    _firearmSave = f.saveData.firearmNode.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents(), out var addedNew);
+                    _firearmSave = f.SaveData.FirearmNode.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents(), out var addedNew);
                     if (addedNew && !defaultLoad)
                     {
                         defaultLoad.Load(this);
                         return;
                     }
-                    _firearmSave.value.ApplyToMagazine(this);
+                    _firearmSave.Value.ApplyToMagazine(this);
                 }
                 else InvokeLoadFinished();
             }
@@ -116,7 +116,7 @@ namespace GhettosFirearmSDKv2
                     defaultLoad.Load(this);
                     return;
                 }
-                _firearmSave.value.ApplyToMagazine(this);
+                _firearmSave.Value.ApplyToMagazine(this);
             }
             else
             {
@@ -349,8 +349,8 @@ namespace GhettosFirearmSDKv2
             if (!overrideItem && !overrideAttachment)
             {
                 _firearmSave = FirearmSaveData.GetNode(currentWell.firearm).GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents());
-                _firearmSave.value.GetContentsFromMagazine(this);
-                _firearmSave.value.itemID = item.itemId;
+                _firearmSave.Value.GetContentsFromMagazine(this);
+                _firearmSave.Value.ItemID = item.itemId;
             }
 
             partOfPrebuilt = false;
@@ -399,7 +399,7 @@ namespace GhettosFirearmSDKv2
                     if (c != null && lastWell != null && lastWell.firearm != null)
                         Util.DelayIgnoreCollision(c.gameObject, lastWell.firearm.gameObject, false, 0.5f, item);
                 }
-                _firearmSave.value.Clear();
+                _firearmSave.Value.Clear();
                 lastWell.currentMagazine = null;
                 currentWell = null;
                 foreach (var handle in handles)
@@ -466,17 +466,17 @@ namespace GhettosFirearmSDKv2
         {
             if (!overrideItem && !overrideAttachment)
             {
-                _saveData.itemID = item.itemId;
+                _saveData.ItemID = item.itemId;
                 _saveData.GetContentsFromMagazine(this);
 
                 if (_firearmSave != null)
                 {
-                    _saveData.CloneTo(_firearmSave.value);
+                    _saveData.CloneTo(_firearmSave.Value);
                 }
             }
             else
             {
-                _firearmSave.value.GetContentsFromMagazine(this);
+                _firearmSave.Value.GetContentsFromMagazine(this);
             }
         }
 

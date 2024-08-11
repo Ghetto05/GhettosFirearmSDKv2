@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -20,19 +17,19 @@ namespace GhettosFirearmSDKv2
         public float roundEjectForce;
         public Transform barrel;
 
-        public AudioSource RevUpSound;
-        public AudioSource RevDownSound;
-        public AudioSource RotatingLoop;
-        public AudioSource RotatingLoopPlusFiring;
-        private bool revving;
-        private float degreesPerSecond;
+        public AudioSource revUpSound;
+        public AudioSource revDownSound;
+        public AudioSource rotatingLoop;
+        public AudioSource rotatingLoopPlusFiring;
+        private bool _revving;
+        private float _degreesPerSecond;
 
-        private float lastShotTime;
-        private float currentSpeed;
-        private float revUpBeginTime;
-        private float beginTime = -100f;
-        private bool revvingUp;
-        private bool revvingDown;
+        private float _lastShotTime;
+        private float _currentSpeed;
+        private float _revUpBeginTime;
+        private float _beginTime = -100f;
+        private bool _revvingUp;
+        private bool _revvingDown;
 
 
         private void Start()
@@ -64,31 +61,31 @@ namespace GhettosFirearmSDKv2
 
         private void StartRevving()
         {
-            if (revving)
+            if (_revving)
                 return;
-            revvingUp = true;
-            revvingDown = false;
-            beginTime = Time.time;
-            revUpBeginTime = Time.time;
-            RevUpSound.Play();
+            _revvingUp = true;
+            _revvingDown = false;
+            _beginTime = Time.time;
+            _revUpBeginTime = Time.time;
+            revUpSound.Play();
             var timeForOneRound = 60f / firearm.roundsPerMinute;
             var timeForOneRotation = timeForOneRound * barrelAngles.Length;
             var rotationsPerSecond = 1 / timeForOneRotation;
-            degreesPerSecond = rotationsPerSecond * 360;
+            _degreesPerSecond = rotationsPerSecond * 360;
         }
 
         private void StopRevving()
         {
-            if (!revving)
+            if (!_revving)
                 return;
-            revving = false;
-            revvingUp = false;
-            revvingDown = true;
-            beginTime = Time.time;
-            RotatingLoop.Stop();
-            RotatingLoopPlusFiring.Stop();
-            RevUpSound.Stop();
-            RevDownSound.Play();
+            _revving = false;
+            _revvingUp = false;
+            _revvingDown = true;
+            _beginTime = Time.time;
+            rotatingLoop.Stop();
+            rotatingLoopPlusFiring.Stop();
+            revUpSound.Stop();
+            revDownSound.Play();
             
             if (loopingMuzzleFlash && firearm.defaultMuzzleFlash != null && firearm.defaultMuzzleFlash.isPlaying)
                 firearm.defaultMuzzleFlash.Stop();
@@ -96,36 +93,36 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            revving = revvingUp && (Time.time - revUpBeginTime >= RevUpSound.clip.length);
+            _revving = _revvingUp && (Time.time - _revUpBeginTime >= revUpSound.clip.length);
             
-            if (revvingUp || revvingDown)
+            if (_revvingUp || _revvingDown)
             {
-                var timeSinceStart = Time.time - beginTime;
-                var speed = timeSinceStart / RevUpSound.clip.length;
+                var timeSinceStart = Time.time - _beginTime;
+                var speed = timeSinceStart / revUpSound.clip.length;
                 if (speed > 1)
                     speed = 1;
-                if (revvingDown)
+                if (_revvingDown)
                     speed = 1f - speed;
-                currentSpeed = speed;
+                _currentSpeed = speed;
             }
 
             if (barrel != null)
-                barrel.Rotate(new Vector3(0, 0, degreesPerSecond * Time.deltaTime * currentSpeed));
+                barrel.Rotate(new Vector3(0, 0, _degreesPerSecond * Time.deltaTime * _currentSpeed));
 
-            if (fireOnTriggerPress && firearm.triggerState && revving && Time.time - lastShotTime >= 60f / firearm.roundsPerMinute)
+            if (fireOnTriggerPress && firearm.triggerState && _revving && Time.time - _lastShotTime >= 60f / firearm.roundsPerMinute)
             {
                 TryFire();
             }
 
-            if (!RotatingLoopPlusFiring.isPlaying && revving && firearm.triggerState && !firearm.magazineWell.IsEmpty())
+            if (!rotatingLoopPlusFiring.isPlaying && _revving && firearm.triggerState && !firearm.magazineWell.IsEmpty())
             {
-                RotatingLoopPlusFiring.Play();
-                RotatingLoop.Stop();
+                rotatingLoopPlusFiring.Play();
+                rotatingLoop.Stop();
             }
-            if (!RotatingLoop.isPlaying && revving && (!firearm.triggerState || firearm.magazineWell.IsEmpty()))
+            if (!rotatingLoop.isPlaying && _revving && (!firearm.triggerState || firearm.magazineWell.IsEmpty()))
             {
-                RotatingLoop.Play();
-                RotatingLoopPlusFiring.Stop();
+                rotatingLoop.Play();
+                rotatingLoopPlusFiring.Stop();
             }
         }
 
@@ -142,7 +139,7 @@ namespace GhettosFirearmSDKv2
                 InvokeFireLogicFinishedEvent();
                 return;
             }
-            lastShotTime = Time.time;
+            _lastShotTime = Time.time;
             foreach (var hand in firearm.item.handlers)
             {
                 if (hand.playerHand != null && hand.playerHand.controlHand != null) 
@@ -154,7 +151,7 @@ namespace GhettosFirearmSDKv2
                 firearm.defaultMuzzleFlash.Play();
             IncrementBreachSmokeTime();
             firearm.PlayFireSound(loadedCartridge);
-            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
+            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
             Util.PlayRandomAudioSource(firearm.fireSounds);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, true);

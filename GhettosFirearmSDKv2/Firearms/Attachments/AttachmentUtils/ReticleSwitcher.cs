@@ -1,7 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using EasyButtons;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         private void Start()
         {
             if (defaultReticle == null && reticles != null && reticles.Count > 0) defaultReticle = reticles[0];
-            foreach (var reti in reticles)
+            foreach (var reti in reticles!)
             {
                 reti.SetActive(false);
             }
@@ -29,7 +29,7 @@ namespace GhettosFirearmSDKv2
             if (action == Interactable.Action.UseStart) Switch();
         }
 
-        [EasyButtons.Button]
+        [Button]
         public void Switch()
         {
             if (defaultReticle == null) return;

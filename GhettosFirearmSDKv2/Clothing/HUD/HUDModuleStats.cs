@@ -1,6 +1,6 @@
-using UnityEngine;
 using ThunderRoad;
 using TMPro;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -11,7 +11,7 @@ namespace GhettosFirearmSDKv2
         public Transform focus;
         public TextMeshProUGUI timeSlow;
 
-        void Update()
+        private void Update()
         {
             if (Player.local.creature == null)
                 return;

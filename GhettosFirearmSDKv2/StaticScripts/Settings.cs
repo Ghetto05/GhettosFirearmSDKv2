@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.IO;
+﻿using System.IO;
+using Newtonsoft.Json;
 using ThunderRoad;
 using Object = UnityEngine.Object;
 
@@ -87,8 +87,8 @@ namespace GhettosFirearmSDKv2
                 _spawnWorkbenchAndLocker = value;
                 if (_spawnWorkbenchAndLocker)
                     HomeAdjustments.local.SpawnWorkbenchAndLocker();
-                else if (HomeAdjustments.local.workbenchAndLocker != null)
-                    Object.Destroy(HomeAdjustments.local.workbenchAndLocker);
+                else if (HomeAdjustments.local.WorkbenchAndLocker != null)
+                    Object.Destroy(HomeAdjustments.local.WorkbenchAndLocker);
             }
         }
 
@@ -125,7 +125,7 @@ namespace GhettosFirearmSDKv2
             set 
             { 
                 _nvgForwardOffset = value; 
-                NVGAdjuster.UpdateAllOffsets();
+                NvgAdjuster.UpdateAllOffsets();
             }
         }
         
@@ -139,7 +139,7 @@ namespace GhettosFirearmSDKv2
             set 
             { 
                 _nvgUpwardOffset = value; 
-                NVGAdjuster.UpdateAllOffsets();
+                NvgAdjuster.UpdateAllOffsets();
             }
         }
         
@@ -153,7 +153,7 @@ namespace GhettosFirearmSDKv2
             set 
             { 
                 _nvgSidewaysOffset = value; 
-                NVGAdjuster.UpdateAllOffsets();
+                NvgAdjuster.UpdateAllOffsets();
             }
         }
         
@@ -167,7 +167,7 @@ namespace GhettosFirearmSDKv2
             set
             {
                 _foldNvgs = value;
-                NVGAdjuster.UpdateAllOffsets();
+                NvgAdjuster.UpdateAllOffsets();
             }
         }
 
@@ -253,8 +253,8 @@ namespace GhettosFirearmSDKv2
                 _spawnLiam = value;
                 if (_spawnLiam)
                     HomeAdjustments.local.SpawnLiam();
-                else if (HomeAdjustments.local.liam != null)
-                    Object.Destroy(HomeAdjustments.local.liam);
+                else if (HomeAdjustments.local.Liam != null)
+                    Object.Destroy(HomeAdjustments.local.Liam);
             }
         }
 

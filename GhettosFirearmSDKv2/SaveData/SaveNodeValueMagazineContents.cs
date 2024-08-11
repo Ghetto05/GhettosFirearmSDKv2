@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2
 {
     public class SaveNodeValueMagazineContents : SaveNodeValue
     {
-        public MagazineSaveData value = new MagazineSaveData();
+        public MagazineSaveData Value = new();
     }
 }

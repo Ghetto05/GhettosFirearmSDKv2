@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace GhettosFirearmSDKv2
 {
     public class BoltBasedLock : Lock
@@ -21,13 +17,13 @@ namespace GhettosFirearmSDKv2
             if (filter == Filters.LockAlwaysExcept)
             {
                 if (bolt.state == requiredState) return true;
-                else return false;
+
+                return false;
             }
-            else
-            {
-                if (bolt.state != requiredState) return true;
-                else return false;
-            }
+
+            if (bolt.state != requiredState) return true;
+
+            return false;
         }
     }
 }

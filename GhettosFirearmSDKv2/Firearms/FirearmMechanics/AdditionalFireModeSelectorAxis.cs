@@ -1,7 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -19,7 +16,7 @@ namespace GhettosFirearmSDKv2
 
         private void InvokedStart()
         {
-            selector.onFiremodeChanged += SelectorOnFireModeChanged;
+            selector.OnFiremodeChanged += SelectorOnFireModeChanged;
         }
 
         private void SelectorOnFireModeChanged(FirearmBase.FireModes newMode)

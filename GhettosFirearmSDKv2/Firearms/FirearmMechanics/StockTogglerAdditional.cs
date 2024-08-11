@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using ThunderRoad;
+﻿using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -12,7 +9,7 @@ namespace GhettosFirearmSDKv2
         public Transform pivot;
         public Transform[] positions;
 
-        void Start()
+        private void Start()
         {
             parent.OnToggleEvent += ApplyPosition;
         }

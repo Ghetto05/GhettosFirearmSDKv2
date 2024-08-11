@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using ThunderRoad;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
@@ -69,7 +66,7 @@ namespace GhettosFirearmSDKv2
             Invoke(nameof(Apply), 0.05f);
         }
 
-        private void OnAttachmentChanged(Attachment attachment, AttachmentPoint attachmentPoint)
+        private void OnAttachmentChanged(Attachment changedAttachment, AttachmentPoint attachmentPoint)
         {
         }
     }

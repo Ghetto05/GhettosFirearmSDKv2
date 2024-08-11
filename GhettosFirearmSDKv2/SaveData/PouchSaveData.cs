@@ -1,11 +1,11 @@
-﻿using ThunderRoad;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
 {
     public class PouchSaveData : ContentCustomData
     {
-        public string itemID;
-        public List<ContentCustomData> dataList;
+        public string ItemID;
+        public List<ContentCustomData> DataList;
     }
 }
