@@ -49,10 +49,6 @@ namespace GhettosFirearmSDKv2
             {
                 glsd.GenerateItem();
             }
-            foreach (var lto in Catalog.GetDataList<LootTableOverride>())
-            {
-                lto.ApplyToTable();
-            }
 
             EventManager.OnPlayerPrefabSpawned += EventManager_OnPlayerSpawned;
             EventManager.onCreatureSpawn += EventManager_onCreatureSpawn;
