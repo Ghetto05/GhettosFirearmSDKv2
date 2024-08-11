@@ -56,7 +56,7 @@ namespace GhettosFirearmSDKv2
             var bounds = triggerCollider.bounds;
             var triggerCenter = bounds.center;
             var triggerSize = bounds.size;
-            var colliders = new Collider[Physics.OverlapBoxNonAlloc(triggerCenter, triggerSize * 0.5f, null, Quaternion.identity)];
+            var colliders = new Collider[4096];
             Physics.OverlapBoxNonAlloc(triggerCenter, triggerSize * 0.5f, colliders, Quaternion.identity);
             foreach (var collider in colliders)
             {

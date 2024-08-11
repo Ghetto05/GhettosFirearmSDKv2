@@ -92,7 +92,7 @@ namespace GhettosFirearmSDKv2
 
             #region physics toggle
 
-            var physicsToggleHits = new RaycastHit[Physics.RaycastNonAlloc(muzzle.position, muzzle.forward, null, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion"))];
+            var physicsToggleHits = new RaycastHit[4096];
             Physics.RaycastNonAlloc(muzzle.position, muzzle.forward, physicsToggleHits, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion"));
             foreach (var physicsToggleHit in physicsToggleHits)
             {
@@ -135,7 +135,7 @@ namespace GhettosFirearmSDKv2
                 "ItemAndRagdollOnly");
 
             var forward = muzzle.forward;
-            var hitsBuffer = new RaycastHit[Physics.RaycastNonAlloc(muzzle.position, forward, null, data.projectileRange, layer)];
+            var hitsBuffer = new RaycastHit[4096];
             Physics.RaycastNonAlloc(muzzle.position, forward, hitsBuffer, data.projectileRange, layer);
             var hits = hitsBuffer.ToList();
             hits = hits.OrderBy(h => Vector3.Distance(h.point, muzzle.position)).ToList();
@@ -584,7 +584,7 @@ namespace GhettosFirearmSDKv2
         public static void HitscanExplosion(Vector3 point, ExplosiveData data, Item item, out List<Creature> hitCreatures, out List<Item> hitItems)
         {
             //PHYSICS TOGGLE
-            var locomotionHits = new Collider[Physics.OverlapSphereNonAlloc(point, data.radius, null, LayerMask.GetMask("BodyLocomotion"))];
+            var locomotionHits = new Collider[4096];
             Physics.OverlapSphereNonAlloc(point, data.radius, locomotionHits, LayerMask.GetMask("BodyLocomotion"));
             foreach (var locomotionHit in locomotionHits)
             {
@@ -604,7 +604,7 @@ namespace GhettosFirearmSDKv2
             var hitSimpleBreakables = new List<SimpleBreakable>();
             var hitBreakables = new List<Breakable>();
 
-            var hits = new Collider[Physics.OverlapSphereNonAlloc(point, data.radius, null)];
+            var hits = new Collider[4096];
             Physics.OverlapSphereNonAlloc(point, data.radius, hits);
             foreach (var c in hits)
             {

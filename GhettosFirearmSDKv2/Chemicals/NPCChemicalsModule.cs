@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2.Chemicals
             var highestPoisonGasDamage = 0f;
             var position = _creature.animator.GetBoneTransform(HumanBodyBones.Head) != null ? _creature.animator.GetBoneTransform(HumanBodyBones.Head).position : _creature.brain.transform.position;
 
-            var hits = new Collider[Physics.OverlapSphereNonAlloc(position, 0.1f, null)];
+            var hits = new Collider[512];
             Physics.OverlapSphereNonAlloc(position, 0.1f, hits);
             foreach (var c in hits)
             {
