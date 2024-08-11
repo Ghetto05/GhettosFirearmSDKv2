@@ -281,14 +281,14 @@ namespace GhettosFirearmSDKv2
         public static void CreateSaveFolder()
         {
             Directory.CreateDirectory(GetSaveFolderPath() + "\\Saves");
-            ModManager.ModData manifest = new ModManager.ModData
-            {
-                Name = "GhettosFirearmSDKv2Saves",
-                Author = "Ghetto05",
-                ModVersion = "1.0",
-                Description = "Saves for your guns.",
-                GameVersion = ThunderRoadSettings.current.game.minModVersion
-            };
+            var manifest = new ModManager.ModData
+                           {
+                               Name = "GhettosFirearmSDKv2Saves",
+                               Author = "Ghetto05",
+                               ModVersion = "1.0",
+                               Description = "Saves for your guns.",
+                               GameVersion = ThunderRoadSettings.current.game.minModVersion
+                           };
             File.WriteAllText(GetSaveFolderPath() + "\\manifest.json", JsonConvert.SerializeObject(manifest, Catalog.jsonSerializerSettings));
         }
         #endregion
