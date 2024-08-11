@@ -18,8 +18,8 @@ namespace GhettosFirearmSDKv2
 
         public static List<string> GetAllCategories()
         {
-            List<string> list = new List<string>();
-            foreach (GunLockerSaveData data in Catalog.GetDataList<GunLockerSaveData>())
+            var list = new List<string>();
+            foreach (var data in Catalog.GetDataList<GunLockerSaveData>())
             {
                 if (!list.Contains(data.category) && !data.category.Equals("Prebuilts")) list.Add(data.category);
             }
@@ -33,19 +33,19 @@ namespace GhettosFirearmSDKv2
                 try
                 {
                     Settings.CreateSaveFolder();
-                    ItemData itemData = Catalog.GetData<ItemData>(itemId).CloneJson();
+                    var itemData = Catalog.GetData<ItemData>(itemId).CloneJson();
                     itemData.modules = itemData.modules.CloneJson();
                     itemData.id = id;
                     itemData.description = "Prebuilt version of the " + itemData.displayName + ".";
                     itemData.displayName = displayName;
                     itemData.category = "Firearm Prebuilts";
                     //itemData.iconAddress = id + ".Icon";
-                    PrebuiltLoader loader = new PrebuiltLoader
-                                            {
-                                                originalId = itemId,
-                                                prebuiltId = id,
-                                                itemData = itemData
-                                            };
+                    var loader = new PrebuiltLoader
+                                 {
+                                     originalId = itemId,
+                                     prebuiltId = id,
+                                     itemData = itemData
+                                 };
                     itemData.modules.Add(loader);
                     Catalog.LoadJson(itemData, JsonConvert.SerializeObject(itemData, Catalog.jsonSerializerSettings), Settings.GetSaveFolderPath() + "\\Saves\\" + id + ".json", "!GhettosFirearmSDKv2_Saves");
                     allPrebuilts.Add(itemData);

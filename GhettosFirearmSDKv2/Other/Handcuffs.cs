@@ -57,7 +57,7 @@ namespace GhettosFirearmSDKv2
                     Unlock(true, true);
                 
             };
-            CollisionRelay relay = item.gameObject.AddComponent<CollisionRelay>();
+            var relay = item.gameObject.AddComponent<CollisionRelay>();
             relay.onCollisionEnterEvent += OnCollisionEnterEvent;
             UnlockAnimation(true);
         }
@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
             else
                 return;
 
-            if (AllowLock(collision, side, out RagdollPart part))
+            if (AllowLock(collision, side, out var part))
                 LockTo(part, side);
         }
 
@@ -86,7 +86,7 @@ namespace GhettosFirearmSDKv2
 
         private bool AllowLock(Collision collision, Side side, out RagdollPart foundPart)
         {
-            RagdollPart part = PartByCollider(collision.contacts[0].otherCollider);
+            var part = PartByCollider(collision.contacts[0].otherCollider);
             foundPart = part;
             if (part == null)
                 return false;
@@ -94,14 +94,14 @@ namespace GhettosFirearmSDKv2
             if (part.ragdoll.creature.isPlayer)
                 return false;
             
-            bool correctType = part.type == RagdollPart.Type.LeftHand
-                               || part.type == RagdollPart.Type.RightHand
-                               || part.type == RagdollPart.Type.LeftFoot
-                               || part.type == RagdollPart.Type.RightFoot;
+            var correctType = part.type == RagdollPart.Type.LeftHand
+                              || part.type == RagdollPart.Type.RightHand
+                              || part.type == RagdollPart.Type.LeftFoot
+                              || part.type == RagdollPart.Type.RightFoot;
             
-            bool noOtherPartAttached = side == Side.Left ? _leftConnectedPart == null : _rightConnectedPart == null;
+            var noOtherPartAttached = side == Side.Left ? _leftConnectedPart == null : _rightConnectedPart == null;
 
-            bool notAlreadyAttached = !allAttachedParts.Contains(part);
+            var notAlreadyAttached = !allAttachedParts.Contains(part);
             
             return correctType && noOtherPartAttached && notAlreadyAttached /*&& TypeMatches(part, side)*/;
         }
@@ -111,7 +111,7 @@ namespace GhettosFirearmSDKv2
             if (_leftConnectedPart == null && _rightConnectedPart == null)
                 return true;
 
-            RagdollPart presentPart = side == Side.Right ? _leftConnectedPart : _rightConnectedPart;
+            var presentPart = side == Side.Right ? _leftConnectedPart : _rightConnectedPart;
 
             if (presentPart == null)
                 return true;
@@ -125,10 +125,10 @@ namespace GhettosFirearmSDKv2
                 return;
 
             item.DisallowDespawn = true;
-            Transform anchor = part.type == RagdollPart.Type.LeftFoot || part.type == RagdollPart.Type.RightFoot ? (side == Side.Left ? leftFootAnchor : rightFootAnchor) : (side == Side.Left ? leftAnchor : rightAnchor);
+            var anchor = part.type == RagdollPart.Type.LeftFoot || part.type == RagdollPart.Type.RightFoot ? (side == Side.Left ? leftFootAnchor : rightFootAnchor) : (side == Side.Left ? leftAnchor : rightAnchor);
             allAttachedParts.Add(part);
 
-            HingeJoint joint = item.gameObject.AddComponent<HingeJoint>();
+            var joint = item.gameObject.AddComponent<HingeJoint>();
             //item.transform.MoveAlign(anchor, part.physicBody.rigidBody.transform);
             //part.physicBody.rigidBody.transform.SetPositionAndRotation(anchor.position, anchor.rotation);
             item.transform.AlignRotationWith(part.physicBody.rigidBody.transform, anchor, joint.axis);
@@ -143,7 +143,7 @@ namespace GhettosFirearmSDKv2
                 _leftConnectedPart = part;
                 _leftJoint = joint;
                 leftTrigger.enabled = false;
-                foreach (Collider coll in leftColliders)
+                foreach (var coll in leftColliders)
                 {
                     coll.enabled = false;
                 }
@@ -153,12 +153,12 @@ namespace GhettosFirearmSDKv2
                 _rightConnectedPart = part;
                 _rightJoint = joint;
                 rightTrigger.enabled = false;
-                foreach (Collider coll in rightColliders)
+                foreach (var coll in rightColliders)
                 {
                     coll.enabled = false;
                 }
             }
-            Creature c = part.ragdoll.creature;
+            var c = part.ragdoll.creature;
             
             ToggleCreaturePhysics(true);
             if (_leftConnectedPart != null && _rightConnectedPart != null)
@@ -173,7 +173,7 @@ namespace GhettosFirearmSDKv2
                 }
                 else
                 {
-                    BrainData brainData = c.brain.instance;
+                    var brainData = c.brain.instance;
                     brainData.StopModuleUsingAnyBodyPart();
                     brainData.tree.Reset();
                     brainData.updateTree = false;
@@ -219,13 +219,13 @@ namespace GhettosFirearmSDKv2
                 _rightConnectedPart = null;
                 
                 leftTrigger.enabled = true;
-                foreach (Collider c in leftColliders)
+                foreach (var c in leftColliders)
                 {
                     c.enabled = true;
                 }
                 
                 rightTrigger.enabled = true;
-                foreach (Collider c in rightColliders)
+                foreach (var c in rightColliders)
                 {
                     c.enabled = true;
                 }
@@ -242,8 +242,8 @@ namespace GhettosFirearmSDKv2
         {
             Util.PlayRandomAudioSource(closeSounds);
 
-            Transform axis = side == Side.Left ? leftAxis : rightAxis;
-            Transform target = side == Side.Left ? leftClosedPosition : rightClosedPosition;
+            var axis = side == Side.Left ? leftAxis : rightAxis;
+            var target = side == Side.Left ? leftClosedPosition : rightClosedPosition;
             if (axis != null)
                 axis.SetPositionAndRotation(target.position, target.rotation);
             
@@ -281,7 +281,7 @@ namespace GhettosFirearmSDKv2
 
         private void ToggleCreaturePhysics(bool forcedOn)
         {
-            Creature c = _leftConnectedPart != null ? _leftConnectedPart.ragdoll.creature :
+            var c = _leftConnectedPart != null ? _leftConnectedPart.ragdoll.creature :
                 _rightConnectedPart != null ? _rightConnectedPart.ragdoll.creature : null;
 
             if (c != null)
@@ -290,11 +290,11 @@ namespace GhettosFirearmSDKv2
 
         private RagdollPart PartByCollider(Collider collider)
         {
-            Ragdoll ragdoll = collider.GetComponentInParent<Ragdoll>();
+            var ragdoll = collider.GetComponentInParent<Ragdoll>();
             if (ragdoll == null)
                 return null;
 
-            foreach (RagdollPart part in ragdoll.parts)
+            foreach (var part in ragdoll.parts)
             {
                 if (part.colliderGroup.colliders.Contains(collider))
                     return part;

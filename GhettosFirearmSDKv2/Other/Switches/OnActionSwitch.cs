@@ -52,7 +52,7 @@ namespace GhettosFirearmSDKv2
         public void Delay()
         {
             events[current]?.Invoke();
-            foreach (SwitchRelation swi in switches)
+            foreach (var swi in switches)
             {
                 if (swi != null) AlignSwitch(swi, current);
             }
@@ -84,7 +84,7 @@ namespace GhettosFirearmSDKv2
             }
             if (switchSound != null) switchSound.Play();
             events[current]?.Invoke();
-            foreach (SwitchRelation swi in switches)
+            foreach (var swi in switches)
             {
                 if (swi != null) AlignSwitch(swi, current);
             }
@@ -102,7 +102,7 @@ namespace GhettosFirearmSDKv2
             }
             else
             {
-                foreach (Transform t in swi.modePositions)
+                foreach (var t in swi.modePositions)
                 {
                     t.gameObject.SetActive(false);
                 }

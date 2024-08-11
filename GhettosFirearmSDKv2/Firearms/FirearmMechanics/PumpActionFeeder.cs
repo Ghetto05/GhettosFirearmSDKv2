@@ -41,7 +41,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            float t = (Time.time - rotationStartTime) / rotationTime;
+            var t = (Time.time - rotationStartTime) / rotationTime;
             t = Mathf.Clamp01(t);
 
             root.rotation = Quaternion.Slerp(root.rotation, targetTransform.rotation, t);
@@ -55,13 +55,13 @@ namespace GhettosFirearmSDKv2
         public bool CartridgesInTrigger()
         {
             if (openingEditorOverride) return true;
-            Bounds bounds = triggerCollider.bounds;
-            Vector3 triggerCenter = bounds.center;
-            Vector3 triggerSize = bounds.size;
-            Collider[] colliders = Physics.OverlapBox(triggerCenter, triggerSize * 0.5f, Quaternion.identity);
-            foreach (Collider collider in colliders)
+            var bounds = triggerCollider.bounds;
+            var triggerCenter = bounds.center;
+            var triggerSize = bounds.size;
+            var colliders = Physics.OverlapBox(triggerCenter, triggerSize * 0.5f, Quaternion.identity);
+            foreach (var collider in colliders)
             {
-                Cartridge cartridgeScript = collider.GetComponentInParent<Cartridge>();
+                var cartridgeScript = collider.GetComponentInParent<Cartridge>();
                 if (cartridgeScript != null)
                 {
                     return true;

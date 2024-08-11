@@ -35,9 +35,9 @@ namespace GhettosFirearmSDKv2
         {
             yield return new WaitForSeconds(2f);
 
-            GunLockerSaveData prebuilt = Catalog.GetData<GunLockerSaveData>(prebuiltId);
-            ItemData data = (ItemData)Catalog.GetData<ItemData>(prebuilt.itemId).Clone();
-            PrebuiltLoader loader = (PrebuiltLoader)data.modules.FirstOrDefault(d => d.GetType() == typeof(PrebuiltLoader));
+            var prebuilt = Catalog.GetData<GunLockerSaveData>(prebuiltId);
+            var data = (ItemData)Catalog.GetData<ItemData>(prebuilt.itemId).Clone();
+            var loader = (PrebuiltLoader)data.modules.FirstOrDefault(d => d.GetType() == typeof(PrebuiltLoader));
             if (loader != null)
                 loader.forced = true;
             data.SpawnAsync(gun =>

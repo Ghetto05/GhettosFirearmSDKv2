@@ -49,8 +49,8 @@ namespace GhettosFirearmSDKv2
             if (burntOut || !triggered)
                 return;
             
-            float timePassed = Time.time - triggerTime;
-            float timeRemaining = triggerTime + burnTime - Time.time;
+            var timePassed = Time.time - triggerTime;
+            var timeRemaining = triggerTime + burnTime - Time.time;
 
             if (timePassed > burnTime)
             {
@@ -69,7 +69,7 @@ namespace GhettosFirearmSDKv2
                 ApplyLightLevel(1f);
             }
 
-            foreach (Light l in lights)
+            foreach (var l in lights)
             {
                 l.transform.position = transform.position + Vector3.up * 0.07f;
             }
@@ -77,12 +77,12 @@ namespace GhettosFirearmSDKv2
 
         private void ApplyLightLevel(float level)
         {
-            foreach (MeshRenderer r in renderers)
+            foreach (var r in renderers)
             {
                 r.material.SetColor("_EmissionColor", color * strength * Mathf.Clamp01(level));
             }
 
-            foreach (Light l in lights)
+            foreach (var l in lights)
             {
                 l.intensity = Mathf.Lerp(0, lightIntensity, Mathf.Clamp01(level));
             }

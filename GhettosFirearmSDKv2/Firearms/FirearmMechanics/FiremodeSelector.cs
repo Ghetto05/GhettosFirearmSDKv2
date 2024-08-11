@@ -74,7 +74,7 @@ namespace GhettosFirearmSDKv2
             {
                 return;
             }
-            FirearmBase.FireModes mode = firearm.fireMode;
+            var mode = firearm.fireMode;
             if (mode == FirearmBase.FireModes.Safe && SafePosition != null)
             {
                 SafetySwitch.position = SafePosition.position;

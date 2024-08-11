@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             if (item == null)
                 return;
 
-            foreach (TacticalDevice td in item.GetComponentsInChildren<TacticalDevice>())
+            foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
             {
                 td.tacSwitch = _active;
             }
@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
             item = attachment == null ? item : attachment.attachmentPoint.parentFirearm.item;
             if (item == null) return;
 
-            foreach (TacticalDevice td in item.GetComponentsInChildren<TacticalDevice>())
+            foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
             {
                 td.tacSwitch = true;
             }
@@ -120,7 +120,7 @@ namespace GhettosFirearmSDKv2
             else
                 Util.PlayRandomAudioSource(releaseSounds);
 
-            foreach (TacticalDevice td in item.GetComponentsInChildren<TacticalDevice>())
+            foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
             {
                 td.tacSwitch = _active;
             }

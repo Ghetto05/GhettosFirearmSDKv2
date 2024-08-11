@@ -43,8 +43,8 @@ namespace GhettosFirearmSDKv2
 
         private float Lerp(float startTime)
         {
-            float timeThatPassed = Time.time - startTime;
-            float timeForOneRound = 60f / bolt.firearm.roundsPerMinute;
+            var timeThatPassed = Time.time - startTime;
+            var timeForOneRound = 60f / bolt.firearm.roundsPerMinute;
             return timeThatPassed / (timeForOneRound / 2f);
         }
 

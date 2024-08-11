@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2
                 attachment.attachmentPoint.parentFirearm.item.OnGrabEvent += Firearm_OnGrabEvent;
             }
 
-            string id = "";
+            var id = "";
             if (attachment != null && attachment.Node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueString value))
             {
                 id = value.value;

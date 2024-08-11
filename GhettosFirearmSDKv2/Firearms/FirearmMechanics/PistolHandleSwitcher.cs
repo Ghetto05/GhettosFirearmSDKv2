@@ -30,12 +30,12 @@ namespace GhettosFirearmSDKv2
 
             if (mainHandle.handlers.Count == 0 && secondaryHandle.handlers.Count > 0)
             {
-                RagdollHand hand = secondaryHandle.handlers[0];
+                var hand = secondaryHandle.handlers[0];
                 hand.UnGrab(false);
                 hand.Grab(mainHandle);
             }
 
-            bool dualHeld = mainHandle.handlers.Count > 0 && secondaryHandle.handlers.Count > 0;
+            var dualHeld = mainHandle.handlers.Count > 0 && secondaryHandle.handlers.Count > 0;
             if (!lastFrameDualHeld && dualHeld)
                 firearm.AddRecoilModifier(0.3f, 1f, this);
             else if (lastFrameDualHeld && !dualHeld)

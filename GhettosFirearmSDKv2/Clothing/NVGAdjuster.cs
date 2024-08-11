@@ -24,7 +24,7 @@ namespace GhettosFirearmSDKv2
 
         public static void UpdateAllOffsets()
         {
-            foreach (NVGAdjuster nvg in All)
+            foreach (var nvg in All)
             {
                 nvg.UpdateOffsets();
             }

@@ -145,9 +145,9 @@ namespace GhettosFirearmSDKv2
 
         private void DrawPage()
         {
-            GetPageInfo(out string text, out int rowCount);
+            GetPageInfo(out var text, out var rowCount);
             _currentRowCount = rowCount;
-            object[] vars = PopulateArray(rowCount, " ");
+            var vars = PopulateArray(rowCount, " ");
             vars[currentOption] = ">";
             ui.text = string.Format($"<mspace=mspace={monospaceSize}>" + text + "</mspace>", vars);
             ui.enabled = false;
@@ -218,7 +218,7 @@ namespace GhettosFirearmSDKv2
 
         private object[] PopulateArray(int count, string defaultValue)
         {
-            object[] output = new object[count];
+            var output = new object[count];
             for (var i = 0; i < output.Length; i++)
                 output[i] = defaultValue;
             return output;
@@ -273,7 +273,7 @@ namespace GhettosFirearmSDKv2
 
         private void ToggleNonUiComponents()
         {
-            bool a = !_grabbed && (scope == null || scope.currentIndex != 0);
+            var a = !_grabbed && (scope == null || scope.currentIndex != 0);
             if (_lastNonUiState != a)
             {
                 compassDisplay.enabled = a && compassEnabled;
@@ -284,7 +284,7 @@ namespace GhettosFirearmSDKv2
 
         private void ToggleRedDot()
         {
-            bool a = !_grabbed && (scope == null || scope.currentIndex == 0);
+            var a = !_grabbed && (scope == null || scope.currentIndex == 0);
             if (_lastRedDotState != a)
             {
                 redDot.enabled = a;
@@ -294,7 +294,7 @@ namespace GhettosFirearmSDKv2
 
         private void UpdateCompass()
         {
-            float angle = transform.eulerAngles.y;
+            var angle = transform.eulerAngles.y;
             compassDisplay.text = Heading(angle) + angle.ToString("0.00") + "°";
         }
 

@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         private void Start()
         {
             if (defaultReticle == null && reticles != null && reticles.Count > 0) defaultReticle = reticles[0];
-            foreach (GameObject reti in reticles)
+            foreach (var reti in reticles)
             {
                 reti.SetActive(false);
             }
@@ -45,7 +45,7 @@ namespace GhettosFirearmSDKv2
                     defaultReticle = reticles[0];
                 }
 
-                foreach (GameObject reti in reticles)
+                foreach (var reti in reticles)
                 {
                     reti.SetActive(false);
                 }

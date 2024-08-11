@@ -11,7 +11,7 @@ namespace GhettosFirearmSDKv2
 
         public void Connect()
         {
-            foreach (Joint joint in joints)
+            foreach (var joint in joints)
             {
                 joint.connectedBody = attachment.attachmentPoint.parentFirearm.item.physicBody.rigidBody;
                 joint.gameObject.GetComponent<Rigidbody>().isKinematic = false;

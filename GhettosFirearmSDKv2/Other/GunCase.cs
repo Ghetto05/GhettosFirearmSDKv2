@@ -37,12 +37,12 @@ namespace GhettosFirearmSDKv2
             if (isStatic)
             {
                 item.physicBody.isKinematic = true;
-                foreach (Handle handle in freezeHandles)
+                foreach (var handle in freezeHandles)
                 {
                     handle.SetTouch(false);
                     handle.SetTelekinesis(false);
                 }
-                foreach (GameObject obj in nonStaticObjects)
+                foreach (var obj in nonStaticObjects)
                 {
                     obj.SetActive(false);
                 }
@@ -131,7 +131,7 @@ namespace GhettosFirearmSDKv2
 
         private IEnumerator OpenIE()
         {
-            foreach (Item i in holder.items)
+            foreach (var i in holder.items)
             {
                 i.Hide(false);
             }
@@ -157,7 +157,7 @@ namespace GhettosFirearmSDKv2
             _open = false;
             _closed = true;
             _moving = false;
-            foreach (Item i in holder.items)
+            foreach (var i in holder.items)
             {
                 i.Hide(true);
             }

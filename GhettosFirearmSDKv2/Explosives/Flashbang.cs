@@ -34,7 +34,7 @@ namespace GhettosFirearmSDKv2.Explosives
 
                 Util.PlayRandomAudioSource(audioEffects);
                 Util.AlertAllCreaturesInRange(transform.position, 50);
-                foreach (AudioSource s in audioEffects)
+                foreach (var s in audioEffects)
                 {
                     s.gameObject.transform.SetParent(null);
                     Player.local.StartCoroutine(delayedDestroy(s.gameObject, s.clip.length + 1f));
@@ -42,9 +42,9 @@ namespace GhettosFirearmSDKv2.Explosives
 
                 if (Vector3.Distance(transform.position, Player.local.head.cam.transform.position) < range && !Raycast(Player.currentCreature)) Chemicals.PlayerEffectsAndChemicalsModule.Flashbang(time);
 
-                foreach (Creature cr in Creature.allActive)
+                foreach (var cr in Creature.allActive)
                 {
-                    Transform t = cr.animator.GetBoneTransform(HumanBodyBones.Head);
+                    var t = cr.animator.GetBoneTransform(HumanBodyBones.Head);
                     if (!cr.isPlayer && !cr.isKilled && Vector3.Distance(t.position, transform.position) < range && !Raycast(cr))
                     {
                         cr.ragdoll.SetState(Ragdoll.State.Destabilized);
@@ -59,9 +59,9 @@ namespace GhettosFirearmSDKv2.Explosives
 
         private bool Raycast(Creature cr)
         {
-            int layer = LayerMask.GetMask("Default");
-            Vector3 pos = cr.animator.GetBoneTransform(HumanBodyBones.Head).position;
-            return Physics.Raycast(cr.centerEyes.position, (transform.position - pos).normalized, out RaycastHit hit, Vector3.Distance(pos, transform.position) - 0.1f, layer);
+            var layer = LayerMask.GetMask("Default");
+            var pos = cr.animator.GetBoneTransform(HumanBodyBones.Head).position;
+            return Physics.Raycast(cr.centerEyes.position, (transform.position - pos).normalized, out var hit, Vector3.Distance(pos, transform.position) - 0.1f, layer);
         }
     }
 }

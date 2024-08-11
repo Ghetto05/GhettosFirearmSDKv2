@@ -90,15 +90,15 @@ namespace GhettosFirearmSDKv2
                 return;
             }
 
-            float target = Mathf.Clamp(Util.NormalizeAngle(rb.transform.localEulerAngles.x), minAngle, maxAngle);
+            var target = Mathf.Clamp(Util.NormalizeAngle(rb.transform.localEulerAngles.x), minAngle, maxAngle);
             lever.localEulerAngles = new Vector3(target, 0, 0);
 
             bolt.rigidBody.transform.localPosition = Vector3.Lerp(bolt.startPoint.localPosition, bolt.endPoint.localPosition, Time());
             bolt.bolt.transform.localPosition = Vector3.Lerp(bolt.startPoint.localPosition, bolt.endPoint.localPosition, Time());
             
-            if (LimitLeverChanged(out bool limit))
+            if (LimitLeverChanged(out var limit))
             {
-                float lockAngle = Util.NormalizeAngle(lever.localEulerAngles.x);
+                var lockAngle = Util.NormalizeAngle(lever.localEulerAngles.x);
                 joint.limits = new JointLimits { max = limit ? lockAngle + 0.001f : maxAngle, min = limit ? lockAngle : minAngle };
             }
             
@@ -117,9 +117,9 @@ namespace GhettosFirearmSDKv2
 
         private bool LimitLeverChanged(out bool limit)
         {
-            bool held = leverHandle.handlers.Count > 0;
-            bool limited = Mathf.Abs(Mathf.Abs(joint.limits.min) - Mathf.Abs(joint.limits.max)) < 0.001f;
-            bool notLimited = Mathf.Abs(Mathf.Abs(joint.limits.max) - Mathf.Abs(maxAngle)) < 0.001f && Mathf.Abs(Mathf.Abs(joint.limits.min) - Mathf.Abs(minAngle)) < 0.001f;
+            var held = leverHandle.handlers.Count > 0;
+            var limited = Mathf.Abs(Mathf.Abs(joint.limits.min) - Mathf.Abs(joint.limits.max)) < 0.001f;
+            var notLimited = Mathf.Abs(Mathf.Abs(joint.limits.max) - Mathf.Abs(maxAngle)) < 0.001f && Mathf.Abs(Mathf.Abs(joint.limits.min) - Mathf.Abs(minAngle)) < 0.001f;
 
             limit = !held;
             return (held && limited) || (!held && notLimited);
@@ -127,7 +127,7 @@ namespace GhettosFirearmSDKv2
 
         private float Time()
         {
-            float currentAngle = Quaternion.Angle(start.localRotation, lever.localRotation);
+            var currentAngle = Quaternion.Angle(start.localRotation, lever.localRotation);
             return Mathf.Clamp01(currentAngle / targetAngle);
         }
 
@@ -152,9 +152,9 @@ namespace GhettosFirearmSDKv2
             //DestroyHandleJoint();
             leverHandle.SetTouch(false);
             grip.SetTouch(true);
-            List<RagdollHand> handlers = leverHandle.handlers.ToList();
+            var handlers = leverHandle.handlers.ToList();
             leverHandle.Release();
-            foreach (RagdollHand ragdollHand in handlers)
+            foreach (var ragdollHand in handlers)
             {
                 ragdollHand.Grab(grip);
             }
@@ -177,9 +177,9 @@ namespace GhettosFirearmSDKv2
 
             leverHandle.SetTouch(true);
             grip.SetTouch(false);
-            List<RagdollHand> handlers = grip.handlers.ToList();
+            var handlers = grip.handlers.ToList();
             grip.Release();
-            foreach (RagdollHand ragdollHand in handlers)
+            foreach (var ragdollHand in handlers)
             {
                 ragdollHand.Grab(leverHandle);
                 //InitializeHandJoint(ragdollHand);

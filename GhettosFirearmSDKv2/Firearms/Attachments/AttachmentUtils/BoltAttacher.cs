@@ -48,11 +48,11 @@ namespace GhettosFirearmSDKv2
 
         private Transform GetParent()
         {
-            BoltBase bolt = attachment.attachmentPoint.parentFirearm.bolt;
+            var bolt = attachment.attachmentPoint.parentFirearm.bolt;
             if (bolt == null)
                 return null;
 
-            Type type = bolt.GetType();
+            var type = bolt.GetType();
             if (type == typeof(BoltSemiautomatic))
                 return ((BoltSemiautomatic)bolt).bolt;
             if (type == typeof(PumpAction))
@@ -63,11 +63,11 @@ namespace GhettosFirearmSDKv2
 
         private Transform GetParentRB()
         {
-            BoltBase bolt = attachment.attachmentPoint.parentFirearm.bolt;
+            var bolt = attachment.attachmentPoint.parentFirearm.bolt;
             if (bolt == null)
                 return null;
 
-            Type type = bolt.GetType();
+            var type = bolt.GetType();
             if (type == typeof(BoltSemiautomatic))
                 return ((BoltSemiautomatic)bolt).rigidBody.transform;
             if (type == typeof(PumpAction))
@@ -78,11 +78,11 @@ namespace GhettosFirearmSDKv2
 
         private void SetHandles()
         {
-            BoltBase bolt = attachment.attachmentPoint.parentFirearm.bolt;
+            var bolt = attachment.attachmentPoint.parentFirearm.bolt;
             if (bolt == null)
                 return;
 
-            Type type = bolt.GetType();
+            var type = bolt.GetType();
             if (type == typeof(BoltSemiautomatic))
                 SetAutomaticHandles((BoltSemiautomatic)bolt);
             if (type == typeof(PumpAction))
@@ -91,11 +91,11 @@ namespace GhettosFirearmSDKv2
 
         private void ResetHandles()
         {
-            BoltBase bolt = attachment.attachmentPoint.parentFirearm.bolt;
+            var bolt = attachment.attachmentPoint.parentFirearm.bolt;
             if (bolt == null)
                 return;
 
-            Type type = bolt.GetType();
+            var type = bolt.GetType();
             if (type == typeof(BoltSemiautomatic))
                 ResetAutomaticHandles((BoltSemiautomatic)bolt);
             if (type == typeof(PumpAction))
@@ -104,7 +104,7 @@ namespace GhettosFirearmSDKv2
 
         private void SetAutomaticHandles(BoltSemiautomatic bolt)
         {
-            foreach (GhettoHandle h in additionalBoltHandles)
+            foreach (var h in additionalBoltHandles)
             {
                 h.customRigidBody = bolt.rigidBody;
                 h.type = GhettoHandle.HandleType.Bolt;
@@ -112,7 +112,7 @@ namespace GhettosFirearmSDKv2
             bolt.UpdateBoltHandles();
             
             if (disableDefaultBoltHandles)
-                foreach (Handle handle in bolt.boltHandles)
+                foreach (var handle in bolt.boltHandles)
                 {
                     handle.SetTouch(false);
                 }
@@ -120,7 +120,7 @@ namespace GhettosFirearmSDKv2
         
         private void ResetAutomaticHandles(BoltSemiautomatic bolt)
         {
-            foreach (Handle handle in bolt.boltHandles)
+            foreach (var handle in bolt.boltHandles)
             {
                 handle.SetTouch(true);
             }
@@ -128,7 +128,7 @@ namespace GhettosFirearmSDKv2
 
         private void SetPumpHandles(PumpAction bolt)
         {
-            foreach (GhettoHandle h in additionalBoltHandles)
+            foreach (var h in additionalBoltHandles)
             {
                 h.customRigidBody = bolt.rb;
                 h.type = GhettoHandle.HandleType.Bolt;
@@ -136,7 +136,7 @@ namespace GhettosFirearmSDKv2
             bolt.RefreshBoltHandles();
             
             if (disableDefaultBoltHandles)
-                foreach (Handle handle in bolt.boltHandles)
+                foreach (var handle in bolt.boltHandles)
                 {
                     handle.SetTouch(false);
                 }
@@ -144,7 +144,7 @@ namespace GhettosFirearmSDKv2
         
         private void ResetPumpHandles(PumpAction bolt)
         {
-            foreach (Handle handle in bolt.boltHandles)
+            foreach (var handle in bolt.boltHandles)
             {
                 handle.SetTouch(true);
             }

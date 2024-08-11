@@ -11,9 +11,9 @@ namespace GhettosFirearmSDKv2
 
         public void ApplyToFirearm(Firearm firearm)
         {
-            foreach (AttachmentTreeNode node in firearmNode.childs)
+            foreach (var node in firearmNode.childs)
             {
-                AttachmentPoint point = firearm.GetSlotFromId(node.slot);
+                var point = firearm.GetSlotFromId(node.slot);
                 Catalog.GetData<AttachmentData>(Util.GetSubstituteId(node.attachmentId, $"[Firearm save data - slot {node.slot} on {firearm.item?.data?.displayName} | {firearm.item?.itemId}]"))?.SpawnAndAttach(point, null, node, true);
             }
         }
@@ -22,12 +22,12 @@ namespace GhettosFirearmSDKv2
         {
             if (firearm.GetType() == typeof(Firearm))
             {
-                Firearm f = (Firearm)firearm;
+                var f = (Firearm)firearm;
                 return f.saveData.firearmNode;
             }
             else
             {
-                AttachmentFirearm f = (AttachmentFirearm)firearm;
+                var f = (AttachmentFirearm)firearm;
                 return f.attachment.Node;
             }
         }
@@ -48,7 +48,7 @@ namespace GhettosFirearmSDKv2
 
             public bool TryGetValue<T>(string id, out T value) where T : SaveNodeValue
             {
-                foreach (SaveNodeValue v in values)
+                foreach (var v in values)
                 {
                     if (v != null && v.id.Equals(id))
                     {
@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
             public void RemoveValue(string id)
             {
                 SaveNodeValue vtd = null;
-                foreach (SaveNodeValue v in values)
+                foreach (var v in values)
                 {
                     if (v != null && v.id.Equals(id))
                     {

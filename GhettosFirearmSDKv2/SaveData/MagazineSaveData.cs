@@ -89,9 +89,9 @@ namespace GhettosFirearmSDKv2
         {
             if (magazine == null || magazine.cartridges == null) return;
             contents = new string[magazine.cartridges.Count];
-            for (int i = 0; i < magazine.cartridges.Count; i++)
+            for (var i = 0; i < magazine.cartridges.Count; i++)
             {
-                Cartridge car = magazine.cartridges[i];
+                var car = magazine.cartridges[i];
                 contents[i] = car.item.itemId;
             }
         }
@@ -101,9 +101,9 @@ namespace GhettosFirearmSDKv2
             if (clip == null || clip.loadedCartridges == null)
                 return;
             contents = new string[clip.loadedCartridges.Count];
-            for (int i = 0; i < clip.loadedCartridges.Count; i++)
+            for (var i = 0; i < clip.loadedCartridges.Count; i++)
             {
-                Cartridge car = clip.loadedCartridges[i];
+                var car = clip.loadedCartridges[i];
                 contents[i] = car.item.itemId;
             }
         }

@@ -16,7 +16,7 @@ namespace GhettosFirearmSDKv2
         {
             if (all == null) all = new List<NVGOnlyRendererMeshModule>();
             all.Add(this);
-            foreach (GameObject obj in objects)
+            foreach (var obj in objects)
             {
                 obj.SetActive(false);
             }

@@ -41,7 +41,7 @@ namespace GhettosFirearmSDKv2
                 spawning = true;
                 try
                 {
-                    ItemData data = GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count)];
+                    var data = GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count)];
                     data.SpawnAsync(item =>
                     {
                         item.physicBody.rigidBody.isKinematic = true;

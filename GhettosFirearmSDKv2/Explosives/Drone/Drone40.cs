@@ -12,7 +12,7 @@ namespace GhettosFirearmSDKv2.Drone
         public static Drone40 GetByID(string id)
         {
             if (all == null) return null;
-            foreach (Drone40 drone in all)
+            foreach (var drone in all)
             {
                 if (drone.droneId.Equals(id)) return drone;
             }

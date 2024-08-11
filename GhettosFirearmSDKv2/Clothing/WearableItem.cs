@@ -40,7 +40,7 @@ namespace GhettosFirearmSDKv2.Clothing
             if (currentCreature != null)
                 return;
             currentCreature = target;
-            Transform bone = currentCreature.animator.GetBoneTransform(baseBone);
+            var bone = currentCreature.animator.GetBoneTransform(baseBone);
             if (Vector3.Distance(bone.position, transform.position) > 0.3f)
                 return;
             item.DisallowDespawn = true;

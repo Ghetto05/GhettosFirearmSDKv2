@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             //}
             while (magazine.cartridges.Count > magazine.maximumCapacity)
             {
-                Cartridge c = magazine.ConsumeRound();
+                var c = magazine.ConsumeRound();
                 c.item.Despawn();
             }
         }

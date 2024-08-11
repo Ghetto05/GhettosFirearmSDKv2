@@ -56,7 +56,7 @@ namespace GhettosFirearmSDKv2
 
         public override List<Handle> AllTriggerHandles()
         {
-            List<Handle> hs = new List<Handle>();
+            var hs = new List<Handle>();
             hs.AddRange(additionalTriggerHandles);
             if (fireHandle == null) return hs;
             hs.Add(fireHandle);

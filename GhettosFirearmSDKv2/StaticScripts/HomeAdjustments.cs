@@ -61,8 +61,8 @@ namespace GhettosFirearmSDKv2
         {
             if (liam != null || !Level.current.data.id.Equals("Home"))
                 return;
-            Vector3 position = new Vector3(44.03f, 2.5f, -44.37f);
-            Vector3 rotation = new Vector3(0, -36, 0);
+            var position = new Vector3(44.03f, 2.5f, -44.37f);
+            var rotation = new Vector3(0, -36, 0);
             Addressables.InstantiateAsync("Ghetto05.Firearms.Clothes.Rigs.Editor", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
             {
                 if (handle.Status != AsyncOperationStatus.Succeeded)
@@ -78,8 +78,8 @@ namespace GhettosFirearmSDKv2
         {
             if (workbenchAndLocker != null || !Level.current.data.id.Equals("Home"))
                 return;
-            Vector3 position = new Vector3(41.3f, 2.5f, -43.0f);
-            Vector3 rotation = new Vector3(0, 120, 0);
+            var position = new Vector3(41.3f, 2.5f, -43.0f);
+            var rotation = new Vector3(0, 120, 0);
             Addressables.InstantiateAsync("Ghetto05.FirearmFrameworkV2.Locker", position, Quaternion.Euler(rotation.x, rotation.y, rotation.z), null, false).Completed += handle =>
             {
                 if (handle.Status != AsyncOperationStatus.Succeeded)
@@ -112,7 +112,7 @@ namespace GhettosFirearmSDKv2
         
         private void RemoveDrawers()
         {
-            foreach (Item item in Item.all.Where(i => _naughtyList.Contains(i.data.id)).ToArray())
+            foreach (var item in Item.all.Where(i => _naughtyList.Contains(i.data.id)).ToArray())
             {
                 item.Despawn(0.1f);
             }

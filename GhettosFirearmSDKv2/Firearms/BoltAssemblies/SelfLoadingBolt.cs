@@ -18,8 +18,8 @@ namespace GhettosFirearmSDKv2
 
         public bool ReadyToFire()
         {
-            float timePerRound = 60f / firearm.roundsPerMinute;
-            float passedTime = Time.time - lastFireTime;
+            var timePerRound = 60f / firearm.roundsPerMinute;
+            var passedTime = Time.time - lastFireTime;
             return passedTime >= timePerRound;
         }
 
@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
             }
             shotsSinceTriggerReset++;
             lastFireTime = Time.time;
-            foreach (RagdollHand hand in firearm.item.handlers)
+            foreach (var hand in firearm.item.handlers)
             {
                 if (hand.playerHand != null && hand.playerHand.controlHand != null)
                     hand.playerHand.controlHand.HapticShort(50f);
@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, true);
             EjectRound();
             InvokeFireEvent();
@@ -100,7 +100,7 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(loadedCartridge.gameObject, firearm.gameObject, true);
             loadedCartridge.ToggleCollision(true);
             Util.DelayIgnoreCollision(loadedCartridge.gameObject, firearm.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = loadedCartridge.GetComponent<Rigidbody>();
+            var rb = loadedCartridge.GetComponent<Rigidbody>();
             loadedCartridge.item.DisallowDespawn = false;
             loadedCartridge.transform.parent = null;
             rb.isKinematic = false;

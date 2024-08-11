@@ -41,7 +41,7 @@ namespace GhettosFirearmSDKv2
                 if (eventTime == EventTime.OnStart)
                 {
                     Destroy(rig?.gameObject);
-                    foreach (Transform t in bones)
+                    foreach (var t in bones)
                     {
                         Destroy(t?.gameObject);
                     }
@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
             rig.localEulerAngles = new Vector3(0, 0, 0);
             rig.localScale = Vector3.one;
 
-            foreach (Transform b in bones)
+            foreach (var b in bones)
             {
                 if (cc.ragdoll.bones?.FirstOrDefault(cb => cb.mesh.gameObject.name.Equals(b.gameObject.name + "_Mesh"))?.mesh is { } t)
                 {
@@ -120,7 +120,7 @@ namespace GhettosFirearmSDKv2
                 m = _whInst;
             }
 
-            foreach (SkinnedMeshRenderer r in renderers)
+            foreach (var r in renderers)
             {
                 r.material = m;
             }
@@ -128,20 +128,20 @@ namespace GhettosFirearmSDKv2
 
         private IEnumerator Fade()
         {
-            float startingTemperature = standardMaterial.GetFloat("_Temperature");
-            float duration = 20f;
-            float elapsedTime = 0f;
+            var startingTemperature = standardMaterial.GetFloat("_Temperature");
+            var duration = 20f;
+            var elapsedTime = 0f;
             while (elapsedTime < duration)
             {
-                float t = Mathf.Clamp01(elapsedTime / duration);
-                float falloffValue = startingTemperature * (1 - Mathf.Pow(t, 2));
+                var t = Mathf.Clamp01(elapsedTime / duration);
+                var falloffValue = startingTemperature * (1 - Mathf.Pow(t, 2));
                 SetAllMaterialTemperatures(falloffValue);
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
             
             Destroy(rig?.gameObject);
-            foreach (Transform t in bones)
+            foreach (var t in bones)
             {
                 Destroy(t?.gameObject);
             }

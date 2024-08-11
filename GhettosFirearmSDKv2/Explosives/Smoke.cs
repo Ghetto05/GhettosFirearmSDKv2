@@ -28,7 +28,7 @@ namespace GhettosFirearmSDKv2.Explosives
         public override void ActualDetonate()
         {
             active = true;
-            GameObject obj = new GameObject("Smoke_Zone");
+            var obj = new GameObject("Smoke_Zone");
             obj.layer = 28;
             zone = obj.AddComponent<CapsuleCollider>();
             zone.isTrigger = true;

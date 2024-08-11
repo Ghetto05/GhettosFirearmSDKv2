@@ -79,7 +79,7 @@ namespace GhettosFirearmSDKv2
         {
             if (_currentWell == null && collision.contacts[0].otherCollider.GetComponentInParent<StripperClipWell>() != null)
             {
-                StripperClipWell well = collision.contacts[0].otherCollider.GetComponentInParent<StripperClipWell>();
+                var well = collision.contacts[0].otherCollider.GetComponentInParent<StripperClipWell>();
                 if ((well.clipType.Equals(clipType) || !Settings.doMagazineTypeChecks) && Util.CheckForCollisionWithBothColliders(collision, mountCollider, well.mountCollider))
                     MountToGun(well);
             }
@@ -101,8 +101,8 @@ namespace GhettosFirearmSDKv2
                 return;
             }
 
-            Cartridge[] cn = loadedCartridges.Where(c => c == null).ToArray();
-            foreach (Cartridge c in cn)
+            var cn = loadedCartridges.Where(c => c == null).ToArray();
+            foreach (var c in cn)
             {
                 loadedCartridges.Remove(c);
             }
@@ -111,9 +111,9 @@ namespace GhettosFirearmSDKv2
             insertColliderRoot.transform.SetParent(cartridgePositions[loadedCartridges.Count - 1]);
             insertColliderRoot.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
 
-            foreach (Cartridge c in loadedCartridges)
+            foreach (var c in loadedCartridges)
             {
-                Quaternion rot = c.transform.localRotation;
+                var rot = c.transform.localRotation;
                 c.transform.SetParent(cartridgePositions[loadedCartridges.IndexOf(c)]);
                 if (!rotate)
                     c.transform.SetLocalPositionAndRotation(Vector3.zero, rot);
@@ -151,7 +151,7 @@ namespace GhettosFirearmSDKv2
             {
                 _lastEjectTime = Time.time;
                 Util.PlayRandomAudioSource(unloadSounds);
-                Cartridge c = insertFromBottom ? loadedCartridges[0] : loadedCartridges.Last();
+                var c = insertFromBottom ? loadedCartridges[0] : loadedCartridges.Last();
                 loadedCartridges.Remove(c);
                 SaveContent();
                 c.item.physicBody.isKinematic = false;
@@ -170,10 +170,10 @@ namespace GhettosFirearmSDKv2
                 return;
             if (_currentWell != null && loadedCartridges.Count > 0 && _currentWell.magazineWell.firearm.magazineWell != null && _currentWell.magazineWell.firearm.magazineWell.currentMagazine != null)
             {
-                Magazine mag = _currentWell.magazineWell.firearm.magazineWell.currentMagazine;
+                var mag = _currentWell.magazineWell.firearm.magazineWell.currentMagazine;
                 if (mag.cartridges.Count < mag.maximumCapacity)
                 {
-                    Cartridge c = loadedCartridges[0];
+                    var c = loadedCartridges[0];
                     loadedCartridges.RemoveAt(0);
                     SaveContent();
                     mag.InsertRound(c, true, true);
@@ -197,7 +197,7 @@ namespace GhettosFirearmSDKv2
 
             _currentWell = well;
             _currentWell.currentClip = this;
-            foreach (Handle handle in item.handles)
+            foreach (var handle in item.handles)
             {
                 handle.Release();
             }
@@ -251,7 +251,7 @@ namespace GhettosFirearmSDKv2
 
         public void ClearRounds()
         {
-            foreach (Cartridge cartridge in loadedCartridges)
+            foreach (var cartridge in loadedCartridges)
             {
                 cartridge.item.Despawn(0.01f);
             }

@@ -97,13 +97,13 @@ namespace GhettosFirearmSDKv2
                 if (found != null)
                     return found;
 
-                FirearmBase firearm = foundHandle.GetComponentInParent<FirearmBase>();
+                var firearm = foundHandle.GetComponentInParent<FirearmBase>();
                 if (firearm != null)
                 {
                     if (firearm.magazineWell != null && firearm.magazineWell.currentMagazine != null)
                         return firearm.magazineWell.currentMagazine.GetComponent<T>();
 
-                    IAmmunitionLoadable[] foundAmmunitionLoaders = firearm.GetComponentsInChildren<IAmmunitionLoadable>();
+                    var foundAmmunitionLoaders = firearm.GetComponentsInChildren<IAmmunitionLoadable>();
                     if (foundAmmunitionLoaders.Any())
                     {
                         found = (T)foundAmmunitionLoaders.FirstOrDefault(x => x.GetTransform().GetComponentInParent<FirearmBase>() == null);
@@ -117,7 +117,7 @@ namespace GhettosFirearmSDKv2
                         return found;
                     }
                     
-                    ICaliberGettable[] foundCaliberGetters = firearm.GetComponentsInChildren<ICaliberGettable>();
+                    var foundCaliberGetters = firearm.GetComponentsInChildren<ICaliberGettable>();
                     if (foundCaliberGetters.Any())
                     {
                         found = (T)foundCaliberGetters.FirstOrDefault(x => x.GetTransform().GetComponentInParent<FirearmBase>() == null);
@@ -135,12 +135,12 @@ namespace GhettosFirearmSDKv2
 
         public void GetCaliberFromGunOrMag()
         {
-            ICaliberGettable gettable = GetHeld<ICaliberGettable>();
+            var gettable = GetHeld<ICaliberGettable>();
             if (gettable != null)
             {
                 currentCaliber = gettable.GetCaliber();
                 currentCategory = AmmoModule.GetCaliberCategory(currentCaliber);
-                List<string> variantsOfCaliber = AmmoModule.AllVariantsOfCaliber(currentCaliber);
+                var variantsOfCaliber = AmmoModule.AllVariantsOfCaliber(currentCaliber);
                 variantsOfCaliber.Sort(new FirstFourNumbersCompare());
                 currentVariant = variantsOfCaliber[0].Remove(0, 5);
 
@@ -153,14 +153,14 @@ namespace GhettosFirearmSDKv2
 
         public void ClearMagazine()
         {
-            IAmmunitionLoadable loadable = GetHeld<IAmmunitionLoadable>();
+            var loadable = GetHeld<IAmmunitionLoadable>();
             if (loadable != null)
                 loadable.ClearRounds();
         }
 
         public void FillMagazine()
         {
-            IAmmunitionLoadable loadable = GetHeld<IAmmunitionLoadable>();
+            var loadable = GetHeld<IAmmunitionLoadable>();
             if (loadable != null && Util.AllowLoadCartridge(currentCaliber, loadable, true))
             {
                 loadable.ClearRounds();
@@ -182,7 +182,7 @@ namespace GhettosFirearmSDKv2
 
         public void TopOffMagazine()
         {
-            IAmmunitionLoadable mag = GetHeld<IAmmunitionLoadable>();
+            var mag = GetHeld<IAmmunitionLoadable>();
             if (mag == null)
                 return;
             if (!Util.AllowLoadCartridge(currentCaliber, mag))
@@ -218,7 +218,7 @@ namespace GhettosFirearmSDKv2
         {
             if (categories != null)
             {
-                foreach (Transform button in categories)
+                foreach (var button in categories)
                 {
                     Destroy(button.gameObject);
                 }
@@ -226,7 +226,7 @@ namespace GhettosFirearmSDKv2
             }
             if (calibers != null)
             {
-                foreach (Transform button in calibers)
+                foreach (var button in calibers)
                 {
                     Destroy(button.gameObject);
                 }
@@ -234,15 +234,15 @@ namespace GhettosFirearmSDKv2
             }
             if (variants != null)
             {
-                foreach (Transform button in variants)
+                foreach (var button in variants)
                 {
                     Destroy(button.gameObject);
                 }
                 variants.Clear();
             }
 
-            List<string> list = AmmoModule.AllCategories().OrderBy(c => sortingData?.sortedCategories.IndexOf(c)).ToList();
-            foreach (string s in list)
+            var list = AmmoModule.AllCategories().OrderBy(c => sortingData?.sortedCategories.IndexOf(c)).ToList();
+            foreach (var s in list)
             {
                 AddCategory(s);
             }
@@ -252,7 +252,7 @@ namespace GhettosFirearmSDKv2
         {
             if (calibers != null)
             {
-                foreach (Transform button in calibers)
+                foreach (var button in calibers)
                 {
                     Destroy(button.gameObject);
                 }
@@ -260,15 +260,15 @@ namespace GhettosFirearmSDKv2
             }
             if (variants != null)
             {
-                foreach (Transform button in variants)
+                foreach (var button in variants)
                 {
                     Destroy(button.gameObject);
                 }
                 variants.Clear();
             }
 
-            List<string> list = AmmoModule.AllCalibersOfCategory(category).OrderBy(c => sortingData?.sortedCalibers.IndexOf(c)).ToList();
-            foreach (string s in list)
+            var list = AmmoModule.AllCalibersOfCategory(category).OrderBy(c => sortingData?.sortedCalibers.IndexOf(c)).ToList();
+            foreach (var s in list)
             {
                 AddCaliber(s);
             }
@@ -278,16 +278,16 @@ namespace GhettosFirearmSDKv2
         {
             if (variants != null)
             {
-                foreach (Transform button in variants)
+                foreach (var button in variants)
                 {
                     Destroy(button.gameObject);
                 }
                 variants.Clear();
             }
 
-            List<string> list = AmmoModule.AllVariantsOfCaliber(caliber);
+            var list = AmmoModule.AllVariantsOfCaliber(caliber);
             list.Sort(new FirstFourNumbersCompare());
-            foreach (string s in list)
+            foreach (var s in list)
             {
                 AddVariant(s.Remove(0, 5));
             }
@@ -298,7 +298,7 @@ namespace GhettosFirearmSDKv2
             if (categories == null) categories = new List<Transform>();
             if (!ContainsName(category, categories))
             {
-                GameObject obj = Instantiate(categoryPref);
+                var obj = Instantiate(categoryPref);
                 obj.gameObject.name = category;
                 obj.transform.SetParent(categoriesContent);
                 obj.transform.localScale = Vector3.one;
@@ -317,7 +317,7 @@ namespace GhettosFirearmSDKv2
             if (calibers == null) calibers = new List<Transform>();
             if (!ContainsName(caliber, calibers))
             {
-                GameObject obj = Instantiate(caliberPref);
+                var obj = Instantiate(caliberPref);
                 obj.gameObject.name = caliber;
                 obj.transform.SetParent(calibersContent);
                 obj.transform.localScale = Vector3.one;
@@ -336,7 +336,7 @@ namespace GhettosFirearmSDKv2
             if (variants == null) variants = new List<Transform>();
             if (!ContainsName(variant, variants))
             {
-                GameObject obj = Instantiate(variantPref);
+                var obj = Instantiate(variantPref);
                 obj.gameObject.name = variant;
                 obj.transform.SetParent(variantContent);
                 obj.transform.localScale = Vector3.one;
@@ -352,7 +352,7 @@ namespace GhettosFirearmSDKv2
 
         public bool ContainsName(string requiredName, List<Transform> transforms)
         {
-            foreach (Transform t in transforms)
+            foreach (var t in transforms)
             {
                 if (t.name.Equals(requiredName)) return true;
             }
@@ -372,7 +372,7 @@ namespace GhettosFirearmSDKv2
 
             if (categories != null)
             {
-                foreach (Transform button in categories)
+                foreach (var button in categories)
                 {
                     if (button.gameObject.name.Equals(currentCategory)) button.GetChild(0).gameObject.SetActive(true);
                     else button.GetChild(0).gameObject.SetActive(false);
@@ -391,7 +391,7 @@ namespace GhettosFirearmSDKv2
 
             if (calibers != null)
             {
-                foreach (Transform button in calibers)
+                foreach (var button in calibers)
                 {
                     if (button.gameObject.name.Equals(currentCaliber)) button.GetChild(0).gameObject.SetActive(true);
                     else button.GetChild(0).gameObject.SetActive(false);
@@ -402,7 +402,7 @@ namespace GhettosFirearmSDKv2
         public static void DestroyAllOfList(List<Transform> list)
         {
             if (list == null) return;
-            foreach (Transform t in list.ToArray())
+            foreach (var t in list.ToArray())
             {
                 Destroy(t.gameObject);
             }
@@ -417,7 +417,7 @@ namespace GhettosFirearmSDKv2
 
             if (variants != null)
             {
-                foreach (Transform button in variants)
+                foreach (var button in variants)
                 {
                     if (button.gameObject.name.Equals(currentVariant)) button.GetChild(0).gameObject.SetActive(true);
                     else button.GetChild(0).gameObject.SetActive(false);
@@ -430,7 +430,7 @@ namespace GhettosFirearmSDKv2
                 {
                     if (handle.Result.GetComponent<ProjectileData>() is { } data)
                     {
-                        string descriptionText = "";
+                        var descriptionText = "";
                         if (!data.isHitscan)
                         {
                             //descriptionText += "Projectile: " + data.projectileItemId + "\n";
@@ -487,8 +487,8 @@ namespace GhettosFirearmSDKv2
         {
             public int Compare(string x, string y)
             {
-                int intX = int.Parse(x.Substring(0, 4));
-                int intY = int.Parse(y.Substring(0, 4));
+                var intX = int.Parse(x.Substring(0, 4));
+                var intY = int.Parse(y.Substring(0, 4));
 
                 int result;
                 if (intX == intY)

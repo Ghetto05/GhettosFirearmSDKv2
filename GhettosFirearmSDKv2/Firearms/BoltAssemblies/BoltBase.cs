@@ -59,19 +59,19 @@ namespace GhettosFirearmSDKv2
 
         public static void AddTorqueToCartridge(Cartridge c)
         {
-            float f = Settings.cartridgeEjectionTorque;
-            Vector3 torque = new Vector3
-            {
-                x = Random.Range(-f, f),
-                y = Random.Range(-f, f),
-                z = Random.Range(-f, f)
-            };
+            var f = Settings.cartridgeEjectionTorque;
+            var torque = new Vector3
+                         {
+                             x = Random.Range(-f, f),
+                             y = Random.Range(-f, f),
+                             z = Random.Range(-f, f)
+                         };
             c.item.physicBody.AddTorque(torque, ForceMode.Impulse);
         }
 
         public static void AddForceToCartridge(Cartridge c, Transform direction, float force)
         {
-            float f = Settings.cartridgeEjectionForceRandomizationDevision;
+            var f = Settings.cartridgeEjectionForceRandomizationDevision;
             c.item.physicBody.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
         }
 
@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
 
         internal void BaseUpdate()
         {
-            foreach (ParticleSystem par in breachSmokeEffects)
+            foreach (var par in breachSmokeEffects)
             {
                 if (CanPlayBreachSmoke() && breachSmokeTime > 0 && !par.isPlaying)
                     par.Play();
@@ -103,7 +103,7 @@ namespace GhettosFirearmSDKv2
         public void IncrementBreachSmokeTime()
         {
             float breachSmokeBaseTime = 4;
-            float breachSmokeIncrement = 2.2f;
+            var breachSmokeIncrement = 2.2f;
 
             if (breachSmokeTime < breachSmokeBaseTime)
                 breachSmokeTime = breachSmokeBaseTime;
@@ -117,7 +117,7 @@ namespace GhettosFirearmSDKv2
             {
                 Util.SpawnItem(chamber.value, "Bolt Chamber", carItem =>
                 {
-                    Cartridge car = carItem.gameObject.GetComponent<Cartridge>();
+                    var car = carItem.gameObject.GetComponent<Cartridge>();
                     LoadChamber(car);
                 }, transform.position + Vector3.up * 3);
             }
@@ -125,7 +125,7 @@ namespace GhettosFirearmSDKv2
 
         void LoadChamber(Cartridge c)
         {
-            bool succ = LoadChamber(c, true);
+            var succ = LoadChamber(c, true);
             if (!succ)
                 c.item.Despawn();
         }
@@ -135,12 +135,12 @@ namespace GhettosFirearmSDKv2
             FirearmSaveData.AttachmentTreeNode node;
             if (firearm.GetType() == typeof(Firearm))
             {
-                Firearm f = (Firearm)firearm;
+                var f = (Firearm)firearm;
                 node = f.saveData.firearmNode;
             }
             else
             {
-                AttachmentFirearm f = (AttachmentFirearm)firearm;
+                var f = (AttachmentFirearm)firearm;
                 node = f.attachment.Node;
             }
 

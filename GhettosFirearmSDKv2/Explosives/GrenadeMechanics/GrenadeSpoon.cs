@@ -27,7 +27,7 @@ namespace GhettosFirearmSDKv2
         {
             grenadeItem.OnUngrabEvent += GrenadeItem_OnUngrabEvent;
             grenadeItem.OnHeldActionEvent += GrenadeItem_OnHeldActionEvent;
-            foreach (Lock l in locks)
+            foreach (var l in locks)
             {
                 l.ChangedEvent += L_ChangedEvent;
             }
@@ -99,7 +99,7 @@ namespace GhettosFirearmSDKv2
 
         private bool AllLocksReleased()
         {
-            foreach (Lock l in locks)
+            foreach (var l in locks)
             {
                 if (!l.IsUnlocked()) return false;
             }

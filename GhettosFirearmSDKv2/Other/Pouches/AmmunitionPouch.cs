@@ -96,7 +96,7 @@ namespace GhettosFirearmSDKv2
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != pouchItem.lightVolumeReceiver))
+            foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != pouchItem.lightVolumeReceiver))
             {
                 Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
             }

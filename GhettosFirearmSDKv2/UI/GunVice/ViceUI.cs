@@ -82,17 +82,17 @@ namespace GhettosFirearmSDKv2
             canvas.enabled = false;
             screenCollider.enabled = false;
             currentSlot = null;
-            foreach (ViceUIAttachmentSlot button in slotButtons)
+            foreach (var button in slotButtons)
             {
                 Destroy(button.gameObject);
             }
             slotButtons.Clear();
-            foreach (ViceUIAttachment button in attachmentButtons)
+            foreach (var button in attachmentButtons)
             {
                 Destroy(button.gameObject);
             }
             attachmentButtons.Clear();
-            foreach (Transform button in categories)
+            foreach (var button in categories)
             {
                 Destroy(button.gameObject);
             }
@@ -101,11 +101,11 @@ namespace GhettosFirearmSDKv2
 
         private Transform GetOrAddCategory(string id)
         {
-            foreach (Transform t in categories)
+            foreach (var t in categories)
             {
                 if (t.name.Equals(id)) return t;
             }
-            Transform cat = Instantiate(categoryButtonPrefab).transform;
+            var cat = Instantiate(categoryButtonPrefab).transform;
             cat.SetParent(categoriesContentReference);
             cat.localScale = Vector3.one;
             cat.localEulerAngles = Vector3.zero;
@@ -139,7 +139,7 @@ namespace GhettosFirearmSDKv2
 
                     if (slotButtons != null)
                     {
-                        foreach (ViceUIAttachmentSlot button in slotButtons)
+                        foreach (var button in slotButtons)
                         {
                             Destroy(button.gameObject);
                         }
@@ -153,7 +153,7 @@ namespace GhettosFirearmSDKv2
 
         private void AddAttachmentSlots(Firearm parentFirearm)
         {
-            foreach (AttachmentPoint point in parentFirearm.attachmentPoints)
+            foreach (var point in parentFirearm.attachmentPoints)
             {
                 if (point.gameObject.activeInHierarchy)
                 {
@@ -165,7 +165,7 @@ namespace GhettosFirearmSDKv2
 
         private void AddSlotsFromAttachment(Attachment attachment)
         {
-            foreach (AttachmentPoint point in attachment.attachmentPoints)
+            foreach (var point in attachment.attachmentPoints)
             {
                 if (point.gameObject.activeInHierarchy)
                 {
@@ -177,13 +177,13 @@ namespace GhettosFirearmSDKv2
 
         private void AddPoint(AttachmentPoint slot, string iconAddress, string name)
         {
-            GameObject obj = Instantiate(slotButtonPrefab, slotContentReference, true);
+            var obj = Instantiate(slotButtonPrefab, slotContentReference, true);
             obj.transform.localScale = Vector3.one;
             obj.transform.localEulerAngles = Vector3.zero;
             obj.transform.localPosition = Vector3.zero;
             obj.SetActive(true);
 
-            ViceUIAttachmentSlot slotUIElement = obj.GetComponent<ViceUIAttachmentSlot>();
+            var slotUIElement = obj.GetComponent<ViceUIAttachmentSlot>();
             Catalog.LoadAssetAsync<Texture2D>(iconAddress, t =>
             {
                 slotUIElement.image.texture = t;
@@ -210,14 +210,14 @@ namespace GhettosFirearmSDKv2
 
         public void AddAttachment(string id, Texture2D icon, string name, string category)
         {
-            GameObject obj = Instantiate(attachmentButtonPrefab);
+            var obj = Instantiate(attachmentButtonPrefab);
             obj.transform.SetParent(GetOrAddCategory(category).GetChild(0));
             obj.transform.localScale = Vector3.one;
             obj.transform.localEulerAngles = Vector3.zero;
             obj.transform.localPosition = Vector3.zero;
             obj.SetActive(true);
 
-            ViceUIAttachment attach = obj.GetComponent<ViceUIAttachment>();
+            var attach = obj.GetComponent<ViceUIAttachment>();
             attach.attachmentName.text = name;
             attach.id = id;
             attach.button.onClick.AddListener(delegate { SpawnAttachment(id); });
@@ -249,24 +249,24 @@ namespace GhettosFirearmSDKv2
 
         public void PositionCategories()
         {
-            foreach (Transform cat in categories)
+            foreach (var cat in categories)
             {
                 if (categories.IndexOf(cat) == 0) cat.localPosition = new Vector3(0, 0, 0);
                 else
                 {
-                    int indexOfThis = categories.IndexOf(cat);
+                    var indexOfThis = categories.IndexOf(cat);
 
-                    int previousHeaders = 0;
-                    foreach (Transform prevCat in categories)
+                    var previousHeaders = 0;
+                    foreach (var prevCat in categories)
                     {
                         if (categories.IndexOf(prevCat) < indexOfThis)
                         {
                             previousHeaders++;
                         }
                     }
-                    int previousGaps = previousHeaders;
-                    int previousRows = previousHeaders;
-                    foreach (Transform prevCat in categories)
+                    var previousGaps = previousHeaders;
+                    var previousRows = previousHeaders;
+                    foreach (var prevCat in categories)
                     {
                         if (categories.IndexOf(prevCat) < indexOfThis)
                         {
@@ -280,21 +280,21 @@ namespace GhettosFirearmSDKv2
                             }
                         }
                     }
-                    float newY = -previousRows * categoryElementHeight - previousHeaders * categroyHeaderHeight - previousGaps * categoryGapHeight;
+                    var newY = -previousRows * categoryElementHeight - previousHeaders * categroyHeaderHeight - previousGaps * categoryGapHeight;
 
                     cat.localPosition = new Vector3(0, newY, 0);
                 }
             }
 
-            RectTransform trans = (RectTransform)categoriesContentReference;
-            int headers = 0;
-            foreach (Transform prevCat in categories)
+            var trans = (RectTransform)categoriesContentReference;
+            var headers = 0;
+            foreach (var prevCat in categories)
             {
                 headers++;
             }
-            int gaps = headers;
-            int rows = headers;
-            foreach (Transform prevCat in categories)
+            var gaps = headers;
+            var rows = headers;
+            foreach (var prevCat in categories)
             {
                 rows += (prevCat.GetChild(0).childCount - 1) / 6;
                 gaps += (prevCat.GetChild(0).childCount - 1) / 6;
@@ -305,25 +305,25 @@ namespace GhettosFirearmSDKv2
                     gaps--;
                 }
             }
-            float Y = rows * categoryElementHeight + headers * categroyHeaderHeight + gaps * categoryGapHeight;
+            var Y = rows * categoryElementHeight + headers * categroyHeaderHeight + gaps * categoryGapHeight;
             trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Y);
         }
 
         private void SetupAttachmentList(string attachmentType, List<string> alternateTypes)
         {
-            foreach (ViceUIAttachment button in attachmentButtons)
+            foreach (var button in attachmentButtons)
             {
                 Destroy(button.gameObject);
             }
             attachmentButtons.Clear();
-            foreach (Transform button in categories)
+            foreach (var button in categories)
             {
                 Destroy(button.gameObject);
             }
             categories.Clear();
 
-            List<AttachmentData> datas = new List<AttachmentData>();
-            foreach (AttachmentData data in Catalog.GetDataList<AttachmentData>())
+            var datas = new List<AttachmentData>();
+            foreach (var data in Catalog.GetDataList<AttachmentData>())
             {
                 if (TypeMatch(attachmentType, alternateTypes, data))
                 {
@@ -332,7 +332,7 @@ namespace GhettosFirearmSDKv2
             }
 
             AddAttachment("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING", null, "Nothing", "Default");
-            foreach (AttachmentData data in datas)
+            foreach (var data in datas)
             {
                 Catalog.LoadAssetAsync<Texture2D>(data.iconAddress, tex => 
                 {
@@ -347,7 +347,7 @@ namespace GhettosFirearmSDKv2
                 return true;
             if (alternateTypes == null || !alternateTypes.Any())
                 return false;
-            foreach (string s in alternateTypes)
+            foreach (var s in alternateTypes)
             {
                 if (data.type.Equals(s))
                     return true;
@@ -364,14 +364,14 @@ namespace GhettosFirearmSDKv2
         public void SpawnAttachment(string id)
         {
             currentSlot.parentFirearm.item.lastInteractionTime = Time.time;
-            for (int i = 0; i < currentSlot.currentAttachments.Count; i++)
+            for (var i = 0; i < currentSlot.currentAttachments.Count; i++)
             {
                 currentSlot.currentAttachments[0].Detach();
             }
             
             if (!id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING"))
                 Catalog.GetData<AttachmentData>(Util.GetSubstituteId(id, "Vice UI")).SpawnAndAttach(currentSlot);
-            foreach (ViceUIAttachment att in attachmentButtons)
+            foreach (var att in attachmentButtons)
             {
                 if (!att.id.Equals("NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING_NOTHING") && id.Equals(att.id))
                     att.rim.enabled = true;

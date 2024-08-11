@@ -38,8 +38,8 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            int count = -1;
-            int capacity = -1;
+            var count = -1;
+            var capacity = -1;
             if (_bolt != null)
             {
                 count = 0;

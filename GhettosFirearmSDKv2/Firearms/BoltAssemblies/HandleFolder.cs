@@ -23,10 +23,10 @@ namespace GhettosFirearmSDKv2
             if (handleNames.Count > 0)
             {
                 handles = new List<Handle>();
-                for (int i = 0; i < handleNames.Count; i++)
+                for (var i = 0; i < handleNames.Count; i++)
                 {
-                    Item it = GetComponentInParent<Item>();
-                    for (int x = 0; x < it.handles.Count; x++)
+                    var it = GetComponentInParent<Item>();
+                    for (var x = 0; x < it.handles.Count; x++)
                     {
                         if (it.handles[x].gameObject.name.Equals(handleNames[i])) handles.Add(it.handles[x]);
                     }
@@ -36,8 +36,8 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            bool held = false;
-            foreach (Handle h in handles)
+            var held = false;
+            foreach (var h in handles)
             {
                 if (h.IsHanded() || (foldIfBoltCaught && bolt && bolt.caught))
                 {

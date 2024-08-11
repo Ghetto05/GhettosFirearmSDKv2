@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            List<Transform> original = magazine.cartridgePositions.ToList();
+            var original = magazine.cartridgePositions.ToList();
             _allPositions = original.ToArray();
             original.RemoveRange(0, hideCount);
             _cappedPositions = original.ToArray();
@@ -57,15 +57,15 @@ namespace GhettosFirearmSDKv2
         private IEnumerator LinkEject(Item item)
         {
             yield return new WaitForSeconds(0.01f);
-            float f = Settings.cartridgeEjectionForceRandomizationDevision;
+            var f = Settings.cartridgeEjectionForceRandomizationDevision;
             item.physicBody.AddForce(magazine.currentWell.beltLinkEjectDir.forward * (beltLinkEjectForce + Random.Range(-(beltLinkEjectForce / f), beltLinkEjectForce / f)), ForceMode.Impulse);
             f = Settings.cartridgeEjectionTorque;
-            Vector3 torque = new Vector3
-                             {
-                                 x = Random.Range(-f, f),
-                                 y = Random.Range(-f, f),
-                                 z = Random.Range(-f, f)
-                             };
+            var torque = new Vector3
+                         {
+                             x = Random.Range(-f, f),
+                             y = Random.Range(-f, f),
+                             z = Random.Range(-f, f)
+                         };
             item.physicBody.AddTorque(torque, ForceMode.Impulse);
         }
 
@@ -78,7 +78,7 @@ namespace GhettosFirearmSDKv2
             
             magazine.cartridgePositions = _allPositions;
             magazine.UpdateCartridgePositions();
-            for (int i = 0; i < hideCount; i++)
+            for (var i = 0; i < hideCount; i++)
             {
                 beltLinks[i].SetActive(true);
             }
@@ -93,7 +93,7 @@ namespace GhettosFirearmSDKv2
             
             magazine.cartridgePositions = _cappedPositions;
             magazine.UpdateCartridgePositions();
-            for (int i = 0; i < hideCount; i++)
+            for (var i = 0; i < hideCount; i++)
             {
                 beltLinks[i].SetActive(false);
             }
@@ -101,10 +101,10 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            int linkCount = magazine.cartridges.Count;
+            var linkCount = magazine.cartridges.Count;
             if (!_inserted)
                 linkCount += hideCount;
-            for (int i = 0; i < beltLinks.Length; i++)
+            for (var i = 0; i < beltLinks.Length; i++)
             {
                 beltLinks[i].SetActive(linkCount > i && (_inserted || i >= hideCount));
             }

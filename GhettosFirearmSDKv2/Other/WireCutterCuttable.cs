@@ -30,11 +30,11 @@ namespace GhettosFirearmSDKv2
 
         public static void CutFound(Vector3 root, float range)
         {
-            Dictionary<Collider, bool> states = new Dictionary<Collider, bool>();
+            var states = new Dictionary<Collider, bool>();
             
-            foreach (WireCutterCuttable cuttable in All)
+            foreach (var cuttable in All)
             {
-                foreach (Collider collider in cuttable.cuttableColliders)
+                foreach (var collider in cuttable.cuttableColliders)
                 {
                     try
                     {
@@ -48,11 +48,11 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            Collider[] results = new Collider[0];
+            var results = new Collider[0];
             Physics.OverlapSphereNonAlloc(root, range, results);
             
-            List<WireCutterCuttable> found = new List<WireCutterCuttable>();
-            foreach (Collider c in results)
+            var found = new List<WireCutterCuttable>();
+            foreach (var c in results)
             {
                 if (c.GetComponentInParent<WireCutterCuttable>() is { } wcc && !found.Contains(wcc) && !wcc.cut)
                 {
@@ -62,7 +62,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
             
-            foreach (KeyValuePair<Collider, bool> pair in states)
+            foreach (var pair in states)
             {
                 pair.Key.enabled = pair.Value;
             }

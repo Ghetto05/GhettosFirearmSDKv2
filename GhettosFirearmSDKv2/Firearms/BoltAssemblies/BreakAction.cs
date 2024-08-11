@@ -81,8 +81,8 @@ namespace GhettosFirearmSDKv2
 
             if (editorChamberSets.Any())
             {
-                int i = 0;
-                foreach (string s in editorChamberSets)
+                var i = 0;
+                foreach (var s in editorChamberSets)
                 {
                     chamberSets.Add(i, new List<int>());
                     chamberSets[i].AddRange(s.Split(',').Select(cs => int.Parse(cs)));
@@ -92,7 +92,7 @@ namespace GhettosFirearmSDKv2
             else
             {
                 chamberSets.Add(0, new List<int>());
-                for (int i = 0; i < mountPoints.Count; i++)
+                for (var i = 0; i < mountPoints.Count; i++)
                 {
                     chamberSets[0].Add(i);
                 }
@@ -115,7 +115,7 @@ namespace GhettosFirearmSDKv2
 
                 if (triggers.Any() && triggers.Count > currentChamberSet)
                 {
-                    foreach (Trigger t in triggers)
+                    foreach (var t in triggers)
                     {
                         t.triggerEnabled = false;
                     }
@@ -126,12 +126,12 @@ namespace GhettosFirearmSDKv2
             Initialize();
             if (firearm.item.TryGetCustomData(out data))
             {
-                for (int i = 0; i < data.contents.Length; i++)
+                for (var i = 0; i < data.contents.Length; i++)
                 {
                     if (data.contents[i] != null)
                     {
-                        int index = i;
-                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        var index = i;
+                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { var c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -159,7 +159,7 @@ namespace GhettosFirearmSDKv2
         {
             currentChamber = chamberSets[set].First();
 
-            foreach (Trigger t in triggers)
+            foreach (var t in triggers)
             {
                 t.triggerEnabled = false;
             }
@@ -169,7 +169,7 @@ namespace GhettosFirearmSDKv2
 
             if (targetHandPoseData.Any())
             {
-                foreach (HandlePose h in firearm.AllTriggerHandles().Where(h => h != null).SelectMany(h => h.orientations))
+                foreach (var h in firearm.AllTriggerHandles().Where(h => h != null).SelectMany(h => h.orientations))
                 {
                     h.targetHandPoseData = targetHandPoseData[set];
                 }
@@ -200,11 +200,11 @@ namespace GhettosFirearmSDKv2
             if (!allowInsert) return;
             if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded)
             {
-                foreach (Collider insertCollider in loadColliders)
+                foreach (var insertCollider in loadColliders)
                 {
                     if (Util.CheckForCollisionWithThisCollider(collision, insertCollider))
                     {
-                        int index = loadColliders.IndexOf(insertCollider);
+                        var index = loadColliders.IndexOf(insertCollider);
                         LoadChamber(index, car);
                     }
                 }
@@ -234,7 +234,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryEject()
         {
-            for (int i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 TryEjectSingle(i);
             }
@@ -244,7 +244,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridges[i] != null)
             {
-                Cartridge c = loadedCartridges[i];
+                var c = loadedCartridges[i];
                 if (Settings.breakActionsEjectOnlyFired && !c.fired && !ignoreFiredState)
                     return;
                 if (chamberSets.Any() && !chamberSets[currentChamberSet].Contains(i))
@@ -260,7 +260,7 @@ namespace GhettosFirearmSDKv2
                 Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
                 c.ToggleCollision(true);
                 Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-                Rigidbody rb = c.item.physicBody.rigidBody;
+                var rb = c.item.physicBody.rigidBody;
                 c.item.DisallowDespawn = false;
                 c.transform.parent = null;
                 c.loaded = false;
@@ -303,7 +303,7 @@ namespace GhettosFirearmSDKv2
 
                 if (!ejector)
                 {
-                    for (int i = 0; i < ejectDirections.Count; i++)
+                    for (var i = 0; i < ejectDirections.Count; i++)
                     {
                         if (CheckEjectionGravity(ejectDirections[i]))
                         {
@@ -320,7 +320,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (firearm.fireMode == FirearmBase.FireModes.Semi && shotsSinceTriggerReset == 0) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Burst && shotsSinceTriggerReset < firearm.burstSize) TryFire();
-                else if (firearm.fireMode == FirearmBase.FireModes.Auto) for (int i = 0; i < mountPoints.Count; i++) { TryFire(); };
+                else if (firearm.fireMode == FirearmBase.FireModes.Auto) for (var i = 0; i < mountPoints.Count; i++) { TryFire(); };
             }
             else shotsSinceTriggerReset = 0;
         }
@@ -332,7 +332,7 @@ namespace GhettosFirearmSDKv2
 
         private bool CheckEjectionGravity(Transform t)
         {
-            float angle = Vector3.Angle(t.forward, Vector3.down);
+            var angle = Vector3.Angle(t.forward, Vector3.down);
             return angle < 50f;
         }
 
@@ -354,7 +354,7 @@ namespace GhettosFirearmSDKv2
                 a = ta.localEulerAngles.z;
                 b = tb.localEulerAngles.z;
             }
-            float angle = Mathf.Abs(a-b);
+            var angle = Mathf.Abs(a-b);
             return angle <= 2f;
         }
 
@@ -362,8 +362,8 @@ namespace GhettosFirearmSDKv2
         {
             if (state == BoltState.Locked)
             {
-                bool hammerCocked = hammers.Count - 1 < currentChamber || hammers[currentChamber] == null || hammers[currentChamber].cocked;
-                bool cartridge = loadedCartridges[currentChamber] != null && !loadedCartridges[currentChamber].fired;
+                var hammerCocked = hammers.Count - 1 < currentChamber || hammers[currentChamber] == null || hammers[currentChamber].cocked;
+                var cartridge = loadedCartridges[currentChamber] != null && !loadedCartridges[currentChamber].fired;
                 
                 shotsSinceTriggerReset++;
                 if (hammers.Count > currentChamber && hammers[currentChamber] != null)
@@ -371,13 +371,13 @@ namespace GhettosFirearmSDKv2
 
                 if (hammerCocked && cartridge)
                 {
-                    foreach (RagdollHand hand in firearm.item.handlers)
+                    foreach (var hand in firearm.item.handlers)
                     {
                         if (hand.playerHand != null || hand.playerHand.controlHand != null)
                             hand.playerHand.controlHand.HapticShort(50f);
                     }
-                    Transform muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[currentChamber];
-                    Cartridge loadedCartridge = loadedCartridges[currentChamber];
+                    var muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[currentChamber];
+                    var loadedCartridge = loadedCartridges[currentChamber];
                     IncrementBreachSmokeTime();
                     firearm.PlayFireSound(loadedCartridge);
                     if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
@@ -386,7 +386,7 @@ namespace GhettosFirearmSDKv2
                         else firearm.PlayMuzzleFlash(loadedCartridge);
                     }
                     FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-                    FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+                    FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                     loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, !Settings.infiniteAmmo);
                     InvokeFireEvent();
                 }
@@ -417,7 +417,7 @@ namespace GhettosFirearmSDKv2
                 return;
             }
 
-            float actualPercentage = (cyclePercentage - ejectorMoveStartPercentage) / (1 - ejectorMoveStartPercentage);
+            var actualPercentage = (cyclePercentage - ejectorMoveStartPercentage) / (1 - ejectorMoveStartPercentage);
             ejectorAxis.position = Vector3.Lerp(ejectorClosedPosition.position, ejectorOpenedPosition.position, actualPercentage);
             ejectorAxis.rotation = Quaternion.Lerp(ejectorClosedPosition.rotation, ejectorOpenedPosition.rotation, actualPercentage);
         }
@@ -427,7 +427,7 @@ namespace GhettosFirearmSDKv2
             if (state == BoltState.Locked)
                 Unlock();
             else if (Settings.breakActionsEjectOnlyFired)
-                for (int i = 0; i < loadedCartridges.Length; i++)
+                for (var i = 0; i < loadedCartridges.Length; i++)
                 {
                     TryEjectSingle(i, true);
                 }
@@ -448,7 +448,7 @@ namespace GhettosFirearmSDKv2
                 lockAxis.localEulerAngles = lockLockedPosition.localEulerAngles;
             }
             Util.PlayRandomAudioSource(lockSounds);
-            foreach (Handle h in barrel.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
+            foreach (var h in barrel.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
             {
                 h.SetTouch(true);
             }
@@ -469,9 +469,9 @@ namespace GhettosFirearmSDKv2
             }
             ejectedSinceOpen = false;
             Util.PlayRandomAudioSource(unlockSounds);
-            foreach (Handle h in barrel.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
+            foreach (var h in barrel.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
             {
-                foreach (RagdollHand hand in h.handlers.ToArray())
+                foreach (var hand in h.handlers.ToArray())
                 {
                     hand.UnGrab(false);
                 }
@@ -519,7 +519,7 @@ namespace GhettosFirearmSDKv2
         public void SaveCartridges()
         {
             data.contents = new string[loadedCartridges.Length];
-            for (int i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 data.contents[i] = loadedCartridges[i]?.item.itemId;
             }
@@ -528,7 +528,7 @@ namespace GhettosFirearmSDKv2
         public override void UpdateChamberedRounds()
         {
             base.UpdateChamberedRounds();
-            for (int i = 0; i < mountPoints.Count; i++)
+            for (var i = 0; i < mountPoints.Count; i++)
             {
                 if (loadedCartridges[i] != null)
                 {
@@ -542,16 +542,16 @@ namespace GhettosFirearmSDKv2
 
         public void CalculateCyclePercentage()
         {
-            float angle = Quaternion.Angle(rb.transform.rotation, closedPosition.rotation);
-            float targetAngle = Quaternion.Angle(openedPosition.rotation, closedPosition.rotation);
+            var angle = Quaternion.Angle(rb.transform.rotation, closedPosition.rotation);
+            var targetAngle = Quaternion.Angle(openedPosition.rotation, closedPosition.rotation);
 
             cyclePercentage = Mathf.Clamp01(angle / targetAngle);
         }
 
         private int GetFirstFreeChamber()
         {
-            List<int> availableChambers = new List<int>();
-            for (int i = loadedCartridges.Length - 1; i >= 0; i--)
+            var availableChambers = new List<int>();
+            for (var i = loadedCartridges.Length - 1; i >= 0; i--)
             {
                 if (loadedCartridges[i] == null)
                     availableChambers.Add(i);
@@ -587,13 +587,13 @@ namespace GhettosFirearmSDKv2
 
         public void ClearRounds()
         {
-            foreach (Cartridge car in loadedCartridges)
+            foreach (var car in loadedCartridges)
             { 
                 if (car != null)
                     car.item.Despawn(0.05f);
             }
             
-            for (int i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 TryEjectSingle(i, true, true);
             }

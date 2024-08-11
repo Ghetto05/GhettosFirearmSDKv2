@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2
 
         private bool CheckEjectionGravity(Transform t)
         {
-            float angle = Vector3.Angle(t.forward, Vector3.down);
+            var angle = Vector3.Angle(t.forward, Vector3.down);
             return angle < maximumAngle;
         }
     }

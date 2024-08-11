@@ -11,15 +11,15 @@ namespace GhettosFirearmSDKv2
         {
             #region Initial message
 
-            string version = ModManager.TryGetModData(GetType().Assembly, out ModManager.ModData data) ? data.ModVersion : "?";
+            var version = ModManager.TryGetModData(GetType().Assembly, out var data) ? data.ModVersion : "?";
 
-            string initialMessage = $"\n\n" +
-                             $"----> Loaded FirearmSDKv2!\n" +
-                             $"----> Version: {version}\n" +
-                             $"----> \n" +
-                             $"----> Mod versions check:\n" +
-                             $"{UpdateChecker.CheckForUpdates()}" +
-                             $"\n\n";
+            var initialMessage = $"\n\n" +
+                                 $"----> Loaded FirearmSDKv2!\n" +
+                                 $"----> Version: {version}\n" +
+                                 $"----> \n" +
+                                 $"----> Mod versions check:\n" +
+                                 $"{UpdateChecker.CheckForUpdates()}" +
+                                 $"\n\n";
 
             Debug.Log(initialMessage);
 
@@ -27,12 +27,12 @@ namespace GhettosFirearmSDKv2
 
             #region HandPose check
             
-            List<HandPoseData> incompleteData = Catalog.GetDataList<HandPoseData>().Where(x => !x.poses.Any(y => y.creatureName.Equals("HumanMale")) || !x.poses.Any(y => y.creatureName.Equals("HumanFemale"))).ToList();
+            var incompleteData = Catalog.GetDataList<HandPoseData>().Where(x => !x.poses.Any(y => y.creatureName.Equals("HumanMale")) || !x.poses.Any(y => y.creatureName.Equals("HumanFemale"))).ToList();
             if (incompleteData.Count > 0)
             {
-                string dataMessage = "\n";
+                var dataMessage = "\n";
                 dataMessage += "INCOMPLETE HANDLE DATA FOUND! The following hand poses lack a creature:";
-                foreach (HandPoseData pose in incompleteData)
+                foreach (var pose in incompleteData)
                 {
                     if (pose.poses.Any(x => x.creatureName.Equals("HumanMale")))
                         dataMessage += $"\n   ID: {pose.id} - HumanMale";
@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
             {
                 creature.gameObject.AddComponent<Chemicals.NPCChemicalsModule>();
 
-                string id = "NoneFound";
+                var id = "NoneFound";
                 if (creature.data.prefabAddress.Equals("Bas.Creature.HumanMale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Male";
                 else if (creature.data.prefabAddress.Equals("Bas.Creature.HumanFemale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Female";
                 else if (creature.data.prefabAddress.Equals("Bas.Creature.Chicken")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Chicken";
@@ -81,7 +81,7 @@ namespace GhettosFirearmSDKv2
                 {
                     Catalog.InstantiateAsync(id, creature.transform.position, creature.transform.rotation, creature.transform, body =>
                     {
-                        ThermalBody tb = body.GetComponent<ThermalBody>();
+                        var tb = body.GetComponent<ThermalBody>();
                         tb.ApplyTo(creature);
                     }, "Thermal Imaging Spawner");
                 }
@@ -94,7 +94,7 @@ namespace GhettosFirearmSDKv2
             Player.local.gameObject.AddComponent<Chemicals.PlayerEffectsAndChemicalsModule>();
 
             //Penetration Levels
-            foreach (RequiredPenetrationPowerData rppd in Catalog.GetDataList<RequiredPenetrationPowerData>())
+            foreach (var rppd in Catalog.GetDataList<RequiredPenetrationPowerData>())
             {
                 rppd.Init();
             }
@@ -104,7 +104,7 @@ namespace GhettosFirearmSDKv2
                 HomeAdjustments.local.SpawnHomeItems();
 
             //First person only renderer
-            NVGOnlyRenderer ren = Player.local.head.cam.gameObject.AddComponent<NVGOnlyRenderer>();
+            var ren = Player.local.head.cam.gameObject.AddComponent<NVGOnlyRenderer>();
             ren.renderCamera = Player.local.head.cam;
             ren.renderType = NVGOnlyRenderer.Types.FirstPerson;
         }

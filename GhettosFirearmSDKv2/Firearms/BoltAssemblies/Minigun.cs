@@ -71,9 +71,9 @@ namespace GhettosFirearmSDKv2
             beginTime = Time.time;
             revUpBeginTime = Time.time;
             RevUpSound.Play();
-            float timeForOneRound = 60f / firearm.roundsPerMinute;
-            float timeForOneRotation = timeForOneRound * barrelAngles.Length;
-            float rotationsPerSecond = 1 / timeForOneRotation;
+            var timeForOneRound = 60f / firearm.roundsPerMinute;
+            var timeForOneRotation = timeForOneRound * barrelAngles.Length;
+            var rotationsPerSecond = 1 / timeForOneRotation;
             degreesPerSecond = rotationsPerSecond * 360;
         }
 
@@ -100,8 +100,8 @@ namespace GhettosFirearmSDKv2
             
             if (revvingUp || revvingDown)
             {
-                float timeSinceStart = Time.time - beginTime;
-                float speed = timeSinceStart / RevUpSound.clip.length;
+                var timeSinceStart = Time.time - beginTime;
+                var speed = timeSinceStart / RevUpSound.clip.length;
                 if (speed > 1)
                     speed = 1;
                 if (revvingDown)
@@ -143,7 +143,7 @@ namespace GhettosFirearmSDKv2
                 return;
             }
             lastShotTime = Time.time;
-            foreach (RagdollHand hand in firearm.item.handlers)
+            foreach (var hand in firearm.item.handlers)
             {
                 if (hand.playerHand != null && hand.playerHand.controlHand != null) 
                     hand.playerHand.controlHand.HapticShort(50f);
@@ -156,7 +156,7 @@ namespace GhettosFirearmSDKv2
             firearm.PlayFireSound(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
             Util.PlayRandomAudioSource(firearm.fireSounds);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, true);
             EjectRound();
             InvokeFireEvent();
@@ -167,7 +167,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null)
                 return;
-            Cartridge c = loadedCartridge;
+            var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -177,7 +177,7 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = c.GetComponent<Rigidbody>();
+            var rb = c.GetComponent<Rigidbody>();
             c.item.DisallowDespawn = false;
             c.transform.parent = null;
             rb.isKinematic = false;

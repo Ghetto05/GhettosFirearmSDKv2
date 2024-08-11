@@ -35,13 +35,13 @@ namespace GhettosFirearmSDKv2
 
             if (item.TryGetCustomData(out data))
             {
-                for (int i = 0; i < loadedCartridges.Length; i++)
+                for (var i = 0; i < loadedCartridges.Length; i++)
                 {
-                    int i2 = i;
+                    var i2 = i;
                     if (data.contents[i2] != null)
                         Util.SpawnItem(data.contents[i], $"[Saved speedloader rounds - Index {i2} on {item?.itemId}]", ci =>
                         {
-                            Cartridge c = ci.GetComponent<Cartridge>();
+                            var c = ci.GetComponent<Cartridge>();
                             LoadSlot(i2, c, false);
                         }, transform.position + Vector3.up * 3);
                 }
@@ -57,7 +57,7 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnUnSnapEvent(Holder holder)
         {
-            foreach (Cartridge c in loadedCartridges)
+            foreach (var c in loadedCartridges)
             {
                 if (c != null) c.ToggleCollision(true);
             }
@@ -65,7 +65,7 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnSnapEvent(Holder holder)
         {
-            foreach (Cartridge c in loadedCartridges)
+            foreach (var c in loadedCartridges)
             {
                 if (c != null) c.ToggleCollision(false);
             }
@@ -82,11 +82,11 @@ namespace GhettosFirearmSDKv2
             if (!allowInsert) return;
             if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded)
             {
-                foreach (Collider insertCollider in loadColliders)
+                foreach (var insertCollider in loadColliders)
                 {
                     if (Util.CheckForCollisionWithThisCollider(collision, insertCollider))
                     {
-                        int index = loadColliders.IndexOf(insertCollider);
+                        var index = loadColliders.IndexOf(insertCollider);
                         LoadSlot(index, car);
                     }
                 }
@@ -115,7 +115,7 @@ namespace GhettosFirearmSDKv2
 
         private void UpdateCartridges()
         {
-            for (int i = 0; i < mountPoints.Count; i++)
+            for (var i = 0; i < mountPoints.Count; i++)
             {
                 if (loadedCartridges[i] != null)
                 {
@@ -129,9 +129,9 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            for (int i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < loadedCartridges.Length; i++)
             {
-                foreach (Cartridge c in loadedCartridges)
+                foreach (var c in loadedCartridges)
                 {
                     if (c != null && !c.loaded)
                         c.ToggleCollision(item.holder == null);
@@ -151,7 +151,7 @@ namespace GhettosFirearmSDKv2
 
         private bool Empty()
         {
-            for (int i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 if (loadedCartridges[i] != null) return false;
             }
@@ -161,7 +161,7 @@ namespace GhettosFirearmSDKv2
         public void SaveCartridges()
         {
             data.contents = new string[loadedCartridges.Length];
-            for (int i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 data.contents[i] = loadedCartridges[i]?.item.itemId;
             }
@@ -184,13 +184,13 @@ namespace GhettosFirearmSDKv2
 
         public void LoadRound(Cartridge cartridge)
         {
-            if (FirstFreeSlot(out int free))
+            if (FirstFreeSlot(out var free))
                 LoadSlot(free, cartridge);
         }
 
         private bool FirstFreeSlot(out int firstFree)
         {
-            for (int i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 firstFree = i;
                 if (loadedCartridges[i] == null)
@@ -203,7 +203,7 @@ namespace GhettosFirearmSDKv2
 
         public void ClearRounds()
         {
-            foreach (Cartridge c in loadedCartridges.Where(x => x != null && x.item != null))
+            foreach (var c in loadedCartridges.Where(x => x != null && x.item != null))
             {
                 c.item.Despawn(0.5f);
             }

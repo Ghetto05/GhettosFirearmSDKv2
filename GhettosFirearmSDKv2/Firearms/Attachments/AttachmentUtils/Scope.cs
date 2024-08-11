@@ -57,7 +57,7 @@ namespace GhettosFirearmSDKv2
 
         private void InvokedStart()
         {
-            RenderTexture rt = new RenderTexture(1024, 1024, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
+            var rt = new RenderTexture(1024, 1024, 1, UnityEngine.Experimental.Rendering.DefaultFormat.HDR);
             rt.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_UNorm;
             cam.targetTexture = rt;
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
@@ -124,7 +124,7 @@ namespace GhettosFirearmSDKv2
         {
             if (Reticles.Count > currentIndex && Reticles[currentIndex] != null)
             {
-                foreach (GameObject reticle in Reticles)
+                foreach (var reticle in Reticles)
                 {
                     reticle.SetActive(false);
                 }
@@ -139,11 +139,11 @@ namespace GhettosFirearmSDKv2
 
         public void SetFOVFromMagnification(float magnification)
         {
-            float factor = 2.0f * Mathf.Tan(0.5f * Settings.scopeX1MagnificationFOV * Mathf.Deg2Rad);
-            float fov = 2.0f * Mathf.Atan(factor / (2.0f * magnification)) * Mathf.Rad2Deg;
+            var factor = 2.0f * Mathf.Tan(0.5f * Settings.scopeX1MagnificationFOV * Mathf.Deg2Rad);
+            var fov = 2.0f * Mathf.Atan(factor / (2.0f * magnification)) * Mathf.Rad2Deg;
             
             cam.fieldOfView = fov;
-            foreach (Camera c in additionalCameras)
+            foreach (var c in additionalCameras)
             {
                 c.fieldOfView = fov;
             }
@@ -152,7 +152,7 @@ namespace GhettosFirearmSDKv2
 
         public void UpdateRenderers()
         {
-            foreach (MeshRenderer l in lenses)
+            foreach (var l in lenses)
             {
                 l.materials[materialIndex].SetTexture("_BaseMap", cam.targetTexture);
                 l.materials[materialIndex].SetTextureScale("_BaseMap", Vector2.one * GetScale());

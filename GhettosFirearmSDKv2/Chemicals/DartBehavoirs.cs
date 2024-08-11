@@ -34,7 +34,7 @@ namespace GhettosFirearmSDKv2
 
         private void Heal(List<Creature> creatures)
         {
-            foreach (Creature c in creatures)
+            foreach (var c in creatures)
             {
                 c.Heal(500, null);
                 if (c.isKilled)
@@ -50,11 +50,11 @@ namespace GhettosFirearmSDKv2
 
         private void MissingTexture(List<Creature> creatures)
         {
-            foreach (Creature c in creatures)
+            foreach (var c in creatures)
             {
                 c.Kill();
                 c.ragdoll.SetState(Ragdoll.State.Disabled);
-                foreach (Creature.RendererData r in c.renderers)
+                foreach (var r in c.renderers)
                 {
                     r.renderer.material = null;
                 }
@@ -63,9 +63,9 @@ namespace GhettosFirearmSDKv2
 
         private void Gun(List<Creature> creatures)
         {
-            foreach (Creature c in creatures)
+            foreach (var c in creatures)
             {
-                Vector3 v = c.transform.position;
+                var v = c.transform.position;
                 c.Despawn();
                 if (GunLockerSaveData.allPrebuilts.Count > 0)
                     GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count - 1)].SpawnAsync(item => { }, v + Vector3.up);
@@ -74,7 +74,7 @@ namespace GhettosFirearmSDKv2
 
         private void Poison(List<Creature> creatures)
         {
-            foreach (Creature c in creatures)
+            foreach (var c in creatures)
             {
                 StartCoroutine(PoisonIE(c));
             }

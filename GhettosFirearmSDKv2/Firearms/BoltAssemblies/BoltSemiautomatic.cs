@@ -78,7 +78,7 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            foreach (BoltReleaseButton releaseButton in releaseButtons)
+            foreach (var releaseButton in releaseButtons)
             {
                 releaseButton.OnReleaseEvent += TryRelease;
             }
@@ -123,16 +123,16 @@ namespace GhettosFirearmSDKv2
         public void UpdateBoltHandles()
         {
             boltHandles = new List<Handle>();
-            foreach (Handle h in rigidBody.gameObject.GetComponentsInChildren<Handle>())
+            foreach (var h in rigidBody.gameObject.GetComponentsInChildren<Handle>())
             {
                 boltHandles.Add(h);
                 h.customRigidBody = rigidBody;
             }
-            foreach (AttachmentPoint point in onBoltPoints)
+            foreach (var point in onBoltPoints)
             {
-                foreach (Attachment attachment in point.GetAllChildAttachments())
+                foreach (var attachment in point.GetAllChildAttachments())
                 {
-                    foreach (Handle handle in attachment.handles)
+                    foreach (var handle in attachment.handles)
                     {
                         handle.customRigidBody = rigidBody;
                         boltHandles.Add(handle);
@@ -221,7 +221,7 @@ namespace GhettosFirearmSDKv2
                 return;
             }
 
-            foreach (RagdollHand hand in firearm.item.handlers)
+            foreach (var hand in firearm.item.handlers)
             {
                 if (hand.playerHand != null && hand.playerHand.controlHand != null) hand.playerHand.controlHand.HapticShort(50f);
             }
@@ -230,7 +230,7 @@ namespace GhettosFirearmSDKv2
                 firearm.PlayMuzzleFlash(loadedCartridge);
             IncrementBreachSmokeTime();
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !(firearm.roundsPerMinute > 0 && HeldByAI()));
             if (firearm.roundsPerMinute > 0)
                 isReciprocating = true;
@@ -257,7 +257,7 @@ namespace GhettosFirearmSDKv2
             if (overrideHeldState)
                 return heldState;
             
-            foreach (Handle handle in boltHandles)
+            foreach (var handle in boltHandles)
             {
                 if (handle.IsHanded()) return true;
             }
@@ -267,8 +267,8 @@ namespace GhettosFirearmSDKv2
         public bool MoveBoltWithRB()
         {
             if (!hasBoltcatch && !isOpenBolt) return true;
-            bool behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(catchPoint.localPosition, startPoint.localPosition);
-            bool hasChargingHandle = chargingHandle != null;
+            var behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(catchPoint.localPosition, startPoint.localPosition);
+            var hasChargingHandle = chargingHandle != null;
             //Debug.Log($"Handle behind lock point: {hasChargingHandle && behindCatchpoint} no charging handle: {!hasChargingHandle} not caught: {!caught} state: {state.ToString()}");
             return (hasChargingHandle && behindCatchpoint) || !hasChargingHandle || !caught;
         }
@@ -279,7 +279,7 @@ namespace GhettosFirearmSDKv2
 
             //UpdateChamberedRound();
             if (caught && letGoBeforeClosed && chargingHandle != null) chargingHandle.localPosition = startPoint.localPosition;
-            foreach (BoltReleaseButton releaseButton in releaseButtons)
+            foreach (var releaseButton in releaseButtons)
             {
                 releaseButton.caught = caught;
             }
@@ -539,7 +539,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null)
                 return;
             SaveChamber("");
-            Cartridge c = loadedCartridge;
+            var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -549,7 +549,7 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = c.item.physicBody.rigidBody;
+            var rb = c.item.physicBody.rigidBody;
             c.item.DisallowDespawn = false;
             c.transform.parent = null;
             c.loaded = false;
@@ -566,7 +566,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryLoadRound()
         {
-            bool originallyInfinite = false;
+            var originallyInfinite = false;
             if (HeldByAI() && firearm.magazineWell?.currentMagazine != null)
             {
                 originallyInfinite = firearm.magazineWell.currentMagazine.infinite;
@@ -605,7 +605,7 @@ namespace GhettosFirearmSDKv2
                 joint.connectedBody = rigidBody;
                 joint.massScale = 0.00001f;
             }
-            SoftJointLimit limit = new SoftJointLimit();
+            var limit = new SoftJointLimit();
             if (boltActionLocked)
             {
                 joint.anchor = GrandparentLocalPosition(caught? catchPoint : rigidBody.transform, firearm.item.transform);
@@ -659,8 +659,8 @@ namespace GhettosFirearmSDKv2
 
         private float BoltLerp(float startTime, float rpm)
         {
-            float timeThatPassed = Time.time - startTime;
-            float timeForOneRound = 60f / rpm;
+            var timeThatPassed = Time.time - startTime;
+            var timeForOneRound = 60f / rpm;
             return timeThatPassed / (timeForOneRound / 2f);
         }
 
@@ -687,8 +687,8 @@ namespace GhettosFirearmSDKv2
 
         public void CalculatePercentage()
         {
-            float distanceStartBolt = Util.AbsDist(bolt, startPoint);
-            float totalDistance = Util.AbsDist(startPoint, endPoint);
+            var distanceStartBolt = Util.AbsDist(bolt, startPoint);
+            var totalDistance = Util.AbsDist(startPoint, endPoint);
             cyclePercentage = Mathf.Clamp01(distanceStartBolt / totalDistance);
         }
     }

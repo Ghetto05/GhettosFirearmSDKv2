@@ -31,7 +31,7 @@ namespace GhettosFirearmSDKv2
 
         public MagazineSaveData ToSaveData()
         {
-            MagazineSaveData data = new MagazineSaveData();
+            var data = new MagazineSaveData();
             data.contents = ids.CloneJson();
             return data;
         }

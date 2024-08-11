@@ -22,7 +22,7 @@ namespace GhettosFirearmSDKv2
         {
             if (detachHandles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
             {
-                Item oldItem = attachment.attachmentPoint.parentFirearm.item;
+                var oldItem = attachment.attachmentPoint.parentFirearm.item;
                 Util.SpawnItem(itemId, "Attachable Item Detach",item =>
                 {
                     Util.IgnoreCollision(item.gameObject, oldItem.gameObject, true);
@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
                     ragdollHand.Grab(item.GetMainHandle(ragdollHand.side));
                 }, ragdollHand.grip.position, ragdollHand.grip.rotation);
 
-                AudioSource s = Util.PlayRandomAudioSource(detachSounds);
+                var s = Util.PlayRandomAudioSource(detachSounds);
                 if (s != null)
                 {
                     s.transform.SetParent(ragdollHand.transform);

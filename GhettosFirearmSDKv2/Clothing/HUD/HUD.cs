@@ -12,7 +12,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Creature cr = GetComponentInParent<Creature>();
+            var cr = GetComponentInParent<Creature>();
             if (!cr.brain.instance.id.Equals("Player"))
             {
                 Destroy(hudObject);

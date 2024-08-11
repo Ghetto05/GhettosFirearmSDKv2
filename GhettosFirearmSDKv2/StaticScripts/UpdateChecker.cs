@@ -15,15 +15,15 @@ namespace GhettosFirearmSDKv2
 
         public static string CheckForUpdates()
         {
-            if (!Settings.hideUpdateNotifications && AttemptDownload(out string content))
+            if (!Settings.hideUpdateNotifications && AttemptDownload(out var content))
             {
                 EventManager.onLevelLoad += EventManager_onLevelLoad;
-                List<ModManager.ModData> modsToUpdate = new List<ModManager.ModData>();
-                Dictionary<string, string> versionData = JsonConvert.DeserializeObject<Dictionary<string, string>>(content);
-                List<ModManager.ModData> mods = ModManager.loadedMods.ToList();
+                var modsToUpdate = new List<ModManager.ModData>();
+                var versionData = JsonConvert.DeserializeObject<Dictionary<string, string>>(content);
+                var mods = ModManager.loadedMods.ToList();
                 if (!string.IsNullOrWhiteSpace(content))
                 {
-                    foreach (ModManager.ModData mod in mods)
+                    foreach (var mod in mods)
                     {
                         if (versionData.ContainsKey(mod.Name) && !NewerOrEqual(mod.ModVersion, versionData[mod.Name]))
                         {
@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
                 if (modsToUpdate.Count != 0)
                 {
                     message = "----> The following mods need to be updated:";
-                    foreach (ModManager.ModData data in modsToUpdate)
+                    foreach (var data in modsToUpdate)
                     {
                         message += "\n---->   - " + data.Name + ", new version: " + versionData[data.Name];
                     }
@@ -67,7 +67,7 @@ namespace GhettosFirearmSDKv2
         public static bool AttemptDownload(out string content)
         {
             content = "";
-            using (WebClient wc = new WebClient())
+            using (var wc = new WebClient())
             {
                 wc.Headers.Add("a", "a");
                 try
@@ -85,8 +85,8 @@ namespace GhettosFirearmSDKv2
 
         public static bool NewerOrEqual(string current, string newest)
         {
-            Version currentVersion = new Version(current);
-            Version newerVersion = new Version(newest);
+            var currentVersion = new Version(current);
+            var newerVersion = new Version(newest);
             //return currentVersion.CompareTo(newerVersion) == 0; // for debug
             return currentVersion.CompareTo(newerVersion) >= 0;
         }

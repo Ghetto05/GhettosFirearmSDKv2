@@ -11,7 +11,7 @@ namespace GhettosFirearmSDKv2
         
         void Update()
         {
-            foreach (MeshRenderer ob in meshRenderers)
+            foreach (var ob in meshRenderers)
             {
                 //Debug.Log("mesh " + ob.name + " " + (ob != null) + " " + ob.enabled + " " + (ob.gameObject.activeInHierarchy && ob.gameObject.activeSelf));
             }

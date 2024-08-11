@@ -43,11 +43,11 @@ namespace GhettosFirearmSDKv2
             all.Add(this);
             fireSoundsPitch = new float[fireSounds.Length];
             suppressedFireSoundsPitch = new float[suppressedFireSounds.Length];
-            for (int i = 0; i < fireSounds.Length; i++)
+            for (var i = 0; i < fireSounds.Length; i++)
             {
                 fireSoundsPitch[i] = fireSounds[i].pitch;
             }
-            for (int i = 0; i < suppressedFireSounds.Length; i++)
+            for (var i = 0; i < suppressedFireSounds.Length; i++)
             {
                 suppressedFireSoundsPitch[i] = suppressedFireSounds[i].pitch;
             }
@@ -202,8 +202,8 @@ namespace GhettosFirearmSDKv2
 
         public void PlayFireSound(Cartridge cartridge, bool overrideSuppressedBool = false, bool suppressed = false)
         {
-            bool supp = IsSuppressed();
-            bool fromCartridgeData = false;
+            var supp = IsSuppressed();
+            var fromCartridgeData = false;
             if (overrideSuppressedBool)
                 supp = suppressed;
             if (cartridge != null && cartridge.data.alwaysSuppressed)
@@ -233,7 +233,7 @@ namespace GhettosFirearmSDKv2
             if (source == null)
                 return;
             
-            float pitch = 1f;
+            var pitch = 1f;
             if (!supp)
             {
                 NoiseManager.AddNoise(actualHitscanMuzzle.position, 600f);
@@ -249,12 +249,12 @@ namespace GhettosFirearmSDKv2
             
             if (fromCartridgeData)
             {
-                GameObject sourceInstance = Instantiate(source.gameObject, fireSounds.Any() ? fireSounds.First().transform : transform, true);
+                var sourceInstance = Instantiate(source.gameObject, fireSounds.Any() ? fireSounds.First().transform : transform, true);
                 source = sourceInstance.GetComponent<AudioSource>();
                 StartCoroutine(Explosives.Explosive.delayedDestroy(sourceInstance, source.clip.length + 1f)); 
             }
             
-            float deviation =  Settings.firingSoundDeviation / pitch;
+            var deviation =  Settings.firingSoundDeviation / pitch;
             source.pitch = pitch + Random.Range(-deviation, deviation);
             source.Play();
         }
@@ -274,7 +274,7 @@ namespace GhettosFirearmSDKv2
 
         public bool NoMuzzleFlashOverridingAttachmentChildren(Attachment attachment)
         {
-            foreach (AttachmentPoint p in attachment.attachmentPoints)
+            foreach (var p in attachment.attachmentPoints)
             {
                 if (p.currentAttachments.Any())
                 {
@@ -287,7 +287,7 @@ namespace GhettosFirearmSDKv2
 
         private bool NMFOACrecurve(ICollection<Attachment> attachments)
         {
-            foreach (AttachmentPoint p in attachments.SelectMany(x => x.attachmentPoints))
+            foreach (var p in attachments.SelectMany(x => x.attachmentPoints))
             {
                 if (p.currentAttachments.Any())
                 {
@@ -317,19 +317,19 @@ namespace GhettosFirearmSDKv2
 
         public void AddRecoilModifier(float linearModifier, float muzzleRiseModifier, object modifierHandler)
         {
-            RecoilModifier modifier = new RecoilModifier
-            {
-                modifier = linearModifier,
-                muzzleRiseModifier = muzzleRiseModifier,
-                handler = modifierHandler
-            };
+            var modifier = new RecoilModifier
+                           {
+                               modifier = linearModifier,
+                               muzzleRiseModifier = muzzleRiseModifier,
+                               handler = modifierHandler
+                           };
             RemoveRecoilModifier(modifierHandler);
             recoilModifiers.Add(modifier);
         }
 
         public void RemoveRecoilModifier(object modifierHandler)
         {
-            foreach (RecoilModifier mod in recoilModifiers.ToArray())
+            foreach (var mod in recoilModifiers.ToArray())
             {
                 if (mod.handler == modifierHandler) recoilModifiers.Remove(mod);
             }
@@ -337,7 +337,7 @@ namespace GhettosFirearmSDKv2
 
         public void RefreshRecoilModifiers()
         {
-            foreach (RecoilModifier mod in recoilModifiers.ToArray())
+            foreach (var mod in recoilModifiers.ToArray())
             {
                 if (mod.handler == null) recoilModifiers.Remove(mod);
             }

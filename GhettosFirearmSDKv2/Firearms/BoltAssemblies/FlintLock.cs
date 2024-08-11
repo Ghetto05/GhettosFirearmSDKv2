@@ -114,10 +114,10 @@ namespace GhettosFirearmSDKv2
             firearm.OnTriggerChangeEvent += FirearmOnOnTriggerChangeEvent;
             firearm.OnAltActionEvent += FirearmOnOnAltActionEvent;
 
-            FirearmSaveData.AttachmentTreeNode node = FirearmSaveData.GetNode(firearm);
+            var node = FirearmSaveData.GetNode(firearm);
             panFillLevelSaveData = node.GetOrAddValue("FlintLock_PanPowderFillLevel", new SaveNodeValueInt());
             barrelFillLevelSaveData = node.GetOrAddValue("FlintLock_BarrelPowderFillLevel", new SaveNodeValueInt());
-            SaveNodeValueBool newRodData = new SaveNodeValueBool();
+            var newRodData = new SaveNodeValueBool();
             newRodData.value = true;
             rodStoreSaveData = node.GetOrAddValue("FlintLock_RodStored", newRodData);
             hammerStateSaveData = node.GetOrAddValue("FlintLock_HammerCockState", new SaveNodeValueBool());
@@ -255,7 +255,7 @@ namespace GhettosFirearmSDKv2
                     firearm.PlayFireSound(loadedCartridge);
                     if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                         firearm.PlayMuzzleFlash(loadedCartridge);
-                    FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hitPoints, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+                    FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hitPoints, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                     FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
                     loadedCartridge.Fire(hitPoints, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !HeldByAI() && !Settings.infiniteAmmo);
                 }
@@ -263,7 +263,7 @@ namespace GhettosFirearmSDKv2
             else
             {
                 firearm.PlayFireSound(null);
-                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, emptyFireData, out List<Vector3> hitPoints, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, emptyFireData, out var hitPoints, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                 FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, baseRecoil, 1, firearm.recoilModifier, firearm.recoilModifiers);
                 firearm.PlayMuzzleFlash(null);
             }
@@ -329,9 +329,9 @@ namespace GhettosFirearmSDKv2
 
             if (currentRamRod != null && loadedCartridge != null)
             {
-                float currentPos = Vector3.Distance(rodFrontEnd.position, currentRamRod.transform.position);
-                float targetPos = Vector3.Distance(rodFrontEnd.position, rodRearEnd.position);
-                float posTime = currentPos / targetPos;
+                var currentPos = Vector3.Distance(rodFrontEnd.position, currentRamRod.transform.position);
+                var targetPos = Vector3.Distance(rodFrontEnd.position, rodRearEnd.position);
+                var posTime = currentPos / targetPos;
                 if (posTime > lastRoundPosition)
                     lastRoundPosition = posTime;
                 loadedCartridge.transform.position = Vector3.LerpUnclamped(rodFrontEnd.position, rodRearEnd.position, lastRoundPosition);
@@ -409,9 +409,9 @@ namespace GhettosFirearmSDKv2
 
         private void InitializeRamRodJoint(Item item, bool store = false)
         {
-            ConfigurableJoint j = store ? storeJoint : joint;
-            Transform frontEnd = store ? rodStoreFrontEnd : rodFrontEnd;
-            Transform rearEnd = store ? rodStoreRearEnd : rodRearEnd;
+            var j = store ? storeJoint : joint;
+            var frontEnd = store ? rodStoreFrontEnd : rodFrontEnd;
+            var rearEnd = store ? rodStoreRearEnd : rodRearEnd;
             
             if (j != null)
                 Destroy(j);
@@ -424,8 +424,8 @@ namespace GhettosFirearmSDKv2
 
             if (store)
                 rodStoreSaveData.value = true;
-            RagdollHand[] oldHandlers = item.handlers.ToArray();
-            foreach (Handle handle in item.handles)
+            var oldHandlers = item.handlers.ToArray();
+            foreach (var handle in item.handles)
             {
                 handle.Release();
             }
@@ -450,7 +450,7 @@ namespace GhettosFirearmSDKv2
             item.transform.position = frontEnd.position;
             item.transform.eulerAngles = new Vector3(frontEnd.eulerAngles.x, frontEnd.eulerAngles.y, item.transform.localEulerAngles.z);
             j.connectedBody = item.physicBody.rigidBody;
-            foreach (RagdollHand handler in oldHandlers)
+            foreach (var handler in oldHandlers)
             {
                 handler.Grab(item.GetMainHandle(handler.side));
             }
@@ -520,7 +520,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null)
                 return;
             SaveChamber("");
-            Cartridge c = loadedCartridge;
+            var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -530,7 +530,7 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = c.item.physicBody.rigidBody;
+            var rb = c.item.physicBody.rigidBody;
             c.item.DisallowDespawn = false;
             c.transform.parent = null;
             c.loaded = false;

@@ -63,18 +63,18 @@ namespace GhettosFirearmSDKv2.Chemicals
 
         void Update()
         {
-            bool foundCSgas = false;
-            bool foundSmoke = false;
-            bool foundPoisonGas = false;
-            float highestPoisonGasDamage = 0f;
+            var foundCSgas = false;
+            var foundSmoke = false;
+            var foundPoisonGas = false;
+            var highestPoisonGasDamage = 0f;
             GameObject csgasCollider = null;
 
-            for (int i = 0; i < gasMasks.Count; i++)
+            for (var i = 0; i < gasMasks.Count; i++)
             {
                 if (gasMasks[i] == null) gasMasks.RemoveAt(i);
             }
 
-            foreach (Collider c in Physics.OverlapSphere(Player.local.head.cam.transform.position, 0.1f))
+            foreach (var c in Physics.OverlapSphere(Player.local.head.cam.transform.position, 0.1f))
             {
                 if (c.gameObject.name.Equals("CSgas_Zone") && !WearingGasMask())
                 {
@@ -88,7 +88,7 @@ namespace GhettosFirearmSDKv2.Chemicals
                 if (c.gameObject.name.Equals("PoisonGas_Zone") && !WearingGasMask())
                 {
                     foundPoisonGas = true;
-                    float d = float.Parse(c.transform.GetChild(0).name);
+                    var d = float.Parse(c.transform.GetChild(0).name);
                     if (d > highestPoisonGasDamage) highestPoisonGasDamage = d;
                 }
             }
@@ -200,7 +200,7 @@ namespace GhettosFirearmSDKv2.Chemicals
 
         public static IEnumerator FadeOut(LiftGammaGain lgg, float FadeTime)
         {
-            float val = 1f;
+            var val = 1f;
             while (lgg.lift.value.w > 0)
             {
                 val -= Time.deltaTime / FadeTime;

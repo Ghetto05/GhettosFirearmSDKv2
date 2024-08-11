@@ -13,10 +13,10 @@ namespace GhettosFirearmSDKv2
         {
             if (Catalog.GetData<LootTable>(targetTableId, false) is { } table)
             {
-                List<LootTable.Drop> tableDrops = new List<LootTable.Drop>();
-                foreach (Drop drop in drops)
+                var tableDrops = new List<LootTable.Drop>();
+                foreach (var drop in drops)
                 {
-                    LootTable.Drop tableDrop = new LootTable.Drop();
+                    var tableDrop = new LootTable.Drop();
                     tableDrop.reference = drop.reference;
                     tableDrop.referenceID = drop.referenceID;
                     tableDrop.probabilityWeight = drop.probabilityWeight;

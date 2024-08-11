@@ -19,7 +19,7 @@ namespace GhettosFirearmSDKv2
             cartridge.item = item;
             cartridge.destroyOnFire = true;
             cartridge.colliders = new List<Collider>();
-            foreach (Collider c in item.GetComponentsInChildren<Collider>())
+            foreach (var c in item.GetComponentsInChildren<Collider>())
             {
                 cartridge.colliders.Add(c);
             }

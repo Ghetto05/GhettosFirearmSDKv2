@@ -81,16 +81,16 @@ namespace GhettosFirearmSDKv2.Drone
             if (Drone40.all == null) return;
             if (buttons != null)
             {
-                foreach (GameObject obj in buttons)
+                foreach (var obj in buttons)
                 {
                     Destroy(obj);
                 }
             }
             buttons = new List<GameObject>();
 
-            foreach (Drone40 drone in Drone40.all)
+            foreach (var drone in Drone40.all)
             {
-                GameObject button = Instantiate(buttonPrefab, contentTransform);
+                var button = Instantiate(buttonPrefab, contentTransform);
                 button.SetActive(true);
                 buttons.Add(button);
                 button.transform.localPosition = new Vector3(20, -20 - (buttons.IndexOf(button) * 70), 0);

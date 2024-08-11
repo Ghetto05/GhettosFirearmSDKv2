@@ -57,7 +57,7 @@ namespace GhettosFirearmSDKv2
 
         private bool TriggerColliderHit(Collision collision)
         {
-            foreach (Collider c in triggers)
+            foreach (var c in triggers)
             {
                 if (Util.CheckForCollisionWithThisCollider(collision, c)) return true;
             }

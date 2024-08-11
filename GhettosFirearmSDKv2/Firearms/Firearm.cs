@@ -21,7 +21,7 @@ namespace GhettosFirearmSDKv2
 
         public override List<Handle> AllTriggerHandles()
         {
-            List<Handle> hs = new List<Handle>();
+            var hs = new List<Handle>();
             hs.AddRange(additionalTriggerHandles);
             if (disableMainFireHandle || item == null || item.mainHandleLeft == null)
                 return hs;
@@ -31,8 +31,8 @@ namespace GhettosFirearmSDKv2
 
         public override float CalculateDamageMultiplier()
         {
-            float multiply = 1f;
-            foreach (Attachment a in allAttachments)
+            var multiply = 1f;
+            foreach (var a in allAttachments)
             {
                 if (a.multiplyDamage)
                 {
@@ -123,7 +123,7 @@ namespace GhettosFirearmSDKv2
             item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             allAttachments = new List<Attachment>();
             fireEvent.AddListener(AIFire);
-            foreach (AttachmentPoint ap in attachmentPoints)
+            foreach (var ap in attachmentPoints)
             {
                 ap.parentFirearm = this;
             }
@@ -142,7 +142,7 @@ namespace GhettosFirearmSDKv2
             #region handle type validation
             if (Settings.debugMode)
             {
-                foreach (Handle h in gameObject.GetComponentsInChildren<Handle>())
+                foreach (var h in gameObject.GetComponentsInChildren<Handle>())
                 {
                     if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on firearm " + gameObject.name + " is not of type GhettoHandle!");
                 }
@@ -158,7 +158,7 @@ namespace GhettosFirearmSDKv2
 
         public void Item_OnUnSnapEvent2(Holder holder)
         {
-            foreach (Handle han in preSnapActiveHandles)
+            foreach (var han in preSnapActiveHandles)
             {
                 if (han != null && han.touchCollider != null) han.SetTouch(true);
             }
@@ -167,7 +167,7 @@ namespace GhettosFirearmSDKv2
         public void Item_OnSnapEvent2(Holder holder)
         {
             preSnapActiveHandles = new List<Handle>();
-            foreach (Handle han in item.handles)
+            foreach (var han in item.handles)
             {
                 if (han != null && han.enabled && han.touchCollider.enabled && !(han.data.id.Equals("ObjectHandleHeavy") || han.data.id.Equals("ObjectHandleHeavyPistol")))
                 {
@@ -186,7 +186,7 @@ namespace GhettosFirearmSDKv2
 
         public void AddAttachments(List<AttachmentPoint> points)
         {
-            foreach (AttachmentPoint point in points)
+            foreach (var point in points)
             {
                 if (point.currentAttachments.Any())
                 {
@@ -201,7 +201,7 @@ namespace GhettosFirearmSDKv2
             yield return new WaitForSeconds(2.3f);
             if (item.holder != null)
             {
-                Holder h = item.holder;
+                var h = item.holder;
                 item.holder.UnSnap(item, true);
                 h.Snap(item, true);
             }
@@ -209,7 +209,7 @@ namespace GhettosFirearmSDKv2
 
         public AttachmentPoint GetSlotFromId(string id)
         {
-            foreach (AttachmentPoint point in attachmentPoints)
+            foreach (var point in attachmentPoints)
             {
                 if (point.id.Equals(id)) return point;
             }
@@ -218,8 +218,8 @@ namespace GhettosFirearmSDKv2
 
         public override void PlayMuzzleFlash(Cartridge cartridge)
         {
-            bool overridden = false;
-            foreach (Attachment at in allAttachments)
+            var overridden = false;
+            foreach (var at in allAttachments)
             {
                 if (at.overridesMuzzleFlash)
                     overridden = true;
@@ -274,7 +274,7 @@ namespace GhettosFirearmSDKv2
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
+            foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
             {
                 Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
             }

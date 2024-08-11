@@ -18,8 +18,8 @@ namespace GhettosFirearmSDKv2
         {
             if (!handles.SelectMany(x => x.handlers).Any())
                 return;
-            Handle chosenHandle = handles.First(x => x.handlers.Any());
-            foreach (Transform t in chargingHandles)
+            var chosenHandle = handles.First(x => x.handlers.Any());
+            foreach (var t in chargingHandles)
             {
                 t.SetParent(handles.IndexOf(chosenHandle) == chargingHandles.IndexOf(t) ? reference : idlePosition);
                 t.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);

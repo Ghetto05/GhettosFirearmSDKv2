@@ -11,9 +11,9 @@ namespace GhettosFirearmSDKv2
 
         void Start()
         {
-            foreach (Collider c1 in obj1Colliders)
+            foreach (var c1 in obj1Colliders)
             {
-                foreach (Collider c2 in obj2Colliders)
+                foreach (var c2 in obj2Colliders)
                 {
                     Physics.IgnoreCollision(c1, c2, true);
                 }

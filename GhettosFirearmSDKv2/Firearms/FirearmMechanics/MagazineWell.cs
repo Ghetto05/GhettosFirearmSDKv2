@@ -74,7 +74,7 @@ namespace GhettosFirearmSDKv2
         {
             if (FirearmSaveData.GetNode(firearm).TryGetValue("MagazineSaveData", out SaveNodeValueMagazineContents data))
             {
-                List<ContentCustomData> cdata = new List<ContentCustomData>();
+                var cdata = new List<ContentCustomData>();
                 cdata.Add(data.value.CloneJson());
                 if (data.value == null || data.value.itemID == null || data.value.itemID.IsNullOrEmptyOrWhitespace())
                 {
@@ -83,7 +83,7 @@ namespace GhettosFirearmSDKv2
                 }
                 Util.SpawnItem(data.value.itemID, "Magazine Well Save", magItem =>
                 {
-                    Magazine mag = magItem.gameObject.GetComponent<Magazine>();
+                    var mag = magItem.gameObject.GetComponent<Magazine>();
                     mag.OnLoadFinished += Mag_onLoadFinished;
                 }, mountPoint.position + Vector3.up * 3, null, null, true, cdata);
             }
@@ -114,7 +114,7 @@ namespace GhettosFirearmSDKv2
             {
                 return null;
             }
-            Cartridge success = currentMagazine.ConsumeRound();
+            var success = currentMagazine.ConsumeRound();
             if (success == null && ejectOnEmpty) Eject(true);
             return success;
         }
@@ -131,7 +131,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!currentMagazine || currentMagazine.overrideItem || currentMagazine.overrideAttachment || (!forced && !BoltExistsAndIsPulled()) || !(canEject | forced) && currentMagazine.canBeGrabbedInWell)
                 return;
-            Magazine mag = currentMagazine;
+            var mag = currentMagazine;
             currentMagazine.Eject();
             if (ejectDir != null)
                 StartCoroutine(DelayedApplyForce(mag));

@@ -58,7 +58,7 @@ namespace GhettosFirearmSDKv2
             }
             if (hammer != null)
             {
-                bool f = hammer.cocked;
+                var f = hammer.cocked;
                 hammer.Fire();
                 if (!f)
                 {
@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
                 InvokeFireLogicFinishedEvent();
                 return;
             }
-            foreach (RagdollHand hand in firearm.item.handlers)
+            foreach (var hand in firearm.item.handlers)
             {
                 if (hand.playerHand != null && hand.playerHand.controlHand != null)
                     hand.playerHand.controlHand.HapticShort(50f);
@@ -82,7 +82,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !Settings.infiniteAmmo);
             if (ejectOnFire && !Settings.infiniteAmmo)
                 EjectRound();
@@ -136,7 +136,7 @@ namespace GhettosFirearmSDKv2
             if (loadedCartridge == null) return;
             Util.PlayRandomAudioSource(ejectSounds);
             if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.value = "";
-            Cartridge c = loadedCartridge;
+            var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -146,7 +146,7 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-            Rigidbody rb = c.GetComponent<Rigidbody>();
+            var rb = c.GetComponent<Rigidbody>();
             c.item.DisallowDespawn = false;
             c.transform.parent = null;
             rb.isKinematic = false;

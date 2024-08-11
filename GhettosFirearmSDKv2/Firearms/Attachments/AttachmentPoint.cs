@@ -44,7 +44,7 @@ namespace GhettosFirearmSDKv2
                 if ((ati.attachmentType.Equals(type) || alternateTypes.Contains(ati.attachmentType)) && Util.CheckForCollisionWithColliders(attachColliders, ati.attachColliders, collision))
                 {
                     Catalog.GetData<AttachmentData>(Util.GetSubstituteId(ati.attachmentId, $"[Attachable item - point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this);
-                    AudioSource s = Util.PlayRandomAudioSource(ati.attachSounds);
+                    var s = Util.PlayRandomAudioSource(ati.attachSounds);
                     if (s != null)
                     {
                         s.transform.SetParent(transform);
@@ -58,10 +58,10 @@ namespace GhettosFirearmSDKv2
 
         public List<Attachment> GetAllChildAttachments()
         {
-            List<Attachment> list = new List<Attachment>();
+            var list = new List<Attachment>();
             if (!currentAttachments.Any())
                 return list;
-            foreach (AttachmentPoint point in currentAttachments.SelectMany(x => x.attachmentPoints))
+            foreach (var point in currentAttachments.SelectMany(x => x.attachmentPoints))
             {
                 list.AddRange(point.GetAllChildAttachments());
             }

@@ -68,10 +68,10 @@ namespace GhettosFirearmSDKv2
             if (!triggerEnabled)
                 return;
 
-            float highestPull = 0f;
+            var highestPull = 0f;
             if (firearm != null)
             {
-                foreach (Handle h in firearm.AllTriggerHandles().Where(h => h != null))
+                foreach (var h in firearm.AllTriggerHandles().Where(h => h != null))
                 {
                     if (h.handlers.Count > 0)
                     {
@@ -100,7 +100,7 @@ namespace GhettosFirearmSDKv2
 
         private void UpdateTriggerPosition(float pull)
         {
-            Transform target = GetTarget(pull);
+            var target = GetTarget(pull);
             
             if (trigger == null || pulledPosition == null || idlePosition == null)
                 return;
@@ -112,7 +112,7 @@ namespace GhettosFirearmSDKv2
         {
             if (fireModeSelectionMode && (selector == null || allowedIndexesForSecondMode.Contains(selector.currentIndex)))
             {
-                float actual = pull + Settings.progressiveTriggerDeadZone;
+                var actual = pull + Settings.progressiveTriggerDeadZone;
                 if (actual > SecondModeTriggerPull)
                 {
                     onSecondMode = true;

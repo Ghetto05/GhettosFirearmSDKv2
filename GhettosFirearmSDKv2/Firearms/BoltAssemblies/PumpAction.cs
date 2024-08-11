@@ -77,23 +77,23 @@ namespace GhettosFirearmSDKv2
             {
                 boltHandles = new List<Handle>();
 
-                foreach (Handle h in rb.gameObject.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
+                foreach (var h in rb.gameObject.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
                 {
                     boltHandles.Add(h);
                 }
-                foreach (Handle h in bolt.gameObject.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
+                foreach (var h in bolt.gameObject.GetComponentsInChildren<Handle>().Where(h => h.item == firearm.item))
                 {
                     boltHandles.Add(h);
                 }
-                foreach (AttachmentPoint point in onBoltPoints)
+                foreach (var point in onBoltPoints)
                 {
-                    foreach (Attachment attachment in point.GetAllChildAttachments())
+                    foreach (var attachment in point.GetAllChildAttachments())
                     {
-                        foreach (Handle handle in attachment.handles)
+                        foreach (var handle in attachment.handles)
                         {
                             if (handle.GetType() == typeof(GhettoHandle))
                             {
-                                GhettoHandle hh = (GhettoHandle)handle;
+                                var hh = (GhettoHandle)handle;
                                 hh.type = GhettoHandle.HandleType.PumpAction;
                             }
                             boltHandles.Add(handle);
@@ -101,7 +101,7 @@ namespace GhettosFirearmSDKv2
                     }
                 }
 
-                foreach (Handle h in boltHandles)
+                foreach (var h in boltHandles)
                 {
                     h.customRigidBody = lockJoint == null ? rb : firearm.item.physicBody.rigidBody;
                 }
@@ -135,16 +135,16 @@ namespace GhettosFirearmSDKv2
 
         public void SetStateOnAllHandlers(bool locked)
         {
-            foreach (Handle handle in boltHandles)
+            foreach (var handle in boltHandles)
             {
-                List<RagdollHand> hands = handle.handlers.ToList();
+                var hands = handle.handlers.ToList();
                 //handle.Release();
                 handle.customRigidBody = locked ? firearm.item.physicBody.rigidBody : rb;
 
-                foreach (RagdollHand hand in hands)
+                foreach (var hand in hands)
                 {
                     //hand.Grab(handle, false);
-                    Rigidbody targetRB = locked ? firearm.item.physicBody.rigidBody : rb;
+                    var targetRB = locked ? firearm.item.physicBody.rigidBody : rb;
                     hand.gripInfo.joint.connectedAnchor = targetRB.transform.InverseTransformPoint(hand.gripInfo.transform.position);
                     hand.gripInfo.joint.connectedBody = targetRB;
                 }
@@ -164,7 +164,7 @@ namespace GhettosFirearmSDKv2
                 InvokeFireLogicFinishedEvent();
                 return;
             }
-            foreach (RagdollHand hand in firearm.item.handlers)
+            foreach (var hand in firearm.item.handlers)
             {
                 if (hand.playerHand != null && hand.playerHand.controlHand != null)
                     hand.playerHand.controlHand.HapticShort(50f);
@@ -176,8 +176,8 @@ namespace GhettosFirearmSDKv2
             firearm.PlayFireSound(loadedCartridge);
             firearm.PlayMuzzleFlash(loadedCartridge);
             FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
-            bool fire = false;
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+            var fire = false;
             if (!Settings.infiniteAmmo || (Settings.infiniteAmmo && firearm.magazineWell != null))
             {
                 fire = true;
@@ -214,7 +214,7 @@ namespace GhettosFirearmSDKv2
 
         private bool BoltHandleHeld()
         {
-            foreach (Handle h in boltHandles)
+            foreach (var h in boltHandles)
             {
                 if (h.IsHanded()) return true;
             }
@@ -313,7 +313,7 @@ namespace GhettosFirearmSDKv2
                 return;
             SaveChamber("");
             currentRoundRemounted = false;
-            Cartridge c = loadedCartridge;
+            var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
             {
@@ -323,7 +323,7 @@ namespace GhettosFirearmSDKv2
             Util.IgnoreCollision(c.gameObject, firearm.item.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.item.gameObject, false, 3f, firearm.item);
-            Rigidbody crb = c.item.physicBody.rigidBody;
+            var crb = c.item.physicBody.rigidBody;
             c.item.DisallowDespawn = false;
             c.transform.parent = null;
             c.loaded = false;
@@ -359,7 +359,7 @@ namespace GhettosFirearmSDKv2
             joint.connectedBody = rb;
             //pJoint.massScale = 0.00001f;
             joint.connectedMassScale = 100f;
-            SoftJointLimit limit = new SoftJointLimit();
+            var limit = new SoftJointLimit();
             joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
             limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
             joint.linearLimit = limit;
@@ -410,8 +410,8 @@ namespace GhettosFirearmSDKv2
 
         public void CalculatePercentage()
         {
-            float distanceStartBolt = Util.AbsDist(bolt, startPoint);
-            float totalDistance = Util.AbsDist(startPoint, endPoint);
+            var distanceStartBolt = Util.AbsDist(bolt, startPoint);
+            var totalDistance = Util.AbsDist(startPoint, endPoint);
             cyclePercentage = Mathf.Clamp01(distanceStartBolt / totalDistance);
         }
 

@@ -65,8 +65,8 @@ namespace GhettosFirearmSDKv2
 
         private void ItemOnOnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            bool pumpHandle = pumpAction.boltHandles.Contains(handle);
-            bool autoHandle = automaticBolt.boltHandles.Contains(handle);
+            var pumpHandle = pumpAction.boltHandles.Contains(handle);
+            var autoHandle = automaticBolt.boltHandles.Contains(handle);
             
             if (switchType == SwitchType.AutoBoltTrigger && autoHandle && action == Interactable.Action.UseStart)
                 Toggle();
@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
             pumpAction.fireOnTriggerPress = pumpActionEngaged;
 
             pumpAction.Lock(true);
-            foreach (Handle handle in automaticBolt.boltHandles)
+            foreach (var handle in automaticBolt.boltHandles)
             {
                 handle.Release();
                 handle.SetTouch(!pumpActionEngaged);
@@ -101,7 +101,7 @@ namespace GhettosFirearmSDKv2
                 Util.PlayRandomAudioSource(switchSounds);
             if (switchRoot != null)
             {
-                Transform t = pumpActionEngaged ? pumpPosition : automaticPosition;
+                var t = pumpActionEngaged ? pumpPosition : automaticPosition;
                 switchRoot.SetPositionAndRotation(t.position, t.rotation);
             }
         }

@@ -29,8 +29,8 @@ namespace GhettosFirearmSDKv2.Explosives
         public override void ActualDetonate()
         {
             active = true;
-            GameObject obj = new GameObject("PoisonGas_Zone");
-            GameObject amObj = new GameObject(damagePerSecond.ToString());
+            var obj = new GameObject("PoisonGas_Zone");
+            var amObj = new GameObject(damagePerSecond.ToString());
             amObj.transform.SetParent(obj.transform);
             amObj.transform.localPosition = Vector3.zero;
             obj.layer = 28;

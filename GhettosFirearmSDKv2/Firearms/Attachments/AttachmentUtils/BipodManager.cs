@@ -35,13 +35,13 @@ namespace GhettosFirearmSDKv2
         {
             if (!active)
                 return;
-            bool extended = true;
-            foreach (Bipod bp in bipods)
+            var extended = true;
+            foreach (var bp in bipods)
             {
                 if (bp.index == 0)
                     extended = false;
             }
-            foreach (Transform t in groundFollowers)
+            foreach (var t in groundFollowers)
             {
                 if (!Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default")))
                     extended = false;

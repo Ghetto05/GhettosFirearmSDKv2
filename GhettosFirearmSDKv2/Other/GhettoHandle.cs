@@ -33,12 +33,12 @@ namespace GhettosFirearmSDKv2
             {
                 if (item && item.IsTwoHanded())
                 {
-                    Vector2 dominantRotation = new Vector2(handlers.First().creature.data.forceRotationSpringDamper2HMult.x * data.rotationSpring2hMultiplier, handlers.First().creature.data.forceRotationSpringDamper2HMult.y * data.rotationDamper2hMultiplier);
+                    var dominantRotation = new Vector2(handlers.First().creature.data.forceRotationSpringDamper2HMult.x * data.rotationSpring2hMultiplier, handlers.First().creature.data.forceRotationSpringDamper2HMult.y * data.rotationDamper2hMultiplier);
 
                     //case: item two handed by one creature
                     if (handlers.First().otherHand.grabbedHandle && handlers.First().otherHand.grabbedHandle.item && handlers.First().otherHand.grabbedHandle.item == item)
                     {
-                        if (IsOtherHandleGhetto(handlers.First().otherHand.grabbedHandle, out GhettoHandle otherHandle))
+                        if (IsOtherHandleGhetto(handlers.First().otherHand.grabbedHandle, out var otherHandle))
                         {
                             if (type == HandleType.MainGrip)
                             {
@@ -94,8 +94,8 @@ namespace GhettosFirearmSDKv2
             //original
             if (handlers.Count == 2)
             {
-                RagdollHand ragdollHand1 = handlers.First();
-                RagdollHand ragdollHand2 = handlers.Last();
+                var ragdollHand1 = handlers.First();
+                var ragdollHand2 = handlers.Last();
                 if (data.dominantWhenTwoHanded && twoHandedMode != TwoHandedMode.Position)
                 {
                     if (Vector3.Dot(ragdollHand1.gripInfo.transform.up, ragdollHand2.gripInfo.transform.up) > 0.0)
@@ -161,7 +161,7 @@ namespace GhettosFirearmSDKv2
 
         public void SetThisDominant()
         {
-            Vector2 dominantRotation = new Vector2(handlers.First().creature.data.forceRotationSpringDamper2HMult.x * data.rotationSpring2hMultiplier, handlers.First().creature.data.forceRotationSpringDamper2HMult.y * data.rotationDamper2hMultiplier);
+            var dominantRotation = new Vector2(handlers.First().creature.data.forceRotationSpringDamper2HMult.x * data.rotationSpring2hMultiplier, handlers.First().creature.data.forceRotationSpringDamper2HMult.y * data.rotationDamper2hMultiplier);
             if (type != HandleType.PumpAction) SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
             else SetJointConfigV2(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
         }

@@ -42,7 +42,7 @@ namespace GhettosFirearmSDKv2
         {
             InitializeJoint();
             Lock();
-            foreach (Handle coverHandle in coverHandles)
+            foreach (var coverHandle in coverHandles)
             {
                 coverHandle.customRigidBody = rb;
             }
@@ -64,7 +64,7 @@ namespace GhettosFirearmSDKv2
                 Unlock();
             }
             
-            float target = Mathf.Clamp(Util.NormalizeAngle(rb.transform.localEulerAngles.x), minAngle, maxAngle);
+            var target = Mathf.Clamp(Util.NormalizeAngle(rb.transform.localEulerAngles.x), minAngle, maxAngle);
             axis.localEulerAngles = new Vector3(target, 0, 0);
 
             if (Quaternion.Angle(axis.localRotation, closedPosition.localRotation) <= Threshold)

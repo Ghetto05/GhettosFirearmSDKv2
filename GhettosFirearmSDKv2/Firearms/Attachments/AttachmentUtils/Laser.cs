@@ -49,7 +49,7 @@ namespace GhettosFirearmSDKv2
                 if (distanceDisplay != null) distanceDisplay.text = "";
                 return;
             }
-            if (Physics.Raycast(source.position, source.forward, out RaycastHit hit, range, LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject", "Avatar", "PlayerHandAndFoot")))
+            if (Physics.Raycast(source.position, source.forward, out var hit, range, LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject", "Avatar", "PlayerHandAndFoot")))
             {
                 if (cylinderRoot != null)
                 {

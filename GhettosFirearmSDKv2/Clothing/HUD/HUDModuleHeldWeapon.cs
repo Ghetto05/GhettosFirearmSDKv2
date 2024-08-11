@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
             currentFirearm = GetHeldFirearm();
             if (currentFirearm != null && currentFirearm.magazineWell != null && currentFirearm.magazineWell.currentMagazine != null)
             {
-                int count = currentFirearm.magazineWell.currentMagazine.cartridges.Count;
+                var count = currentFirearm.magazineWell.currentMagazine.cartridges.Count;
                 if (currentFirearm.bolt.GetChamber() != null)
                 {
                     count++;
@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
             icon.enabled = hudEnabled;
             if (roundCounter != null) roundCounter.enabled = hudEnabled;
             if (capacityDisplay != null) capacityDisplay.enabled = hudEnabled;
-            for (int i = 0; i < additionalDisableObjects.Count; i++)
+            for (var i = 0; i < additionalDisableObjects.Count; i++)
             {
                 additionalDisableObjects[i].SetActive(hudEnabled);
             }

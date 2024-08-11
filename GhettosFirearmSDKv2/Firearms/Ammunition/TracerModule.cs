@@ -19,9 +19,9 @@ namespace GhettosFirearmSDKv2
         {
             transform.SetParent(null);
             gameObject.SetActive(true);
-            for (int i = 0; i < hitPoints.Count; i++)
+            for (var i = 0; i < hitPoints.Count; i++)
             {
-                GameObject obj = Instantiate(tracerObject);
+                var obj = Instantiate(tracerObject);
 
                 obj.SetActive(true);
                 obj.transform.position = muzzle.position;

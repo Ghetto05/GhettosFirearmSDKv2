@@ -33,9 +33,9 @@ namespace GhettosFirearmSDKv2
 
         private void Revolver_onOpen()
         {
-            Vector3 vec = BoltBase.GrandparentLocalPosition(ejectPoint, revolver.rotateBody.transform);
+            var vec = BoltBase.GrandparentLocalPosition(ejectPoint, revolver.rotateBody.transform);
             joint.anchor = new Vector3(vec.x, vec.y, vec.z + ((root.localPosition.z - ejectPoint.localPosition.z) / 2));
-            SoftJointLimit limit = new SoftJointLimit();
+            var limit = new SoftJointLimit();
             limit.limit = Vector3.Distance(ejectPoint.position, root.position) / 2;
             joint.linearLimit = limit;
 
@@ -48,9 +48,9 @@ namespace GhettosFirearmSDKv2
 
         private void Revolver_onClose()
         {
-            Vector3 vec = BoltBase.GrandparentLocalPosition(root, revolver.rotateBody.transform);
+            var vec = BoltBase.GrandparentLocalPosition(root, revolver.rotateBody.transform);
             joint.anchor = new Vector3(vec.x, vec.y, vec.z);
-            SoftJointLimit limit = new SoftJointLimit();
+            var limit = new SoftJointLimit();
             limit.limit = 0f;
             joint.linearLimit = limit;
 

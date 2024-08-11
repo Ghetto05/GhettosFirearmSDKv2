@@ -41,7 +41,7 @@ namespace GhettosFirearmSDKv2
                 return;
             stuck = true;
             item.DisallowDespawn = true;
-            FixedJoint joint = item.gameObject.AddComponent<FixedJoint>();
+            var joint = item.gameObject.AddComponent<FixedJoint>();
             joint.connectedBody = rb;
             onStickEvent?.Invoke();
         }

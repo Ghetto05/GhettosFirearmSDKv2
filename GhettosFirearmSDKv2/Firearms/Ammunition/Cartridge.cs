@@ -43,7 +43,7 @@ namespace GhettosFirearmSDKv2
             if (firedOnlyObject != null)
             {
                 firedOnlyObject.SetActive(false);
-                Renderer[] ren = firedOnlyObject.GetComponentsInChildren<Renderer>(true);
+                var ren = firedOnlyObject.GetComponentsInChildren<Renderer>(true);
                 if (ren.Length > 0)
                 {
                     item.renderers.AddRange(ren);
@@ -82,10 +82,10 @@ namespace GhettosFirearmSDKv2
             OnFiredWithHitPointsAndMuzzleAndCreatures?.Invoke(hits, directions, hitCreatures, muzzle);
             if (additionalMuzzleFlash != null)
             {
-                GameObject additionalMuzzleFlashInstance = Instantiate(additionalMuzzleFlash.gameObject, muzzle, true);
+                var additionalMuzzleFlashInstance = Instantiate(additionalMuzzleFlash.gameObject, muzzle, true);
                 additionalMuzzleFlashInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
                 additionalMuzzleFlashInstance.GetComponent<ParticleSystem>().Play();
-                ParticleSystem.MainModule main = additionalMuzzleFlash.main;
+                var main = additionalMuzzleFlash.main;
                 StartCoroutine(Explosives.Explosive.delayedDestroy(additionalMuzzleFlashInstance, main.duration + main.startLifetime.constantMax * 4));
             }
             if (destroyOnFire && fire)
@@ -94,7 +94,7 @@ namespace GhettosFirearmSDKv2
 
         public void Detonate()
         {
-            FireMethods.Fire(item, cartridgeFirePoint, data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, 1f, false);
+            FireMethods.Fire(item, cartridgeFirePoint, data, out var hits, out var trajectories, out var hitCreatures, 1f, false);
             if (detonationParticle != null)
                 detonationParticle.Play();
             if (item != null)
@@ -112,8 +112,8 @@ namespace GhettosFirearmSDKv2
 
         public void UngrabAll()
         {
-            RagdollHand[] hands = item.handlers.ToArray();
-            foreach (RagdollHand hand in hands)
+            var hands = item.handlers.ToArray();
+            foreach (var hand in hands)
             {
                 hand.UnGrab(false);
             }
@@ -121,7 +121,7 @@ namespace GhettosFirearmSDKv2
 
         public void ToggleTK(bool active)
         {
-            foreach (Handle handle in item.handles)
+            foreach (var handle in item.handles)
             {
                 handle.SetTelekinesis(active);
             }
@@ -129,7 +129,7 @@ namespace GhettosFirearmSDKv2
 
         public void ToggleHandles(bool active, bool forced = false)
         {
-            foreach (Handle handle in item.handles)
+            foreach (var handle in item.handles)
             {
                 handle.SetTouch(active && (!fired || forced));
             }
@@ -137,7 +137,7 @@ namespace GhettosFirearmSDKv2
 
         public void ToggleCollision(bool active)
         {
-            foreach (Collider c in colliders)
+            foreach (var c in colliders)
             {
                 c.enabled = active;
             }

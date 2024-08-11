@@ -24,7 +24,7 @@ namespace GhettosFirearmSDKv2
 
         private void SelectorOnFireModeChanged(FirearmBase.FireModes newMode)
         {
-            Transform pos = positions[selector.currentIndex];
+            var pos = positions[selector.currentIndex];
             axis.SetPositionAndRotation(pos.position, pos.rotation);
         }
     }

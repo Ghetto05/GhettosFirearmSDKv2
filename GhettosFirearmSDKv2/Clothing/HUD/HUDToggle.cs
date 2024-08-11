@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
         private bool CheckInteraction(Side side)
         {
             if (!Player.local.GetHand(side).controlHand.usePressed) return false;
-            foreach (Collider c in toggleColliders)
+            foreach (var c in toggleColliders)
             {
                 if (c.bounds.Contains(Player.local.GetHand(side).ragdollHand.touchCollider.transform.position))
                 {
@@ -43,9 +43,9 @@ namespace GhettosFirearmSDKv2
         public void Toggle()
         {
             hudActive = !hudActive;
-            foreach (GameObject obj in componentsToToggle)
+            foreach (var obj in componentsToToggle)
             {
-                foreach (Behaviour be in obj.GetComponents<Behaviour>())
+                foreach (var be in obj.GetComponents<Behaviour>())
                 {
                     be.enabled = hudActive;
                 }

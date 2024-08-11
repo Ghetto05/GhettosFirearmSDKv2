@@ -26,7 +26,7 @@ namespace GhettosFirearmSDKv2
                 item.AddCustomData(_data);
             }
 
-            if (_data.itemIDs.TryGetValue(holder.name, out string id))
+            if (_data.itemIDs.TryGetValue(holder.name, out var id))
             {
                 Util.SpawnItem(id, $"[Holster {item.itemId} - Holder {holder.name}, Item {id}", i =>
                 {

@@ -34,7 +34,7 @@ namespace GhettosFirearmSDKv2
 
             holder.data.maxQuantity = 9999999;
 
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 holder.slots.Add(holder.transform);
             }
@@ -47,7 +47,7 @@ namespace GhettosFirearmSDKv2
             if (!setup || Player.local == null || Player.local.creature == null || Player.local.creature.ragdoll == null)
                 return;
 
-            foreach (Item i in holder.items.ToArray())
+            foreach (var i in holder.items.ToArray())
             {
                 if (!spawnedItems.Contains(i))
                 {
@@ -80,7 +80,7 @@ namespace GhettosFirearmSDKv2
 
         private void GetHeldFirearm()
         {
-            Handle h = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
+            var h = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
             if (h != null && h.item is { } item)
             {
                 FirearmBase firearm;
@@ -107,9 +107,9 @@ namespace GhettosFirearmSDKv2
 
         public void GetById(string id)
         {
-            bool searching = true;
-            string requestedId = Util.GetSubstituteId(id, "Lazy pouch");
-            foreach (Item i in spawnedItems)
+            var searching = true;
+            var requestedId = Util.GetSubstituteId(id, "Lazy pouch");
+            foreach (var i in spawnedItems)
             {
                 if (searching && i.data.id.Equals(requestedId))
                 {
@@ -158,7 +158,7 @@ namespace GhettosFirearmSDKv2
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            foreach (LightVolumeReceiver lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != pouchItem.lightVolumeReceiver))
+            foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != pouchItem.lightVolumeReceiver))
             {
                 Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
             }

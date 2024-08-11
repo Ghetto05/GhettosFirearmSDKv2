@@ -60,7 +60,7 @@ namespace GhettosFirearmSDKv2
 
             if (datas.Count == 0) LevelManager.LoadLevel("Home");
 
-            foreach (Item i in Player.local.creature.equipment.GetAllHolsteredItems())
+            foreach (var i in Player.local.creature.equipment.GetAllHolsteredItems())
             {
                 i.Despawn();
             }

@@ -23,7 +23,7 @@ namespace GhettosFirearmSDKv2
         
         public static void RandomizeZRotation(Transform target)
         {
-            float randomAngle = Random.Range(0f, 360f);
+            var randomAngle = Random.Range(0f, 360f);
             target.Rotate(0f, 0f, randomAngle, Space.Self);
         }
 
@@ -42,10 +42,10 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadCartridge(string cartridgeCaliber, IAmmunitionLoadable magazine, bool ignoreSameCaliber = false)
         {
-            bool correctCaliber = 
+            var correctCaliber = 
                 CheckCaliberMatch(cartridgeCaliber, magazine.GetCaliber(), magazine.GetForceCorrectCaliber()) || 
                 CheckCaliberMatch(cartridgeCaliber, magazine.GetAlternativeCalibers(), magazine.GetForceCorrectCaliber());
-            bool magHasSameCaliber = ignoreSameCaliber || magazine.GetLoadedCartridges() == null || !magazine.GetLoadedCartridges().Any() || (magazine.GetLoadedCartridges().FirstOrDefault()?.caliber.Equals(cartridgeCaliber) ?? true);
+            var magHasSameCaliber = ignoreSameCaliber || magazine.GetLoadedCartridges() == null || !magazine.GetLoadedCartridges().Any() || (magazine.GetLoadedCartridges().FirstOrDefault()?.caliber.Equals(cartridgeCaliber) ?? true);
             return correctCaliber && magHasSameCaliber;
         }
 
@@ -59,7 +59,7 @@ namespace GhettosFirearmSDKv2
             if (targetCalibers == null)
                 return false;
             
-            foreach (string targetCaliber in targetCalibers)
+            foreach (var targetCaliber in targetCalibers)
             {
                 if (CheckCaliberMatch(insertedCaliber, targetCaliber, ignoreCheat))
                     return true;
@@ -83,22 +83,22 @@ namespace GhettosFirearmSDKv2
             if (!Settings.doMagazineTypeChecks) return true;
             if (magazine.magazineType.Equals("DEBUG UNIVERSAL")) return true;
 
-            bool sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
-            foreach (string t in well.alternateMagazineTypes)
+            var sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
+            foreach (var t in well.alternateMagazineTypes)
             {
                 if (t.Equals(magazine.magazineType)) sameType = true;
             }
-            bool compatibleCaliber = magazine.cartridges.Count == 0 ||
-                                     !Settings.doCaliberChecks ||
-                                     well.caliber.Equals(magazine.cartridges[0].caliber) ||
-                                     well.alternateCalibers.Any(x => x.Equals(magazine.cartridges[0].caliber));
+            var compatibleCaliber = magazine.cartridges.Count == 0 ||
+                                    !Settings.doCaliberChecks ||
+                                    well.caliber.Equals(magazine.cartridges[0].caliber) ||
+                                    well.alternateCalibers.Any(x => x.Equals(magazine.cartridges[0].caliber));
 
             return sameType && compatibleCaliber;
         }
 
         public static void AlertAllCreaturesInRange(Vector3 point, float range)
         {
-            foreach (Creature cr in Creature.allActive)
+            foreach (var cr in Creature.allActive)
             {
                 if (cr.animator.GetBoneTransform(HumanBodyBones.Head) is { } bone && Vector3.Distance(bone.position, point) <= range)
                 {
@@ -111,9 +111,9 @@ namespace GhettosFirearmSDKv2
         {
             if (theseColliders != null && otherColliders == null)
             {
-                foreach (ContactPoint con in collision.contacts)
+                foreach (var con in collision.contacts)
                 {
-                    foreach (Collider c in theseColliders)
+                    foreach (var c in theseColliders)
                     {
                         if (c == con.thisCollider) return true;
                     }
@@ -121,9 +121,9 @@ namespace GhettosFirearmSDKv2
             }
             else if (theseColliders == null && otherColliders != null)
             {
-                foreach (ContactPoint con in collision.contacts)
+                foreach (var con in collision.contacts)
                 {
-                    foreach (Collider c in otherColliders)
+                    foreach (var c in otherColliders)
                     {
                         if (c == con.otherCollider) return true;
                     }
@@ -131,15 +131,15 @@ namespace GhettosFirearmSDKv2
             }
             else if (theseColliders != null && otherColliders != null)
             {
-                foreach (ContactPoint con in collision.contacts)
+                foreach (var con in collision.contacts)
                 {
-                    bool thisColliderFound = false;
-                    foreach (Collider thisCollider in theseColliders)
+                    var thisColliderFound = false;
+                    foreach (var thisCollider in theseColliders)
                     {
                         if (thisCollider == con.thisCollider) thisColliderFound = true;
                     }
 
-                    foreach (Collider otherCollider in otherColliders)
+                    foreach (var otherCollider in otherColliders)
                     {
                         if (otherCollider == con.otherCollider && thisColliderFound) return true;
                     }
@@ -151,7 +151,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool CheckForCollisionWithThisCollider(Collision collision, Collider thisCollider)
         {
-            foreach (ContactPoint con in collision.contacts)
+            foreach (var con in collision.contacts)
             {
                 if (con.thisCollider == thisCollider) return true;
             }
@@ -160,7 +160,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool CheckForCollisionWithOtherCollider(Collision collision, Collider otherCollider)
         {
-            foreach (ContactPoint con in collision.contacts)
+            foreach (var con in collision.contacts)
             {
                 if (con.otherCollider == otherCollider) return true;
             }
@@ -169,7 +169,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool CheckForCollisionWithBothColliders(Collision collision, Collider thisCollider, Collider otherCollider)
         {
-            foreach (ContactPoint con in collision.contacts)
+            foreach (var con in collision.contacts)
             {
                 if (con.thisCollider == thisCollider && con.otherCollider == otherCollider) return true;
             }
@@ -181,9 +181,9 @@ namespace GhettosFirearmSDKv2
             if (obj1 == null || obj2 == null) return;
             try
             {
-                foreach (Collider c1 in obj1.GetComponentsInChildren<Collider>())
+                foreach (var c1 in obj1.GetComponentsInChildren<Collider>())
                 {
-                    foreach (Collider c2 in obj2.GetComponentsInChildren<Collider>())
+                    foreach (var c2 in obj2.GetComponentsInChildren<Collider>())
                     {
                         Physics.IgnoreCollision(c1, c2, ignore);
                     }
@@ -206,7 +206,7 @@ namespace GhettosFirearmSDKv2
 
         public static AudioSource PlayRandomAudioSource(List<AudioSource> sources)
         {
-            AudioSource source = GetRandomFromList(sources);
+            var source = GetRandomFromList(sources);
             if (source != null)
             {
                 source.PlayOneShot(source.clip);
@@ -220,7 +220,7 @@ namespace GhettosFirearmSDKv2
         public static T GetRandomFromList<T>(List<T> list)
         {
             if (list == null || list.Count == 0) return default;
-            int i = Random.Range(0, list.Count);
+            var i = Random.Range(0, list.Count);
             return list[i];
         }
 
@@ -253,7 +253,7 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllLocksUnlocked(List<Lock> locks)
         {
-            foreach (Lock l in locks)
+            foreach (var l in locks)
             {
                 if (!l.IsUnlocked()) return false;
             }
@@ -266,7 +266,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (parent1.gameObject.name.Equals(childName))
                     return parent1;
-                Transform child = RecursiveFindChild(parent1, childName);
+                var child = RecursiveFindChild(parent1, childName);
                 if (child != null)
                     return child;
             }
@@ -275,7 +275,7 @@ namespace GhettosFirearmSDKv2
         
         public static void UpdateLightVolumeReceiver(LightVolumeReceiver receiverToBeUpdated, LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            MethodInfo method = typeof(LightVolumeReceiver).GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
+            var method = typeof(LightVolumeReceiver).GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
             method?.Invoke(receiverToBeUpdated, new object[] { currentLightProbeVolume, lightProbeVolumes });
         }
         
@@ -301,7 +301,7 @@ namespace GhettosFirearmSDKv2
 
         public static void DisableCollision(Item item, bool disable)
         {
-            foreach (Collider c in item.colliderGroups.SelectMany(i => i.colliders))
+            foreach (var c in item.colliderGroups.SelectMany(i => i.colliders))
             {
                 c.enabled = !disable;
             }
@@ -327,14 +327,14 @@ namespace GhettosFirearmSDKv2
                     source.maxDistance = 100f;
                 }
 
-                float distance = Vector3.Distance(source.transform.position, Player.local.head.cam.transform.position);
+                var distance = Vector3.Distance(source.transform.position, Player.local.head.cam.transform.position);
                 if (distance <= 2)
                     source.volume *= 1;
                 else if (distance >= range)
                     source.volume *= 0;
                 else
                 {
-                    float decayFactor = Mathf.Exp(-distance / 100);
+                    var decayFactor = Mathf.Exp(-distance / 100);
                     source.volume *= (1f - 0.3f) * decayFactor;
                 }
                     //source.volume *= 1 - (distance / range);
@@ -364,7 +364,7 @@ namespace GhettosFirearmSDKv2
 
             if (_obsoleteIdData != null)
             {
-                if (_obsoleteIdData.idMatches.TryGetValue(id, out string substituteId))
+                if (_obsoleteIdData.idMatches.TryGetValue(id, out var substituteId))
                 {
                     if (Settings.debugMode)
                     {

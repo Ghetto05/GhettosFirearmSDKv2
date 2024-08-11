@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
 
         public static ProjectileData.PenetrationLevels GetRequiredLevel(string materialId)
         {
-            foreach (RequiredPenetrationPowerData rppd in Catalog.GetDataList<RequiredPenetrationPowerData>())
+            foreach (var rppd in Catalog.GetDataList<RequiredPenetrationPowerData>())
             {
                 if (rppd.materialID.Equals(materialId))
                 {

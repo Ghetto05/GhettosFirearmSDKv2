@@ -75,12 +75,12 @@ namespace GhettosFirearmSDKv2
 
             if (firearm.item.TryGetCustomData(out data))
             {
-                for (int i = 0; i < data.contents.Length; i++)
+                for (var i = 0; i < data.contents.Length; i++)
                 {
                     if (data.contents[i] != null)
                     {
-                        int index = i;
-                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { Cartridge c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        var index = i;
+                        Util.SpawnItem(data.contents[index], "Bolt Chamber", ci => { var c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -110,7 +110,7 @@ namespace GhettosFirearmSDKv2
                 if (roundReparented && Vector3.Distance(ejectorRB.transform.localPosition, ejectorRoot.localPosition) <= 0.004f)
                 {
                     roundReparented = false;
-                    Cartridge c = loadedCartridges[LoadModeChamber()];
+                    var c = loadedCartridges[LoadModeChamber()];
                     c.transform.parent = mountPoints[LoadModeChamber()];
                     c.transform.localPosition = Vector3.zero;
                     c.transform.localEulerAngles = Util.RandomCartridgeRotation();
@@ -118,14 +118,14 @@ namespace GhettosFirearmSDKv2
 
                 if (springRoot != null)
                 {
-                    float time = Vector3.Distance(ejectorAxis.position, ejectorEjectPoint.position)/Vector3.Distance(ejectorRoot.position, ejectorEjectPoint.position);
+                    var time = Vector3.Distance(ejectorAxis.position, ejectorEjectPoint.position)/Vector3.Distance(ejectorRoot.position, ejectorEjectPoint.position);
                     springRoot.localScale = Vector3.Lerp(Vector3.one, springTargetScale, time);
                 }
 
                 if (!roundReparented && loadedCartridges[LoadModeChamber()] != null && Vector3.Distance(ejectorRB.transform.localPosition, ejectorRoot.localPosition) > 0.004f)
                 {
                     roundReparented = true;
-                    Cartridge c = loadedCartridges[LoadModeChamber()];
+                    var c = loadedCartridges[LoadModeChamber()];
                     c.transform.parent = roundReparent;
                     c.transform.localPosition = Vector3.zero;
                     c.transform.localEulerAngles = Util.RandomCartridgeRotation();
@@ -134,13 +134,13 @@ namespace GhettosFirearmSDKv2
                 if (roundReparented && Vector3.Distance(ejectorRB.transform.localPosition, ejectorEjectPoint.localPosition) <= 0.004f)
                 {
                     roundReparented = false;
-                    Cartridge c = loadedCartridges[LoadModeChamber()];
+                    var c = loadedCartridges[LoadModeChamber()];
                     Util.PlayRandomAudioSource(ejectSounds);
                     loadedCartridges[LoadModeChamber()] = null;
                     Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
                     c.ToggleCollision(true);
                     Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
-                    Rigidbody rb = c.item.physicBody.rigidBody;
+                    var rb = c.item.physicBody.rigidBody;
                     c.item.DisallowDespawn = false;
                     c.transform.parent = null;
                     c.loaded = false;
@@ -189,7 +189,7 @@ namespace GhettosFirearmSDKv2
         public void SaveCartridges()
         {
             data.contents = new string[loadedCartridges.Length];
-            for (int i = 0; i < loadedCartridges.Length; i++)
+            for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 data.contents[i] = loadedCartridges[i]?.item.itemId;
             }
@@ -198,7 +198,7 @@ namespace GhettosFirearmSDKv2
         public override void UpdateChamberedRounds()
         {
             base.UpdateChamberedRounds();
-            for (int i = 0; i < mountPoints.Length; i++)
+            for (var i = 0; i < mountPoints.Length; i++)
             {
                 if (loadedCartridges[i] != null)
                 {
@@ -233,7 +233,7 @@ namespace GhettosFirearmSDKv2
 
         public int LoadModeChamber()
         {
-            int i = currentChamber + loadChamberOffset;
+            var i = currentChamber + loadChamberOffset;
             if (i > mountPoints.Length - 1) i -= mountPoints.Length;
             return i;
         }
@@ -274,9 +274,9 @@ namespace GhettosFirearmSDKv2
             InitializeEjectorJoint();
             if (loadMode)
             {
-                Vector3 vec = GrandparentLocalPosition(ejectorEjectPoint, firearm.item.transform);
+                var vec = GrandparentLocalPosition(ejectorEjectPoint, firearm.item.transform);
                 ejectorJoint.anchor = new Vector3(vec.x, vec.y, vec.z + ((ejectorRoot.localPosition.z - ejectorEjectPoint.localPosition.z) / 2));
-                SoftJointLimit limit = new SoftJointLimit();
+                var limit = new SoftJointLimit();
                 limit.limit = Vector3.Distance(ejectorEjectPoint.position, ejectorRoot.position) / 2;
                 ejectorJoint.linearLimit = limit;
 
@@ -286,9 +286,9 @@ namespace GhettosFirearmSDKv2
             }
             else
             {
-                Vector3 vec = GrandparentLocalPosition(ejectorRoot, firearm.item.transform);
+                var vec = GrandparentLocalPosition(ejectorRoot, firearm.item.transform);
                 ejectorJoint.anchor = new Vector3(vec.x, vec.y, vec.z);
-                SoftJointLimit limit = new SoftJointLimit();
+                var limit = new SoftJointLimit();
                 limit.limit = 0f;
                 ejectorJoint.linearLimit = limit;
 
@@ -339,14 +339,14 @@ namespace GhettosFirearmSDKv2
                 hammerAxis.localPosition = hammerIdlePosition.localPosition;
                 hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
 
-                Cartridge loadedCartridge = loadedCartridges[currentChamber];
+                var loadedCartridge = loadedCartridges[currentChamber];
                 if (loadedCartridge == null || loadedCartridge.fired)
                 {
                     InvokeFireLogicFinishedEvent();
                     return;
                 }
 
-                foreach (RagdollHand hand in firearm.item.handlers)
+                foreach (var hand in firearm.item.handlers)
                 {
                     if (hand.playerHand != null || hand.playerHand.controlHand != null)
                         hand.playerHand.controlHand.HapticShort(50f);
@@ -358,7 +358,7 @@ namespace GhettosFirearmSDKv2
                     firearm.PlayMuzzleFlash(loadedCartridge);
                 }
                 FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
-                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, out List<Creature> hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                 loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, !Settings.infiniteAmmo);
                 InvokeFireEvent();
             }

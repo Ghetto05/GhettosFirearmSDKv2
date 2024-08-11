@@ -79,7 +79,7 @@ namespace GhettosFirearmSDKv2
                 {
                     IEnumerable<Tuple<RagdollHand,HandlePose,float>> handlers = toggleHandle.handlers.Select(h => new Tuple<RagdollHand, HandlePose, float>(h, h.gripInfo.orientation, h.gripInfo.axisPosition)).ToList();
                     toggleHandle.Release();
-                    foreach (Tuple<RagdollHand,HandlePose,float> pair in handlers)
+                    foreach (var pair in handlers)
                     {
                         Debug.Log($"{toggleHandle?.gameObject.name}, {pair.Item1?.gameObject.name}, {pair.Item2?.gameObject.name}, {pair.Item3}");
                         pair.Item1.Grab(toggleHandle, pair.Item2, pair.Item3);

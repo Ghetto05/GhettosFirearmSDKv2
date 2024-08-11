@@ -54,7 +54,7 @@ namespace GhettosFirearmSDKv2
             {
                 foreach (var module in directModules)
                 {
-                    foreach (GameObject obj in module.objects)
+                    foreach (var obj in module.objects)
                     {
                         obj.SetActive(false);
                     }
@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
             {
                 foreach (var module in directModules)
                 {
-                    foreach (GameObject obj in module.objects)
+                    foreach (var obj in module.objects)
                     {
                         obj.SetActive(true);
                     }
@@ -95,11 +95,11 @@ namespace GhettosFirearmSDKv2
                 if (NVGOnlyRendererMeshModule.all == null)
                     return;
 
-                foreach (NVGOnlyRendererMeshModule module in NVGOnlyRendererMeshModule.all)
+                foreach (var module in NVGOnlyRendererMeshModule.all)
                 {
                     if (module.renderType.Equals(renderType))
                     {
-                        foreach (GameObject obj in module.objects)
+                        foreach (var obj in module.objects)
                         {
                             obj.SetActive(false);
                         }
@@ -112,7 +112,7 @@ namespace GhettosFirearmSDKv2
         {
             if (ThermalBody.all == null) return;
 
-            foreach (ThermalBody t in ThermalBody.all)
+            foreach (var t in ThermalBody.all)
             {
                 t.SetColor(thermalType);
             }
@@ -124,15 +124,15 @@ namespace GhettosFirearmSDKv2
             {
                 if (NVGOnlyRendererMeshModule.all == null) return;
 
-                foreach (NVGOnlyRendererMeshModule module in NVGOnlyRendererMeshModule.all)
+                foreach (var module in NVGOnlyRendererMeshModule.all)
                 {
                     if (module.renderType.Equals(renderType))
                     {
-                        foreach (GameObject obj in module.objects)
+                        foreach (var obj in module.objects)
                         {
                             obj.SetActive(true);
                             if (renderType == Types.Thermal) UpdateThermal();
-                            foreach (Renderer r in obj.GetComponentsInChildren<Renderer>())
+                            foreach (var r in obj.GetComponentsInChildren<Renderer>())
                             {
                                 r.enabled = true;
                             }

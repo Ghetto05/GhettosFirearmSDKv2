@@ -87,12 +87,12 @@ namespace GhettosFirearmSDKv2
         {
             if (Time.time - _lastEject > Delay)
             {
-                GameObject grainIn = Instantiate(grain, source.position, Quaternion.Euler(Util.RandomRotation()));
+                var grainIn = Instantiate(grain, source.position, Quaternion.Euler(Util.RandomRotation()));
                 _lastEject = Time.time;
-                foreach (Collider ic in item.colliderGroups.SelectMany(cg => cg.colliders))
+                foreach (var ic in item.colliderGroups.SelectMany(cg => cg.colliders))
                 {
-                    Collider[] cs = grainIn.GetComponentsInChildren<Collider>(true);
-                    foreach (Collider cpg in cs)
+                    var cs = grainIn.GetComponentsInChildren<Collider>(true);
+                    foreach (var cpg in cs)
                     {
                         Physics.IgnoreCollision(ic, cpg, true);
                     }

@@ -40,7 +40,7 @@ namespace GhettosFirearmSDKv2
                 return;
 
             _applied = true;
-            RagdollHand[] handlers = oldMainHandle.handlers.ToArray();
+            var handlers = oldMainHandle.handlers.ToArray();
             oldMainHandle.Release();
             oldMainHandle.SetTouch(false);
             oldMainHandle.SetTelekinesis(false);
@@ -56,7 +56,7 @@ namespace GhettosFirearmSDKv2
             attachment.attachmentPoint.parentFirearm.item.mainHandleRight = newMainHandle;
             
             //Debug.Log($"FUCK YOU! Handle: {newMainHandle.name}, handlers: {handlers.Length}");
-            foreach (RagdollHand h in handlers)
+            foreach (var h in handlers)
             {
                 h.Grab(newMainHandle);
             }
