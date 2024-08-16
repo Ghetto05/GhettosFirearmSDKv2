@@ -87,11 +87,15 @@ namespace GhettosFirearmSDKv2
             if (!overrideItem && !overrideAttachment)
                 item.SetPhysicBodyAndMainCollisionHandler();
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
-            item.OnGrabEvent += Item_OnGrabEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnDespawnEvent += Item_OnDespawnEvent;
+            item.OnSetColliderLayerEvent += ItemOnOnSetColliderLayerEvent;
             item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             OnLoadFinished += OnOnLoadFinished;
+            foreach (var handle in handles)
+            {
+                handle.Grabbed += HandleOnGrabbed;
+            }
             if (overrideItem)
             {
                 overrideItem.GetComponent<FirearmBase>().OnCollisionEvent += OnCollisionEnter;
@@ -155,6 +159,19 @@ namespace GhettosFirearmSDKv2
                 all.Add(this);
         }
 
+        private void ItemOnOnSetColliderLayerEvent(Item item1, int layer)
+        {
+            foreach (var handle in handles)
+            {
+                handle.touchCollider.gameObject.layer = LayerMask.NameToLayer("TouchObject");
+            }
+        }
+
+        private void HandleOnGrabbed(RagdollHand ragdollhand, Handle handle, EventTime eventTime)
+        {
+            if (canBeGrabbedInWell && eventTime == EventTime.OnStart) Eject();
+        }
+
         private void OnOnLoadFinished(Magazine mag)
         {
             OnLoadFinished -= OnOnLoadFinished;
@@ -173,17 +190,24 @@ namespace GhettosFirearmSDKv2
 
         private void Item_OnDespawnEvent(EventTime eventTime)
         {
+            if (eventTime == EventTime.OnEnd)
+                return;
+            
             foreach (var c in cartridges)
             {
                 if (c!=null) c.item.Despawn();
             }
             
             item.OnUnSnapEvent -= Item_OnUnSnapEvent;
-            item.OnGrabEvent -= Item_OnGrabEvent;
             item.OnHeldActionEvent -= Item_OnHeldActionEvent;
             item.OnDespawnEvent -= Item_OnDespawnEvent;
             item.lightVolumeReceiver.onVolumeChangeEvent -= UpdateAllLightVolumeReceivers;
+            item.OnSetColliderLayerEvent += ItemOnOnSetColliderLayerEvent;
             OnLoadFinished -= OnOnLoadFinished;
+            foreach (var handle in handles)
+            {
+                handle.Grabbed -= HandleOnGrabbed;
+            }
             all.Remove(this);
         }
 
@@ -193,11 +217,6 @@ namespace GhettosFirearmSDKv2
             {
                 EjectRound();
             }
-        }
-
-        private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
-        {
-            if (canBeGrabbedInWell) Eject();
         }
 
         public Cartridge EjectRound()
@@ -325,24 +344,28 @@ namespace GhettosFirearmSDKv2
 
             #region Collider fix
 
-            _colliderGroups = item.colliderGroups.ToList();
-            foreach (var group in _colliderGroups)
+            if (overrideAttachment == null && overrideItem == null)
             {
-                group.transform.SetParent(currentWell.mountPoint);
+                _colliderGroups = item.colliderGroups.ToList();
+                foreach (var group in _colliderGroups)
+                {
+                    group.transform.SetParent(currentWell.mountPoint);
+                }
+                item.colliderGroups.RemoveAll(x => _colliderGroups.Contains(x));
+                currentWell.firearm.item.colliderGroups.AddRange(_colliderGroups);
+                currentWell.firearm.item.RefreshCollision();
             }
-            item.colliderGroups.RemoveAll(x => _colliderGroups.Contains(x));
-            currentWell.firearm.item.colliderGroups.AddRange(_colliderGroups);
-            currentWell.firearm.item.RefreshCollision();
 
             #endregion
             
             foreach (var handle in handles)
             {
-                 if (!canBeGrabbedInWell)
-                 {
-                     handle.SetTouch(false);
-                 }
-                 handle.SetTelekinesis(false);
+                if (!canBeGrabbedInWell)
+                {
+                    handle.SetTouch(false);
+                }
+
+                handle.SetTelekinesis(false);
             }
             
             // save mag to firearm
