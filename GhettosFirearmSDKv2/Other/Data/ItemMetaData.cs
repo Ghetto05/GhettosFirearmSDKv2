@@ -26,7 +26,13 @@ namespace GhettosFirearmSDKv2
             ChamberLoader,
             Revolver,
             Minigun,
-            LeverAction
+            LeverAction,
+            Spoon,
+            Pin,
+            PullCord,
+            SafetyCap,
+            TimedDetonator,
+            ImpactDetonator
         }
 
         public enum Eras
