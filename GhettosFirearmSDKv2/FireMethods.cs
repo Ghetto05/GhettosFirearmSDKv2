@@ -604,15 +604,10 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            foreach (var hitShootable in hitShootables)
-            {
-                hitShootable.Shoot(ProjectileData.PenetrationLevels.Kevlar);
-            }
-
-            foreach (var hitItem in hitItems)
-            {
-                hitItem.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius * 3, data.upwardsModifier);
-            }
+            foreach (var hitShootable in hitShootables) { hitShootable.Shoot(ProjectileData.PenetrationLevels.Kevlar); }
+            foreach (var hitItem in hitItems) { hitItem.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius * 3, data.upwardsModifier); }
+            foreach (var simpleBreakable in hitSimpleBreakables) { simpleBreakable.Break(); }
+            foreach (var breakable in hitBreakables) { breakable.Break(); }
 
             if (!string.IsNullOrWhiteSpace(data.effectId))
             {
