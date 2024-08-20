@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
 
         public override void Start()
         {
-            if (GameModeManager.instance.currentGameMode.name.Equals("CrystalHunt"))
+            if (GameModeManager.instance?.currentGameMode?.name.Equals("CrystalHunt") == true)
             {
                 item.Despawn();
                 return;
