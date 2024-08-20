@@ -60,6 +60,14 @@ namespace GhettosFirearmSDKv2
             yield return new WaitForSeconds(6f);
             if (!string.IsNullOrWhiteSpace(message) && !message.Equals("----> All checkable mods are up to date!"))
                 DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData(message, 100));
+            yield return new WaitForSeconds(6f);
+            CheckForLowPhysics();
+        }
+
+        private static void CheckForLowPhysics()
+        {
+            if (GameManager.options.physicTimeStep == TimeManager.PhysicTimeStep.Default)
+                DisplayMessage.instance.ShowMessage(new DisplayMessage.MessageData("WARNING!\nYou are playing with Physics set to low!\nThis will break all firearms with a physical bolt/slide!\nPlease adjust your settings!", 100));
         }
 
         public static bool AttemptDownload(out string content)
