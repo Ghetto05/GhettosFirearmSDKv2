@@ -12,16 +12,20 @@ namespace GhettosFirearmSDKv2.Explosives
         public Item item;
         public Vector3 impactNormal;
 
-        public virtual void Detonate(float delay)
+        public void Detonate(float delay)
         {
             if (detonated) return;
             if (delay > 0f)
             {
                 StartCoroutine(Delay(delay));
             }
+            else
+            {
+                Detonate();
+            }
         }
 
-        public virtual void Detonate()
+        public void Detonate()
         {
             if (detonated) return;
             ActualDetonate();
