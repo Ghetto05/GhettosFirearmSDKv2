@@ -32,11 +32,11 @@ namespace GhettosFirearmSDKv2
         public Transform hammerAxis;
         public Transform hammerIdlePosition;
         public Transform hammerCockedPosition;
+        public Transform hammerLoadPosition;
         public Collider cockCollider;
 
         [Header("Ejector Rod")]
         public Transform roundReparent;
-        [FormerlySerializedAs("ejectorRB")]
         public Rigidbody ejectorRb;
         public Transform ejectorAxis;
         public Transform ejectorRoot;
@@ -123,7 +123,7 @@ namespace GhettosFirearmSDKv2
                     springRoot.localScale = Vector3.Lerp(Vector3.one, springTargetScale, time);
                 }
 
-                if (!_roundReparented && loadedCartridges[LoadModeChamber()] != null && Vector3.Distance(ejectorRb.transform.localPosition, ejectorRoot.localPosition) > 0.004f)
+                if (!_roundReparented && loadedCartridges[LoadModeChamber()] && Vector3.Distance(ejectorRb.transform.localPosition, ejectorRoot.localPosition) > 0.004f)
                 {
                     _roundReparented = true;
                     var c = loadedCartridges[LoadModeChamber()];
@@ -157,7 +157,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (firearm.triggerState)
                     TryFire();
-                if (springRoot != null)
+                if (springRoot)
                 {
                     springRoot.localScale = Vector3.one;
                 }
@@ -201,7 +201,7 @@ namespace GhettosFirearmSDKv2
             base.UpdateChamberedRounds();
             for (var i = 0; i < mountPoints.Length; i++)
             {
-                if (loadedCartridges[i] != null)
+                if (loadedCartridges[i])
                 {
                     loadedCartridges[i].GetComponent<Rigidbody>().isKinematic = true;
                     loadedCartridges[i].transform.parent = mountPoints[i];
@@ -213,7 +213,7 @@ namespace GhettosFirearmSDKv2
 
         public void LoadChamber(int index, Cartridge cartridge, bool overrideSave = true)
         {
-            if (loadedCartridges[index] == null && Util.AllowLoadCartridge(cartridge, calibers[index]))
+            if (!loadedCartridges[index] && Util.AllowLoadCartridge(cartridge, calibers[index]))
             {
                 if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
                 loadedCartridges[index] = cartridge;
@@ -242,7 +242,8 @@ namespace GhettosFirearmSDKv2
         [Button]
         public void AltPress()
         {
-            if (_loadMode && Vector3.Distance(ejectorRb.transform.localPosition, ejectorRoot.localPosition) > 0.004f) return;
+            if (_loadMode && Vector3.Distance(ejectorRb.transform.localPosition, ejectorRoot.localPosition) > 0.004f)
+                return;
             _loadMode = !_loadMode;
             ApplyChamber();
             if (_loadMode)
@@ -251,8 +252,17 @@ namespace GhettosFirearmSDKv2
                 loadGateAxis.localPosition = loadGateOpenedPosition.localPosition;
                 loadGateAxis.localEulerAngles = loadGateOpenedPosition.localEulerAngles;
 
-                hammerAxis.localPosition = hammerCockedPosition.localPosition;
-                hammerAxis.localEulerAngles = hammerCockedPosition.localEulerAngles;
+                if (hammerAxis && hammerLoadPosition)
+                {
+                    hammerAxis.localPosition = hammerLoadPosition.localPosition;
+                    hammerAxis.localEulerAngles = hammerLoadPosition.localEulerAngles;
+                }
+                else if (hammerAxis && hammerCockedPosition)
+                {
+                    hammerAxis.localPosition = hammerCockedPosition.localPosition;
+                    hammerAxis.localEulerAngles = hammerCockedPosition.localEulerAngles;
+                }
+                
             }
             else
             {
@@ -301,7 +311,7 @@ namespace GhettosFirearmSDKv2
 
         public void InitializeEjectorJoint()
         {
-            if (_ejectorJoint == null)
+            if (!_ejectorJoint)
             {
                 _ejectorJoint = firearm.item.gameObject.AddComponent<ConfigurableJoint>();
                 ejectorRb.transform.position = ejectorRoot.position;
@@ -341,7 +351,7 @@ namespace GhettosFirearmSDKv2
                 hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
 
                 var loadedCartridge = loadedCartridges[_currentChamber];
-                if (loadedCartridge == null || loadedCartridge.fired)
+                if (!loadedCartridge || loadedCartridge.fired)
                 {
                     InvokeFireLogicFinishedEvent();
                     return;
