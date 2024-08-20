@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -377,6 +378,53 @@ namespace GhettosFirearmSDKv2
                 }
             }
             return id;
+        }
+        
+        public static void DebugObject(object obj, string debugName)
+        {
+            var output = new StringBuilder();
+
+            if (obj == null)
+            {
+                Debug.Log("The object is null.");
+                return;
+            }
+
+            output.AppendLine(debugName);
+            output.AppendLine();
+
+            var type = obj.GetType();
+            output.AppendLine("Object Type: " + type.Name);
+
+            var properties = type.GetProperties();
+            foreach (var property in properties)
+            {
+                try
+                {
+                    var value = property.GetValue(obj, null);
+                    output.AppendLine(property.Name + " (Property): " + value);
+                }
+                catch (Exception e)
+                {
+                    output.AppendLine("Could not retrieve the value of property: " + property.Name + ". Error: " + e.Message);
+                }
+            }
+
+            var fields = type.GetFields();
+            foreach (var field in fields)
+            {
+                try
+                {
+                    var value = field.GetValue(obj);
+                    output.AppendLine(field.Name + " (Field): " + value);
+                }
+                catch (Exception e)
+                {
+                    output.AppendLine("Could not retrieve the value of field: " + field.Name + ". Error: " + e.Message);
+                }
+            }
+
+            Debug.Log(output.ToString());
         }
     }
 }
