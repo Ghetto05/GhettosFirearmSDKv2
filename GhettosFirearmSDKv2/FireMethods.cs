@@ -89,6 +89,7 @@ namespace GhettosFirearmSDKv2
         private static List<Creature> HitScan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 endpoint, float damageMultiplier)
         {
             FirearmsScore.local.ShotsFired++;
+            var forward = muzzle.forward;
 
             #region physics toggle
 
@@ -132,8 +133,6 @@ namespace GhettosFirearmSDKv2
                 "NoLocomotion",
                 "ItemAndRagdollOnly");
 
-            var forward = muzzle.forward;
-            ;
             var hits = Physics.RaycastAll(muzzle.position, forward, data.projectileRange, layer)
                               .OrderBy(h => Vector3.Distance(h.point, muzzle.position))
                               .ToList();
@@ -196,39 +195,7 @@ namespace GhettosFirearmSDKv2
             if (successfullHits.Count > 0) endpoint = successfullHits.Last().point;
             else endpoint = Vector3.zero;
 
-            if (!gunItem.waterHandler.inWater)
-            {
-                var hitWater = false;
-
-                var currentDistance = 0f;
-                while (!hitWater && currentDistance <= Settings.waterSplashRange)
-                {
-                    var pos = muzzle.position + forward.normalized * currentDistance;
-                    if (Water.current.TryGetWaterHeight(pos, out var depth))
-                    {
-                        hitWater = true;
-                        WaterSplash(pos, depth, forward);
-                    }
-
-                    currentDistance += Settings.waterSplashPrecision;
-                }
-            }
-
             return hitCreatures;
-        }
-
-        private static void WaterSplash(Vector3 point, float waterDepth, Vector3 direction)
-        {
-            Catalog.InstantiateAsync(Catalog.gameData.water.splashFxLocation, new Vector3(point.x, point.y, waterDepth), Quaternion.LookRotation(Vector3.up, direction), null, go =>
-            {
-                var component = go.GetComponent<FxController>();
-                if (!component)
-                    return;
-                component.SetIntensity(Catalog.gameData.water.splashIntensityRadiusCurve.Evaluate(0.5f));
-                component.SetSpeed(Catalog.gameData.water.splashSpeedVelocityCurve.Evaluate(400));
-                component.direction = direction;
-                component.Play();
-            }, "WaterSplash");
         }
 
         public static Creature ProcessHit(Transform muzzle, RaycastHit hit, List<RaycastHit> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)
