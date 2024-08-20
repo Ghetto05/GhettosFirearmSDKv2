@@ -27,7 +27,7 @@ namespace GhettosFirearmSDKv2
         {
             if (_armed && Time.time - delay >= _startTime)
             {
-                explosive.Detonate();
+                explosive.Detonate(0f);
             }
         }
     }
