@@ -52,7 +52,7 @@
     <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\ForeGripSling.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\RevolverCaliberReplacer.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\XM157.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\Xm157.cs" />
     <Compile Include="Firearms\BoltAssemblies\FlintLock.cs" />
     <Compile Include="Firearms\BoltAssemblies\LeverAction.cs" />
     <Compile Include="Firearms\BoltAssemblies\PumpAutomaticAdapter.cs" />
