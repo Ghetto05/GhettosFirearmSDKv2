@@ -61,7 +61,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), Settings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime + 0.2f);
         }
 
         public void InvokedStart()
@@ -274,6 +274,11 @@ namespace GhettosFirearmSDKv2
                 {
                     hammerAxis.localPosition = hammerIdlePosition.localPosition;
                     hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
+                }
+                else
+                {
+                    hammerAxis.localPosition = hammerCockedPosition.localPosition;
+                    hammerAxis.localEulerAngles = hammerCockedPosition.localEulerAngles;
                 }
                 Destroy(_ejectorJoint);
             }
