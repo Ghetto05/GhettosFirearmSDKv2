@@ -173,7 +173,7 @@ namespace GhettosFirearmSDKv2
             OnAltActionEvent?.Invoke(false);
             if (magazineWell != null && (magazineWell.canEject || (!magazineWell.canEject && magazineWell.currentMagazine != null && !magazineWell.currentMagazine.canBeGrabbedInWell && !magazineWell.currentMagazine.overrideItem && !magazineWell.currentMagazine.overrideAttachment)))
             {
-                if (bolt.disallowRelease || !bolt.caught || (bolt.caught && magazineWell.IsEmptyAndHasMagazine())) magazineWell.Eject();
+                if (bolt.disallowRelease || !bolt.caught || (bolt.caught && (magazineWell.IsEmptyAndHasMagazine() || bolt.isHeld))) magazineWell.Eject();
                 else if (bolt.caught && !magazineWell.IsEmpty()) bolt.TryRelease();
             }
             else if (bolt != null && !bolt.disallowRelease) bolt.TryRelease();
