@@ -12,7 +12,7 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <LangVersion>9</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -192,6 +192,7 @@
     <Compile Include="UI\SettingsPanel\ScoreWindow.cs" />
     <Compile Include="Util\AdditionalFireSoundManager.cs" />
     <Compile Include="Other\BetterAudioLoader.cs" />
+    <Compile Include="Util\AttachmentValidator.cs" />
     <Compile Include="Util\CollisionDisabler.cs" />
     <Compile Include="Explosives\GrenadeMechanics\GreanadePin.cs" />
     <Compile Include="Explosives\GrenadeMechanics\GrenadeSpoon.cs" />
