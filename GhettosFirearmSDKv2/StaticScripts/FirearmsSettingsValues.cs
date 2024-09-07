@@ -5,6 +5,11 @@ namespace GhettosFirearmSDKv2
 {
     public class FirearmsSettingsValues
     {
+        public static ModOptionBool[] spawnBooleanButton = {
+                                                                     new("Spawn (0)", false),
+                                                                     new("Spawn (1)", true)
+                                                                 };
+        
         public static ModOptionFloat[] triggerDisciplineTimers = {
                                                                     new("0.1s", 0.1f),
                                                                     new("0.5s", 0.5f),

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
 using ThunderRoad;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace GhettosFirearmSDKv2
@@ -12,7 +13,7 @@ namespace GhettosFirearmSDKv2
         #region Static
         
         public static float scopeX1MagnificationFOV = 20f; //45f; //60f; //13f; //28.5f
-        public static float cartridgeEjectionTorque = 1f;
+        public static float cartridgeEjectionTorque = 10f;
         public static float cartridgeEjectionForceRandomizationDevision = 3f;
         public static float firingSoundDeviation = 0.2f;
         public static float invokeTime = 0.3f;
@@ -254,6 +255,51 @@ namespace GhettosFirearmSDKv2
         [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Save guns as prebuilts", tooltip = "Only for development. Saves any gun in the locker with the prebuilt setup.", saveValue = true)]
         public static bool saveAsPrebuilt = false;
+        
+        [ModOptionOrder(41)]
+        [ModOptionCategory("Debug", 30)]
+        [ModOption(name = "Spawn Collider Layer Check Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+        public static bool SpawnColliderLayerChecker
+        {
+            get { return false; }
+            set
+            {
+                _ = value;
+                if (!Player.local || !Player.local.locomotion.allowMove)
+                    return;
+                Catalog.GetData<ItemData>("Ghetto05.FirearmSDKv2.ColliderLayerChecker").SpawnAsync(_ => { }, Player.local.transform.position + Vector3.up * 2);
+            }
+        }
+        
+        [ModOptionOrder(42)]
+        [ModOptionCategory("Debug", 30)]
+        [ModOption(name = "Spawn Rail Type Check Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+        public static bool SpawnRailTypeChecker
+        {
+            get { return false; }
+            set
+            {
+                _ = value;
+                if (!Player.local || !Player.local.locomotion.allowMove)
+                    return;
+                Catalog.GetData<ItemData>("Ghetto05.FirearmSDKv2.RailTester").SpawnAsync(_ => { }, Player.local.transform.position + Vector3.up * 2);
+            }
+        }
+        
+        [ModOptionOrder(42)]
+        [ModOptionCategory("Debug", 30)]
+        [ModOption(name = "Spawn Attachment Validation Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+        public static bool SpawnAttachmentValidator
+        {
+            get { return false; }
+            set
+            {
+                _ = value;
+                if (!Player.local || !Player.local.locomotion.allowMove)
+                    return;
+                Catalog.GetData<ItemData>("Ghetto05.FirearmSDKv2.AttachmentValidator").SpawnAsync(_ => { }, Player.local.transform.position + Vector3.up * 2);
+            }
+        }
         
         #endregion Debug
         
