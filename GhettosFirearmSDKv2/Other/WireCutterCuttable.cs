@@ -47,6 +47,8 @@ namespace GhettosFirearmSDKv2
             }
 
             var results = Physics.OverlapSphere(root, range);
+            if (Settings.debugMode)
+                Debug.Log("Cuttables - " + _all.Count + " " + results.Length);
             
             var found = new List<WireCutterCuttable>();
             foreach (var c in results)
