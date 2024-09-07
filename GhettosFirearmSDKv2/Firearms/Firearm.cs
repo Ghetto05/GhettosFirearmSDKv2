@@ -171,7 +171,7 @@ namespace GhettosFirearmSDKv2
 
         public void AddAttachments(List<AttachmentPoint> points)
         {
-            foreach (var point in points)
+            foreach (var point in points.Where(x => x))
             {
                 if (point.currentAttachments.Any())
                 {
