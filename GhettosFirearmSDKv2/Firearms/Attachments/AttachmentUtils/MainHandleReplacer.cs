@@ -19,6 +19,9 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDetachEvent(bool despawnDetach)
         {
+            if (GetComponentInParent<AttachmentValidator>())
+                return;
+            
             oldMainHandle.SetTouch(true);
             oldMainHandle.SetTelekinesis(true);
             oldMainHandle.enabled = true;
@@ -33,7 +36,7 @@ namespace GhettosFirearmSDKv2
 
         public void Apply()
         {
-            if (_applied)
+            if (_applied && GetComponentInParent<AttachmentValidator>())
                 return;
 
             _applied = true;
