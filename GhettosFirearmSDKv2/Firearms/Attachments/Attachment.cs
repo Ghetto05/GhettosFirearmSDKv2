@@ -78,7 +78,7 @@ namespace GhettosFirearmSDKv2
             try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
 
             transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            foreach (var ap in attachmentPoints)
+            foreach (var ap in attachmentPoints.Where(x => x))
             {
                 ap.parentFirearm = attachmentPoint.parentFirearm;
                 ap.attachment = this;
@@ -110,7 +110,7 @@ namespace GhettosFirearmSDKv2
                     c.gameObject.layer = attachmentPoint.parentFirearm.item.currentPhysicsLayer;
                 }
             }
-            foreach (var colll in alternateGroups)
+            foreach (var colll in alternateGroups.Where(x => x))
             {
                 colll.Load(Catalog.GetData<ColliderGroupData>(alternateGroupsIds[alternateGroups.IndexOf(colll)]));
                 attachmentPoint.parentFirearm.item.colliderGroups.Add(colll);
@@ -120,14 +120,14 @@ namespace GhettosFirearmSDKv2
                     c.gameObject.layer = attachmentPoint.parentFirearm.item.currentPhysicsLayer;
                 }
             }
-            foreach (var han in handles)
+            foreach (var han in handles.Where(x => x))
             {
                 han.item = attachmentPoint.parentFirearm.item;
                 han.physicBody.rigidBody = attachmentPoint.parentFirearm.item.physicBody.rigidBody;
                 attachmentPoint.parentFirearm.item.handles.Add(han);
                 if (attachmentPoint.parentFirearm.item.holder != null) han.SetTouch(false);
             }
-            foreach (var han in additionalTriggerHandles)
+            foreach (var han in additionalTriggerHandles.Where(x => x))
             {
                 attachmentPoint.parentFirearm.additionalTriggerHandles.Add(han);
             }
@@ -191,41 +191,42 @@ namespace GhettosFirearmSDKv2
             }
             var firearm = attachmentPoint.parentFirearm;
             firearm.InvokeAttachmentRemoved(this, attachmentPoint);
-            foreach (var han in additionalTriggerHandles)
+            foreach (var han in additionalTriggerHandles.Where(x => x))
             {
                 firearm.additionalTriggerHandles.Remove(han);
             }
             attachmentPoint.currentAttachments.Remove(this);
-            var attachments = attachmentPoints.SelectMany(x => x.currentAttachments).ToArray();
+            var attachments = attachmentPoints.Where(x => x).SelectMany(x => x.currentAttachments).ToArray();
             for (var i = 0; i < attachments.Length; i++)
             {
                 attachments[i].Detach();
             }
-            foreach (var han in handles)
+            foreach (var han in handles.Where(x => x))
             {
                 firearm.item.handles.Remove(han);
-                if (han.touchCollider != null && han.touchCollider.gameObject != null) Destroy(han.touchCollider.gameObject);
+                if (han.touchCollider != null && han.touchCollider.gameObject != null)
+                    Destroy(han.touchCollider.gameObject);
             }
-            foreach (var d in damagers)
+            foreach (var d in damagers.Where(x => x))
             {
                 firearm.item.mainCollisionHandler.damagers.Remove(d);
             }
             firearm.UpdateAttachments();
             firearm.item.colliderGroups.Remove(colliderGroup);
-            foreach (var colll in alternateGroups)
+            foreach (var colll in alternateGroups.Where(x => x))
             {
                 firearm.item.colliderGroups.Remove(colll);
             }
-            foreach (var ren in _renderers)
+            foreach (var ren in _renderers.Where(x => x))
             {
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.renderers.Remove(ren);
                 if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.lightVolumeReceiver.renderers.Remove(ren);
             }
-            foreach (var dec in _decals)
+            foreach (var dec in _decals.Where(x => x))
             {
                 firearm.item.revealDecals.Remove(dec);
             }
-            try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers dfailed on {gameObject.name}"); }
+            try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
 
             if (this == null || gameObject == null) return;
 
