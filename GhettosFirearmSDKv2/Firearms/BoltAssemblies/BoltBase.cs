@@ -16,6 +16,7 @@ namespace GhettosFirearmSDKv2
         public bool fireOnTriggerPress = true;
         public ReciprocatingBarrel reciprocatingBarrel;
         public float cyclePercentage;
+        protected float LastCyclePercentage;
         public bool externalTriggerState;
         public bool disallowRelease;
         private float _breachSmokeTime;
