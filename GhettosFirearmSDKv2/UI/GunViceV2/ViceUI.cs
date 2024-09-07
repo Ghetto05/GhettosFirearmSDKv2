@@ -25,6 +25,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         public RectTransform railAttachmentContent;
         public RectTransform railAttachmentTemplate;
         public Holder holder;
+        public Handle[] freezeHandles;
         
         private Firearm _currentFirearm;
         private UISlot _currentSlot;
@@ -74,7 +75,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private void ItemOnOnHeldActionEvent(RagdollHand ragdollhand, Handle handle, Interactable.Action action)
         {
-            if (action == Interactable.Action.UseStart)
+            if (action == Interactable.Action.UseStart && freezeHandles.Contains(handle))
             {
                 var freeze = !_item.physicBody.isKinematic;
                 _item.physicBody.isKinematic = freeze;
@@ -122,7 +123,9 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
             if (_currentSlot.AttachmentPoint.usesRail && _currentRailAttachment != null && !_currentRailAttachment.IsNewButton)
             {
-                UpdateSlots(_currentRailAttachment.CurrentAttachment, true);
+                if (_currentRailAttachment.CurrentAttachment.Data.RailLength == -1)
+                    AddRailAttachment(null);
+                //UpdateSlots(_currentRailAttachment.CurrentAttachment, true);
                 _currentRailAttachment.CurrentAttachment.Detach();
                 _railAttachments.Remove(_currentRailAttachment);
                 Destroy(_currentRailAttachment.gameObject);
@@ -131,15 +134,18 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             else if (_currentSlot.AttachmentPoint.currentAttachments.Any())
             {
                 if (_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault() is not { } attachment) return;
-                _currentSlot.SetAttachment(null);
-                UpdateSlots(attachment, true);
+                //_currentSlot.SetAttachment(null);
+                //UpdateSlots(attachment, true);
                 attachment.Detach();
             }
             _attachments.ForEach(x => x.selectionOutline.SetActive(false));
+            UpdateSlots(null, true);
         }
 
         private void MoveAttachment(bool forward)
         {
+            if (_currentRailAttachment?.CurrentAttachment is not { } attachment || attachment.Data.RailLength < 0)
+                return;
             _currentRailAttachment?.CurrentAttachment?.MoveOnRail(forward);
             UpdateSlotCounter();
         }
@@ -169,39 +175,55 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             foreach (var x in _slots.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
             _slots.Clear();
             
-            foreach (var point in _currentFirearm.attachmentPoints.Where(x => x.gameObject.activeInHierarchy))
+            foreach (var point in _currentFirearm.attachmentPoints)
             {
                 AddSlot(point, _currentFirearm.item.data.iconAddress);
                 point.currentAttachments.ForEach(x => AddSlotsFromAttachment(x));
             }
         }
 
+        // private void UpdateSlots(Attachment attachment, bool remove)
+        // {
+        //     if (!attachment)
+        //         return;
+        //     
+        //     if (remove)
+        //     {
+        //         List<Attachment> attachments = new() { attachment };
+        //         foreach (var point in attachment.attachmentPoints)
+        //         {
+        //             GetAllAttachmentsRecurve(point, ref attachments);
+        //         }
+        //         var attachmentPoints = attachments.SelectMany(x => x.attachmentPoints).ToList();
+        //         var toDelete = _slots.Where(x => attachmentPoints.Contains(x.AttachmentPoint)).ToList();
+        //         foreach (var uiSlot in toDelete)
+        //         {
+        //             _slots.Remove(uiSlot);
+        //             Destroy(uiSlot.gameObject);
+        //         }
+        //     }
+        //     else
+        //     {
+        //         var tr = _slots.FirstOrDefault(x => x.AttachmentPoint == attachment.attachmentPoint)?.transform;
+        //         var start = tr?.GetSiblingIndex();
+        //         AddSlotsFromAttachment(attachment, start + 1);
+        //     }
+        // }
+
         private void UpdateSlots(Attachment attachment, bool remove)
         {
-            if (!attachment)
-                return;
+            var currentSlot = _currentSlot.AttachmentPoint;
             
-            if (remove)
+            foreach (var x in _slots.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+            _slots.Clear();
+            
+            foreach (var point in _currentFirearm.attachmentPoints)
             {
-                List<Attachment> attachments = new() { attachment };
-                foreach (var point in attachment.attachmentPoints)
-                {
-                    GetAllAttachmentsRecurve(point, ref attachments);
-                }
-                var attachmentPoints = attachments.SelectMany(x => x.attachmentPoints).ToList();
-                var toDelete = _slots.Where(x => attachmentPoints.Contains(x.AttachmentPoint)).ToList();
-                foreach (var uiSlot in toDelete)
-                {
-                    _slots.Remove(uiSlot);
-                    Destroy(uiSlot.gameObject);
-                }
+                AddSlot(point, _currentFirearm.item.data.iconAddress);
+                point.currentAttachments.ForEach(x => AddSlotsFromAttachment(x));
             }
-            else
-            {
-                var tr = _slots.FirstOrDefault(x => x.AttachmentPoint == attachment.attachmentPoint)?.transform;
-                var start = tr?.GetSiblingIndex();
-                AddSlotsFromAttachment(attachment, start + 1);
-            }
+
+            SelectSlot(_slots.FirstOrDefault(x => x.AttachmentPoint == currentSlot), true);
         }
 
         private void AddSlotsFromAttachment(Attachment attachment, int? startIndex = null)
@@ -211,7 +233,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             
             var address = attachment.Data.IconAddress;
             
-            foreach (var point in attachment.attachmentPoints.Where(x => x.gameObject.activeInHierarchy))
+            foreach (var point in attachment.attachmentPoints)
             {
                 AddSlot(point, address, startIndex);
                 point.currentAttachments.ForEach(x => AddSlotsFromAttachment(x, startIndex + 1));
@@ -220,6 +242,8 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private void AddSlot(AttachmentPoint attachmentPoint, string iconAddress, int? setIndex = null)
         {
+            if (!attachmentPoint.gameObject.activeInHierarchy || !attachmentPoint.gameObject.activeSelf)
+                return;
             var slot = Instantiate(slotTemplate, slotContent).GetComponent<UISlot>();
             slot.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             slot.Setup(attachmentPoint, iconAddress, this);
@@ -229,15 +253,18 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             _slots.Add(slot);
         }
 
-        public void SelectSlot(UISlot slot)
+        public void SelectSlot(UISlot slot, bool fromUpdate)
         {
             if (!_allowSwitchingSlots)
                 return;
             
             _currentSlot = slot;
-            SetupRailAttachmentList(slot);
-            SetupAttachmentList(slot);
-            SetButtonVisibility(slot.AttachmentPoint.usesRail);
+            if (!fromUpdate)
+            {
+                SetupRailAttachmentList(slot);
+                SetupAttachmentList(slot);
+                SetButtonVisibility(slot.AttachmentPoint.usesRail);
+            }
         }
 
         private void SetButtonVisibility(bool visible)
@@ -274,7 +301,8 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
                             _currentRailAttachment.Convert(attachment.Data, newAttachment);
                             PostAttachmentSpawnCallback(newAttachment);
                         });
-                        AddRailAttachment(null);
+                        if (attachment.Data.RailLength != -1)
+                            AddRailAttachment(null);
                     }
                     else
                     {
@@ -306,10 +334,10 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private void PostAttachmentSpawnCallback(Attachment attachment)
         {
-            _currentSlot.SetAttachment(attachment);
+            _allowSwitchingSlots = true;
+            //_currentSlot.SetAttachment(attachment);
             UpdateSlots(attachment, false);
             UpdateSlotCounter();
-            _allowSwitchingSlots = true;
         }
 
         public void SelectRailAttachment(UIRailAttachment attachment)
@@ -338,7 +366,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
             var data = Catalog.GetDataList<AttachmentData>();
             data = slot.AttachmentPoint.usesRail ?
-                data.Where(x => x.RailLength <= slot.AttachmentPoint.railSlots.Count && x.Type.Equals(slot.AttachmentPoint.railType)).ToList() :
+                data.Where(x => x.RailLength <= slot.AttachmentPoint.railSlots.Count && (x.Type.Equals(slot.AttachmentPoint.railType) || slot.AttachmentPoint.alternateTypes.Contains(x.Type))).ToList() :
                 data.Where(x => x.Type == slot.AttachmentPoint.type || slot.AttachmentPoint.alternateTypes.Contains(x.Type)).ToList();
             data.OrderBy(x => x.CategoryName).ThenBy(y => y.DisplayName).ToList().ForEach(AddAttachment);
             if (_attachmentCategories.FirstOrDefault(x => x.headerText.text.Equals("Default")) is { } category)
@@ -357,12 +385,16 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             
             if (!slot.AttachmentPoint.usesRail)
                 return;
-            
+
+            var addNewButton = true;
             foreach (var attachment in slot.AttachmentPoint.currentAttachments)
             {
+                if (attachment.Data.RailLength == -1)
+                    addNewButton = false;
                 AddRailAttachment(attachment);
             }
-            AddRailAttachment(null);
+            if (addNewButton)
+                AddRailAttachment(null);
             
             SelectRailAttachment(_railAttachments.First());
         }
