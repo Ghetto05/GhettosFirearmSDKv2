@@ -15,7 +15,7 @@ namespace GhettosFirearmSDKv2
         public string PrefabAddress;
         public string IconAddress;
         public string CategoryName = "Default";
-        public int RailLength = 1;
+        public int RailLength = -1;
         public int ForwardClearance;
         public int RearwardClearance;
 
