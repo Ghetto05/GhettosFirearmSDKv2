@@ -32,6 +32,7 @@ namespace GhettosFirearmSDKv2
         public MagazineWell currentWell;
         public Transform nullCartridgePosition;
         public Transform[] cartridgePositions;
+        public Transform[] oddCountCartridgePositions;
         public Item item;
         public MagazineLoad defaultLoad;
         public bool hasOverrideLoad;
@@ -70,7 +71,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), Settings.invokeTime);
+            Invoke(nameof(InvokedStart), Settings.invokeTime + (overrideAttachment ? 30 : 0));
         }
 
         public void InvokedStart()
@@ -80,17 +81,19 @@ namespace GhettosFirearmSDKv2
                 item = GetComponent<Item>();
             else if (overrideItem)
                 item = overrideItem;
-            else if (overrideAttachment)
-                item = overrideAttachment.attachmentPoint.parentFirearm.item;
-            if (item == null)
+            if (item == null && !overrideAttachment)
                 return;
             if (!overrideItem && !overrideAttachment)
                 item.SetPhysicBodyAndMainCollisionHandler();
-            item.OnUnSnapEvent += Item_OnUnSnapEvent;
-            item.OnHeldActionEvent += Item_OnHeldActionEvent;
-            item.OnDespawnEvent += Item_OnDespawnEvent;
-            item.OnSetColliderLayerEvent += ItemOnOnSetColliderLayerEvent;
-            item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
+            if (!overrideAttachment)
+            {
+                item.OnUnSnapEvent += Item_OnUnSnapEvent;
+                item.OnHeldActionEvent += Item_OnHeldActionEvent;
+                item.OnDespawnEvent += Item_OnDespawnEvent;
+                item.OnSetColliderLayerEvent += ItemOnOnSetColliderLayerEvent;
+                item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
+            }
+
             OnLoadFinished += OnOnLoadFinished;
             foreach (var handle in handles)
             {
@@ -102,7 +105,7 @@ namespace GhettosFirearmSDKv2
                 if (overrideItem.TryGetComponent(out Firearm f))
                 {
                     _firearmSave = f.SaveData.FirearmNode.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents(), out var addedNew);
-                    if (addedNew && !defaultLoad)
+                    if (addedNew && defaultLoad)
                     {
                         defaultLoad.Load(this);
                         return;
@@ -115,12 +118,19 @@ namespace GhettosFirearmSDKv2
             {
                 overrideAttachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;
                 _firearmSave = overrideAttachment.Node.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents(), out var addedNew);
-                if (addedNew && !defaultLoad)
+                if (addedNew && defaultLoad)
                 {
                     defaultLoad.Load(this);
                     return;
                 }
                 _firearmSave.Value.ApplyToMagazine(this);
+                
+                item = GetComponentInParent<Item>();
+                item.OnUnSnapEvent += Item_OnUnSnapEvent;
+                item.OnHeldActionEvent += Item_OnHeldActionEvent;
+                item.OnDespawnEvent += Item_OnDespawnEvent;
+                item.OnSetColliderLayerEvent += ItemOnOnSetColliderLayerEvent;
+                item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             }
             else
             {
@@ -202,7 +212,7 @@ namespace GhettosFirearmSDKv2
             item.OnHeldActionEvent -= Item_OnHeldActionEvent;
             item.OnDespawnEvent -= Item_OnDespawnEvent;
             item.lightVolumeReceiver.onVolumeChangeEvent -= UpdateAllLightVolumeReceivers;
-            item.OnSetColliderLayerEvent += ItemOnOnSetColliderLayerEvent;
+            item.OnSetColliderLayerEvent -= ItemOnOnSetColliderLayerEvent;
             OnLoadFinished -= OnOnLoadFinished;
             foreach (var handle in handles)
             {
@@ -305,25 +315,32 @@ namespace GhettosFirearmSDKv2
 
             #region Fix dungeon lighting
 
-            if (_originalRenderers == null) _originalRenderers = item.renderers.ToList();
-            foreach (var ren in _originalRenderers)
+            if (!overrideItem && !overrideAttachment)
             {
-                well.firearm.item.renderers.Add(ren);
-                item.renderers.Remove(ren);
+                if (_originalRenderers == null) _originalRenderers = item.renderers.ToList();
+                foreach (var ren in _originalRenderers)
+                {
+                    well.firearm.item.renderers.Add(ren);
+                    item.renderers.Remove(ren);
+                }
+                well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
+                item.lightVolumeReceiver.SetRenderers(item.renderers);
             }
-            well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
-            item.lightVolumeReceiver.SetRenderers(item.renderers);
 
             #endregion
 
             currentWell = well;
             currentWell.currentMagazine = this;
-            var hands = item.handlers.Where(h => handles.Contains(h.grabbedHandle)).ToArray();
-            foreach (var hand in hands)
+
+            if (!overrideAttachment && !overrideItem)
             {
-                hand.UnGrab(false);
+                var hands = item.handlers.Where(h => handles.Contains(h.grabbedHandle)).ToArray();
+                foreach (var hand in hands)
+                {
+                    hand.UnGrab(false);
+                }
             }
-            
+
             foreach (var c in cartridges)
             {
                 Util.IgnoreCollision(c.gameObject, currentWell.firearm.gameObject, true);
@@ -461,7 +478,11 @@ namespace GhettosFirearmSDKv2
             {
                 if (c != null && c.transform != null)
                 {
-                    if (cartridgePositions.Length - 1 < cartridges.IndexOf(c) || cartridgePositions[cartridges.IndexOf(c)] == null)
+                    var positions = cartridgePositions;
+                    if (oddCountCartridgePositions != null && oddCountCartridgePositions.Any() && cartridges.Count % 2 != 0)
+                        positions = oddCountCartridgePositions;
+                    
+                    if (positions.Length - 1 < cartridges.IndexOf(c) || positions[cartridges.IndexOf(c)] == null)
                     {
                         c.transform.parent = nullCartridgePosition;
                         c.transform.localPosition = Vector3.zero;
@@ -469,7 +490,7 @@ namespace GhettosFirearmSDKv2
                     }
                     else
                     {
-                        c.transform.parent = cartridgePositions[cartridges.IndexOf(c)];
+                        c.transform.parent = positions[cartridges.IndexOf(c)];
                         c.transform.localPosition = Vector3.zero;
                         c.transform.localEulerAngles = Util.RandomCartridgeRotation();
                     }
