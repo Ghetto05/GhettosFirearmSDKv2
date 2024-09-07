@@ -34,11 +34,20 @@ namespace GhettosFirearmSDKv2
             }
         }
 
+        private bool _firstDebug = true;
         private void Update()
         {
             var held = false;
             foreach (var h in handles)
             {
+                if (!h)
+                { 
+                    if (_firstDebug)
+                        Debug.LogError("Null handle on handle folder on " + (GetComponentInParent<Attachment>()?.name ?? GetComponentInParent<Item>()?.name));
+                    _firstDebug = false;
+                    return;
+                }
+
                 if (h.IsHanded() || (foldIfBoltCaught && bolt && bolt.caught))
                 {
                     held = true;
