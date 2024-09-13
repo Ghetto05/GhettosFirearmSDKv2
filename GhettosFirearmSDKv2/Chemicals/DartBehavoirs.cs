@@ -24,7 +24,7 @@ namespace GhettosFirearmSDKv2
             cartridge.OnFiredWithHitPointsAndMuzzleAndCreatures += Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures;
         }
 
-        private void Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures(List<Vector3> hitPoints, List<Vector3> trajectories, List<Creature> hitCreatures, Transform muzzle)
+        private void Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures(List<Vector3> hitPoints, List<Vector3> trajectories, List<Creature> hitCreatures, Transform muzzle, List<Creature> killedCreatures)
         {
             if (behaviour == Behaviours.Heal) Heal(hitCreatures);
             else if (behaviour == Behaviours.MissingTextures) MissingTexture(hitCreatures);

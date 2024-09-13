@@ -12,16 +12,17 @@ namespace GhettosFirearmSDKv2
 {
     public class FireMethods : MonoBehaviour
     {
-        public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitPoints, out List<Vector3> trajectories, out List<Creature> hitCreatures, float damageMultiplier, bool useAISpread)
+        public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitPoints, out List<Vector3> trajectories, out List<Creature> hitCreatures,  out List<Creature> killedCreatures, float damageMultiplier, bool useAISpread)
         {
             hitPoints = new List<Vector3>();
             trajectories = new List<Vector3>();
             hitCreatures = new List<Creature>();
+            killedCreatures = new List<Creature>();
             try
             {
                 if (data.isHitscan)
                 {
-                    hitCreatures = FireHitScan(muzzle, data, gun, out hitPoints, out trajectories, damageMultiplier, useAISpread);
+                    hitCreatures = FireHitScan(muzzle, data, gun, out hitPoints, out trajectories, out killedCreatures, damageMultiplier, useAISpread);
                 }
                 else
                 {
@@ -55,10 +56,11 @@ namespace GhettosFirearmSDKv2
             rb.AddRelativeTorque(Vector3.right * ((force * upMod) * upwardsModifier) * firearmRecoilModifier, ForceMode.Impulse);
         }
 
-        public static List<Creature> FireHitScan(Transform muzzle, ProjectileData data, Item item, out List<Vector3> returnedEndpoints, out List<Vector3> returnedTrajectories, float damageMultiplier, bool useAISpread)
+        public static List<Creature> FireHitScan(Transform muzzle, ProjectileData data, Item item, out List<Vector3> returnedEndpoints, out List<Vector3> returnedTrajectories, out List<Creature> killedCreatures, float damageMultiplier, bool useAISpread)
         {
             returnedEndpoints = new List<Vector3>();
             returnedTrajectories = new List<Vector3>();
+            killedCreatures = new List<Creature>();
             var crs = new List<Creature>();
             try
             {
@@ -71,9 +73,10 @@ namespace GhettosFirearmSDKv2
                         tempMuz.localEulerAngles = new Vector3(Random.Range(-data.projectileSpread, data.projectileSpread), Random.Range(-data.projectileSpread, data.projectileSpread), 0);
                     else
                         tempMuz.localEulerAngles = new Vector3(Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), 0);
-                    var cr = HitScan(tempMuz, data, item, out var endpoint, damageMultiplier);
+                    var cr = HitScan(tempMuz, data, item, out var endpoint, damageMultiplier, out var kc);
                     returnedEndpoints.Add(endpoint);
                     returnedTrajectories.Add(tempMuz.forward);
+                    killedCreatures.AddRange(kc);
                     Destroy(tempMuz.gameObject);
                     crs.AddRange(cr);
                 }
@@ -86,10 +89,11 @@ namespace GhettosFirearmSDKv2
             return crs;
         }
 
-        private static List<Creature> HitScan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 endpoint, float damageMultiplier)
+        private static List<Creature> HitScan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 endpoint, float damageMultiplier, out List<Creature> killedCreatures)
         {
             FirearmsScore.local.ShotsFired++;
             var forward = muzzle.forward;
+            killedCreatures = new List<Creature>();
 
             #region physics toggle
 
@@ -176,7 +180,7 @@ namespace GhettosFirearmSDKv2
                 {
                     try
                     {
-                        var c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, gunItem, out var lowerDamageLevel, out var cancel, ref power);
+                        var c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, killedCreatures, gunItem, out var lowerDamageLevel, out var cancel, ref power);
                         if (lowerDamageLevel)
                         {
                             if (power == (int)ProjectileData.PenetrationLevels.None || power == (int)ProjectileData.PenetrationLevels.Leather) processing = false;
@@ -198,7 +202,7 @@ namespace GhettosFirearmSDKv2
             return hitCreatures;
         }
 
-        public static Creature ProcessHit(Transform muzzle, RaycastHit hit, List<RaycastHit> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)
+        public static Creature ProcessHit(Transform muzzle, RaycastHit hit, List<RaycastHit> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, List<Creature> killedCreatures, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)
         {
             if (hit.collider.GetComponentInParent<Shootable>() is { } shootable) shootable.Shoot((ProjectileData.PenetrationLevels)penetrationPower);
 
@@ -382,6 +386,11 @@ namespace GhettosFirearmSDKv2
                     coll.damageStruct.hitRagdollPart = ragdollPart;
                     coll.intensity = EvaluateDamage(data.damagePerProjectile * damageModifier * damageMultiplier, cr);
                     coll.pressureRelativeVelocity = muzzle.forward * 200;
+
+                    if (WouldCreatureBeKilled(EvaluateDamage(data.damagePerProjectile * damageModifier, cr), cr) && !cr.isKilled && !killedCreatures.Contains(cr))
+                    {
+                        killedCreatures.Add(cr);
+                    }
 
                     try { cr.Damage(coll); } catch (Exception) { /* ignored */ }
 

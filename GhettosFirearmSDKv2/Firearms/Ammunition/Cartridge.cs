@@ -69,7 +69,7 @@ namespace GhettosFirearmSDKv2
             item.Despawn();
         }
 
-        public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle, List<Creature> hitCreatures, bool fire)
+        public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle, List<Creature> hitCreatures, List<Creature> killedCreatures, bool fire)
         {
             fired = fire;
             if (firedOnlyObject != null)
@@ -79,7 +79,7 @@ namespace GhettosFirearmSDKv2
             ToggleTk(false);
             onFireEvent?.Invoke();
             OnFiredWithHitPointsAndMuzzle?.Invoke(hits, directions, muzzle);
-            OnFiredWithHitPointsAndMuzzleAndCreatures?.Invoke(hits, directions, hitCreatures, muzzle);
+            OnFiredWithHitPointsAndMuzzleAndCreatures?.Invoke(hits, directions, hitCreatures, muzzle, killedCreatures);
             if (additionalMuzzleFlash != null)
             {
                 var additionalMuzzleFlashInstance = Instantiate(additionalMuzzleFlash.gameObject, muzzle, true);
@@ -94,13 +94,13 @@ namespace GhettosFirearmSDKv2
 
         public void Detonate()
         {
-            FireMethods.Fire(item, cartridgeFirePoint, data, out var hits, out var trajectories, out var hitCreatures, 1f, false);
+            FireMethods.Fire(item, cartridgeFirePoint, data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, 1f, false);
             if (detonationParticle != null)
                 detonationParticle.Play();
             if (item != null)
                 FireMethods.ApplyRecoil(transform, item.physicBody.rigidBody, data.recoil / 4, 0f, 1f, null);
             Util.PlayRandomAudioSource(detonationSounds);
-            Fire(hits, trajectories, cartridgeFirePoint, hitCreatures, true);
+            Fire(hits, trajectories, cartridgeFirePoint, hitCreatures, killedCreatures, true);
         }
 
         public void Reset()
@@ -152,7 +152,7 @@ namespace GhettosFirearmSDKv2
         public delegate void OnFired(List<Vector3> hitPoints, List<Vector3> trajectories, Transform muzzle);
         public event OnFired OnFiredWithHitPointsAndMuzzle;
 
-        public delegate void OnFiredWithCreatures(List<Vector3> hitPoints, List<Vector3> trajectories, List<Creature> hitCreatures, Transform muzzle);
+        public delegate void OnFiredWithCreatures(List<Vector3> hitPoints, List<Vector3> trajectories, List<Creature> hitCreatures, Transform muzzle, List<Creature> killedCreatures);
         public event OnFiredWithCreatures OnFiredWithHitPointsAndMuzzleAndCreatures;
     }
 }

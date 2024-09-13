@@ -42,6 +42,7 @@
     <Compile Include="Clothing\NVGAdjuster.cs" />
     <Compile Include="Clothing\WearableItem.cs" />
     <Compile Include="Firearms\Ammunition\AmmoBelt.cs" />
+    <Compile Include="Firearms\Ammunition\CustomCartridgeDeathSound.cs" />
     <Compile Include="Firearms\Ammunition\IAmmunitionLoadable.cs" />
     <Compile Include="Firearms\Ammunition\ICaliberGettable.cs" />
     <Compile Include="Firearms\Ammunition\PowderGrain.cs" />
