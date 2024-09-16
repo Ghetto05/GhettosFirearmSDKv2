@@ -83,6 +83,15 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             }
         }
 
+        private void FixedUpdate()
+        {
+            if (holder.items.Count > 0 && holder.items[0].TryGetComponent(out Firearm firearm))
+            {
+                firearm.ChangeTrigger(FirearmClicker.Trigger());
+                firearm.triggerState = FirearmClicker.Trigger();
+            }
+        }
+
         private void HolderOnSnapped(Item item)
         {
             if (item.GetComponent<Firearm>() is not { } firearm)
