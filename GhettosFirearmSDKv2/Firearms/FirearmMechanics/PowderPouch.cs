@@ -7,7 +7,7 @@ namespace GhettosFirearmSDKv2
 {
     public class PowderPouch : MonoBehaviour
     {
-        private readonly float _delay = 0.02f;
+        private readonly float _delay = 0.15f;
 
         public Item item;
         public bool opened;
