@@ -13,7 +13,8 @@ namespace GhettosFirearmSDKv2
             Melee,
             Clothing,
             Tool,
-            Grenade
+            Grenade,
+            StripperClip
         }
 
         public enum FirearmActions
