@@ -70,6 +70,7 @@
     <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs" />
     <Compile Include="Firearms\FirearmMechanics\RotationLimitedFollower.cs" />
     <Compile Include="Firearms\FirearmMechanics\StripperClipWell.cs" />
+    <Compile Include="Other\VariationRandomizer.cs" />
     <Compile Include="StaticScripts\FirearmCleaner.cs" />
     <Compile Include="StaticScripts\FirearmsSettingsValues.cs" />
     <Compile Include="StaticScripts\HomeAdjustments.cs" />
