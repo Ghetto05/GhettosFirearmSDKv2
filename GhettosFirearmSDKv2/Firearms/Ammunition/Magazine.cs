@@ -234,6 +234,7 @@ namespace GhettosFirearmSDKv2
             Cartridge c = null;
             if (cartridges.Count > 0)
             {
+                lastEjectTime = Time.time;
                 Util.PlayRandomAudioSource(roundEjectSounds);
                 c = cartridges[0];
                 c.ToggleCollision(true);
@@ -458,7 +459,6 @@ namespace GhettosFirearmSDKv2
                 if (destroyOnEject && !overrideItem && !overrideAttachment)
                     item.Despawn();
                 //if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(true);
-                lastEjectTime = Time.time;
             }
             UpdateCartridgePositions();
             item.lastInteractionTime = Time.time;
