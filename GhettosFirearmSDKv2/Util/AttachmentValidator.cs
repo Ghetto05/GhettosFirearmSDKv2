@@ -78,11 +78,11 @@ namespace GhettosFirearmSDKv2
             var counter = 0;
             foreach (var id in _attachmentIds)
             {
-                // if (_attachmentIdBanList.Contains(id))
-                // {
-                //     Debug.LogWarning($"Skipping blacklisted attachment {id}...({counter + 1} of {_attachmentIds.Count} - {Math.Round((double)counter / _attachmentIds.Count, 2) * 100}% done)");
-                //     continue;
-                // }
+                if (_attachmentIdBanList.Contains(id))
+                {
+                    Debug.LogWarning($"Skipping blacklisted attachment {id}...({counter + 1} of {_attachmentIds.Count} - {Math.Round((double)counter / _attachmentIds.Count, 2) * 100}% done)");
+                    continue;
+                }
 
                 Debug.LogWarning($"Validating {id}...({counter + 1} of {_attachmentIds.Count} - {Math.Round((double)counter / _attachmentIds.Count, 2) * 100}% done)");
                 var attachment = await SpawnAttachments(id);
