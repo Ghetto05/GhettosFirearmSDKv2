@@ -337,7 +337,7 @@ namespace GhettosFirearmSDKv2
                     source.volume *= 0;
                 else
                 {
-                    var decayFactor = Mathf.Exp(-distance / 100);
+                    var decayFactor = Mathf.Exp(-distance / 50);
                     source.volume *= (1f - 0.3f) * decayFactor;
                 }
                     //source.volume *= 1 - (distance / range);
