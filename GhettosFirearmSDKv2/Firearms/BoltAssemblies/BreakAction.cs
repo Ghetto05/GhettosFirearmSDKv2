@@ -384,7 +384,7 @@ namespace GhettosFirearmSDKv2
                         if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > _currentChamber && actualMuzzleFlashes[_currentChamber] != null && muzzles.Count > 1) actualMuzzleFlashes[_currentChamber].Play();
                         else firearm.PlayMuzzleFlash(loadedCartridge);
                     }
-                    FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
+                    FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
                     FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                     loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, killedCreatures, !Settings.infiniteAmmo);
                     InvokeFireEvent();

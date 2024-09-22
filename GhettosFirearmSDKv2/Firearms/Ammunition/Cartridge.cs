@@ -98,7 +98,7 @@ namespace GhettosFirearmSDKv2
             if (detonationParticle != null)
                 detonationParticle.Play();
             if (item != null)
-                FireMethods.ApplyRecoil(transform, item.physicBody.rigidBody, data.recoil / 4, 0f, 1f, null);
+                FireMethods.ApplyRecoil(transform, item, data.recoil / 4, 0f, 1f, null);
             Util.PlayRandomAudioSource(detonationSounds);
             Fire(hits, trajectories, cartridgeFirePoint, hitCreatures, killedCreatures, true);
         }
