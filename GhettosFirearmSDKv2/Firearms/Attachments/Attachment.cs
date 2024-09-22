@@ -137,6 +137,8 @@ namespace GhettosFirearmSDKv2
                 {
                     if (dmg != null && !string.IsNullOrWhiteSpace(damagerIds[damagers.IndexOf(dmg)]))
                     {
+                        if (damagerIds[damagers.IndexOf(dmg)].Equals("Mace1H"))
+                            damagerIds[damagers.IndexOf(dmg)] = "Ghetto05.FirearmSDKv2.Damagers.NearlyNoDamage";
                         dmg.Load(Catalog.GetData<DamagerData>(damagerIds[damagers.IndexOf(dmg)]), attachmentPoint.parentFirearm.item.mainCollisionHandler);
                         attachmentPoint.parentFirearm.item.mainCollisionHandler.damagers.Add(dmg);
                     }
