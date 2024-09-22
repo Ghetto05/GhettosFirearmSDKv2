@@ -16,7 +16,6 @@ namespace GhettosFirearmSDKv2
         public static float cartridgeEjectionTorque = 10f;
         public static float cartridgeEjectionForceRandomizationDevision = 3f;
         public static float firingSoundDeviation = 0.2f;
-        public static float invokeTime = 0.3f;
         public static float boltPointTreshold = 0.004f;
         public static float aiFirearmSpread = 0f;
         
@@ -26,6 +25,12 @@ namespace GhettosFirearmSDKv2
         
         //[ModOption(name = "HUD scale", tooltip = "Scales HUDs.", saveValue = true)]
         public static float hudScale = 1f;
+
+        [ModOptionOrder(0)]
+        [ModOptionFloatValues(0.05f, 1f, 0.05f)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Invocation time", tooltip = "Used to adjust the mod to your PC's capabilities. The lower the value, the faster everything spawn in. The higher the value, the less likely you are to encounter issues.", saveValue = true)]
+        public static float invokeTime = 0.3f;
 
         [ModOptionOrder(1)]
         [ModOptionCategory("Settings", 1)]
@@ -189,9 +194,10 @@ namespace GhettosFirearmSDKv2
         public static bool doMagazineTypeChecks = true;
 
         [ModOptionOrder(5)]
+        [ModOptionFloatValues(0.1f, 2.0f, 0.1f)]
         [ModOptionCategory("Cheats", 10)]
-        [ModOption(name = "Damage multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true)]
-        public static float damageMultiplier = 1f;
+        [ModOption(name = "Damage Multiplier", tooltip = "Multiplies the damage done by projectiles.", saveValue = true)]
+        public static float firearmDamageMultiplier = 1f;
 
         [ModOptionOrder(6)]
         [ModOptionCategory("Cheats", 10)]
