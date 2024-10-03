@@ -148,7 +148,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
                 attachment.Detach();
             }
             _attachments.ForEach(x => x.selectionOutline.SetActive(false));
-            UpdateSlots(null, true);
+            UpdateSlots(/*null, true*/);
         }
 
         private void MoveAttachment(bool forward)
@@ -168,15 +168,6 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         {
             _currentFirearm = firearm;
             SetupSlots();
-        }
-
-        private void GetAllAttachmentsRecurve(AttachmentPoint slot, ref List<Attachment> attachments)
-        {
-            attachments.AddRange(slot.currentAttachments);
-            foreach (var point in slot.currentAttachments.SelectMany(x => x.attachmentPoints))
-            {
-                GetAllAttachmentsRecurve(point, ref attachments);
-            }
         }
         
         private void SetupSlots()
@@ -219,7 +210,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         //     }
         // }
 
-        private void UpdateSlots(Attachment attachment, bool remove)
+        private void UpdateSlots()
         {
             var currentSlot = _currentSlot.AttachmentPoint;
             
@@ -308,30 +299,30 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
                         attachment.Data.SpawnAndAttach(_currentSlot.AttachmentPoint, newAttachment =>
                         {
                             _currentRailAttachment.Convert(attachment.Data, newAttachment);
-                            PostAttachmentSpawnCallback(newAttachment);
+                            PostAttachmentSpawnCallback();
                         });
                         if (attachment.Data.RailLength != -1)
                             AddRailAttachment(null);
                     }
                     else
                     {
-                        UpdateSlots(_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault(), true);
+                        UpdateSlots(/*_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault(), true*/);
 
                         var railPos = _currentRailAttachment.CurrentAttachment.RailPosition;
                         _currentRailAttachment.CurrentAttachment.Detach();
                         attachment.Data.SpawnAndAttach(_currentSlot.AttachmentPoint, newAttachment =>
                         {
                             _currentRailAttachment.Convert(attachment.Data, newAttachment);
-                            PostAttachmentSpawnCallback(newAttachment);
+                            PostAttachmentSpawnCallback();
                         }, railPos);
                     }
                 }
                 else
                 {
-                    UpdateSlots(_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault(), true);
+                    UpdateSlots(/*_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault(), true*/);
 
                     _currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault()?.Detach();
-                    attachment.Data.SpawnAndAttach(_currentSlot.AttachmentPoint, newAttachment => { PostAttachmentSpawnCallback(newAttachment); });
+                    attachment.Data.SpawnAndAttach(_currentSlot.AttachmentPoint, _ => { PostAttachmentSpawnCallback(); });
                 }
             }
             catch (Exception e)
@@ -341,11 +332,11 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             }
         }
 
-        private void PostAttachmentSpawnCallback(Attachment attachment)
+        private void PostAttachmentSpawnCallback()
         {
             _allowSwitchingSlots = true;
             //_currentSlot.SetAttachment(attachment);
-            UpdateSlots(attachment, false);
+            UpdateSlots(/*attachment, false*/);
             UpdateSlotCounter();
         }
 

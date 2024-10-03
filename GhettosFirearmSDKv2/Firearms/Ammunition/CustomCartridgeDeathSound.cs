@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2;
 
