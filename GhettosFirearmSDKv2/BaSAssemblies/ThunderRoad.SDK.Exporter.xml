@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ThunderRoad.SDK.Exporter</name>
+    </assembly>
+    <members>
+        <member name="M:SDKBuilder.Build(System.String)">
+            <summary>
+            This build method will construct asset dependancies from the json file defined in the project.
+            </summary>
+        </member>
+    </members>
+</doc>

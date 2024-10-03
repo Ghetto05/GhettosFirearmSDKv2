@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Shadowood</name>
+    </assembly>
+    <members>
+        <member name="T:UnityEditor.Extensions.EmbedPackage">
+            <summary>
+            Editor extension for embedding packages as a local copy in the project.
+            This can be useful in case you want to modify the package's source code.
+            </summary>
+        </member>
+        <member name="T:AsmdefDebug">
+            <summary>
+            https://gist.github.com/karljj1/9c6cce803096b5cd4511cf0819ff517b
+            </summary>
+        </member>
+        <member name="M:UpdateBounds.DrawBounds(UnityEngine.Bounds,System.Single)">
+            <summary>
+            https://gist.github.com/unitycoder/58f4b5d80f423d29e35c814a9556f9d9
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.IsInside(UnityEngine.Vector3,UnityEngine.BoxCollider)">
+            <summary>
+            Return true if the point is inside the given BoxCollider.
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.IsInside(UnityEngine.Vector3,UnityEngine.SphereCollider)">
+            <summary>
+            Return true if the point is inside the given SphereCollider.
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.DistinctBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            var lstDst = lst.DistinctBy(item => item.Key);
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.GetHashCodeHack``1(UnityEngine.Events.UnityEvent{``0})">
+            <summary>
+            Hacky way to hash a UnityEvent
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.GetAllActionsAsEnumerable``1(UnityEngine.Events.UnityEvent{``0})">
+            
+             Gets all the actions in the event as an IEnumerable(UnityAction).
+            
+        </member>
+        <member name="M:ExtensionsMisc.GetAllActions``1(UnityEngine.Events.UnityEvent{``0})">
+            
+             Gets all the actions in the event as an array of UnityAction.
+            
+        </member>
+        <member name="M:ExtensionsMisc.GetAction``1(UnityEngine.Events.UnityEvent{``0},System.Int32)">
+            
+             Gets a specific action at the index of index.
+            
+        </member>
+        <member name="M:ExtensionsMisc.RemoveEmpty``1(System.Collections.Generic.List{``0})">
+            <summary>
+            Use RemoveAll(o => o == null); instead?
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.ThreadCountLength(System.Int32,System.Int32)">
+            <summary>
+            Use for SetLength, Get, given val/instance count workout how many instances round to the kThread, so given 67 val and kThread 64 it will return 128
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.ThreadCountBatch(System.Int32,System.Int32)">
+            <summary>
+            Use for Dispatch: Given val/instance count workout how many threads need to be dispatched given a kThreadCount size eg given 67 val and kThread 64 it will return 128/64 == 2 threads
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.HashCurve(UnityEngine.AnimationCurve)">
+            <summary>
+            Superlame hacky HASH for curves, use sparingly, use sparingly for editor use only ( generates GC )
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.HashGradient(UnityEngine.Gradient)">
+            <summary>
+            Superlame hacky HASH for gradients, use sparingly for editor use only ( generates GC )
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.AddAny``1(``0,``0,System.Func{``0,``0,``0})">
+            <summary>
+            Be mindful of boxing!
+            Do not use this with Lists, Arrays, use AddArraysToRef instead
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.AddToRef``1(``0,``0@,System.Func{``0,``0,``0})">
+            <summary>
+            Be mindful of boxing!
+            Adds a to b and sets b to the total and returns the total
+            Do not use this with Lists, Arrays, use AddArraysToRef instead
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.AddToOut``1(``0,``0,``0@,System.Func{``0,``0,``0})">
+            <summary>
+            Be mindful of boxing!
+            Adds a to b outputting total to 'output' and returns a
+            Do not use this with Lists, Arrays, use AddArraysToRef instead
+            Very slow if you do not re use the delegate somehow
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.SetRef``1(``0,``0@)">
+            <summary>
+            Take in A and a Ref B, set B's contents to A, returns A
+            </summary>
+        </member>
+        <member name="M:ExtensionsMisc.SetAndReturnRef``1(``0,``0@)">
+            <summary>
+            Take in A and a Ref B, set B's contents to A, returns B
+            </summary>
+        </member>
+        <member name="M:ReflectionBillboardManager.DepthSort">
+            <summary>
+            Super basic depth sort
+            </summary>
+        </member>
+        <member name="M:AssetToScene.CloneMesh(UnityEngine.Mesh)">
+            <summary>
+            Fails to copy sub meshes
+            </summary>
+        </member>
+        <member name="F:AssetStoreSO.reverseLookup">
+            <summary>
+            Find the original asset GUID from a copies GetInstanceID
+            </summary>
+        </member>
+    </members>
+</doc>

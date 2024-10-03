@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ThunderRoad.Editor</name>
+    </assembly>
+    <members>
+        <member name="M:ThunderRoad.PostProcessors.DefaultShaderOnMaterialCreationOnImport.OnPreprocessMaterialDescription(UnityEditor.AssetImporters.MaterialDescription,UnityEngine.Material,UnityEngine.AnimationClip[])">
+            <summary>
+            Ensure the default material on creation is TR/Lit, not URP/Lit
+            </summary>
+            <param name="description"></param>
+            <param name="material"></param>
+            <param name="materialAnimation"></param>
+        </member>
+        <member name="T:ThunderRoad.BehaviourEditor.NodeEditorDesign">
+            <summary>
+            Design object for a node editor.
+            </summary>
+        </member>
+        <member name="T:ThunderRoad.BehaviourEditor.Node">
+            <summary>
+            The base class for all behaviour nodes.
+            </summary>
+        </member>
+        <member name="P:ThunderRoad.BehaviourEditor.Node.BaseRect">
+            <summary>
+            This nodes base rect to use upon spawning.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.Node.SetPosition(System.Single,System.Single)">
+            <summary>
+            Set the position of this node.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.Node.DrawNodeBase">
+            <summary>
+            Draw the base of the node.
+            </summary>
+        </member>
+        <member name="T:ThunderRoad.BehaviourEditor.NodeEditorWindow">
+            <summary>
+            The main window for interacting with nodes.
+            </summary>
+        </member>
+        <member name="P:ThunderRoad.BehaviourEditor.NodeEditorWindow.Local">
+            <summary>
+            Singleton instance.
+            </summary>
+        </member>
+        <member name="P:ThunderRoad.BehaviourEditor.NodeEditorWindow.Nodes">
+            <summary>
+            All nodes being rendered.
+            </summary>
+        </member>
+        <member name="P:ThunderRoad.BehaviourEditor.NodeEditorWindow.AllNodeTypes">
+            <summary>
+            All supported nodes.
+            </summary>
+        </member>
+        <member name="P:ThunderRoad.BehaviourEditor.NodeEditorWindow.RenderView">
+            <summary>
+            View rect.
+            </summary>
+        </member>
+        <member name="P:ThunderRoad.BehaviourEditor.NodeEditorWindow.ToolbarRect">
+            <summary>
+            Toolbar rect.
+            </summary>
+        </member>
+        <member name="P:ThunderRoad.BehaviourEditor.NodeEditorWindow.HasInitialized">
+            <summary>
+            Has the editor initialized?
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.Initialize">
+            <summary>
+            Initialize the window.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.DrawNodes">
+            <summary>
+            Draw all nodes.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.DrawToolbar">
+            <summary>
+            Draw the top toolbar.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.DrawToolbarButton(UnityEngine.Texture2D,UnityEngine.Rect)">
+            <summary>
+            Draw a button on the toolbar.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.DrawBackground">
+            <summary>
+            Draw the background.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.PreRenderUpdate">
+            <summary>
+            Invoked before rendering.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.RecolourTexture(UnityEngine.Color32,UnityEngine.Texture2D)">
+            <summary>
+            Recolour an existing texture.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.CreateTexture(UnityEngine.Color32,System.Int32,System.Int32)">
+            <summary>
+            Create a 1x1 texture.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.BehaviourEditor.NodeEditorWindow.GetAllNodeTypes">
+            <summary>
+            Gather all node types in the project.
+            
+            This is an expensive method, use only during init.
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.Custom_Analyze_Rules.CheckAddressableSceneDupeDependencies.RefreshAnalysis(UnityEditor.AddressableAssets.Settings.AddressableAssetSettings)">
+            <summary>
+            Clear analysis and calculate addressable scenes and corresponding bundle dependencies for scenes
+            </summary>
+            <param name="settings">The current Addressables settings object</param>
+            <returns>List of results from analysis</returns>
+        </member>
+        <member name="M:ThunderRoad.EditorPackageManager.Install(System.String,System.Action{System.Boolean},System.String,System.String)">
+            <summary>
+            Install a package and eventually call a method using reflection after all script are reloaded following package installation
+            </summary>
+            <param name="identifier">Package name to install or path to .tgz</param>
+            <param name="endCallback">Call back when installation is done</param>
+            <param name="scriptReloadClassFullName">Full name of the class used for an eventual callback once the script are reloaded</param>
+            <param name="scriptReloadMethodName">Method name of the class used for an eventual callback once the script are reloaded</param>
+        </member>
+        <member name="M:ThunderRoad.AddressableEditorLoading.LoadInEditor``1(System.String)">
+            <summary>
+            Load the asset using the asset database. (or return null if the address does not match any)
+            </summary>
+            <param name="address"></param>
+            <typeparam name="TValue"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:ThunderRoad.AssetManager.SearchFilter(System.String)">
+            <summary>
+            Returns true if it matches the filter
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ThunderRoad.MemoryProfilerHelperWindow">
+            <summary>
+            This Window contains additional methods for exploring snapshots loaded by the MemoryProfilerWindow.
+            </summary>
+        </member>
+        <member name="F:ThunderRoad.ShaderStripConfig.stripVariantsNotInCollectionOnBuild">
+            <summary>
+            This will strip out any shader from the build that doesnt exist in the shader variant collections
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.AssetBundleBuilderGUI.SetCompression(UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema.BundleCompressionMode)">
+            <summary>
+            LZ4 recommended generally
+            https://thegamedev.guru/unity-addressables/compression-benchmark/
+            </summary>
+        </member>
+        <member name="M:ContainerSpawnerEditor.DrawCircle(UnityEngine.Vector3,UnityEngine.Vector3,UnityEngine.Quaternion,System.Single,System.Single)">
+            <summary>
+            Custom circle gizmo with Matrix4X4 for rotation.
+            </summary>
+        </member>
+        <member name="M:ContainerSpawnerEditor.DrawWireCube(UnityEngine.Vector3,UnityEngine.Quaternion,UnityEngine.Vector3,System.Single)">
+            <summary>
+            Custom box gizmo with Matrix4x4 for rotation.
+            </summary>
+        </member>
+    </members>
+</doc>

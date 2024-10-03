@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ThunderRoad.Reveal.Editor</name>
+    </assembly>
+    <members>
+        <member name="T:ThunderRoad.Reveal.ColorMaskDrawer">
+            <summary>
+            This property drawer [ColorMask], allows you to set any combinations of Alpha, Blue, Green, or Red, for the shader's color mask.
+            </summary>
+        </member>
+    </members>
+</doc>

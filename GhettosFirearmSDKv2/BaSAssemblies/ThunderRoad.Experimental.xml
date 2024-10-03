@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ThunderRoad.Experimental</name>
+    </assembly>
+    <members>
+        <member name="M:ThunderRoad.Physic.PhysicObject.TemporaryEventRegister">
+            <summary>
+            Temporary events to add/remove child physicObject, should be done directly from Player, creature and core scripts later
+            </summary>
+        </member>
+    </members>
+</doc>

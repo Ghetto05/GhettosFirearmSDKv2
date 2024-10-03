@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ThunderRoad.Utilities</name>
+    </assembly>
+    <members>
+        <member name="M:ThunderRoad.Utilities.ValueModifierBase.ProcessValue(ThunderRoad.Utilities.ValueModifierSequence.ValueModifierSequenceOutput)">
+            <summary>
+            Process the value from the given sequence-output.
+            </summary>
+            <param name="sequenceOutput">Sequence-output to read the value from.</param>
+            <returns>The sequence-output after setting its value to the processed one</returns>
+        </member>
+        <member name="T:ThunderRoad.Utilities.ValueModifierSequence.ValueModifierSequenceOutput">
+            <summary>
+            Class used to hold the different values from the sequence, to allow multiple type branching in parallel
+            </summary>
+        </member>
+        <member name="F:ThunderRoad.Utilities.ValueModifierSequence.ValueModifierSequenceOutput.valueHistory">
+            <summary>
+            History stack to debug
+            </summary>
+        </member>
+        <member name="F:ThunderRoad.Utilities.ValueModifierSequence.ValueModifierSequenceOutput.outputTypes">
+            <summary>
+            Current used output types (flags)
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.Utilities.ValueModifierSequence.RetrieveModifiers">
+            <summary>
+            Retrieves the modifiers and order them from their "order" serialized field
+            </summary>
+        </member>
+        <member name="M:ThunderRoad.Utilities.ValueModifierSequence.RunSequence(System.Object)">
+            <summary>
+            Runs the sequence from input value through all modifiers
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:ThunderRoad.Utilities.ValueModifierSequence.ProcessOutput(ThunderRoad.Utilities.ValueModifierSequence.ValueModifierSequenceOutput)">
+            <summary>
+            Invoke the different events from the sequence outputs
+            </summary>
+            <param name="sequenceOutput">Output from the previously ran sequence</param>
+        </member>
+    </members>
+</doc>
