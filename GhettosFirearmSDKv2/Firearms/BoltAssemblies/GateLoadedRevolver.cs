@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -238,7 +237,6 @@ namespace GhettosFirearmSDKv2
             return i;
         }
 
-        [Button]
         public void AltPress()
         {
             if (_loadMode && Vector3.Distance(ejectorRb.transform.localPosition, ejectorRoot.localPosition) > 0.004f)
@@ -334,7 +332,6 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [Button]
         public void TriggerPress()
         {
             if (_loadMode && Vector3.Distance(ejectorRb.transform.localPosition, ejectorRoot.localPosition) <= 0.004f)
@@ -380,7 +377,6 @@ namespace GhettosFirearmSDKv2
             InvokeFireLogicFinishedEvent();
         }
 
-        [Button]
         public void Cock()
         {
             if (_loadMode) return;

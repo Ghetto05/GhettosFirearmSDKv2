@@ -1,4 +1,3 @@
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -196,7 +195,6 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [Button]
         public override void TryFire()
         {
             if (!_hammerState)
@@ -278,7 +276,6 @@ namespace GhettosFirearmSDKv2
             EjectRound();
         }
 
-        [Button]
         public void CockHammer(bool forced = false)
         {
             if (_hammerState)
@@ -290,7 +287,6 @@ namespace GhettosFirearmSDKv2
             _hammerStateSaveData.Value = true;
         }
 
-        [Button]
         public void OpenPan(bool forced = false)
         {
             if (!_panClosed && !forced)
@@ -303,7 +299,6 @@ namespace GhettosFirearmSDKv2
                 _panStateSaveData.Value = false;
         }
 
-        [Button]
         public void ClosePan(bool forced = false)
         {
             if (_panClosed || !_hammerState)

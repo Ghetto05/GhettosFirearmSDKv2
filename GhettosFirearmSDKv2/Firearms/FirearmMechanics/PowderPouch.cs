@@ -1,5 +1,4 @@
 using System.Linq;
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -45,7 +44,6 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [Button]
         public void Open()
         {
             if (opened)
@@ -55,7 +53,6 @@ namespace GhettosFirearmSDKv2
                 lid.SetPositionAndRotation(lidOpenedPosition.position, lidOpenedPosition.rotation);
         }
 
-        [Button]
         public void Close()
         {
             if (!opened)
@@ -65,7 +62,6 @@ namespace GhettosFirearmSDKv2
                 lid.SetPositionAndRotation(lidClosedPosition.position, lidClosedPosition.rotation);
         }
 
-        [Button]
         public void Tap()
         {
             if (opened)

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Events;
@@ -116,14 +115,12 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [Button]
         public void Open()
         {
             if (_open || _moving) return;
             StartCoroutine(OpenIE());
         }
 
-        [Button]
         public void Close()
         {
             if (_closed || _moving) return;

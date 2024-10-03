@@ -1,5 +1,4 @@
 using System.Linq;
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -129,7 +128,6 @@ namespace GhettosFirearmSDKv2
             return Mathf.Clamp01(currentAngle / _targetAngle);
         }
 
-        [Button]
         public void Lock(bool forced = false)
         {
             if (_state == BoltBase.BoltState.Locked && !forced)
@@ -160,7 +158,6 @@ namespace GhettosFirearmSDKv2
             bolt.firearm.item.disableSnap = false;
         }
 
-        [Button]
         public void Unlock()
         {
             if (_state != BoltBase.BoltState.Locked)

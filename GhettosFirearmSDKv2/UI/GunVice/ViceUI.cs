@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using EasyButtons;
 using ThunderRoad;
 using TMPro;
 using UnityEngine;
@@ -122,7 +121,6 @@ namespace GhettosFirearmSDKv2
             SetupFirearm();
         }
 
-        [Button]
         public void SetupFirearm()
         {
             if (holder.items.Count > 0)

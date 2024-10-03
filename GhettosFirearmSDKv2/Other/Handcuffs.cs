@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -165,7 +164,6 @@ namespace GhettosFirearmSDKv2
             LockAnimation(side);
         }
 
-        [Button]
         public void Unlock(bool withTool, bool onDespawn = false)
         {
             if (canBeReopened || withTool)
@@ -206,7 +204,6 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [Button]
         public void LockAnimation(Side side)
         {
             Util.PlayRandomAudioSource(closeSounds);
@@ -226,7 +223,6 @@ namespace GhettosFirearmSDKv2
                 openedRightObject.SetActive(false);
         }
 
-        [Button]
         public void UnlockAnimation(bool silent = false)
         {
             if (!silent) 

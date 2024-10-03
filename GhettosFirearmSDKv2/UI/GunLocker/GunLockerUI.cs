@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EasyButtons;
 using Newtonsoft.Json;
 using ThunderRoad;
 using TMPro;
@@ -172,7 +171,7 @@ namespace GhettosFirearmSDKv2
         #endregion
 
         #region Locker Actions
-        [Button]
+
         public void SetupCategoryList()
         {
             categories = GunLockerSaveData.GetAllCategories();

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 
@@ -29,7 +28,6 @@ namespace GhettosFirearmSDKv2
             if (action == Interactable.Action.UseStart) Switch();
         }
 
-        [Button]
         public void Switch()
         {
             if (defaultReticle == null) return;

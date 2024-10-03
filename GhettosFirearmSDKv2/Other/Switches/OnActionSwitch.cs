@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Events;
@@ -69,7 +68,6 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        [Button]
         public void Switch()
         {
             if (switchSound != null) switchSound.Play();

@@ -1,4 +1,3 @@
-using EasyButtons;
 using ThunderRoad;
 using TMPro;
 using UnityEngine;
@@ -103,22 +102,19 @@ namespace GhettosFirearmSDKv2
                 Grab();
         }
 
-        [Button]
         public void Grab()
         {
             ui.enabled = true;
             _grabbed = true;
             DrawPage();
         }
-        
-        [Button]
+
         public void UnGrab()
         {
             ui.enabled = false;
             _grabbed = false;
         }
 
-        [Button]
         public void AlternateUse()
         {
             //cycle through options
@@ -130,7 +126,6 @@ namespace GhettosFirearmSDKv2
             DrawPage();
         }
 
-        [Button]
         public void Trigger()
         {
             //confirm options

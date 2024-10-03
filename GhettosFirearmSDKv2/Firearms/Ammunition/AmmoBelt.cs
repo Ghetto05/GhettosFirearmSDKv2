@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Linq;
-using EasyButtons;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -68,7 +67,6 @@ namespace GhettosFirearmSDKv2
             item.physicBody.AddTorque(torque, ForceMode.Impulse);
         }
 
-        [Button]
         public void Insert()
         {
             if (_inserted)
@@ -82,8 +80,7 @@ namespace GhettosFirearmSDKv2
                 beltLinks[i].SetActive(true);
             }
         }
-        
-        [Button]
+
         public void Remove(bool initial = false)
         {
             if (!_inserted && !initial)
