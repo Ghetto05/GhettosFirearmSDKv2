@@ -130,7 +130,12 @@ namespace GhettosFirearmSDKv2
                     if (_data.Contents[i] != null)
                     {
                         var index = i;
-                        Util.SpawnItem(_data.Contents[index], "Bolt Chamber", ci => { var c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        Util.SpawnItem(_data.Contents[index]?.ItemId, "Bolt Chamber", ci =>
+                        {
+                            var c = ci.GetComponent<Cartridge>();
+                            _data.Contents[index].Apply(c);
+                            LoadChamber(index, c, false);
+                        }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -139,7 +144,7 @@ namespace GhettosFirearmSDKv2
             {
                 firearm.item.AddCustomData(new MagazineSaveData());
                 firearm.item.TryGetCustomData(out _data);
-                _data.Contents = new string[_loadedCartridges.Length];
+                _data.Contents = new CartridgeSaveData[_loadedCartridges.Length];
             }
             _allowInsert = true;
             UpdateChamberedRounds();
@@ -244,7 +249,7 @@ namespace GhettosFirearmSDKv2
             if (_loadedCartridges[i] != null)
             {
                 var c = _loadedCartridges[i];
-                if (Settings.breakActionsEjectOnlyFired && !c.fired && !ignoreFiredState)
+                if (Settings.breakActionsEjectOnlyFired && !c.Fired && !ignoreFiredState)
                     return;
                 if (ChamberSets.Any() && !ChamberSets[_currentChamberSet].Contains(i))
                     return;
@@ -362,7 +367,7 @@ namespace GhettosFirearmSDKv2
             if (state == BoltState.Locked)
             {
                 var hammerCocked = hammers.Count - 1 < _currentChamber || hammers[_currentChamber] == null || hammers[_currentChamber].cocked;
-                var cartridge = _loadedCartridges[_currentChamber] != null && !_loadedCartridges[_currentChamber].fired;
+                var cartridge = _loadedCartridges[_currentChamber] != null && !_loadedCartridges[_currentChamber].Fired;
                 
                 _shotsSinceTriggerReset++;
                 if (hammers.Count > _currentChamber && hammers[_currentChamber] != null)
@@ -388,6 +393,7 @@ namespace GhettosFirearmSDKv2
                     FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                     loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, killedCreatures, !Settings.infiniteAmmo);
                     InvokeFireEvent();
+                    SaveCartridges();
                 }
             }
 
@@ -517,10 +523,10 @@ namespace GhettosFirearmSDKv2
 
         public void SaveCartridges()
         {
-            _data.Contents = new string[_loadedCartridges.Length];
+            _data.Contents = new CartridgeSaveData[_loadedCartridges.Length];
             for (var i = 0; i < _loadedCartridges.Length; i++)
             {
-                _data.Contents[i] = _loadedCartridges[i]?.item.itemId;
+                _data.Contents[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false);
             }
         }
 

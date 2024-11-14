@@ -37,6 +37,7 @@ namespace GhettosFirearmSDKv2
         public List<RecoilModifier> RecoilModifiers = new();
         public Light muzzleLight;
         public string defaultAmmoItem;
+        public MagazineSaveData SavedAmmoData;
 
         public virtual void Start()
         {

@@ -453,6 +453,10 @@ namespace GhettosFirearmSDKv2
                                     descriptionText += "Damage per projectile: " + (data.damagePerProjectile / 50) * 100 + "%\n";
                                     descriptionText += "Force per projectile: " + data.forcePerProjectile + "\n";
                                 }
+                                if (data.fireDamage > 0)
+                                {
+                                    descriptionText += $"\nFire damage: {data.fireDamage}%";
+                                }
                                 descriptionText += "Range: " + data.projectileRange + "\n";
                                 descriptionText += "Penetration level: " + data.penetrationPower;
                                 if (handle.Result.GetComponentInChildren<TracerModule>() != null) descriptionText += "\nHas tracer function";

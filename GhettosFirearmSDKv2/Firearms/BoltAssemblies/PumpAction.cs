@@ -158,7 +158,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if (actsAsRelay || loadedCartridge == null || loadedCartridge.fired || (hammer != null && !hammer.cocked))
+            if (actsAsRelay || loadedCartridge == null || loadedCartridge.Fired || (hammer != null && !hammer.cocked))
             {
                 Lock(false);
                 InvokeFireLogicFinishedEvent();
@@ -184,6 +184,7 @@ namespace GhettosFirearmSDKv2
                 Lock(false);
             }
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, fire);
+            SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false);
             InvokeFireLogicFinishedEvent();
             InvokeFireEvent();
         }
@@ -311,7 +312,7 @@ namespace GhettosFirearmSDKv2
         {
             if (actsAsRelay || loadedCartridge == null)
                 return;
-            SaveChamber("");
+            SaveChamber(null, false);
             _currentRoundRemounted = false;
             var c = loadedCartridge;
             loadedCartridge = null;
@@ -349,7 +350,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.SetParent(roundMount);
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-                SaveChamber(c.item.itemId);
+                SaveChamber(c.item.itemId, c.Fired);
             }
         }
 
@@ -390,7 +391,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.SetParent(roundMount);
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-                SaveChamber(c.item.itemId);
+                SaveChamber(c.item.itemId, c.Fired);
                 return true;
             }
             return false;

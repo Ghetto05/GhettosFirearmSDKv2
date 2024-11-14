@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -5,6 +6,7 @@ namespace GhettosFirearmSDKv2
     public class FiremodeSelector : MonoBehaviour
     {
         public FirearmBase firearm;
+        public Attachment attachment;
         public Transform safetySwitch;
         public Transform safePosition;
         public Transform semiPosition;
@@ -22,6 +24,15 @@ namespace GhettosFirearmSDKv2
         public bool onlyAllowSwitchingIfBoltHasState;
         public BoltBase.BoltState switchAllowedState;
 
+        private FirearmBase.FireModes _preAttachFireMode;
+
+        private void OnDestroy()
+        {
+            firearm.OnAltActionEvent -= Firearm_OnAltActionEvent;
+            if (attachment)
+                attachment.OnDetachEvent -= AttachmentOnOnDetachEvent;
+        }
+
         private void Start()
         {
             Invoke(nameof(InvokedStart), Settings.invokeTime);
@@ -29,6 +40,13 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
+            if (!firearm && attachment)
+            {
+                firearm = attachment.attachmentPoint.parentFirearm;
+                attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
+                _preAttachFireMode = firearm.fireMode;
+            }
+
             firearm.OnAltActionEvent += Firearm_OnAltActionEvent;
             firearm.fireMode = firemodes[currentIndex];
             UpdatePosition();
@@ -38,6 +56,11 @@ namespace GhettosFirearmSDKv2
             currentIndex = _fireModeIndex.Value;
             UpdatePosition();
             OnFiremodeChanged?.Invoke(firearm.fireMode);
+        }
+
+        private void AttachmentOnOnDetachEvent(bool despawndetach)
+        {
+            firearm.fireMode = _preAttachFireMode;
         }
 
         private void Firearm_OnAltActionEvent(bool longPress)

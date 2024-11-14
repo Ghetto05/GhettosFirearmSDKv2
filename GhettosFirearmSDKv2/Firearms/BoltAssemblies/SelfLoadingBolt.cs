@@ -86,9 +86,10 @@ namespace GhettosFirearmSDKv2
 
         public override void EjectRound()
         {
-            if (_loadedCartridge == null) return;
+            if (_loadedCartridge == null)
+                return;
             Util.PlayRandomAudioSource(ejectSounds);
-            if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.Value = "";
+            SaveChamber(null, false);
             if (roundEjectPoint != null)
             {
                 _loadedCartridge.transform.position = roundEjectPoint.position;
@@ -103,9 +104,11 @@ namespace GhettosFirearmSDKv2
             rb.isKinematic = false;
             _loadedCartridge.loaded = false;
             rb.WakeUp();
-            if (roundEjectDir != null) rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
+            if (roundEjectDir != null)
+                rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
             _loadedCartridge.ToggleHandles(true);
-            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired) firearm.magazineWell.Eject();
+            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired)
+                firearm.magazineWell.Eject();
         }
 
         private void Update()

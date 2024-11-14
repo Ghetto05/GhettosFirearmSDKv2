@@ -4,6 +4,7 @@ using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2
 {
@@ -16,7 +17,6 @@ namespace GhettosFirearmSDKv2
         public string caliber;
         public bool destroyOnFire;
         public ProjectileData data;
-        public bool fired;
         public bool loaded;
         public Item item;
         public ParticleSystem detonationParticle;
@@ -25,6 +25,23 @@ namespace GhettosFirearmSDKv2
         public List<Collider> colliders;
         public Transform cartridgeFirePoint;
         public UnityEvent onFireEvent;
+        
+        public CartridgeSaveData SaveData;
+
+        private bool _fired;
+        public bool Fired
+        {
+            get
+            {
+                return _fired;
+            }
+            set
+            {
+                _fired = value;
+                if (SaveData != null)
+                    SaveData.IsFired = value;
+            }
+        }
 
         private void Awake()
         {
@@ -33,16 +50,16 @@ namespace GhettosFirearmSDKv2
         
         private void Start()
         {
-            if (unfiredOnlyObject != null)
+            if (unfiredOnlyObject && !Fired)
                 unfiredOnlyObject.SetActive(true);
             Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
         private void InvokedStart()
         {
-            if (firedOnlyObject != null)
+            if (firedOnlyObject)
             {
-                firedOnlyObject.SetActive(false);
+                firedOnlyObject.SetActive(Fired);
                 var ren = firedOnlyObject.GetComponentsInChildren<Renderer>(true);
                 if (ren.Length > 0)
                 {
@@ -50,13 +67,24 @@ namespace GhettosFirearmSDKv2
                     item.lightVolumeReceiver.SetRenderers(item.renderers);
                 }
             }
+
+            if (item.TryGetCustomData(out SaveData))
+            {
+                if (SaveData.IsFired && !Fired)
+                    SetFired();
+            }
+            else
+            {
+                SaveData = new CartridgeSaveData(item.itemId, Fired);
+                item.AddCustomData(SaveData);
+            }
         }
 
         private void Update()
         {
             if (keepRotationAtZero && loaded && transform.localEulerAngles != Vector3.zero)
                 transform.localEulerAngles = Vector3.zero;
-            if (!disallowDespawn && !loaded && fired && !Mathf.Approximately(Settings.cartridgeDespawnTime, 0f))
+            if (!disallowDespawn && !loaded && Fired && !Mathf.Approximately(Settings.cartridgeDespawnTime, 0f))
                 StartCoroutine(Despawn());
         }
 
@@ -71,7 +99,7 @@ namespace GhettosFirearmSDKv2
 
         public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle, List<Creature> hitCreatures, List<Creature> killedCreatures, bool fire)
         {
-            fired = fire;
+            Fired = fire;
             if (firedOnlyObject != null)
                 firedOnlyObject.SetActive(true);
             if (unfiredOnlyObject != null)
@@ -92,6 +120,18 @@ namespace GhettosFirearmSDKv2
                 item.Despawn();
         }
 
+        public void SetFired()
+        {
+            Fired = true;
+            if (firedOnlyObject != null)
+                firedOnlyObject.SetActive(true);
+            if (unfiredOnlyObject != null)
+                unfiredOnlyObject.SetActive(false);
+            ToggleTk(false);
+            if (destroyOnFire)
+                item.Despawn();
+        }
+
         public void Detonate()
         {
             FireMethods.Fire(item, cartridgeFirePoint, data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, 1f, false);
@@ -105,7 +145,7 @@ namespace GhettosFirearmSDKv2
 
         public void Reset()
         {
-            fired = false;
+            Fired = false;
             if (firedOnlyObject != null) firedOnlyObject.SetActive(false);
             if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
         }
@@ -131,7 +171,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (var handle in item.handles)
             {
-                handle.SetTouch(active && (!fired || forced));
+                handle.SetTouch(active && (!Fired || forced));
             }
         }
 

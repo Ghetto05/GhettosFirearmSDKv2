@@ -16,11 +16,23 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            item.OnHeldActionEvent += delegate(RagdollHand _, Handle _, Interactable.Action action) 
-            { 
-                if (action == Interactable.Action.UseStart)
-                    Clip();
-            };
+            item.OnHeldActionEvent += OnHeldActionEvent;
+            item.OnDespawnEvent += OnDespawnEvent;
+        }
+
+        private void OnDespawnEvent(EventTime eventTime)
+        {
+            if (eventTime != EventTime.OnStart)
+                return;
+
+            item.OnHeldActionEvent -= OnHeldActionEvent;
+            item.OnDespawnEvent -= OnDespawnEvent;
+        }
+
+        private void OnHeldActionEvent(RagdollHand ragdollhand, Handle handle, Interactable.Action action)
+        {
+            if (action == Interactable.Action.UseStart)
+                Clip();
         }
 
         private void Clip()

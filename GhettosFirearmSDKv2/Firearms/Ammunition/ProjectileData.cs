@@ -52,6 +52,7 @@ namespace GhettosFirearmSDKv2
         public bool lethalHeadshot = true;
         public bool forceDestabilize;
         public bool forceIncapitate;
+        public float fireDamage;
 
         //temporary knockout
         public bool knocksOutTemporarily;

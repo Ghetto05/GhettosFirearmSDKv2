@@ -26,6 +26,16 @@ namespace GhettosFirearmSDKv2
         public Collider[] cuttableColliders;
         private bool _cut;
 
+        private void Start()
+        {
+            All.Add(this);
+        }
+
+        private void OnDestroy()
+        {
+            All.Remove(this);
+        }
+
         public static void CutFound(Vector3 root, float range)
         {
             var states = new Dictionary<Collider, bool>();
@@ -58,6 +68,8 @@ namespace GhettosFirearmSDKv2
                     found.Add(wcc);
                     wcc._cut = true;
                     wcc.onCut.Invoke();
+                    if (Settings.debugMode)
+                        Debug.Log("Cut a cuttable");
                 }
             }
             

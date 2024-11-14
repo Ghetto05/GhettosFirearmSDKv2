@@ -7,7 +7,7 @@ namespace GhettosFirearmSDKv2
     public class MagazineSaveData : ContentCustomData
     {
         public string ItemID;
-        public string[] Contents;
+        public CartridgeSaveData[] Contents;
 
         public void ApplyToMagazine(Magazine magazine)
         {
@@ -30,7 +30,7 @@ namespace GhettosFirearmSDKv2
             ApplyToClipRecurve(Contents.Length - 1, clip, Contents.CloneJson());
         }
 
-        private void ApplyToMagazineRecurve(int index, Magazine mag, string[] con)
+        private void ApplyToMagazineRecurve(int index, Magazine mag, CartridgeSaveData[] con)
         {
             if (index < 0)
             {
@@ -40,23 +40,25 @@ namespace GhettosFirearmSDKv2
             }
             try
             {
-                Util.SpawnItem(con[index], "Magazine save data",cartridge =>
+                Util.SpawnItem(con[index].ItemId, "Magazine save data",cartridge =>
                 {
-                    mag.InsertRound(cartridge.GetComponent<Cartridge>(), true, true, false);
+                    var car = cartridge.GetComponent<Cartridge>();
+                    mag.InsertRound(car, true, true, false);
+                    con[index].Apply(car);
                     ApplyToMagazineRecurve(index - 1, mag, con);
                 }, mag.transform.position + Vector3.up * 3, null, null, false);
             }
             catch (Exception)
             {
-                Debug.Log("Error mag: " + mag);
-                Debug.Log($"Contents: {con}");
-                Debug.Log($"Index: {index}");
-                Debug.Log($"Contents length: {con.Length}");
-                Debug.Log($"Cartridge: {Catalog.GetData<ItemData>(con[index]).id}");
+                Debug.LogError($"Error mag: {mag}\n" +
+                               $"Contents: {con}\n" +
+                               $"Index: {index}\"" +
+                               $"Contents length: {con.Length}\n" +
+                               $"Cartridge: {con[index].ItemId}");
             }
         }
         
-        private void ApplyToClipRecurve(int index, StripperClip clip, string[] con)
+        private void ApplyToClipRecurve(int index, StripperClip clip, CartridgeSaveData[] con)
         {
             if (index < 0)
             {
@@ -65,30 +67,33 @@ namespace GhettosFirearmSDKv2
             }
             try
             {
-                Util.SpawnItem(con[index], "Clip save data", cartridge =>
+                Util.SpawnItem(con[index].ItemId, "Clip save data", cartridge =>
                 {
-                    clip.InsertRound(cartridge.GetComponent<Cartridge>(), true, true, false);
+                    var car = cartridge.GetComponent<Cartridge>();
+                    clip.InsertRound(car, true, true, false);
+                    con[index].Apply(car);
                     ApplyToClipRecurve(index - 1, clip, con);
                 }, clip.transform.position + Vector3.up * 3, null, null, false);
             }
             catch (Exception)
             {
-                Debug.Log("Error clip: " + clip);
-                Debug.Log($"Contents: {con}");
-                Debug.Log($"Index: {index}");
-                Debug.Log($"Contents length: {con.Length}");
-                Debug.Log($"Cartridge: {Catalog.GetData<ItemData>(con[index]).id}");
+                Debug.LogError($"Error clip: {clip}\n" +
+                               $"Contents: {con}\n" +
+                               $"Index: {index}\"" +
+                               $"Contents length: {con.Length}\n" +
+                               $"Cartridge: {con[index].ItemId}");
             }
         }
 
         public void GetContentsFromMagazine(Magazine magazine)
         {
-            if (magazine == null || magazine.cartridges == null) return;
-            Contents = new string[magazine.cartridges.Count];
+            if (magazine == null || magazine.cartridges == null)
+                return;
+            Contents = new CartridgeSaveData[magazine.cartridges.Count];
             for (var i = 0; i < magazine.cartridges.Count; i++)
             {
                 var car = magazine.cartridges[i];
-                Contents[i] = car.item.itemId;
+                Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired);
             }
         }
 
@@ -96,18 +101,18 @@ namespace GhettosFirearmSDKv2
         {
             if (clip == null || clip.loadedCartridges == null)
                 return;
-            Contents = new string[clip.loadedCartridges.Count];
+            Contents = new CartridgeSaveData[clip.loadedCartridges.Count];
             for (var i = 0; i < clip.loadedCartridges.Count; i++)
             {
                 var car = clip.loadedCartridges[i];
-                Contents[i] = car.item.itemId;
+                Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired);
             }
         }
 
         public void CloneTo(MagazineSaveData data)
         {
             data.ItemID = ItemID;
-            data.Contents = new string[Contents.Length];
+            data.Contents = new CartridgeSaveData[Contents.Length];
             Contents.CopyTo(data.Contents, 0);
         }
 

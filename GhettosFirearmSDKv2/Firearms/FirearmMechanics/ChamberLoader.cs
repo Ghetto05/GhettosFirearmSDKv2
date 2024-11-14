@@ -18,13 +18,22 @@ namespace GhettosFirearmSDKv2
 
         private void OnCollisionEnter(Collision collision)
         {
-            if ((lockingCondition == null || lockingCondition.IsUnlocked()) && Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.collider.GetComponentInParent<Cartridge>() is { } c && Util.AllowLoadCartridge(c, caliber))
+            if (Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.collider.GetComponentInParent<Cartridge>() is { } c )
             {
-                if (boltToBeLoaded.LoadChamber(c, false))
-                {
-                    Util.PlayRandomAudioSource(insertSounds);
-                }
+                TryLoad(c);
             }
+        }
+
+        public bool TryLoad(Cartridge cartridge)
+        {
+            if ((lockingCondition == null || lockingCondition.IsUnlocked()) &&
+                Util.AllowLoadCartridge(cartridge, caliber) &&
+                boltToBeLoaded.LoadChamber(cartridge, false))
+            {
+                Util.PlayRandomAudioSource(insertSounds);
+                return true;
+            }
+            return false;
         }
 
         public string GetCaliber()

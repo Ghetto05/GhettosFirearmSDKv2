@@ -41,6 +41,7 @@
     <Compile Include="Clothing\HUD\HUDToggle.cs" />
     <Compile Include="Clothing\NVGAdjuster.cs" />
     <Compile Include="Clothing\WearableItem.cs" />
+    <Compile Include="Clothing\Wearables\Wearable.cs" />
     <Compile Include="Firearms\Ammunition\AmmoBelt.cs" />
     <Compile Include="Firearms\Ammunition\CustomCartridgeDeathSound.cs" />
     <Compile Include="Firearms\Ammunition\IAmmunitionLoadable.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\ForeGripSling.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\RevolverCaliberReplacer.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\TriggerBasedTacSwitch.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\Xm157.cs" />
     <Compile Include="Firearms\BoltAssemblies\FlintLock.cs" />
     <Compile Include="Firearms\BoltAssemblies\LeverAction.cs" />
@@ -70,7 +72,10 @@
     <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs" />
     <Compile Include="Firearms\FirearmMechanics\RotationLimitedFollower.cs" />
     <Compile Include="Firearms\FirearmMechanics\StripperClipWell.cs" />
+    <Compile Include="Other\Pouches\ImprovedLazyPouch.cs" />
     <Compile Include="Other\VariationRandomizer.cs" />
+    <Compile Include="SaveData\CartridgeSaveData.cs" />
+    <Compile Include="SaveData\SaveNodeValueCartridgeData.cs" />
     <Compile Include="StaticScripts\FirearmCleaner.cs" />
     <Compile Include="StaticScripts\FirearmsSettingsValues.cs" />
     <Compile Include="StaticScripts\HomeAdjustments.cs" />

@@ -12,6 +12,7 @@ namespace GhettosFirearmSDKv2
         public int slot;
         public string caliber;
         public Collider mountCollider;
+        public ChamberLoader chamberLoader;
 
         public List<AudioSource> roundInsertSounds;
         public List<AudioSource> roundEjectSounds;
@@ -37,21 +38,23 @@ namespace GhettosFirearmSDKv2
                 attachment.attachmentPoint.parentFirearm.item.OnGrabEvent += Firearm_OnGrabEvent;
             }
 
-            var id = "";
-            if (attachment != null && attachment.Node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueString value))
+            SaveNodeValueCartridgeData save = null;
+            if (attachment != null && attachment.Node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value))
             {
-                id = value.Value;
+                save = value;
             }
-            else if (firearm != null && firearm.SaveData.FirearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueString value2))
+            else if (firearm != null && firearm.SaveData.FirearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value2))
             {
-                id = value2.Value;
+                save = value2;
             }
 
-            if (!id.Equals(""))
+            if (save != null)
             {
-                Util.SpawnItem(id, $"[Cartridge holder - Firearm: {firearm?.item?.itemId ?? "--"} Attachment: {attachment?.Data.id ?? "--"} Slot: {slot}]", cartridge =>
+                Util.SpawnItem(save.Value.ItemId, $"[Cartridge holder - Firearm: {firearm?.item?.itemId ?? "--"} Attachment: {attachment?.Data.id ?? "--"} Slot: {slot}]", cartridge =>
                 {
-                    InsertRound(cartridge.GetComponent<Cartridge>(), true);
+                    var c = cartridge.GetComponent<Cartridge>();
+                    save.Value.Apply(c);
+                    InsertRound(c, true);
                 }, transform.position + Vector3.up * 3);
             }
         }
@@ -86,8 +89,10 @@ namespace GhettosFirearmSDKv2
                 loadedCartridge.item.OnGrabEvent -= Item_OnGrabEvent;
                 loadedCartridge = null;
 
-                if (attachment != null) attachment.Node.RemoveValue("CartridgeHolder" + slot);
-                else if (firearm != null) firearm.SaveData.FirearmNode.RemoveValue("CartridgeHolder" + slot);
+                if (attachment != null)
+                    attachment.Node.RemoveValue("CartridgeHolder" + slot);
+                else if (firearm != null)
+                    firearm.SaveData.FirearmNode.RemoveValue("CartridgeHolder" + slot);
             }
             UpdateCartridgePositions();
             return loadedCartridge;
@@ -114,15 +119,24 @@ namespace GhettosFirearmSDKv2
 
                 c.item.OnGrabEvent += Item_OnGrabEvent;
 
-                if (attachment != null) attachment.Node.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).Value = c.item.itemId;
-                else if (firearm != null) firearm.SaveData.FirearmNode.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueString()).Value = c.item.itemId;
+                FirearmSaveData.AttachmentTreeNode target = null;
+                if (attachment != null)
+                    target = attachment.Node;
+                else if (firearm != null)
+                    target = firearm.SaveData.FirearmNode;
+                
+                if (target != null)
+                {
+                    target.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(c.item.itemId, c.Fired);
+                }
             }
             UpdateCartridgePositions();
         }
 
         private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
         {
-            EjectRound();
+            var c = EjectRound();
+            chamberLoader?.TryLoad(c);
         }
 
         private void UpdateCartridgePositions()

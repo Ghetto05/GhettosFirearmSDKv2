@@ -79,7 +79,12 @@ namespace GhettosFirearmSDKv2
                     if (_data.Contents[i] != null)
                     {
                         var index = i;
-                        Util.SpawnItem(_data.Contents[index], "Bolt Chamber", ci => { var c = ci.GetComponent<Cartridge>(); LoadChamber(index, c, false); }, transform.position + Vector3.up * 3);
+                        Util.SpawnItem(_data.Contents[index]?.ItemId, "Bolt Chamber", ci =>
+                        {
+                            var c = ci.GetComponent<Cartridge>();
+                            _data.Contents[index].Apply(c);
+                            LoadChamber(index, c, false);
+                        }, transform.position + Vector3.up * 3);
                     }
                 }
                 UpdateChamberedRounds();
@@ -88,7 +93,7 @@ namespace GhettosFirearmSDKv2
             {
                 firearm.item.AddCustomData(new MagazineSaveData());
                 firearm.item.TryGetCustomData(out _data);
-                _data.Contents = new string[loadedCartridges.Length];
+                _data.Contents = new CartridgeSaveData[loadedCartridges.Length];
             }
             _allowLoad = true;
             UpdateChamberedRounds();
@@ -187,10 +192,11 @@ namespace GhettosFirearmSDKv2
 
         public void SaveCartridges()
         {
-            _data.Contents = new string[loadedCartridges.Length];
+            _data.Contents = new CartridgeSaveData[loadedCartridges.Length];
             for (var i = 0; i < loadedCartridges.Length; i++)
             {
-                _data.Contents[i] = loadedCartridges[i]?.item.itemId;
+                var car = loadedCartridges[i];
+                _data.Contents[i] = new CartridgeSaveData(car?.item.itemId, car?.Fired ?? false);
             }
         }
 
@@ -352,7 +358,7 @@ namespace GhettosFirearmSDKv2
                 hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
 
                 var loadedCartridge = loadedCartridges[_currentChamber];
-                if (!loadedCartridge || loadedCartridge.fired)
+                if (!loadedCartridge || loadedCartridge.Fired)
                 {
                     InvokeFireLogicFinishedEvent();
                     return;
@@ -373,6 +379,7 @@ namespace GhettosFirearmSDKv2
                 FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                 loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !Settings.infiniteAmmo);
                 InvokeFireEvent();
+                SaveCartridges();
             }
             InvokeFireLogicFinishedEvent();
         }

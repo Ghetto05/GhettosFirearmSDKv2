@@ -450,6 +450,11 @@ public class FireMethods : MonoBehaviour
                     }
                 }
 
+                if (data.fireDamage > 0)
+                {
+                    cr.Inflict("Burning", gunItem, float.PositiveInfinity, data.fireDamage);
+                }
+
                 var hitReaction = cr.brain.instance.GetModule<BrainModuleHitReaction>();
                 hitReaction.SetStagger(hitReaction.staggerMedium);
 

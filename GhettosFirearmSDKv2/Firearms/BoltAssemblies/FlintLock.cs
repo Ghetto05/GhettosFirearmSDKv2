@@ -254,6 +254,7 @@ namespace GhettosFirearmSDKv2
                     FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hitPoints, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
                     FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
                     loadedCartridge.Fire(hitPoints, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !HeldByAI() && !Settings.infiniteAmmo);
+                    SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false);
                 }
             }
             else
@@ -485,7 +486,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.parent = rodFrontEnd;
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-                SaveChamber(c.item.itemId);
+                SaveChamber(c.item.itemId, c.Fired);
                 Invoke(nameof(Rechamber), 1f);
                 if (!_nextLoadIsMuzzle)
                 { 
@@ -512,7 +513,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null)
                 return;
-            SaveChamber("");
+            SaveChamber(null, false);
             var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)

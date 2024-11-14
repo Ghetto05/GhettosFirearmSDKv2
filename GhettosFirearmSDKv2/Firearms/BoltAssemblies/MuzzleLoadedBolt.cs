@@ -34,7 +34,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-                SaveChamber(c.item.itemId);
+                SaveChamber(c.item.itemId, c.Fired);
                 return true;
             }
             return false;
@@ -64,7 +64,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            if (loadedCartridge == null || loadedCartridge.fired)
+            if (loadedCartridge == null || loadedCartridge.Fired)
             {
                 InvokeFireLogicFinishedEvent();
                 return;
@@ -81,6 +81,7 @@ namespace GhettosFirearmSDKv2
             FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
             FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
             loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !Settings.infiniteAmmo);
+            SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false);
             if (ejectOnFire && !Settings.infiniteAmmo)
                 EjectRound();
             InvokeFireEvent();
@@ -132,7 +133,7 @@ namespace GhettosFirearmSDKv2
         {
             if (loadedCartridge == null) return;
             Util.PlayRandomAudioSource(ejectSounds);
-            if (FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber)) chamber.Value = "";
+            SaveChamber(null, false);
             var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)

@@ -37,11 +37,15 @@ namespace GhettosFirearmSDKv2
                 {
                     var i2 = i;
                     if (_data.Contents[i2] != null)
-                        Util.SpawnItem(_data.Contents[i], $"[Saved speedloader rounds - Index {i2} on {item?.itemId}]", ci =>
+                    {
+                        var i1 = i;
+                        Util.SpawnItem(_data.Contents[i]?.ItemId, $"[Saved speedloader rounds - Index {i2} on {item?.itemId}]", ci =>
                         {
                             var c = ci.GetComponent<Cartridge>();
+                            _data.Contents[i1].Apply(c);
                             LoadSlot(i2, c, false);
                         }, transform.position + Vector3.up * 3);
+                    }
                 }
             }
             else
@@ -158,10 +162,10 @@ namespace GhettosFirearmSDKv2
 
         public void SaveCartridges()
         {
-            _data.Contents = new string[loadedCartridges.Length];
+            _data.Contents = new CartridgeSaveData[loadedCartridges.Length];
             for (var i = 0; i < loadedCartridges.Length; i++)
             {
-                _data.Contents[i] = loadedCartridges[i]?.item.itemId;
+                _data.Contents[i] = new CartridgeSaveData(loadedCartridges[i]?.item.itemId, loadedCartridges[i]?.Fired ?? false);
             }
         }
 

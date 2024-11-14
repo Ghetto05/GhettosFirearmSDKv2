@@ -352,6 +352,8 @@ namespace GhettosFirearmSDKv2
                                      bool pooled = true,
                                      List<ContentCustomData> customDataList = null)
         {
+            if (string.IsNullOrWhiteSpace(id))
+                return;
             Catalog.GetData<ItemData>(GetSubstituteId(id, handler), Settings.debugMode)?.SpawnAsync(callback, position, rotation, parent, pooled, customDataList);
         }
 

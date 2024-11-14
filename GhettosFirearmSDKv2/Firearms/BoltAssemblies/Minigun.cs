@@ -134,7 +134,7 @@ namespace GhettosFirearmSDKv2
         public override void TryFire()
         {
             TryLoadRound();
-            if (loadedCartridge == null || loadedCartridge.fired)
+            if (loadedCartridge == null || loadedCartridge.Fired)
             {
                 InvokeFireLogicFinishedEvent();
                 return;

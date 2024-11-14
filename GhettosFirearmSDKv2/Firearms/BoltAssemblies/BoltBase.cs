@@ -7,6 +7,8 @@ namespace GhettosFirearmSDKv2
 {
     public class BoltBase : MonoBehaviour
     {
+        public const string ChamberSaveDataId = "BoltChamberSaveData";
+        
         public FirearmBase firearm;
         [HideInInspector]
         public BoltState state = BoltState.Locked;
@@ -108,11 +110,12 @@ namespace GhettosFirearmSDKv2
 
         public void ChamberSaved()
         {
-            if (FirearmSaveData.GetNode(firearm) != null && FirearmSaveData.GetNode(firearm).TryGetValue("ChamberSaveData", out SaveNodeValueString chamber))
+            if (FirearmSaveData.GetNode(firearm) != null && FirearmSaveData.GetNode(firearm).TryGetValue(ChamberSaveDataId, out SaveNodeValueCartridgeData chamber))
             {
-                Util.SpawnItem(chamber.Value, "Bolt Chamber", carItem =>
+                Util.SpawnItem(chamber.Value.ItemId, "Bolt Chamber", carItem =>
                 {
                     var car = carItem.gameObject.GetComponent<Cartridge>();
+                    chamber.Value.Apply(car);
                     LoadChamber(car);
                 }, transform.position + Vector3.up * 3);
             }
@@ -130,7 +133,7 @@ namespace GhettosFirearmSDKv2
                 c.item.Despawn();
         }
 
-        public void SaveChamber(string id)
+        public void SaveChamber(string id, bool fired)
         {
             FirearmSaveData.AttachmentTreeNode node;
             if (firearm.GetType() == typeof(Firearm))
@@ -146,7 +149,7 @@ namespace GhettosFirearmSDKv2
 
             if (node != null)
             {
-                node.GetOrAddValue("ChamberSaveData", new SaveNodeValueString()).Value = id;
+                node.GetOrAddValue(ChamberSaveDataId, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(id, fired);
             }
         }
 

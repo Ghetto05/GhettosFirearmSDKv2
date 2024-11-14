@@ -208,7 +208,7 @@ namespace GhettosFirearmSDKv2
             }
             if (!isOpenBolt || loadedCartridge != null)
                 _shotsSinceTriggerReset++;
-            if (loadedCartridge == null || loadedCartridge.fired)
+            if (loadedCartridge == null || loadedCartridge.Fired)
             {
                 InvokeFireLogicFinishedEvent();
                 return;
@@ -230,6 +230,7 @@ namespace GhettosFirearmSDKv2
             startTimeOfMovement = Time.time;
             InvokeFireEvent();
             InvokeFireLogicFinishedEvent();
+            SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false);
         }
 
         public override Cartridge GetChamber()
@@ -554,7 +555,7 @@ namespace GhettosFirearmSDKv2
                 firearm.magazineWell.Eject(true);
             if (loadedCartridge == null)
                 return;
-            SaveChamber("");
+            SaveChamber(null, false);
             var c = loadedCartridge;
             loadedCartridge = null;
             if (roundEjectPoint != null)
@@ -597,7 +598,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-                SaveChamber(c.item.itemId);
+                SaveChamber(c.item.itemId, c.Fired);
             }
 
             if (HeldByAI() && !originallyInfinite && firearm.magazineWell?.currentMagazine != null)
@@ -695,7 +696,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.parent = roundMount;
                 c.transform.localPosition = Vector3.zero;
                 c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-                SaveChamber(c.item.itemId);
+                SaveChamber(c.item.itemId, c.Fired);
                 return true;
             }
             return false;
