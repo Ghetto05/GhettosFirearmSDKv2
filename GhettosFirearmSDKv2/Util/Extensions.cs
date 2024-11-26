@@ -61,6 +61,25 @@ namespace GhettosFirearmSDKv2
             return values[index];
         }
 
+        public static string GetName<T>(this T value) where T : Enum
+        {
+            try
+            {
+                var enumType = typeof(T);
+                var memberInfos = 
+                    enumType.GetMember(value.ToString());
+                var enumValueMemberInfo = memberInfos.FirstOrDefault(m => 
+                    m.DeclaringType == enumType);
+                var valueAttributes = 
+                    enumValueMemberInfo?.GetCustomAttributes(typeof(EnumDescriptionAttribute), false);
+                return ((EnumDescriptionAttribute)valueAttributes?[0])?.Name ?? value.ToString();
+            }
+            catch
+            {
+                return value.ToString();
+            }
+        }
+
         #endregion
     }
 }

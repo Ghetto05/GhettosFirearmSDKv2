@@ -228,6 +228,7 @@
     <Compile Include="UI\GunVice\ViceUI.cs" />
     <Compile Include="UI\GunVice\ViceUIAttachment.cs" />
     <Compile Include="UI\GunVice\ViceUIAttachmentSlot.cs" />
+    <Compile Include="Util\EnumDescription.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\LineAttacher.cs" />
     <Compile Include="Util\ModderTool.cs" />

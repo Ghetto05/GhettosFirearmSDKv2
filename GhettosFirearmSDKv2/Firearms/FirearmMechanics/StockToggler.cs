@@ -15,6 +15,7 @@ namespace GhettosFirearmSDKv2
         public Firearm connectedFirearm;
         public Attachment connectedAttachment;
         public int currentIndex;
+        public bool useAsSeparateObjects;
         private SaveNodeValueInt _stockPosition;
 
         private void Start()
@@ -33,8 +34,10 @@ namespace GhettosFirearmSDKv2
             }
             else if (connectedAttachment != null)
             {
-                if (!connectedAttachment.initialized) connectedAttachment.OnDelayedAttachEvent += ConnectedAttachment_OnDelayedAttachEvent;
-                else ConnectedAttachment_OnDelayedAttachEvent();
+                if (!connectedAttachment.initialized)
+                    connectedAttachment.OnDelayedAttachEvent += ConnectedAttachment_OnDelayedAttachEvent;
+                else
+                    ConnectedAttachment_OnDelayedAttachEvent();
             }
         }
 
@@ -50,14 +53,18 @@ namespace GhettosFirearmSDKv2
         {
             if (handle == toggleHandle && action == Interactable.Action.UseStart)
             {
-                if (currentIndex + 1 == positions.Length) currentIndex = 0;
-                else currentIndex++;
+                if (currentIndex + 1 == positions.Length)
+                    currentIndex = 0;
+                else
+                    currentIndex++;
                 ApplyPosition(currentIndex);
             }
             else if (handle == toggleHandle && action == Interactable.Action.AlternateUseStart)
             {
-                if (currentIndex - 1 == -1) currentIndex = positions.Length - 1;
-                else currentIndex--;
+                if (currentIndex - 1 == -1)
+                    currentIndex = positions.Length - 1;
+                else
+                    currentIndex--;
                 ApplyPosition(currentIndex);
             }
             _stockPosition.Value = currentIndex;
@@ -69,8 +76,18 @@ namespace GhettosFirearmSDKv2
             {
                 if (toggleSound != null && playSound)
                     toggleSound.Play();
-                pivot.localPosition = positions[index].localPosition;
-                pivot.localEulerAngles = positions[index].localEulerAngles;
+                if (!useAsSeparateObjects)
+                {
+                    pivot.localPosition = positions[index].localPosition;
+                    pivot.localEulerAngles = positions[index].localEulerAngles;
+                }
+                else
+                {
+                    for (var i = 0; i < positions.Length; i++)
+                    {
+                        positions[i].gameObject.SetActive(i == index);
+                    }
+                }
 
                 OnToggleEvent?.Invoke(index, playSound);
 

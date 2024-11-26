@@ -217,7 +217,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             foreach (var x in _slots.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
             _slots.Clear();
             
-            foreach (var point in _currentFirearm.attachmentPoints)
+            foreach (var point in _currentFirearm.attachmentPoints.Where(x => x.gameObject.activeInHierarchy))
             {
                 AddSlot(point, _currentFirearm.item.data.iconAddress);
                 point.currentAttachments.ForEach(x => AddSlotsFromAttachment(x));

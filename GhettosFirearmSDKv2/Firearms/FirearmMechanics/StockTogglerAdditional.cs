@@ -8,6 +8,7 @@ namespace GhettosFirearmSDKv2
         public AudioSource toggleSound;
         public Transform pivot;
         public Transform[] positions;
+        public bool useAsSeparateObjects;
 
         private void Start()
         {
@@ -16,9 +17,20 @@ namespace GhettosFirearmSDKv2
 
         public void ApplyPosition(int index, bool playSound = true)
         {
-            if (toggleSound != null && playSound) toggleSound.Play();
-            pivot.localPosition = positions[index].localPosition;
-            pivot.localEulerAngles = positions[index].localEulerAngles;
+            if (toggleSound != null && playSound)
+                toggleSound.Play();
+            if (!useAsSeparateObjects)
+            {
+                pivot.localPosition = positions[index].localPosition;
+                pivot.localEulerAngles = positions[index].localEulerAngles;
+            }
+            else
+            {
+                for (var i = 0; i < positions.Length; i++)
+                {
+                    positions[i].gameObject.SetActive(i == index);
+                }
+            }
         }
     }
 }

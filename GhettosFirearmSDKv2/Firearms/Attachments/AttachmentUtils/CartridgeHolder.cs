@@ -74,19 +74,20 @@ namespace GhettosFirearmSDKv2
 
         public Cartridge EjectRound()
         {
-            if (loadedCartridge != null)
+            var loaded = loadedCartridge;
+            if (loaded != null)
             {
                 Util.PlayRandomAudioSource(roundEjectSounds);
-                loadedCartridge.ToggleCollision(true);
+                loaded.ToggleCollision(true);
                 if (firearm != null)
-                    Util.DelayIgnoreCollision(firearm.gameObject, loadedCartridge.gameObject, false, 1f, loadedCartridge.item);
+                    Util.DelayIgnoreCollision(firearm.gameObject, loaded.gameObject, false, 1f, loaded.item);
                 if (attachment != null)
-                    Util.DelayIgnoreCollision(attachment.gameObject, loadedCartridge.gameObject, false, 1f, loadedCartridge.item);
-                loadedCartridge.loaded = false;
-                loadedCartridge.GetComponent<Rigidbody>().isKinematic = false;
-                loadedCartridge.item.DisallowDespawn = false;
-                loadedCartridge.transform.parent = null;
-                loadedCartridge.item.OnGrabEvent -= Item_OnGrabEvent;
+                    Util.DelayIgnoreCollision(attachment.gameObject, loaded.gameObject, false, 1f, loaded.item);
+                loaded.loaded = false;
+                loaded.GetComponent<Rigidbody>().isKinematic = false;
+                loaded.item.DisallowDespawn = false;
+                loaded.transform.parent = null;
+                loaded.item.OnGrabEvent -= Item_OnGrabEvent;
                 loadedCartridge = null;
 
                 if (attachment != null)
@@ -95,7 +96,7 @@ namespace GhettosFirearmSDKv2
                     firearm.SaveData.FirearmNode.RemoveValue("CartridgeHolder" + slot);
             }
             UpdateCartridgePositions();
-            return loadedCartridge;
+            return loaded;
         }
 
         public void InsertRound(Cartridge c, bool silent)
@@ -136,7 +137,9 @@ namespace GhettosFirearmSDKv2
         private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
         {
             var c = EjectRound();
-            chamberLoader?.TryLoad(c);
+            var success = chamberLoader?.TryLoad(c) ?? false;
+            if (success && firearm.bolt is BoltSemiautomatic bolt && bolt.caught)
+                bolt.TryRelease();
         }
 
         private void UpdateCartridgePositions()
