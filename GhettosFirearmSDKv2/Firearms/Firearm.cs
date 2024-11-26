@@ -96,7 +96,7 @@ namespace GhettosFirearmSDKv2
             all.Remove(this);
         }
 
-        public void InvokedStart()
+        public override void InvokedStart()
         {
             if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
@@ -133,6 +133,8 @@ namespace GhettosFirearmSDKv2
                 }
             }
             #endregion handle type validation
+            
+            base.InvokedStart();
         }
 
         public override void Update()

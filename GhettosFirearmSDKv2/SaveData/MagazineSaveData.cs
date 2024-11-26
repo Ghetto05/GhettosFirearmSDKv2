@@ -84,6 +84,17 @@ namespace GhettosFirearmSDKv2
                                $"Cartridge: {con[index].ItemId}");
             }
         }
+        
+        public void GetFromUnknown(GameObject obj)
+        {
+            if (!obj)
+                return;
+            
+            if (obj.GetComponent<Magazine>() is { } mag)
+                GetContentsFromMagazine(mag);
+            else if (obj.GetComponent<StripperClip>() is { } clip)
+                GetContentsFromClip(clip);
+        }
 
         public void GetContentsFromMagazine(Magazine magazine)
         {

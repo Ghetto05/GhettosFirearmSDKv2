@@ -39,6 +39,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         public Button removeAttachmentButton;
         public Button moveAttachmentForwardButton;
         public Button moveAttachmentRearwardButton;
+        public Button saveAmmoItemButton;
         public TextMeshProUGUI slotDisplay;
         public RectTransform slotDisplayButton;
 
@@ -53,10 +54,12 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             removeAttachmentButton.onClick.AddListener(RemoveAttachment);
             moveAttachmentForwardButton.onClick.AddListener(delegate { MoveAttachment(true); });
             moveAttachmentRearwardButton.onClick.AddListener(delegate { MoveAttachment(false); });
+            saveAmmoItemButton.onClick.AddListener(delegate { MoveAttachment(false); });
             
             removeAttachmentButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
             moveAttachmentForwardButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
             moveAttachmentRearwardButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
+            saveAmmoItemButton.onClick.AddListener(SaveAmmoItem);
             
             holder.Snapped += HolderOnSnapped;
             holder.UnSnapped += HolderOnUnSnapped;
@@ -435,6 +438,16 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             c.Setup(category, this);
             _attachmentCategories.Add(c);
             return c;
+        }
+
+        public void SaveAmmoItem()
+        {
+            var heldHandleDominant = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
+            var heldHandleNonDominant = Player.local.GetHand(Handle.dominantHand).ragdollHand.otherHand.grabbedHandle;
+            var item = heldHandleDominant?.item ?? heldHandleNonDominant?.item;
+
+            _currentFirearm.SavedAmmoData.Value.ItemID = item?.data.id;
+            _currentFirearm.SavedAmmoData.Value.GetFromUnknown(item?.gameObject);
         }
 
         public void PlaySound(SoundTypes soundType)

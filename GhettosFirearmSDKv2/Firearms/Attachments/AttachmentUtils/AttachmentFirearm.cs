@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
             Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
-        public void InvokedStart()
+        public override void InvokedStart()
         {
             if (!disableMainFireHandle) mainFireHandle = fireHandle;
             item = attachment.GetComponentInParent<AttachmentPoint>().parentFirearm.item;
@@ -25,6 +25,8 @@ namespace GhettosFirearmSDKv2
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnGrabEvent += Item_OnGrabEvent;
             CalculateMuzzle();
+            
+            base.InvokedStart();
         }
 
         public override void Update()

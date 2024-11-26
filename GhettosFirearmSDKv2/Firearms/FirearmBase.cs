@@ -37,7 +37,9 @@ namespace GhettosFirearmSDKv2
         public List<RecoilModifier> RecoilModifiers = new();
         public Light muzzleLight;
         public string defaultAmmoItem;
-        public MagazineSaveData SavedAmmoData;
+        public SaveNodeValueMagazineContents SavedAmmoData;
+
+        public FirearmSaveData.AttachmentTreeNode SaveNode => FirearmSaveData.GetNode(this);
 
         public virtual void Start()
         {
@@ -59,6 +61,17 @@ namespace GhettosFirearmSDKv2
             muzzleLight.range = 5f;
             muzzleLight.intensity = 3f;
             aimTransform = hitscanMuzzle;
+        }
+
+        public virtual void InvokedStart()
+        {
+            SavedAmmoData = SaveNode.GetOrAddValue("SavedAmmoData", new SaveNodeValueMagazineContents(), out var addedNew);
+
+            if (addedNew)
+            {
+                SavedAmmoData.Value.ItemID = defaultAmmoItem;
+                SavedAmmoData.Value.Contents = null;
+            }
         }
 
         public virtual void Update()
