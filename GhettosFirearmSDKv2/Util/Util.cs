@@ -350,11 +350,12 @@ namespace GhettosFirearmSDKv2
                                      Quaternion? rotation = null,
                                      Transform parent = null,
                                      bool pooled = true,
-                                     List<ContentCustomData> customDataList = null)
+                                     List<ContentCustomData> customDataList = null,
+                                     Item.Owner owner = Item.Owner.None)
         {
             if (string.IsNullOrWhiteSpace(id))
                 return;
-            Catalog.GetData<ItemData>(GetSubstituteId(id, handler), Settings.debugMode)?.SpawnAsync(callback, position, rotation, parent, pooled, customDataList);
+            Catalog.GetData<ItemData>(GetSubstituteId(id, handler), Settings.debugMode)?.SpawnAsync(callback, position, rotation, parent, pooled, customDataList, owner);
         }
 
         private static ObsoleteIdData _obsoleteIdData;
