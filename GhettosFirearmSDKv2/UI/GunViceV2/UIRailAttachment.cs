@@ -20,7 +20,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         public void Setup(Attachment attachment, ViceUI vice)
         {
             CurrentAttachment = attachment;
-            IsNewButton = attachment == null;
+            IsNewButton = !attachment;
             selectButton.onClick.AddListener(delegate { vice.SelectRailAttachment(this); });
             selectButton.onClick.AddListener(delegate { vice.PlaySound(ViceUI.SoundTypes.Select); });
             if (attachment?.Data?.IconAddress?.IsNullOrEmptyOrWhitespace() ?? true)

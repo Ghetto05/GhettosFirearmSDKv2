@@ -359,6 +359,7 @@ namespace GhettosFirearmSDKv2
 
         private static ObsoleteIdData _obsoleteIdData;
         private static bool _triedLoadingObsoleteIds;
+
         public static string GetSubstituteId(string id, string handler)
         {
             if (_obsoleteIdData == null && !_triedLoadingObsoleteIds)
