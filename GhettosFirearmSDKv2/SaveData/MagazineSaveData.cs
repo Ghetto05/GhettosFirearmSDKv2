@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using ThunderRoad;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ namespace GhettosFirearmSDKv2
     public class MagazineSaveData : ContentCustomData
     {
         public string ItemID;
+        [JsonConverter(typeof(CartridgeSaveData.StringArrayToDataArrayConverter))]
         public CartridgeSaveData[] Contents;
 
         public void ApplyToMagazine(Magazine magazine)
