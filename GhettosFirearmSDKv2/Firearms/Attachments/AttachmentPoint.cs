@@ -97,16 +97,16 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private void Update()
+        public void SetDependantObjectVisibility()
         {
-            if (disableOnAttach != null)
+            if (disableOnAttach)
             {
                 if (!currentAttachments.Any() && !disableOnAttach.activeInHierarchy)
                     disableOnAttach.SetActive(true);
                 else if (currentAttachments.Any() && disableOnAttach.activeInHierarchy)
                     disableOnAttach.SetActive(false);
             }
-            if (enableOnAttach != null)
+            if (enableOnAttach)
             {
                 if (currentAttachments.Any() && !enableOnAttach.activeInHierarchy)
                     enableOnAttach.SetActive(true);

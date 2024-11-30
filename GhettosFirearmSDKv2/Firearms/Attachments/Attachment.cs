@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ThunderRoad;
 using UnityEngine;
@@ -60,7 +61,7 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void Initialize(FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
+        public void Initialize(Action<Attachment> callback, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
             if (thisNode != null) Node = thisNode;
             _renderers = new List<Renderer>();
@@ -149,7 +150,9 @@ namespace GhettosFirearmSDKv2
             attachmentPoint.parentFirearm.InvokeAttachmentAdded(this, attachmentPoint);
             initialized = true;
 
+            attachmentPoint.SetDependantObjectVisibility();
             attachmentPoint.parentFirearm.item.UpdateReveal();
+            callback?.Invoke(this);
         }
 
         private void ApplyNode()
@@ -198,6 +201,7 @@ namespace GhettosFirearmSDKv2
                 firearm.additionalTriggerHandles.Remove(han);
             }
             attachmentPoint.currentAttachments.Remove(this);
+            attachmentPoint.SetDependantObjectVisibility();
             var attachments = attachmentPoints.Where(x => x).SelectMany(x => x.currentAttachments).ToArray();
             for (var i = 0; i < attachments.Length; i++)
             {

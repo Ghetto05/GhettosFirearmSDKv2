@@ -80,9 +80,8 @@ namespace GhettosFirearmSDKv2
                         point.attachment.Node.Childs.Add(attachment.Node);
                     else if (thisNode == null)
                         point.parentFirearm.SaveData.FirearmNode.Childs.Add(attachment.Node);
-                    attachment.Initialize(thisNode, initialSetup);
+                    attachment.Initialize(callback, thisNode, initialSetup);
                     point.InvokeAttachmentAdded(attachment);
-                    callback?.Invoke(attachment);
                 }
                 else
                 {
