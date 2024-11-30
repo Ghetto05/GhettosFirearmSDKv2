@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
@@ -46,9 +47,9 @@ namespace GhettosFirearmSDKv2
 
             public bool TryGetValue<T>(string id, out T value) where T : SaveNodeValue
             {
-                foreach (var v in Values)
+                foreach (var v in Values.Where(x => x != null && x.GetType() == typeof(T)))
                 {
-                    if (v != null && v.ID.Equals(id))
+                    if (v.ID.Equals(id))
                     {
                         value = v as T;
                         return true;

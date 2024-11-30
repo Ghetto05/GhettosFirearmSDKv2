@@ -75,7 +75,9 @@
     <Compile Include="Other\Pouches\ImprovedLazyPouch.cs" />
     <Compile Include="Other\VariationRandomizer.cs" />
     <Compile Include="SaveData\CartridgeSaveData.cs" />
+    <Compile Include="SaveData\ItemSaveData.cs" />
     <Compile Include="SaveData\SaveNodeValueCartridgeData.cs" />
+    <Compile Include="SaveData\SaveNodeValueItem.cs" />
     <Compile Include="StaticScripts\FirearmCleaner.cs" />
     <Compile Include="StaticScripts\FirearmsSettingsValues.cs" />
     <Compile Include="StaticScripts\HomeAdjustments.cs" />

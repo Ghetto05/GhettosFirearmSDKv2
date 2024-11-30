@@ -11,6 +11,7 @@ namespace GhettosFirearmSDKv2
         public Holder holder;
         public Item pouchItem;
 
+        private FirearmBase _lastFrameHeldFirearm;
         private FirearmBase _lastHeldFirearm;
 
         private bool _initialized;
@@ -46,24 +47,26 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (!_initialized)
+            if (!_initialized || !Player.local?.creature?.ragdoll)
                 return;
 
             var held = GetHeldFirearm();
-            var last = _lastHeldFirearm;
-            _lastHeldFirearm = held;
+            var last = _lastFrameHeldFirearm;
+            _lastFrameHeldFirearm = held;
 
-            if (!held || held.SavedAmmoData == null)
+            if (held)
+                _lastHeldFirearm = held;
+
+            if (!held || held.SavedAmmoItemData == null)
                 return;
 
-            if (held != last && !held)
+            if (held != last)
             {
                 _nextUnsnapIsClear = true;
-                var i = holder.UnSnapOne(true);
+                var i = holder.UnSnapOne();
                 i?.Despawn();
+                SpawnItem();
             }
-
-            SpawnItem();
         }
 
         private FirearmBase GetHeldFirearm()
@@ -73,13 +76,13 @@ namespace GhettosFirearmSDKv2
             
             FirearmBase firearm;
 
-            if (!heldHandleDominant || heldHandleNonDominant)
+            if (!heldHandleDominant && !heldHandleNonDominant)
                 return null;
             
-            FirearmBase heldDominant = heldHandleDominant.GetComponentInParent<Firearm>();
-            FirearmBase heldAttachmentDominant = heldHandleDominant.GetComponentInParent<AttachmentFirearm>();
-            FirearmBase heldOffhand = heldHandleNonDominant.GetComponentInParent<Firearm>();
-            FirearmBase heldAttachmentOffhand = heldHandleNonDominant.GetComponentInParent<AttachmentFirearm>();
+            FirearmBase heldDominant = heldHandleDominant?.GetComponentInParent<Firearm>();
+            FirearmBase heldAttachmentDominant = heldHandleDominant?.GetComponentInParent<AttachmentFirearm>();
+            FirearmBase heldOffhand = heldHandleNonDominant?.GetComponentInParent<Firearm>();
+            FirearmBase heldAttachmentOffhand = heldHandleNonDominant?.GetComponentInParent<AttachmentFirearm>();
             
             if (heldHandleDominant && heldDominant && !heldAttachmentDominant)
             {
@@ -107,11 +110,12 @@ namespace GhettosFirearmSDKv2
 
         public void SpawnItem()
         {
-            Util.SpawnItem(_lastHeldFirearm.SavedAmmoData.ID, "Improved Lazy Pouch", i =>
+            Util.SpawnItem(_lastHeldFirearm?.SavedAmmoItemData?.Value?.ItemID, "Improved Lazy Pouch", i =>
             {
                 i.physicBody.isKinematic = true;
-                holder.Snap(i);
-            }, transform.position - Vector3.down * 5);
+                holder.Snap(i, true);
+            }, transform.position - Vector3.down * 5, null, null, true, _lastHeldFirearm?.SavedAmmoItemData?.Value?.CustomData?.CloneJson().ToList());
+            _nextUnsnapIsClear = false;
         }
 
         private void Holder_UnSnapped(Item item)
@@ -127,7 +131,7 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_Snapped(Item item)
         {
-            if (item.data.id != _lastHeldFirearm?.SavedAmmoData?.Value.ItemID)
+            if (item.data.id != _lastHeldFirearm?.SavedAmmoItemData?.Value.ItemID)
             {
                 holder.UnSnap(item, true);
                 item.Despawn();
