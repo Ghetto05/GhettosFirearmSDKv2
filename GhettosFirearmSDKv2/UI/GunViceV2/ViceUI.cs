@@ -40,6 +40,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         public Button moveAttachmentForwardButton;
         public Button moveAttachmentRearwardButton;
         public Button saveAmmoItemButton;
+        public TextMeshProUGUI saveAmmoItemButtonText;
         public TextMeshProUGUI slotDisplay;
         public RectTransform slotDisplayButton;
 
@@ -167,6 +168,11 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             slotDisplay.text = "Slot: " + _currentRailAttachment?.CurrentAttachment?.RailPosition;
         }
 
+        private void UpdateSaveAmmoButton()
+        {
+            saveAmmoItemButtonText.text = GetSelectedFirearm().GetType() == typeof(AttachmentFirearm) ? "Save held item as ammo\n(For current attachment)" : "Save held item as ammo\n(For firearm base)";
+        }
+
         public void SetupForFirearm(Firearm firearm)
         {
             _currentFirearm = firearm;
@@ -227,6 +233,8 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             }
 
             SelectSlot(_slots.FirstOrDefault(x => x.AttachmentPoint == currentSlot), true);
+            
+            UpdateSaveAmmoButton();
         }
 
         private void AddSlotsFromAttachment(Attachment attachment, int? startIndex = null)
@@ -268,6 +276,8 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
                 SetupAttachmentList(slot);
                 SetButtonVisibility(slot.AttachmentPoint.usesRail);
             }
+            
+            UpdateSaveAmmoButton();
         }
 
         private void SetButtonVisibility(bool visible)
@@ -358,6 +368,8 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             attachments.Remove(attachment);
             attachments.ForEach(x => x.selectionOutline.gameObject.SetActive(false));
             attachment.selectionOutline.gameObject.SetActive(true);
+            
+            UpdateSaveAmmoButton();
         }
 
         private void SetupAttachmentList(UISlot slot)
@@ -446,8 +458,32 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             var heldHandleNonDominant = Player.local.GetHand(Handle.dominantHand).ragdollHand.otherHand.grabbedHandle;
             var item = heldHandleDominant?.item ?? heldHandleNonDominant?.item;
 
-            _currentFirearm.SavedAmmoData.Value.ItemID = item?.data.id;
-            _currentFirearm.SavedAmmoData.Value.GetFromUnknown(item?.gameObject);
+            var firearm = GetSelectedFirearm();
+
+            firearm.SavedAmmoItemData.Value.ItemID = item?.data.id;
+            firearm.SavedAmmoItemData.Value.CustomData = item?.contentCustomData.CloneJson().ToArray();
+        }
+
+        private FirearmBase GetSelectedFirearm()
+        {
+            FirearmBase firearm = _currentFirearm;
+
+            if (_currentSlot?.AttachmentPoint?.usesRail != true)
+            {
+                if (_currentSlot?.AttachmentPoint?.currentAttachments.FirstOrDefault()?.GetComponent<AttachmentFirearm>() is { } attachmentFirearm)
+                {
+                    firearm = attachmentFirearm;
+                }
+            }
+            else
+            {
+                if (_currentRailAttachment?.CurrentAttachment?.GetComponent<AttachmentFirearm>() is { } attachmentFirearm)
+                {
+                    firearm = attachmentFirearm;
+                }
+            }
+
+            return firearm;
         }
 
         public void PlaySound(SoundTypes soundType)
