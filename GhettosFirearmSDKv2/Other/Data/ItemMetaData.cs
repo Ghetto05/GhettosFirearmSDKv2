@@ -158,7 +158,7 @@ namespace GhettosFirearmSDKv2
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Debug.LogError($"Failed to generate meta data description for {data.id}!");
                 throw;
