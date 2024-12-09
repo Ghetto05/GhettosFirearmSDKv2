@@ -33,6 +33,7 @@ namespace GhettosFirearmSDKv2
         public Transform hammerCockPoint;
         public Transform roundMount;
         public Cartridge loadedCartridge;
+        private Transform _chamberPositionRoundMount;
 
         private ConfigurableJoint _joint;
         public ConstantForce force;
@@ -71,6 +72,8 @@ namespace GhettosFirearmSDKv2
         public bool overrideHeldState;
         public bool heldState;
 
+        private bool _failureToExtract;
+
         public void Start()
         {
             Invoke(nameof(InvokedStart), Settings.invokeTime);
@@ -103,6 +106,12 @@ namespace GhettosFirearmSDKv2
 
             if (isOpenBolt || !hasBoltCatchReleaseControl)
                 disallowRelease = true;
+
+            // ReSharper disable once UseObjectOrCollectionInitializer
+            var chamber = new GameObject("ChamberPos");
+            chamber.transform.parent = roundMount.parent;
+            chamber.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            _chamberPositionRoundMount = chamber.transform;
         }
 
         public override List<Handle> GetNoInfluenceHandles()
@@ -324,6 +333,7 @@ namespace GhettosFirearmSDKv2
                     _closedAfterLoad = true;
                     _letGoBeforeClosed = false;
                     _closingAfterRelease = false;
+                    _failureToExtract = false;
                     laststate = BoltState.Moving;
                     state = BoltState.Locked;
                     Util.PlayRandomAudioSource(rackSounds);
@@ -417,7 +427,7 @@ namespace GhettosFirearmSDKv2
                 }
 
                 //Charging handle racked
-                if (chargingHandle != null && Util.AbsDist(chargingHandle.position, startPoint.position) < Settings.boltPointTreshold && chargingHandleState == BoltState.Moving)
+                if (chargingHandle && Util.AbsDist(chargingHandle.position, startPoint.position) < Settings.boltPointTreshold && chargingHandleState == BoltState.Moving)
                 {
                     Util.PlayRandomAudioSource(chargingHandleRackSounds);
                     previousChargingHandleState = chargingHandleState;
@@ -443,6 +453,12 @@ namespace GhettosFirearmSDKv2
 
                 if (_isReciprocating)
                 {
+                    if (state == BoltState.Locked && !_failureToEject && !_failureToExtract && Util.DoMalfunction(Settings.malfunctionFailureToExtract, Settings.failureToExtractChance, firearm.malfunctionChanceMultiplier))
+                    {
+                        _failureToExtract = true;
+                        UpdateChamberedRounds();
+                    }
+                    
                     state = BoltState.Moving;
                     bolt.localPosition = Vector3.Lerp(startPoint.localPosition, endPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
                     //hammer
@@ -582,6 +598,9 @@ namespace GhettosFirearmSDKv2
 
         public override void TryLoadRound()
         {
+            if (_failureToExtract)
+                return;
+            
             var originallyInfinite = false;
             if (HeldByAI() && firearm.magazineWell?.currentMagazine != null)
             {
