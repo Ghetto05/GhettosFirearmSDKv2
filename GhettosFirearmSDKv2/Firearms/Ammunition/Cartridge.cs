@@ -97,14 +97,19 @@ namespace GhettosFirearmSDKv2
             item.Despawn();
         }
 
-        public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle, List<Creature> hitCreatures, List<Creature> killedCreatures, bool fire)
+        public void DisableCartridge(bool fire = true)
         {
             Fired = fire;
+            ToggleTk(fire);
+        }
+
+        public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle, List<Creature> hitCreatures, List<Creature> killedCreatures, bool fire)
+        {
+            DisableCartridge(fire);
             if (firedOnlyObject != null)
                 firedOnlyObject.SetActive(true);
             if (unfiredOnlyObject != null)
                 unfiredOnlyObject.SetActive(false);
-            ToggleTk(false);
             onFireEvent?.Invoke();
             OnFiredWithHitPointsAndMuzzle?.Invoke(hits, directions, muzzle);
             OnFiredWithHitPointsAndMuzzleAndCreatures?.Invoke(hits, directions, hitCreatures, muzzle, killedCreatures);

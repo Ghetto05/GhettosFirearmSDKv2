@@ -218,8 +218,12 @@ namespace GhettosFirearmSDKv2
             }
             if (!isOpenBolt || loadedCartridge)
                 _shotsSinceTriggerReset++;
-            if (!loadedCartridge || loadedCartridge.Fired)
+            var failureToFire = Util.DoMalfunction(Settings.malfunctionFailureToFire, Settings.failureToFireChance,
+                firearm.malfunctionChanceMultiplier);
+            if (!loadedCartridge || loadedCartridge.Fired || failureToFire)
             {
+                if (failureToFire)
+                    loadedCartridge?.DisableCartridge();
                 InvokeFireLogicFinishedEvent();
                 return;
             }
