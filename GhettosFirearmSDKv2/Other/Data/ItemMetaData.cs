@@ -24,6 +24,16 @@ namespace GhettosFirearmSDKv2
             StripperClip
         }
 
+        public enum DataFireModes
+        {
+            Safe,
+            Semi,
+            Burst,
+            Auto,
+            [EnumDescription("Multi shot")]
+            MultiShot
+        }
+
         public enum FirearmActions
         {
             [EnumDescription("Closed bolt")]
@@ -51,7 +61,9 @@ namespace GhettosFirearmSDKv2
             [EnumDescription("Timed detonator")]
             TimedDetonator,
             [EnumDescription("Impact detonator")]
-            ImpactDetonator
+            ImpactDetonator,
+            [EnumDescription("Firearm/launcher mount")]
+            LauncherMount
         }
 
         public enum Eras
@@ -76,7 +88,7 @@ namespace GhettosFirearmSDKv2
         private bool _categorySet;
         public string Category;
         public FirearmActions[] Actions = [];
-        public FirearmBase.FireModes[] FireModes = [];
+        public DataFireModes[] FireModes = [];
         public string[] FireRates = [];
         public string[] Calibers = [];
         public CaliberCapacityData[] CaliberCapacityDatas = [];
@@ -176,7 +188,7 @@ namespace GhettosFirearmSDKv2
             
             AddInfo("Actions", Actions.Select(x => x.GetName()), builder);
             AddInfo("Fire modes", FireModes.Select(x => x.GetName()), builder);
-            AddInfo("Fire rates", FireRates, builder);
+            AddInfo("Fire rates", FireRates.Select(x => x.Equals("0") ? "manual/single shot" : x), builder);
             AddInfo("Calibers", Calibers, builder);
             AddInfo("Magazine types", MagazineTypes, builder);
             AddInfo("Manufacturers", Manufacturer, builder);

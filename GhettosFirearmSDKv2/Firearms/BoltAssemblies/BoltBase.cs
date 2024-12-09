@@ -110,12 +110,6 @@ namespace GhettosFirearmSDKv2
 
         public void ChamberSaved()
         {
-            if (FirearmSaveData.GetNode(firearm).TryGetValue(ChamberSaveDataId, out SaveNodeValueString oldChamberData))
-            {
-                FirearmSaveData.GetNode(firearm).RemoveValue(ChamberSaveDataId);
-                FirearmSaveData.GetNode(firearm).GetOrAddValue(ChamberSaveDataId, new SaveNodeValueCartridgeData() { Value = new CartridgeSaveData(oldChamberData?.Value, false) });
-            }
-
             if (FirearmSaveData.GetNode(firearm) != null && FirearmSaveData.GetNode(firearm).TryGetValue(ChamberSaveDataId, out SaveNodeValueCartridgeData chamber))
             {
                 Util.SpawnItem(chamber.Value.ItemId, "Bolt Chamber", carItem =>

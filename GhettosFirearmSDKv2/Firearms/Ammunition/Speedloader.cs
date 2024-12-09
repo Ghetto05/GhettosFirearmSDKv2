@@ -82,7 +82,7 @@ namespace GhettosFirearmSDKv2
         private void OnCollisionEnter(Collision collision)
         {
             if (!_allowInsert) return;
-            if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded)
+            if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded && !car.item.physicBody.isKinematic)
             {
                 foreach (var insertCollider in loadColliders)
                 {
@@ -106,7 +106,7 @@ namespace GhettosFirearmSDKv2
                 //cartridge.ToggleCollision(false);
                 cartridge.UngrabAll();
                 Util.IgnoreCollision(cartridge.gameObject, gameObject, true);
-                cartridge.GetComponent<Rigidbody>().isKinematic = true;
+                cartridge.item.physicBody.isKinematic = true;
                 cartridge.transform.parent = mountPoints[index];
                 cartridge.transform.localPosition = Vector3.zero;
                 cartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
@@ -121,7 +121,7 @@ namespace GhettosFirearmSDKv2
             {
                 if (loadedCartridges[i] != null)
                 {
-                    loadedCartridges[i].GetComponent<Rigidbody>().isKinematic = true;
+                    loadedCartridges[i].item.physicBody.isKinematic = true;
                     loadedCartridges[i].transform.parent = mountPoints[i];
                     loadedCartridges[i].transform.localPosition = Vector3.zero;
                     loadedCartridges[i].transform.localEulerAngles = Util.RandomCartridgeRotation();
@@ -192,22 +192,25 @@ namespace GhettosFirearmSDKv2
 
         private bool FirstFreeSlot(out int firstFree)
         {
+            Debug.Log("Getting first slot");
             for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 firstFree = i;
-                if (loadedCartridges[i] == null)
+                Debug.Log($"{i} - Empty: {!loadedCartridges[i]} - {loadedCartridges[i]?.item.itemId}");
+                if (!loadedCartridges[i])
                     return true; 
             }
 
+            Debug.Log("No free slot found");
             firstFree = 0;
             return false;
         }
 
         public void ClearRounds()
         {
-            foreach (var c in loadedCartridges.Where(x => x != null && x.item != null))
+            foreach (var c in loadedCartridges)
             {
-                c.item.Despawn(0.5f);
+                c?.item?.Despawn(0.5f);
             }
 
             loadedCartridges = new Cartridge[mountPoints.Count];

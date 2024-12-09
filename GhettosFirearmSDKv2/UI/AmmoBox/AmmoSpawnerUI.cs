@@ -170,7 +170,7 @@ namespace GhettosFirearmSDKv2
 
         private void SpawnAndInsertCar(IAmmunitionLoadable mag, string carId)
         {
-            if (mag != null && mag.GetLoadedCartridges().Count < mag.GetCapacity() && !string.IsNullOrWhiteSpace(carId))
+            if (mag != null && mag.GetLoadedCartridges().Count(x => x) < mag.GetCapacity() && !string.IsNullOrWhiteSpace(carId))
             {
                 Util.SpawnItem(carId, "Ammo Spawner", cartridge => 
                 {

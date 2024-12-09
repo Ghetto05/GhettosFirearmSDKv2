@@ -47,9 +47,9 @@ namespace GhettosFirearmSDKv2
 
             public bool TryGetValue<T>(string id, out T value) where T : SaveNodeValue
             {
-                foreach (var v in Values.Where(x => x != null && x.GetType() == typeof(T)))
+                foreach (var v in Values)
                 {
-                    if (v.ID.Equals(id))
+                    if (v != null && v.ID.Equals(id))
                     {
                         value = v as T;
                         return true;

@@ -21,6 +21,11 @@ public class CartridgeSaveData : ContentCustomData
         if (IsFired)
             cartridge.SetFired();
     }
+    
+    public static implicit operator CartridgeSaveData(string item)
+    {
+        return new CartridgeSaveData(item, false);
+    }
 
     public class StringArrayToDataArrayConverter : JsonConverter
     {
