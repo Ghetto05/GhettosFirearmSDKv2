@@ -18,6 +18,11 @@ namespace GhettosFirearmSDKv2
         public static float firingSoundDeviation = 0.2f;
         public static float boltPointTreshold = 0.004f;
         public static float aiFirearmSpread = 0f;
+
+        public static float failureToFeedChance = 0.002f;
+        public static float failureToExtractChance = 0.001f;
+        public static float failureToEjectChance = 0.001f;
+        public static float failureToFireChance = 0.0025f;
         
         #endregion Static
 
@@ -229,6 +234,36 @@ namespace GhettosFirearmSDKv2
         [ModOptionFloatValues(0, 5, 0.5f)]
         [ModOption(name = "Blood splatter size multiplier", tooltip = "Allows you to change how large blood splatters are.", saveValue = true)]
         public static float bloodSplatterSizeMultiplier = 1f;
+
+        #endregion
+
+        #region Malfunctions
+
+        [ModOptionOrder(1)]
+        [ModOptionCategory("Malfunctions", 20)]
+        [ModOptionValues(nameof(FirearmsSettingsValues.malfunctionModes), typeof(FirearmsSettingsValues))]
+        [ModOption(name = "Malfunction mode", tooltip = "Select how frequently malfunctions should occur.", saveValue = true)]
+        public static float malfunctionMode = 1f;
+        
+        [ModOptionOrder(2)]
+        [ModOptionCategory("Malfunctions", 20)]
+        [ModOption(name = "Enable failure to feed", tooltip = "Toggle failure to feed.", saveValue = true)]
+        public static bool malfunctionFailureToFeed = true;
+        
+        [ModOptionOrder(3)]
+        [ModOptionCategory("Malfunctions", 20)]
+        [ModOption(name = "Enable failure to extract", tooltip = "Toggle failure to extract.", saveValue = true)]
+        public static bool malfunctionFailureToExtract = true;
+        
+        [ModOptionOrder(4)]
+        [ModOptionCategory("Malfunctions", 20)]
+        [ModOption(name = "Enable failure to eject/stovepipe failure", tooltip = "Toggle failure to eject.", saveValue = true)]
+        public static bool malfunctionFailureToEject = true;
+        
+        [ModOptionOrder(5)]
+        [ModOptionCategory("Malfunctions", 20)]
+        [ModOption(name = "Enable failure to fire", tooltip = "Toggle failure to fire.", saveValue = true)]
+        public static bool malfunctionFailureToFire = true;
 
         #endregion
         

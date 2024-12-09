@@ -38,6 +38,7 @@ namespace GhettosFirearmSDKv2
         public Light muzzleLight;
         public string defaultAmmoItem;
         public SaveNodeValueItem SavedAmmoItemData;
+        public float malfunctionChanceMultiplier;
 
         public FirearmSaveData.AttachmentTreeNode SaveNode => FirearmSaveData.GetNode(this);
 

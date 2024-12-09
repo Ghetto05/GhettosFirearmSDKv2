@@ -155,12 +155,10 @@ namespace GhettosFirearmSDKv2
         public override void UpdateChamberedRounds()
         {
             base.UpdateChamberedRounds();
-            if (loadedCartridge == null) return;
-            loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
-            loadedCartridge.transform.parent = roundMount;
             if (!loadedCartridge)
                 return;
             loadedCartridge.item.physicBody.isKinematic = true;
+            loadedCartridge.transform.parent = _failureToExtract ? _chamberPositionRoundMount : _failureToEject && state == BoltState.Locked ? stovepipeRoundPosition : roundMount;
             loadedCartridge.transform.localPosition = Vector3.zero;
             loadedCartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
         }

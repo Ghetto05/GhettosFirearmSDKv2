@@ -430,5 +430,10 @@ namespace GhettosFirearmSDKv2
 
             Debug.Log(output.ToString());
         }
+
+        public static bool DoMalfunction(bool malfunctionEnabled, float baseChance, float multiplier)
+        {
+            return malfunctionEnabled && Mathf.Clamp01(baseChance * multiplier) * 100 > Random.Range(0, 100);
+        }
     }
 }
