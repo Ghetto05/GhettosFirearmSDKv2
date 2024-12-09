@@ -32,6 +32,7 @@ namespace GhettosFirearmSDKv2
         public Transform roundLoadPoint;
         public Transform hammerCockPoint;
         public Transform roundMount;
+        public Transform stovepipeRoundPosition;
         public Cartridge loadedCartridge;
         private Transform _chamberPositionRoundMount;
 
@@ -73,6 +74,7 @@ namespace GhettosFirearmSDKv2
         public bool heldState;
 
         private bool _failureToExtract;
+        private bool _failureToEject;
 
         public void Start()
         {
@@ -355,10 +357,16 @@ namespace GhettosFirearmSDKv2
                     Util.PlayRandomAudioSource(pullSoundsHeld);
                     _closingAfterRelease = false;
 
+                    if (_failureToEject)
+                    {
+                        _failureToEject = false;
+                        EjectRound(false);
+                    }
+
                     if (_closedAfterLoad && firearm.roundsPerMinute != 0)
                         EjectRound();
 
-                    if (CatchOpenBolt() || (((firearm.magazineWell && firearm.magazineWell.IsEmptyAndHasMagazine()) || (lockIfNoMagazineFound && firearm.magazineWell?.currentMagazine == null)) && loadedCartridge == null && !caught && hasBoltcatch))
+                    if (CatchOpenBolt() || (((firearm.magazineWell && firearm.magazineWell.IsEmptyAndHasMagazine()) || (lockIfNoMagazineFound && firearm.magazineWell?.currentMagazine == null)) && !loadedCartridge && !caught && hasBoltcatch))
                     {
                         CatchBolt(true);
                     }
@@ -367,7 +375,7 @@ namespace GhettosFirearmSDKv2
                         CatchBolt(false);
                     }
 
-                    if (lockIfNoMagazineFound && firearm.magazineWell?.currentMagazine == null && loadedCartridge == null && !caught && hasBoltcatch)
+                    if (lockIfNoMagazineFound && firearm.magazineWell?.currentMagazine == null && !loadedCartridge && !caught && hasBoltcatch)
                     {
                         CatchBolt(true);
                     }
@@ -535,7 +543,7 @@ namespace GhettosFirearmSDKv2
                 CatchBolt(false);
             }
 
-            if ((hammer == null || hammer.cocked || cockHammerOnTriggerPull) && ((fireOnTriggerPress && firearm.triggerState) || externalTriggerState || isOpenBolt) && state == BoltState.Locked && (firearm.fireMode != FirearmBase.FireModes.Safe || isOpenBolt))
+            if (!_failureToEject && (!hammer || hammer.cocked || cockHammerOnTriggerPull) && ((fireOnTriggerPress && firearm.triggerState) || externalTriggerState || isOpenBolt) && state == BoltState.Locked && (firearm.fireMode != FirearmBase.FireModes.Safe || isOpenBolt))
             {
                 if (firearm.fireMode == FirearmBase.FireModes.Semi && _shotsSinceTriggerReset == 0) TryFire();
                 else if (firearm.fireMode == FirearmBase.FireModes.Burst && _shotsSinceTriggerReset < firearm.burstSize) TryFire();
@@ -570,7 +578,13 @@ namespace GhettosFirearmSDKv2
 
         public override void EjectRound()
         {
-            if (firearm.magazineWell && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired)
+            EjectRound(true);
+        }
+
+        private void EjectRound(bool applyForce)
+        {
+            if (firearm.magazineWell && firearm.magazineWell.IsEmptyAndHasMagazine() &&
+                firearm.magazineWell.currentMagazine.ejectOnLastRoundFired)
                 firearm.magazineWell.Eject(true);
             if (!loadedCartridge || _failureToExtract)
                 return;
@@ -582,6 +596,7 @@ namespace GhettosFirearmSDKv2
                 c.transform.position = roundEjectPoint.position;
                 c.transform.rotation = roundEjectPoint.rotation;
             }
+
             Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
             c.ToggleCollision(true);
             Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
@@ -591,11 +606,12 @@ namespace GhettosFirearmSDKv2
             c.loaded = false;
             rb.isKinematic = false;
             rb.WakeUp();
-            if (roundEjectDir) 
+            if (roundEjectDir && applyForce)
             {
                 AddForceToCartridge(c, roundEjectDir, roundEjectForce);
                 AddTorqueToCartridge(c);
             }
+
             c.ToggleHandles(true);
             InvokeEjectRound(c);
         }
