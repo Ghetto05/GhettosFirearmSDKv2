@@ -284,7 +284,7 @@ namespace GhettosFirearmSDKv2
         public Cartridge ConsumeRound()
         {
             Cartridge c = null;
-            if (cartridges.Count > 0)
+            if (cartridges.Count > 0 && !Util.DoMalfunction(Settings.malfunctionFailureToFeed, Settings.failureToFeedChance, 1))
             {
                 c = cartridges[0];
                 OnConsumeEvent?.Invoke(c);
