@@ -61,7 +61,8 @@ namespace GhettosFirearmSDKv2
         public List<string> defaultAmmoItems;
         
 
-        private MagazineSaveData _data;
+        private SaveNodeValueArray<CartridgeSaveData> _data;
+        private SaveNodeValueArray<ItemSaveData> _savedItems;
 
         private int _currentChamber;
         private int _currentChamberSet;
@@ -105,6 +106,13 @@ namespace GhettosFirearmSDKv2
             state = BoltState.Locked;
             rb.gameObject.AddComponent<CollisionRelay>().OnCollisionEnterEvent += OnCollisionEvent;
             firearm.OnMuzzleCalculatedEvent += Firearm_OnMuzzleCalculatedEvent;
+            firearm.SavedAmmoItemChangedEvent += FirearmOnSavedAmmoItemChangedEvent;
+            
+            _savedItems = firearm.SaveNode.GetOrAddValue("DoubleBarrelSavedItem", new SaveNodeValueArray<ItemSaveData>(), out var addedNewSaves);
+            if (addedNewSaves)
+            {
+                _savedItems.Value = defaultAmmoItems.Select(x => string.IsNullOrWhiteSpace(x) ? null : new ItemSaveData() { ItemID = x }).ToArray();
+            }
             
             if (ChamberSets.Any())
             {
@@ -123,17 +131,18 @@ namespace GhettosFirearmSDKv2
             }
 
             Initialize();
-            if (firearm.item.TryGetCustomData(out _data))
+            _data = firearm.SaveNode.GetOrAddValue("DoubleBarrelSave", new SaveNodeValueArray<CartridgeSaveData>(), out var addedNew);
+            if (!addedNew)
             {
-                for (var i = 0; i < _data.Contents.Length; i++)
+                for (var i = 0; i < _data.Value.Length; i++)
                 {
-                    if (_data.Contents[i] != null)
+                    if (_data.Value[i] != null)
                     {
                         var index = i;
-                        Util.SpawnItem(_data.Contents[index]?.ItemId, "Bolt Chamber", ci =>
+                        Util.SpawnItem(_data.Value[index]?.ItemId, "Bolt Chamber", ci =>
                         {
                             var c = ci.GetComponent<Cartridge>();
-                            _data.Contents[index].Apply(c);
+                            _data.Value[index].Apply(c);
                             LoadChamber(index, c, false);
                         }, transform.position + Vector3.up * 3);
                     }
@@ -142,12 +151,15 @@ namespace GhettosFirearmSDKv2
             }
             else
             {
-                firearm.item.AddCustomData(new MagazineSaveData());
-                firearm.item.TryGetCustomData(out _data);
-                _data.Contents = new CartridgeSaveData[_loadedCartridges.Length];
+                _data.Value = new CartridgeSaveData[_loadedCartridges.Length];
             }
             _allowInsert = true;
             UpdateChamberedRounds();
+        }
+
+        private void FirearmOnSavedAmmoItemChangedEvent()
+        {
+            _savedItems.Value[_currentChamberSet] = firearm.GetAmmoItem(true);
         }
 
         private void ChamberSetSelectorOnFireModeChanged(FirearmBase.FireModes newMode)
@@ -179,8 +191,8 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            if (defaultAmmoItems.Count > set)
-                firearm.defaultAmmoItem = defaultAmmoItems[set];
+            if (_savedItems.Value.Length > set)
+                firearm.SetOverideAmmoItem(_savedItems.Value[set], this);
         }
 
         private void Firearm_OnMuzzleCalculatedEvent()
@@ -390,7 +402,7 @@ namespace GhettosFirearmSDKv2
                         else firearm.PlayMuzzleFlash(loadedCartridge);
                     }
                     FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
-                    FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+                    FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), firearm.HeldByAI());
                     loadedCartridge.Fire(hits, trajectories, muzzle, hitCreatures, killedCreatures, !Settings.infiniteAmmo);
                     InvokeFireEvent();
                     SaveCartridges();
@@ -523,10 +535,10 @@ namespace GhettosFirearmSDKv2
 
         public void SaveCartridges()
         {
-            _data.Contents = new CartridgeSaveData[_loadedCartridges.Length];
+            _data.Value = new CartridgeSaveData[_loadedCartridges.Length];
             for (var i = 0; i < _loadedCartridges.Length; i++)
             {
-                _data.Contents[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false);
+                _data.Value[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false);
             }
         }
 

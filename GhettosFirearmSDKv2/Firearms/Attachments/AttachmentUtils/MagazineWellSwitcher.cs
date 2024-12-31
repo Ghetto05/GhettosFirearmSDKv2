@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
@@ -11,10 +14,10 @@ namespace GhettosFirearmSDKv2
         private string _originalCaliber;
         public string newCaliber;
 
-        private string _originalDefaultAmmo;
+        private ItemSaveData _originalDefaultAmmo;
         public string newDefaultAmmo;
 
-        private void Awake()
+        private void Start()
         {
             if (attachment.initialized) Attachment_OnDelayedAttachEvent();
             else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
@@ -36,10 +39,13 @@ namespace GhettosFirearmSDKv2
                 attachment.attachmentPoint.parentFirearm.magazineWell.caliber = newCaliber;
             }
 
-            if (!string.IsNullOrWhiteSpace(newDefaultAmmo))
+            if (!string.IsNullOrWhiteSpace(newDefaultAmmo) && !attachment.addedByInitialSetup)
             {
                 _originalDefaultAmmo = attachment.attachmentPoint.parentFirearm.defaultAmmoItem;
                 attachment.attachmentPoint.parentFirearm.defaultAmmoItem = newDefaultAmmo;
+                _originalDefaultAmmo = attachment.attachmentPoint.parentFirearm.GetAmmoItem();
+                    
+                attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(newDefaultAmmo, dataList.Any() ? dataList.ToArray() : null);
             }
 
             attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
@@ -59,9 +65,9 @@ namespace GhettosFirearmSDKv2
                 attachment.attachmentPoint.parentFirearm.magazineWell.caliber = _originalCaliber;
             }
 
-            if (!string.IsNullOrWhiteSpace(newDefaultAmmo))
+            if (!string.IsNullOrWhiteSpace(newDefaultAmmo) && !attachment.addedByInitialSetup)
             {
-                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = _originalDefaultAmmo;
+                attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(_originalDefaultAmmo);
             }
         }
     }

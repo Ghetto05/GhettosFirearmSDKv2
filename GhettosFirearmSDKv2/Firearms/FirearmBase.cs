@@ -38,7 +38,8 @@ namespace GhettosFirearmSDKv2
         public Light muzzleLight;
         public string defaultAmmoItem;
         public SaveNodeValueItem SavedAmmoItemData;
-        public float malfunctionChanceMultiplier;
+        public float malfunctionChanceMultiplier = 1f;
+        public Dictionary<MonoBehaviour, ItemSaveData> AmmoOverrides = new();
 
         public FirearmSaveData.AttachmentTreeNode SaveNode => FirearmSaveData.GetNode(this);
 
@@ -70,8 +71,7 @@ namespace GhettosFirearmSDKv2
 
             if (addedNew)
             {
-                SavedAmmoItemData.Value.ItemID = defaultAmmoItem;
-                SavedAmmoItemData.Value.CustomData = null;
+                SetSavedAmmoItem(defaultAmmoItem, overrideMagazineLoad ? new ContentCustomData[] { overrideMagazineLoad.ToSaveData() } : null);
             }
         }
 
@@ -360,6 +360,55 @@ namespace GhettosFirearmSDKv2
 
         public void InvokeCollisionTR(CollisionInstance collisionInstance) => OnCollisionEventTR?.Invoke(collisionInstance);
 
+        public void SetSavedAmmoItem(string id, ContentCustomData[] data)
+        {
+             SetSavedAmmoItem(new ItemSaveData() { ItemID = id, CustomData = data });
+        }
+
+        public void SetSavedAmmoItem(ItemSaveData data)
+        {
+            SavedAmmoItemData.Value = data.CloneJson();
+            SavedAmmoItemChangedEvent?.Invoke();
+            ImprovedLazyPouch.InvokeAmmoItemChanged(this);
+        }
+
+        public void SetOverideAmmoItem(ItemSaveData data, MonoBehaviour handler)
+        {
+            AmmoOverrides[handler] = data;
+            ImprovedLazyPouch.InvokeAmmoItemChanged(this);
+        }
+
+        public void RemoveOverideAmmoItem(MonoBehaviour handler)
+        {
+            AmmoOverrides.Remove(handler);
+            ImprovedLazyPouch.InvokeAmmoItemChanged(this);
+        }
+        
+        public ItemSaveData GetAmmoItem(bool ignoreOverrides = false)
+        {
+            var value = AmmoOverrides.Where(x => x.Key && x.Value != null)
+                                     .Select(e => (KeyValuePair<MonoBehaviour,ItemSaveData>?) e)
+                                     .FirstOrDefault();
+            
+            if (value != null && !ignoreOverrides)
+                return value.Value.Value;
+            
+            return SavedAmmoItemData?.Value;
+        }
+        
+        public virtual bool HeldByAI()
+        {
+            return false;
+        }
+
+        public virtual bool CanFire
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public class RecoilModifier
         {
             public float Modifier;
@@ -400,5 +449,8 @@ namespace GhettosFirearmSDKv2
 
         public delegate void OnMuzzleCalculated();
         public event OnMuzzleCalculated OnMuzzleCalculatedEvent;
+
+        public delegate void SavedAmmoItemChanged();
+        public event SavedAmmoItemChanged SavedAmmoItemChangedEvent;
     }
 }

@@ -20,7 +20,6 @@ namespace GhettosFirearmSDKv2
         private HandPoseData _targetHandPoseData;
         private HandPoseData _replacementDefaultHandPoseData;
         private HandPoseData _replacementTargetHandPoseData;
-        private string _firearmDefaultAmmoItem;
 
         private void Start()
         {
@@ -35,12 +34,20 @@ namespace GhettosFirearmSDKv2
             LoadHandleData();
             _defaultHandPoseData = _firearmTriggerHandle.orientations.First().defaultHandPoseData;
             _targetHandPoseData = _firearmTriggerHandle.orientations.First().targetHandPoseData;
-            _firearmDefaultAmmoItem = _connectedFirearm.defaultAmmoItem;
             
             _connectedFirearm.OnFiremodeChangedEvent += ConnectedFirearmOnOnFiremodeChangedEvent;
+            _connectedFirearm.SavedAmmoItemChangedEvent += FirearmOnSavedAmmoItemChangedEvent;
+            attachmentFirearm.SavedAmmoItemChangedEvent += FirearmOnSavedAmmoItemChangedEvent;
             attachmentFirearm.attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
             
             AddAttachmentFirearmMode();
+            
+            ApplyDefaultAmmoItem();
+        }
+
+        private void FirearmOnSavedAmmoItemChangedEvent()
+        {
+            ApplyDefaultAmmoItem();
         }
 
         private void AttachmentOnOnDetachEvent(bool despawndetach)
@@ -59,6 +66,13 @@ namespace GhettosFirearmSDKv2
 
                 ApplyHandleData();
             }
+            
+            _connectedFirearm.OnFiremodeChangedEvent -= ConnectedFirearmOnOnFiremodeChangedEvent;
+            _connectedFirearm.SavedAmmoItemChangedEvent -= FirearmOnSavedAmmoItemChangedEvent;
+            attachmentFirearm.SavedAmmoItemChangedEvent -= FirearmOnSavedAmmoItemChangedEvent;
+            attachmentFirearm.attachment.OnDetachEvent -= AttachmentOnOnDetachEvent;
+            
+            _connectedFirearm.RemoveOverideAmmoItem(this);
         }
 
         private void AddAttachmentFirearmMode()
@@ -126,10 +140,7 @@ namespace GhettosFirearmSDKv2
 
         private void ApplyDefaultAmmoItem()
         {
-            if (_connectedFirearm.fireMode == FirearmBase.FireModes.AttachmentFirearm)
-                _connectedFirearm.defaultAmmoItem = attachmentFirearm.defaultAmmoItem;
-            else
-                _connectedFirearm.defaultAmmoItem = _firearmDefaultAmmoItem;
+            _connectedFirearm.SetOverideAmmoItem(_connectedFirearm.fireMode == FirearmBase.FireModes.AttachmentFirearm ? attachmentFirearm.GetAmmoItem(true) : _connectedFirearm.GetAmmoItem(true), this);
         }
     }
 }

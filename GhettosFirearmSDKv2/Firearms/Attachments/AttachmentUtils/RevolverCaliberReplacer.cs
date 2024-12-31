@@ -8,8 +8,9 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         private string[] _originalCalibers;
         public string[] newCalibers;
-        private string _originalAmmoItem;
+        private ItemSaveData _originalAmmoItem;
         public string newAmmoItem;
+        private ItemSaveData _newAmmoItem;
 
         private BoltBase _bolt;
         
@@ -19,6 +20,8 @@ namespace GhettosFirearmSDKv2
                 Attachment_OnDelayedAttachEvent();
             else
                 attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+
+            _newAmmoItem = new ItemSaveData() { ItemID = newAmmoItem };
         }
 
         private void Attachment_OnDelayedAttachEvent()
@@ -57,10 +60,10 @@ namespace GhettosFirearmSDKv2
                 ((Revolver)attachment.attachmentPoint.parentFirearm.bolt).calibers = newCalibers.ToList();
             }
 
-            if (!string.IsNullOrWhiteSpace(newAmmoItem))
+            if (!string.IsNullOrWhiteSpace(newAmmoItem) && !attachment.addedByInitialSetup)
             {
-                _originalAmmoItem = attachment.attachmentPoint.parentFirearm.defaultAmmoItem;
-                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = newAmmoItem;
+                _originalAmmoItem = attachment.attachmentPoint.parentFirearm.GetAmmoItem();
+                attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(_newAmmoItem);
             }
         }
 
@@ -72,10 +75,10 @@ namespace GhettosFirearmSDKv2
                 ((GateLoadedRevolver)attachment.attachmentPoint.parentFirearm.bolt).calibers = newCalibers;
             }
 
-            if (!string.IsNullOrWhiteSpace(newAmmoItem))
+            if (!string.IsNullOrWhiteSpace(newAmmoItem) && !attachment.addedByInitialSetup)
             {
-                _originalAmmoItem = attachment.attachmentPoint.parentFirearm.defaultAmmoItem;
-                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = newAmmoItem;
+                _originalAmmoItem = attachment.attachmentPoint.parentFirearm.GetAmmoItem();
+                attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(_newAmmoItem);
             }
         }
 
@@ -86,9 +89,9 @@ namespace GhettosFirearmSDKv2
                 ((Revolver)attachment.attachmentPoint.parentFirearm.bolt).calibers = _originalCalibers.ToList();
             }
 
-            if (!string.IsNullOrWhiteSpace(newAmmoItem))
+            if (!string.IsNullOrWhiteSpace(newAmmoItem) && !attachment.addedByInitialSetup)
             {
-                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = _originalAmmoItem;
+                attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(_originalAmmoItem);
             }
         }
 
@@ -99,9 +102,9 @@ namespace GhettosFirearmSDKv2
                 ((GateLoadedRevolver)attachment.attachmentPoint.parentFirearm.bolt).calibers = _originalCalibers;
             }
 
-            if (!string.IsNullOrWhiteSpace(newAmmoItem))
+            if (!string.IsNullOrWhiteSpace(newAmmoItem) && !attachment.addedByInitialSetup)
             {
-                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = _originalAmmoItem;
+                attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(_originalAmmoItem);
             }
         }
     }

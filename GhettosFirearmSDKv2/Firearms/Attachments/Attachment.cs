@@ -45,6 +45,7 @@ namespace GhettosFirearmSDKv2
         private List<RevealDecal> _decals;
 
         public bool initialized;
+        public bool addedByInitialSetup;
 
         private void Update()
         {
@@ -63,6 +64,7 @@ namespace GhettosFirearmSDKv2
 
         public void Initialize(Action<Attachment> callback, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
+            addedByInitialSetup = initialSetup;
             if (thisNode != null) Node = thisNode;
             _renderers = new List<Renderer>();
             _decals = new List<RevealDecal>();
@@ -160,7 +162,7 @@ namespace GhettosFirearmSDKv2
             foreach (var n in Node.Childs)
             {
                 var point = GetSlotFromId(n.Slot);
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.AttachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, null, n);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.AttachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, null, n, addedByInitialSetup);
             }
         }
 

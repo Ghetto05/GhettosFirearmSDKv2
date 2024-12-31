@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ThunderRoad;
@@ -8,6 +7,14 @@ namespace GhettosFirearmSDKv2
 {
     public class ImprovedLazyPouch : MonoBehaviour
     {
+        public static event SavedAmmoItemChanged SavedAmmoItemChangedEvent;
+        public delegate void SavedAmmoItemChanged(FirearmBase firearm);
+
+        public static void InvokeAmmoItemChanged(FirearmBase firearm)
+        {
+            SavedAmmoItemChangedEvent?.Invoke(firearm);
+        }
+
         public Holder holder;
         public Item pouchItem;
 
@@ -27,6 +34,7 @@ namespace GhettosFirearmSDKv2
         {
             holder.Snapped += Holder_Snapped;
             holder.UnSnapped += Holder_UnSnapped;
+            SavedAmmoItemChangedEvent += OnSavedAmmoItemChangedEvent;
             pouchItem.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
 
             holder.data.maxQuantity = 1;
@@ -41,6 +49,7 @@ namespace GhettosFirearmSDKv2
 
             holder.Snapped -= Holder_Snapped;
             holder.UnSnapped -= Holder_UnSnapped;
+            SavedAmmoItemChangedEvent -= OnSavedAmmoItemChangedEvent;
             pouchItem.lightVolumeReceiver.onVolumeChangeEvent -= UpdateAllLightVolumeReceivers;
             _initialized = false;
         }
@@ -57,7 +66,7 @@ namespace GhettosFirearmSDKv2
             if (held)
                 _lastHeldFirearm = held;
 
-            if (!held || held.SavedAmmoItemData == null)
+            if (!held || held.GetAmmoItem() == null)
                 return;
 
             if (held != last)
@@ -110,11 +119,11 @@ namespace GhettosFirearmSDKv2
 
         public void SpawnItem()
         {
-            Util.SpawnItem(_lastHeldFirearm?.SavedAmmoItemData?.Value?.ItemID, "Improved Lazy Pouch", i =>
+            Util.SpawnItem(_lastHeldFirearm?.GetAmmoItem()?.ItemID, "Improved Lazy Pouch", i =>
             {
                 i.physicBody.isKinematic = true;
                 holder.Snap(i, true);
-            }, transform.position - Vector3.down * 5, null, null, true, _lastHeldFirearm?.SavedAmmoItemData?.Value?.CustomData?.CloneJson().ToList());
+            }, transform.position - Vector3.down * 5, null, null, true, _lastHeldFirearm?.GetAmmoItem()?.CustomData?.CloneJson().ToList());
             _nextUnsnapIsClear = false;
         }
 
@@ -131,7 +140,7 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_Snapped(Item item)
         {
-            if (item.data.id != _lastHeldFirearm?.SavedAmmoItemData?.Value.ItemID)
+            if (item.data.id != _lastHeldFirearm?.GetAmmoItem()?.ItemID)
             {
                 holder.UnSnap(item, true);
                 item.Despawn();
@@ -144,6 +153,13 @@ namespace GhettosFirearmSDKv2
             {
                 Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
             }
+        }
+
+        private void OnSavedAmmoItemChangedEvent(FirearmBase firearm)
+        {
+            if (_lastFrameHeldFirearm != firearm)
+                return;
+            _lastFrameHeldFirearm = null;
         }
     }
 }

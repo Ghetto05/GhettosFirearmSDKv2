@@ -460,8 +460,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
             var firearm = GetSelectedFirearm();
 
-            firearm.SavedAmmoItemData.Value.ItemID = item?.data.id;
-            firearm.SavedAmmoItemData.Value.CustomData = item?.contentCustomData.CloneJson().ToArray();
+            firearm.SetSavedAmmoItem(item?.data.id, item?.contentCustomData.CloneJson().ToArray());
         }
 
         private FirearmBase GetSelectedFirearm()

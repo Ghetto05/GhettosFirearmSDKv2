@@ -76,6 +76,7 @@
     <Compile Include="Other\VariationRandomizer.cs" />
     <Compile Include="SaveData\CartridgeSaveData.cs" />
     <Compile Include="SaveData\ItemSaveData.cs" />
+    <Compile Include="SaveData\SaveNodeValueArray.cs" />
     <Compile Include="SaveData\SaveNodeValueCartridgeData.cs" />
     <Compile Include="SaveData\SaveNodeValueItem.cs" />
     <Compile Include="StaticScripts\FirearmCleaner.cs" />
