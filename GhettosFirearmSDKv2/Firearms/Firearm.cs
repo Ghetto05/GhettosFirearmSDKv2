@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ThunderRoad;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2
 {
@@ -14,12 +15,48 @@ namespace GhettosFirearmSDKv2
         public List<Handle> preSnapActiveHandles;
         public FirearmSaveData SaveData;
 
+        private ItemMetaData _metaData;
+
+        public ItemMetaData MetaData
+        {
+            get
+            {
+                if (_metaData == null)
+                {
+                    _metaData = (ItemMetaData)item.data.modules.FirstOrDefault(x => x.GetType() == typeof(ItemMetaData));
+                }
+                return _metaData;
+            }
+        }
+
+        private CustomReference _preferredForegripReference;
+
+        public CustomReference PreferredForegripReference
+        {
+            get
+            {
+                if (_preferredForegripReference == null)
+                {
+                    _preferredForegripReference = new CustomReference()
+                                                  {
+                                                      name = "FirearmSecondaryHandle", 
+                                                      transform = GetPreferredForegrip()
+                                                  };
+                    item.customReferences.Add(_preferredForegripReference);
+                }
+                return _preferredForegripReference;
+            }
+        }
+
+        private static readonly Vector3 StandardAimPointOffset = new(0.2f, -0.3f, 0.4f);
+
         public override List<Handle> AllTriggerHandles()
         {
             var hs = new List<Handle>();
             hs.AddRange(additionalTriggerHandles);
             if (disableMainFireHandle || item == null || item.mainHandleLeft == null)
                 return hs;
+
             hs.Add(item.mainHandleLeft);
             return hs;
         }
@@ -62,13 +99,13 @@ namespace GhettosFirearmSDKv2
                                secondaryClass = ItemModuleAI.WeaponClass.Melee,
                                weaponHandling = ItemModuleAI.WeaponHandling.OneHanded,
                                secondaryHandling = ItemModuleAI.WeaponHandling.OneHanded,
-                               weaponAttackTypes = ItemModuleAI.AttackTypeFlags.Swing,
+                               weaponAttackTypes = ItemModuleAI.AttackTypeFlags.None,
                                ignoredByDefense = false,
                                alwaysPrimary = false,
                                defaultStanceInfo = new ItemModuleAI.StanceInfo
                                                    {
                                                        offhand = ItemModuleAI.StanceInfo.Offhand.SameItem,
-                                                       stanceDataID = "HumanMeleeDualWieldStance",
+                                                       stanceDataID = "HumanMeleeShieldStance",
                                                        grabAIHandleRadius = 0
                                                    },
                                rangedWeaponData = new ItemModuleAI.RangedWeaponData
@@ -77,10 +114,10 @@ namespace GhettosFirearmSDKv2
                                                       ammoType = defaultAmmoItem,
                                                       projectileSpeed = Mathf.Infinity,
                                                       accountForGravity = false,
-                                                      tooCloseDistance = 3f,
+                                                      tooCloseDistance = PreferredEngagementDistance(),
                                                       weaponAimAngleOffset = Vector3.zero,
                                                       weaponHoldAngleOffset = Vector3.zero,
-                                                      weaponHoldPositionOffset = Vector3.zero,
+                                                      weaponHoldPositionOffset = StandardAimPointOffset,
                                                       customRangedAttackAnimationData = null
                                                   },
                                armResistanceMultiplier = 3f,
@@ -112,8 +149,7 @@ namespace GhettosFirearmSDKv2
             {
                 ap.parentFirearm = this;
             }
-            StartCoroutine(DelayedLoad());
-            
+
             if (!item.TryGetCustomData(out SaveData))
             {
                 SaveData = new FirearmSaveData();
@@ -125,6 +161,7 @@ namespace GhettosFirearmSDKv2
             CalculateMuzzle();
 
             #region handle type validation
+
             if (Settings.debugMode)
             {
                 foreach (var h in gameObject.GetComponentsInChildren<Handle>())
@@ -132,8 +169,11 @@ namespace GhettosFirearmSDKv2
                     if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on firearm " + gameObject.name + " is not of type GhettoHandle!");
                 }
             }
+
             #endregion handle type validation
             
+            Invoke(nameof(DelayedLoad), 2.3f);
+
             base.InvokedStart();
         }
 
@@ -141,6 +181,21 @@ namespace GhettosFirearmSDKv2
         {
             base.Update();
             RefreshRecoilModifiers();
+            
+            item.data.moduleAI.primaryClass = HeldByAI() ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
+            item.data.moduleAI.weaponHandling = IsTwoHanded && HeldByAI() ? ItemModuleAI.WeaponHandling.TwoHanded : ItemModuleAI.WeaponHandling.OneHanded;
+            item.data.moduleAI.rangedWeaponData.weaponHoldAngleOffset = IsTwoHanded ? new Vector3(0, -45, 0) : Vector2.zero;
+            if (IsTwoHanded)
+            {
+                PreferredForegripReference.transform = GetPreferredForegrip();
+            }
+
+            var data = bolt?.GetChamber()?.data;
+            if (data)
+            {
+                item.data.moduleAI.rangedWeaponData.projectileSpeed = data.isHitscan ? Mathf.Infinity : data.muzzleVelocity;
+                item.data.moduleAI.rangedWeaponData.accountForGravity = !data.isHitscan;
+            }
         }
 
         public void Item_OnUnSnapEvent2(Holder holder)
@@ -183,9 +238,8 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public IEnumerator DelayedLoad()
+        public void DelayedLoad()
         {
-            yield return new WaitForSeconds(2.3f);
             if (item.holder != null)
             {
                 var h = item.holder;
@@ -253,9 +307,12 @@ namespace GhettosFirearmSDKv2
         private IEnumerator AIFireCoroutine()
         {
             Item_OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStart);
-            if (fireMode == FireModes.Semi) yield return new WaitForSeconds(0.2f);
-            if (fireMode == FireModes.Burst) yield return new WaitForSeconds(0.4f);
-            if (fireMode == FireModes.Auto) yield return new WaitForSeconds(Random.Range(0.2f, 1.3f));
+            if (fireMode == FireModes.Semi)
+                yield return new WaitForSeconds(0.2f);
+            if (fireMode == FireModes.Burst)
+                yield return new WaitForSeconds(0.4f);
+            if (fireMode == FireModes.Auto)
+                yield return new WaitForSeconds(Random.Range(0.2f, 1.3f));
             Item_OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStop);
         }
 
@@ -264,6 +321,43 @@ namespace GhettosFirearmSDKv2
             foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
             {
                 Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
+            }
+        }
+
+        public override bool HeldByAI()
+        {
+            return !(item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? true);
+        }
+
+        public Handle GetPreferredForegrip()
+        {
+            return item.handles
+                       .Where(x => x.GetType() == typeof(GhettoHandle))
+                       .Cast<GhettoHandle>()
+                       .Where(x => x.type != GhettoHandle.HandleType.Bolt && x.type != GhettoHandle.HandleType.MainGrip && x.aiPriority != GhettoHandle.HandlePriority.NoAI)
+                       .OrderBy(x => x.aiPriority)
+                       .FirstOrDefault();
+        }
+
+        private bool IsTwoHanded
+        {
+            get
+            {
+                return GetPreferredForegrip();
+            }
+        }
+
+        private float PreferredEngagementDistance()
+        {
+            return 8f;
+        }
+
+        public override bool CanFire
+        {
+            get
+            {
+                var attachmentPointsAllow = !GetComponentsInChildren<AttachmentPoint>().Any(x => x.requiredToFire && !x.currentAttachments.Any());
+                return base.CanFire && attachmentPointsAllow;
             }
         }
     }

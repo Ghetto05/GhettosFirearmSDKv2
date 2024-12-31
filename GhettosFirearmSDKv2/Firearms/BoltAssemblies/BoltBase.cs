@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 
@@ -159,11 +158,6 @@ namespace GhettosFirearmSDKv2
         public virtual Cartridge GetChamber()
         {
             return null;
-        }
-
-        public bool HeldByAI()
-        {
-            return !(firearm?.item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? true);
         }
 
         public enum BoltState

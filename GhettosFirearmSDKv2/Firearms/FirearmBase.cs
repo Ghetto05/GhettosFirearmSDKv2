@@ -137,6 +137,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void CalculateMuzzle()
         {
+            aimTransform = hitscanMuzzle;
             OnMuzzleCalculatedEvent?.Invoke();
         }
 
@@ -146,7 +147,7 @@ namespace GhettosFirearmSDKv2
             {
                 OnActionEvent?.Invoke(action);
                 
-                if (action == Interactable.Action.UseStart && fireMode != FireModes.AttachmentFirearm)
+                if (CanFire && action == Interactable.Action.UseStart && fireMode != FireModes.AttachmentFirearm)
                 {
                     if (!countingForLongpress)
                     {

@@ -78,5 +78,10 @@ namespace GhettosFirearmSDKv2
             actualHitscanMuzzle = hitscanMuzzle;
             base.CalculateMuzzle();
         }
+        
+        public override bool HeldByAI()
+        {
+            return attachment.attachmentPoint.parentFirearm.HeldByAI();
+        }
     }
 }

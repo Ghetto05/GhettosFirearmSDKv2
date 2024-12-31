@@ -622,7 +622,7 @@ namespace GhettosFirearmSDKv2
                 return;
             
             var originallyInfinite = false;
-            if (HeldByAI() && firearm.magazineWell?.currentMagazine != null)
+            if (firearm.HeldByAI() && firearm.magazineWell?.currentMagazine != null)
             {
                 originallyInfinite = firearm.magazineWell.currentMagazine.infinite;
                 firearm.magazineWell.currentMagazine.infinite = true;
@@ -636,7 +636,7 @@ namespace GhettosFirearmSDKv2
                 SaveChamber(c.item.itemId, c.Fired);
             }
 
-            if (HeldByAI() && !originallyInfinite && firearm.magazineWell?.currentMagazine != null)
+            if (firearm.HeldByAI() && !originallyInfinite && firearm.magazineWell?.currentMagazine != null)
             {
                 firearm.magazineWell.currentMagazine.infinite = false;
             }
