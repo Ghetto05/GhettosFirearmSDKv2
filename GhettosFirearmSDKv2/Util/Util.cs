@@ -431,9 +431,11 @@ namespace GhettosFirearmSDKv2
             Debug.Log(output.ToString());
         }
 
-        public static bool DoMalfunction(bool malfunctionEnabled, float baseChance, float multiplier)
+        public static bool DoMalfunction(bool malfunctionEnabled, float baseChance, float multiplier, bool heldByAI)
         {
-            return malfunctionEnabled && Mathf.Clamp01(baseChance * multiplier) * 100 > Random.Range(0, 100);
+            var random = Random.Range(0f, 100f);
+            var threashold = Mathf.Clamp(baseChance * multiplier * Settings.malfunctionMode, 0f, 100f);
+            return malfunctionEnabled && !heldByAI && threashold >= random;
         }
     }
 }

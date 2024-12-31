@@ -19,10 +19,10 @@ namespace GhettosFirearmSDKv2
         public static float boltPointTreshold = 0.004f;
         public static float aiFirearmSpread = 0f;
 
-        public static float failureToFeedChance = 0.002f;
-        public static float failureToExtractChance = 0.001f;
-        public static float failureToEjectChance = 0.001f;
-        public static float failureToFireChance = 0.0025f;
+        public static float failureToFeedChance = 0.2f;
+        public static float failureToExtractChance = 0.1f;
+        public static float failureToEjectChance = 0.1f;
+        public static float failureToFireChance = 0.25f;
         
         #endregion Static
 
@@ -255,9 +255,9 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "Enable failure to extract", tooltip = "Toggle failure to extract.", saveValue = true)]
         public static bool malfunctionFailureToExtract = true;
         
-        [ModOptionOrder(4)]
-        [ModOptionCategory("Malfunctions", 20)]
-        [ModOption(name = "Enable failure to eject/stovepipe failure", tooltip = "Toggle failure to eject.", saveValue = true)]
+        // [ModOptionOrder(4)]
+        // [ModOptionCategory("Malfunctions", 20)]
+        // [ModOption(name = "Enable failure to eject/stovepipe failure", tooltip = "Toggle failure to eject.", saveValue = true)]
         public static bool malfunctionFailureToEject = true;
         
         [ModOptionOrder(5)]
