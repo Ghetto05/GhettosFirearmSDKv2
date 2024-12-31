@@ -28,6 +28,7 @@ namespace GhettosFirearmSDKv2
         public bool tryReleasingBoltIfMagazineIsInserted;
         public List<Lock> insertionLocks;
         public Transform beltLinkEjectDir;
+        public string customSaveId;
 
         public virtual void Start()
         {
@@ -72,7 +73,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Load()
         {
-            if (FirearmSaveData.GetNode(firearm).TryGetValue("MagazineSaveData", out SaveNodeValueMagazineContents data))
+            if (FirearmSaveData.GetNode(firearm).TryGetValue(SaveID, out SaveNodeValueMagazineContents data))
             {
                 var cdata = new List<ContentCustomData>();
                 cdata.Add(data.Value.CloneJson());
@@ -148,6 +149,14 @@ namespace GhettosFirearmSDKv2
         {
             if (currentMagazine == null) return false;
             return currentMagazine.cartridges.Count < 1;
+        }
+
+        public string SaveID
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(customSaveId) ? "MagazineSaveData" : customSaveId;
+            }
         }
     }
 }

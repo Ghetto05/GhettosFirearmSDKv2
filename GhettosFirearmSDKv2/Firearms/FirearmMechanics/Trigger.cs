@@ -47,19 +47,19 @@ namespace GhettosFirearmSDKv2
             
             if (isPulled)
             {
-                if (firearm != null && pullSound != null && firearm.item.holder == null)
+                if (firearm && pullSound && firearm.item.holder)
                     pullSound.Play();
             }
             else
             {
-                if (firearm != null && resetSound != null && firearm.item.holder == null)
+                if (firearm && resetSound && firearm.item.holder)
                     resetSound.Play();
             }
         }
 
         private void Update()
         {
-            if (firearm == null && attachment?.attachmentPoint?.parentFirearm != null)
+            if (firearm && attachment && attachment.attachmentPoint?.parentFirearm)
             {
                 firearm = attachment.attachmentPoint.parentFirearm;
                 firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
@@ -69,28 +69,45 @@ namespace GhettosFirearmSDKv2
                 return;
 
             var highestPull = 0f;
-            if (firearm != null)
+            if (firearm)
             {
-                foreach (var h in firearm.AllTriggerHandles().Where(h => h != null))
+                foreach (var h in firearm.AllTriggerHandles().Where(h => h))
                 {
-                    if (h.handlers.Count > 0)
+                    if (h.handlers.Count > 0 && h.handlers[0].poser.hasTargetHandPose)
                     {
-                        if (PlayerControl.GetHand(h.handlers[0].side).useAxis > highestPull)
-                            highestPull = PlayerControl.GetHand(h.handlers[0].side).useAxis;
-                        
-                        float weight;
-                        if (PlayerControl.GetHand(h.handlers[0].side).usePressed)
+                        if (!firearm.HeldByAI())
                         {
-                            weight = _onSecondMode ? secondModePullWeight : 1f;
-                            lastTriggerPull = Time.time;
-                        }
-                        else if (Time.time - lastTriggerPull <= Settings.triggerDisciplineTime)
-                            weight = onTriggerWeight;
-                        else
-                            weight = 0f;
+                            if (PlayerControl.GetHand(h.handlers[0].side).useAxis > highestPull)
+                                highestPull = PlayerControl.GetHand(h.handlers[0].side).useAxis;
 
-                        if (firearm.setUpForHandPose)
+                            float weight;
+                            if (PlayerControl.GetHand(h.handlers[0].side).usePressed)
+                            {
+                                weight = _onSecondMode ? secondModePullWeight : 1f;
+                                lastTriggerPull = Time.time;
+                            }
+                            else if (Time.time - lastTriggerPull <= Settings.triggerDisciplineTime)
+                                weight = onTriggerWeight;
+                            else
+                                weight = 0f;
+
                             h.handlers[0].poser.SetTargetWeight(weight);
+                        }
+                        else
+                        {
+                            float weight;
+                            if (firearm.triggerState)
+                            {
+                                weight = _onSecondMode ? secondModePullWeight : 1f;
+                                lastTriggerPull = Time.time;
+                            }
+                            else if (Time.time - lastTriggerPull <= Settings.triggerDisciplineTime)
+                                weight = onTriggerWeight;
+                            else
+                                weight = 0f;
+                            
+                            h.handlers[0].poser.SetTargetWeight(weight);
+                        }
                     }
                 }
             }

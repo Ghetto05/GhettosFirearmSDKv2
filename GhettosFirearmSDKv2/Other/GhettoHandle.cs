@@ -14,7 +14,15 @@ namespace GhettosFirearmSDKv2
             PumpAction
         }
 
+        public enum HandlePriority
+        {
+            NoAI = 0,
+            Foregrip = 10,
+            AttachForegrip = 20
+        }
+
         public HandleType type;
+        public HandlePriority aiPriority;
 
         protected override void Awake()
         {

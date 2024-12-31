@@ -16,6 +16,7 @@ namespace GhettosFirearmSDKv2
 
         private ItemSaveData _originalDefaultAmmo;
         public string newDefaultAmmo;
+        public MagazineLoad overrideMagazineLoad;
 
         private void Start()
         {
@@ -41,9 +42,12 @@ namespace GhettosFirearmSDKv2
 
             if (!string.IsNullOrWhiteSpace(newDefaultAmmo) && !attachment.addedByInitialSetup)
             {
-                _originalDefaultAmmo = attachment.attachmentPoint.parentFirearm.defaultAmmoItem;
-                attachment.attachmentPoint.parentFirearm.defaultAmmoItem = newDefaultAmmo;
                 _originalDefaultAmmo = attachment.attachmentPoint.parentFirearm.GetAmmoItem();
+
+                var dataList = new List<ContentCustomData>();
+                
+                if (overrideMagazineLoad)
+                    dataList.Add(overrideMagazineLoad.ToSaveData());
                     
                 attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(newDefaultAmmo, dataList.Any() ? dataList.ToArray() : null);
             }

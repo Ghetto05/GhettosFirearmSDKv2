@@ -37,6 +37,8 @@ namespace GhettosFirearmSDKv2
         public List<RecoilModifier> RecoilModifiers = new();
         public Light muzzleLight;
         public string defaultAmmoItem;
+        public MagazineLoad overrideMagazineLoad;
+        // ReSharper disable once InconsistentNaming
         public SaveNodeValueItem SavedAmmoItemData;
         public float malfunctionChanceMultiplier = 1f;
         public Dictionary<MonoBehaviour, ItemSaveData> AmmoOverrides = new();
@@ -81,11 +83,6 @@ namespace GhettosFirearmSDKv2
             Util.ApplyAudioConfig(suppressedFireSounds, true);
             
             longPressTime = Settings.longPressTime;
-            if (item != null && item.data.moduleAI != null)
-            {
-                item.data.moduleAI.primaryClass =
-                    item.handlers.Count > 0 ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
-            }
         }
 
         public virtual List<Handle> AllTriggerHandles()
@@ -311,7 +308,7 @@ namespace GhettosFirearmSDKv2
                         return false;
                 }
             }
-            if (attachments.Any(x => x.overridesMuzzleFlash))
+            if (attachments.Any(x => x.overridesMuzzleFlash && !x.attachmentPoint.dummyMuzzleSlot))
                 return false;
             return true;
         }

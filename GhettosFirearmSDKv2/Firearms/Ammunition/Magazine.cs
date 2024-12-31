@@ -284,7 +284,7 @@ namespace GhettosFirearmSDKv2
         public Cartridge ConsumeRound()
         {
             Cartridge c = null;
-            if (cartridges.Count > 0 && !Util.DoMalfunction(Settings.malfunctionFailureToFeed, Settings.failureToFeedChance, 1))
+            if (cartridges.Count > 0 && !Util.DoMalfunction(Settings.malfunctionFailureToFeed, Settings.failureToFeedChance, 1, currentWell?.firearm.HeldByAI() ?? false))
             {
                 c = cartridges[0];
                 OnConsumeEvent?.Invoke(c);
@@ -389,7 +389,7 @@ namespace GhettosFirearmSDKv2
             // save mag to firearm
             if (!overrideItem && !overrideAttachment)
             {
-                _firearmSave = FirearmSaveData.GetNode(currentWell.firearm).GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents());
+                _firearmSave = FirearmSaveData.GetNode(currentWell.firearm).GetOrAddValue(currentWell.SaveID, new SaveNodeValueMagazineContents());
                 _firearmSave.Value.GetContentsFromMagazine(this);
                 _firearmSave.Value.ItemID = item.itemId;
             }

@@ -20,6 +20,7 @@ namespace GhettosFirearmSDKv2
 
         public AudioSource[] tapSounds;
         public AudioSource[] grainSpawnSounds;
+        public AudioSource grainFlowSound;
 
         private float _lastEject;
 
@@ -77,6 +78,12 @@ namespace GhettosFirearmSDKv2
             {
                 Util.PlayRandomAudioSource(grainSpawnSounds);
                 Spawn();
+                if (grainFlowSound?.isPlaying != true)
+                    grainFlowSound?.Play();
+            }
+            else if (grainFlowSound?.isPlaying == true)
+            {
+                grainFlowSound.Stop();
             }
         }
 

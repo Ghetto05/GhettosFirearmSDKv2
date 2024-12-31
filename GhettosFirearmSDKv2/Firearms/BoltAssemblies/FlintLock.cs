@@ -251,16 +251,16 @@ namespace GhettosFirearmSDKv2
                     firearm.PlayFireSound(loadedCartridge);
                     if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                         firearm.PlayMuzzleFlash(loadedCartridge);
-                    FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hitPoints, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
+                    FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hitPoints, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), firearm.HeldByAI());
                     FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
-                    loadedCartridge.Fire(hitPoints, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !HeldByAI() && !Settings.infiniteAmmo);
+                    loadedCartridge.Fire(hitPoints, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !firearm.HeldByAI() && !Settings.infiniteAmmo);
                     SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false);
                 }
             }
             else
             {
                 firearm.PlayFireSound(null);
-                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, _emptyFireData, out _, out _, out _, out _, firearm.CalculateDamageMultiplier(), HeldByAI());
+                FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, _emptyFireData, out _, out _, out _, out _, firearm.CalculateDamageMultiplier(), firearm.HeldByAI());
                 FireMethods.ApplyRecoil(firearm.transform, firearm.item, baseRecoil, 1, firearm.recoilModifier, firearm.RecoilModifiers);
                 firearm.PlayMuzzleFlash(null);
             }

@@ -169,7 +169,7 @@ namespace GhettosFirearmSDKv2
             if (_currentWell != null && loadedCartridges.Count > 0 && _currentWell.magazineWell.firearm.magazineWell != null && _currentWell.magazineWell.firearm.magazineWell.currentMagazine != null)
             {
                 var mag = _currentWell.magazineWell.firearm.magazineWell.currentMagazine;
-                if (mag.cartridges.Count < mag.maximumCapacity)
+                if (mag.cartridges.Count < mag.ActualCapacity)
                 {
                     var c = loadedCartridges[0];
                     loadedCartridges.RemoveAt(0);

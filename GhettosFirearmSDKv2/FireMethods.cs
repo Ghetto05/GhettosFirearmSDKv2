@@ -263,7 +263,7 @@ public class FireMethods : MonoBehaviour
 
                 #region Impact effect
 
-                if (data.hasBodyImpactEffect)
+                if (data.hasBodyImpactEffect && !Settings.disableGore)
                 {
                     //Effect
                     var ei = Catalog.GetData<EffectData>(penetrated ? "BulletImpactFlesh_Ghetto05_FirearmSDKv2" : "BulletImpactGround_Ghetto05_FirearmSDKv2")
@@ -274,12 +274,19 @@ public class FireMethods : MonoBehaviour
                     ei.Play();
                 }
 
-                if (data.drawsImpactDecal && penetrated) DrawDecal(ragdollPart, hit, data.customImpactDecalId);
+                if (data.drawsImpactDecal && penetrated)
+                    DrawDecal(ragdollPart, hit, data.customImpactDecalId);
 
                 #endregion Impact effect
 
                 if (data.drawsImpactDecal)
-                    BloodSplatter(hit.point, muzzle.forward, data.forcePerProjectile, data.projectileCount, penetrationPower, penetrated);
+                {
+                    try
+                    {
+                        BloodSplatter(hit.point, muzzle.forward, data.forcePerProjectile, data.projectileCount, penetrationPower, penetrated);
+                    }
+                    catch (Exception) { /* ignored */ }
+                }
 
                 #region Damage level determination
 

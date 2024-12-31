@@ -24,6 +24,8 @@ namespace GhettosFirearmSDKv2
         public bool usesRail;
         public string railType;
         public List<Transform> railSlots;
+        public bool requiredToFire;
+        public bool dummyMuzzleSlot;
 
         private void Start()
         {
@@ -40,7 +42,7 @@ namespace GhettosFirearmSDKv2
 
         private void ParentFirearm_OnCollisionEvent(Collision collision)
         {
-            if (!currentAttachments.Any() && collision.contacts[0].otherCollider.gameObject.GetComponentInParent<AttachableItem>() is { } ati)
+            if (!currentAttachments.Any() && collision.contacts[0].otherCollider.gameObject.GetComponentInParent<Item>()?.GetComponentInChildren<AttachableItem>() is { } ati)
             {
                 if ((ati.attachmentType.Equals(type) || alternateTypes.Contains(ati.attachmentType)) && Util.CheckForCollisionWithColliders(attachColliders, ati.attachColliders, collision))
                 {

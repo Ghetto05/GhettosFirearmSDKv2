@@ -4,7 +4,6 @@ using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2
 {

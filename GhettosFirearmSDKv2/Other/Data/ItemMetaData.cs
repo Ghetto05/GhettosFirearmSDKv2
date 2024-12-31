@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
             ChamberLoader,
             Revolver,
             Minigun,
-            [EnumDescription("Stripper clip")]
+            [EnumDescription("Lever action")]
             LeverAction,
             Spoon,
             Pin,
@@ -64,6 +64,35 @@ namespace GhettosFirearmSDKv2
             ImpactDetonator,
             [EnumDescription("Firearm/launcher mount")]
             LauncherMount
+        }
+
+        public enum FirearmClasses
+        {
+            [EnumDescription("Miscellaneous")]
+            Misc,
+            Derringer,
+            Pistol,
+            Revolver,
+            [EnumDescription("Submachine gun")]
+            SMG,
+            [EnumDescription("Personal defense weapon")]
+            PDW,
+            Shotgun,
+            Carbine,
+            [EnumDescription("Assault rifle")]
+            AssaultRifle,
+            [EnumDescription("Battle rifle")]
+            BattleRifle,
+            [EnumDescription("Designated marksmen rifle")]
+            DMR,
+            Rifle,
+            [EnumDescription("Anti-material rifle")]
+            AntiMaterialRifle,
+            [EnumDescription("Machine gun")]
+            MachineGun,
+            Ordnance,
+            [EnumDescription("Flint lock")]
+            FlintLock
         }
 
         public enum Eras
@@ -85,6 +114,7 @@ namespace GhettosFirearmSDKv2
         }
 
         public ItemTypes Types;
+        public FirearmClasses[] FirearmClass;
         private bool _categorySet;
         public string Category;
         public FirearmActions[] Actions = [];
@@ -186,6 +216,7 @@ namespace GhettosFirearmSDKv2
         {
             var builder = new StringBuilder();
             
+            AddInfo("Firearm class", FirearmClass.Select(x => x.GetName()), builder);
             AddInfo("Actions", Actions.Select(x => x.GetName()), builder);
             AddInfo("Fire modes", FireModes.Select(x => x.GetName()), builder);
             AddInfo("Fire rates", FireRates.Select(x => x.Equals("0") ? "manual/single shot" : x), builder);

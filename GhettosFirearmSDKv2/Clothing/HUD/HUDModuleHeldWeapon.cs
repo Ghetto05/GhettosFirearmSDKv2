@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2
                 if (roundCounter != null)
                     roundCounter.text = count.ToString();
                 if (capacityDisplay != null)
-                    capacityDisplay.text = currentFirearm.magazineWell.currentMagazine.maximumCapacity.ToString();
+                    capacityDisplay.text = currentFirearm.magazineWell.currentMagazine.ActualCapacity.ToString();
             }
             else if (currentFirearm != null && currentFirearm.bolt.GetChamber() != null)
             {

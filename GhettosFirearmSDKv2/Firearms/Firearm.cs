@@ -262,9 +262,9 @@ namespace GhettosFirearmSDKv2
             var overridden = false;
             foreach (var at in allAttachments)
             {
-                if (at.overridesMuzzleFlash)
+                if (at.overridesMuzzleFlash && !at.attachmentPoint.dummyMuzzleSlot)
                     overridden = true;
-                if (at.overridesMuzzleFlash && NoMuzzleFlashOverridingAttachmentChildren(at))
+                if (at.overridesMuzzleFlash && !at.attachmentPoint.dummyMuzzleSlot && NoMuzzleFlashOverridingAttachmentChildren(at))
                 {
                     if (at.newFlash != null)
                     {
@@ -284,22 +284,22 @@ namespace GhettosFirearmSDKv2
 
         public override bool IsSuppressed()
         {
-            return integrallySuppressed || allAttachments.Any(at => at.isSuppressing && at.gameObject.activeInHierarchy);
+            return integrallySuppressed || allAttachments.Any(at => at.isSuppressing && !at.attachmentPoint.dummyMuzzleSlot && at.gameObject.activeInHierarchy);
         }
-        
+
         public override void CalculateMuzzle()
         {
-            if (hitscanMuzzle == null)
+            if (!hitscanMuzzle)
                 return;
-            actualHitscanMuzzle = allAttachments.Where(at => at.minimumMuzzlePosition != null).OrderByDescending(at => Vector3.Distance(transform.position, at.minimumMuzzlePosition.position)).FirstOrDefault()?.minimumMuzzlePosition;
-            if (actualHitscanMuzzle == null)
+            actualHitscanMuzzle = allAttachments.Where(at => at.minimumMuzzlePosition && !at.attachmentPoint.dummyMuzzleSlot).OrderByDescending(at => Vector3.Distance(transform.position, at.minimumMuzzlePosition.position)).FirstOrDefault()?.minimumMuzzlePosition;
+            if (!actualHitscanMuzzle)
                 actualHitscanMuzzle = hitscanMuzzle;
             base.CalculateMuzzle();
         }
 
         public void AIFire()
         {
-            if (fireMode == FireModes.Safe && GetComponentInChildren<FiremodeSelector>() is { } fs)
+            if (fireMode == FireModes.Safe && GetComponentsInChildren<FiremodeSelector>().FirstOrDefault(x => x.firearm == this) is { } fs)
                 fs.CycleFiremode();
             StartCoroutine(AIFireCoroutine());
         }

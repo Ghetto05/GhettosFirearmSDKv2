@@ -111,9 +111,11 @@ namespace GhettosFirearmSDKv2
 
             // ReSharper disable once UseObjectOrCollectionInitializer
             var chamber = new GameObject("ChamberPos");
-            chamber.transform.parent = roundMount.parent;
-            chamber.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            chamber.transform.parent = roundMount;
+            chamber.transform.localPosition = Vector3.zero;
+            chamber.transform.localEulerAngles = Vector3.zero;
             _chamberPositionRoundMount = chamber.transform;
+            chamber.transform.parent = firearm.transform;
         }
 
         public override List<Handle> GetNoInfluenceHandles()
@@ -220,8 +222,7 @@ namespace GhettosFirearmSDKv2
             }
             if (!isOpenBolt || loadedCartridge)
                 _shotsSinceTriggerReset++;
-            var failureToFire = Util.DoMalfunction(Settings.malfunctionFailureToFire, Settings.failureToFireChance,
-                firearm.malfunctionChanceMultiplier);
+            var failureToFire = Util.DoMalfunction(Settings.malfunctionFailureToFire, Settings.failureToFireChance, firearm.malfunctionChanceMultiplier, firearm.HeldByAI());
             if (!loadedCartridge || loadedCartridge.Fired || failureToFire)
             {
                 if (failureToFire)
@@ -239,8 +240,8 @@ namespace GhettosFirearmSDKv2
                 firearm.PlayMuzzleFlash(loadedCartridge);
             IncrementBreachSmokeTime();
             FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
-            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), HeldByAI());
-            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !(firearm.roundsPerMinute > 0 && HeldByAI()));
+            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), firearm.HeldByAI());
+            loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !(firearm.roundsPerMinute > 0 && firearm.HeldByAI()));
             if (firearm.roundsPerMinute > 0)
                 _isReciprocating = true;
             startTimeOfMovement = Time.time;
@@ -315,6 +316,12 @@ namespace GhettosFirearmSDKv2
             //state check
             if (isHeld || _letGoBeforeClosed || _closingAfterRelease)
             {
+                if (_failureToExtract && Random.Range(1, 4) == 1)
+                {
+                    _failureToExtract = false;
+                    UpdateChamberedRounds();
+                }
+                
                 if (MoveBoltWithRb()) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rigidBody.transform.localPosition.z);
                 else bolt.localPosition = catchPoint.localPosition;
                 if (chargingHandle && (!_closingAfterRelease || chargingHandleLocksBack))
@@ -339,7 +346,6 @@ namespace GhettosFirearmSDKv2
                     _closedAfterLoad = true;
                     _letGoBeforeClosed = false;
                     _closingAfterRelease = false;
-                    _failureToExtract = false;
                     laststate = BoltState.Moving;
                     state = BoltState.Locked;
                     Util.PlayRandomAudioSource(rackSounds);
@@ -465,7 +471,7 @@ namespace GhettosFirearmSDKv2
 
                 if (_isReciprocating)
                 {
-                    if (state == BoltState.Locked && !_failureToEject && !_failureToExtract && Util.DoMalfunction(Settings.malfunctionFailureToExtract, Settings.failureToExtractChance, firearm.malfunctionChanceMultiplier))
+                    if (state == BoltState.Locked && !_failureToEject && !_failureToExtract && Util.DoMalfunction(Settings.malfunctionFailureToExtract, Settings.failureToExtractChance, firearm.malfunctionChanceMultiplier, firearm.HeldByAI()))
                     {
                         _failureToExtract = true;
                         UpdateChamberedRounds();
@@ -508,8 +514,15 @@ namespace GhettosFirearmSDKv2
                     //bolt test below
                     if ((reciprocatingBarrel == null || !reciprocatingBarrel.lockBoltBack) && !isOpenBolt)
                     {
-                        EjectRound();
-                        TryLoadRound();
+                        if (!Util.DoMalfunction(Settings.malfunctionFailureToEject, Settings.failureToEjectChance, firearm.malfunctionChanceMultiplier, firearm.HeldByAI()))
+                        {
+                            EjectRound();
+                            TryLoadRound();
+                        }
+                        else
+                        {
+                            _failureToEject = true;
+                        }
                     }
                     Util.PlayRandomAudioSource(pullSounds);
                     Util.PlayRandomAudioSource(pullSoundsNotHeld);

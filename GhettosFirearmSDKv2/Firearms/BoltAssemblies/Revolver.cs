@@ -458,7 +458,7 @@ namespace GhettosFirearmSDKv2
 
         public override void TryFire()
         {
-            if ((autoRotateCylinder && _autoTurning) || state != BoltState.Locked || (!singleActionOnly && _shotsSinceTriggerReset > 0) || firearm.fireMode == FirearmBase.FireModes.Safe)
+            if (!firearm.CanFire || (autoRotateCylinder && _autoTurning) || state != BoltState.Locked || (!singleActionOnly && _shotsSinceTriggerReset > 0) || firearm.fireMode == FirearmBase.FireModes.Safe)
             {
                 InvokeFireLogicFinishedEvent();
                 return;
