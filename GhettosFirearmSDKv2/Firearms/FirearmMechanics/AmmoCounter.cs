@@ -52,7 +52,7 @@ namespace GhettosFirearmSDKv2
                     count = 0;
                 if (_magazineWell.currentMagazine != null)
                 {
-                    capacity += _magazineWell.currentMagazine.maximumCapacity;
+                    capacity += _magazineWell.currentMagazine.ActualCapacity;
                     count += _magazineWell.currentMagazine.cartridges.Count;
                 }
             }

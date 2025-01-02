@@ -46,6 +46,7 @@
     <Compile Include="Firearms\Ammunition\CustomCartridgeDeathSound.cs" />
     <Compile Include="Firearms\Ammunition\IAmmunitionLoadable.cs" />
     <Compile Include="Firearms\Ammunition\ICaliberGettable.cs" />
+    <Compile Include="Firearms\Ammunition\MagazinePositionSet.cs" />
     <Compile Include="Firearms\Ammunition\PowderGrain.cs" />
     <Compile Include="Firearms\Ammunition\StripperClip.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearmModeManager.cs" />

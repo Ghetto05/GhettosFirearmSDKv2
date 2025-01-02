@@ -48,22 +48,31 @@ namespace GhettosFirearmSDKv2
         public float lastEjectTime;
         public BoltBase bolt;
         public bool onlyAllowLoadWhenBoltIsBack;
+        public List<MagazinePositionSet> positionSets;
         private List<ColliderGroup> _colliderGroups = new();
+
+        public int ActualCapacity
+        {
+            get
+            {
+                return cartridges.Any() ? positionSets.FirstOrDefault(x => x.caliber.Equals(cartridges[0].caliber))?.capacity ?? maximumCapacity : maximumCapacity;
+            }
+        }
 
         private void Update()
         {
-            if (currentWell != null && currentWell.firearm != null && canBeGrabbedInWell)
+            if (currentWell && currentWell.firearm && canBeGrabbedInWell)
             {
                 foreach (var handle in handles)
                 {
-                    handle.SetTouch(currentWell.firearm.item.holder == null);
-                    handle.SetTelekinesis(currentWell == null);
+                    handle.SetTouch(!currentWell.firearm.item.holder);
+                    handle.SetTelekinesis(!currentWell);
                 }
             }
 
             foreach (var obj in feederObjects)
                 obj.SetActive(false);
-            if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count] != null)
+            if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count])
                 feederObjects[cartridges.Count].SetActive(true);
         }
 
@@ -257,7 +266,7 @@ namespace GhettosFirearmSDKv2
 
         public void InsertRound(Cartridge c, bool silent, bool forced, bool save = true, bool atBottom = false)
         {
-            if (!partOfPrebuilt && cartridges.Count < maximumCapacity && !cartridges.Contains(c) && (Util.AllowLoadCartridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
+            if (!partOfPrebuilt && cartridges.Count < ActualCapacity && !cartridges.Contains(c) && (Util.AllowLoadCartridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
             {
                 c.item.DisallowDespawn = true;
                 c.loaded = true;
@@ -476,13 +485,14 @@ namespace GhettosFirearmSDKv2
         {
             foreach (var c in cartridges)
             {
-                if (c != null && c.transform != null)
+                if (c && c.transform)
                 {
-                    var positions = cartridgePositions;
-                    if (oddCountCartridgePositions != null && oddCountCartridgePositions.Any() && cartridges.Count % 2 != 0)
-                        positions = oddCountCartridgePositions;
+                    var positions = positionSets.FirstOrDefault(x => x.caliber.Equals(c.caliber))?.positions ?? cartridgePositions;
+                    var oddPositions = positionSets.FirstOrDefault(x => x.caliber.Equals(c.caliber))?.oddCountPositions ?? oddCountCartridgePositions;
+                    if (oddPositions != null && oddPositions.Any() && cartridges.Count % 2 != 0)
+                        positions = oddPositions;
                     
-                    if (positions.Length - 1 < cartridges.IndexOf(c) || positions[cartridges.IndexOf(c)] == null)
+                    if (positions.Length - 1 < cartridges.IndexOf(c) || !positions[cartridges.IndexOf(c)])
                     {
                         c.transform.parent = nullCartridgePosition;
                         c.transform.localPosition = Vector3.zero;
@@ -496,6 +506,17 @@ namespace GhettosFirearmSDKv2
                     }
                 }
             }
+        }
+
+        public void UpdateFeeders()
+        {
+            var feeders = feederObjects;
+
+            if (cartridges.Any() && positionSets.FirstOrDefault(x => x.caliber.Equals(cartridges[0].caliber)) is { } set)
+                feeders = set.feeders;
+            
+            if (feeders.Count > cartridges.Count && feeders[cartridges.Count])
+                feeders[cartridges.Count].SetActive(true);
         }
 
         public void ToggleCollision(bool active)
@@ -550,7 +571,7 @@ namespace GhettosFirearmSDKv2
 
         public int GetCapacity()
         {
-            return maximumCapacity;
+            return ActualCapacity;
         }
 
         public List<Cartridge> GetLoadedCartridges()
