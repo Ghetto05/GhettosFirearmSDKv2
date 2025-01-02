@@ -59,6 +59,9 @@ namespace GhettosFirearmSDKv2
         {
             attachment.OnDetachEvent -= Attachment_OnDetachEvent;
 
+            if (despawnDetach)
+                return;
+
             if (!string.IsNullOrWhiteSpace(newType))
             {
                 attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType = _originalType;

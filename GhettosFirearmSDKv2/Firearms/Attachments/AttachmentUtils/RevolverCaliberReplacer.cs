@@ -47,9 +47,9 @@ namespace GhettosFirearmSDKv2
             attachment.OnDetachEvent -= Attachment_OnDetachEvent;
             
             if (_bolt.GetType() == typeof(Revolver))
-                RevertRevolver();
+                RevertRevolver(despawnDetach);
             else if (_bolt.GetType() == typeof(GateLoadedRevolver))
-                RevertGateLoaded();
+                RevertGateLoaded(despawnDetach);
         }
 
         public void ApplyRevolver()
@@ -82,8 +82,11 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void RevertRevolver()
+        public void RevertRevolver(bool despawn)
         {
+            if (despawn)
+                return;
+            
             if (newCalibers != null && newCalibers.Length > 0)
             {
                 ((Revolver)attachment.attachmentPoint.parentFirearm.bolt).calibers = _originalCalibers.ToList();
@@ -95,8 +98,11 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void RevertGateLoaded()
+        public void RevertGateLoaded(bool despawn)
         {
+            if (despawn)
+                return;
+            
             if (newCalibers != null && newCalibers.Length > 0)
             {
                 ((GateLoadedRevolver)attachment.attachmentPoint.parentFirearm.bolt).calibers = _originalCalibers;
