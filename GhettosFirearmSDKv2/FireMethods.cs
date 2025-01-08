@@ -155,7 +155,7 @@ public class FireMethods : MonoBehaviour
 
         #endregion no hits
 
-        var successfullHits = new List<RaycastHit>();
+        var successfullHits = new List<HitData>();
 
         #region explosive
 
@@ -187,7 +187,7 @@ public class FireMethods : MonoBehaviour
             {
                 try
                 {
-                    var c = ProcessHit(muzzle, hit, successfullHits, data, damageMultiplier, hitCreatures, killedCreatures, gunItem, out var lowerDamageLevel, out var cancel, ref power);
+                    var c = ProcessHit(muzzle, (HitData)hit, successfullHits, data, damageMultiplier, hitCreatures, killedCreatures, gunItem, out var lowerDamageLevel, out var cancel, ref power);
                     if (lowerDamageLevel)
                     {
                         if (power == (int)ProjectileData.PenetrationLevels.None || power == (int)ProjectileData.PenetrationLevels.Leather) processing = false;
@@ -204,24 +204,24 @@ public class FireMethods : MonoBehaviour
             }
         }
 
-        if (successfullHits.Count > 0) endpoint = successfullHits.Last().point;
+        if (successfullHits.Count > 0) endpoint = successfullHits.Last().Point;
         else endpoint = Vector3.zero;
 
         return hitCreatures;
     }
 
-    public static Creature ProcessHit(Transform muzzle, RaycastHit hit, List<RaycastHit> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, List<Creature> killedCreatures, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)
+    public static Creature ProcessHit(Transform muzzle, HitData hit, List<HitData> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, List<Creature> killedCreatures, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)
     {
-        if (hit.collider.GetComponentInParent<Shootable>() is { } shootable) shootable.Shoot((ProjectileData.PenetrationLevels)penetrationPower);
+        if (hit.Collider.GetComponentInParent<Shootable>() is { } shootable) shootable.Shoot((ProjectileData.PenetrationLevels)penetrationPower);
 
         #region Breakables
 
-        foreach (var breakable in hit.collider.GetComponentsInParent<Breakable>())
+        foreach (var breakable in hit.Collider.GetComponentsInParent<Breakable>())
         {
             breakable.Break();
         }
 
-        foreach (var breakable in hit.collider.GetComponentsInParent<SimpleBreakable>())
+        foreach (var breakable in hit.Collider.GetComponentsInParent<SimpleBreakable>())
         {
             breakable.Break();
         }
@@ -230,18 +230,18 @@ public class FireMethods : MonoBehaviour
 
         #region static non creature hit
 
-        if (hit.rigidbody == null)
+        if (hit.Rigidbody == null)
         {
             if (data.hasImpactEffect)
             {
-                var ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal));
+                var ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.Point, hit.Normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.Normal));
                 ei.SetIntensity(100f);
                 ei.Play();
             }
 
             successfulHits.Add(hit);
             lowerDamageLevel = true;
-            cancel = GetRequiredPenetrationLevel(hit.collider) > penetrationPower;
+            cancel = GetRequiredPenetrationLevel(hit.Collider) > penetrationPower;
             return null;
         }
 
@@ -249,14 +249,14 @@ public class FireMethods : MonoBehaviour
 
         #region creature hit
 
-        if (hit.collider.gameObject.GetComponentInParent<Ragdoll>() is { } rag)
+        if (hit.Collider.gameObject.GetComponentInParent<Ragdoll>() is { } rag)
         {
             if (!hitCreatures.Contains(rag.creature))
             {
                 hitCreatures.Add(rag.creature);
 
                 var cr = rag.creature;
-                var ragdollPart = hit.collider.gameObject.GetComponentInParent<RagdollPart>();
+                var ragdollPart = hit.Collider.gameObject.GetComponentInParent<RagdollPart>();
                 FirearmsScore.local.ShotsHit++;
 
                 var penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= penetrationPower;
@@ -267,9 +267,9 @@ public class FireMethods : MonoBehaviour
                 {
                     //Effect
                     var ei = Catalog.GetData<EffectData>(penetrated ? "BulletImpactFlesh_Ghetto05_FirearmSDKv2" : "BulletImpactGround_Ghetto05_FirearmSDKv2")
-                                    .Spawn(hit.point,
-                                        hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal),
-                                        hit.collider.transform);
+                                    .Spawn(hit.Point,
+                                        hit.Normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.Normal),
+                                        hit.Collider.transform);
                     ei.SetIntensity(100f);
                     ei.Play();
                 }
@@ -283,7 +283,7 @@ public class FireMethods : MonoBehaviour
                 {
                     try
                     {
-                        BloodSplatter(hit.point, muzzle.forward, data.forcePerProjectile, data.projectileCount, penetrationPower, penetrated);
+                        BloodSplatter(hit.Point, muzzle.forward, data.forcePerProjectile, data.projectileCount, penetrationPower, penetrated);
                     }
                     catch (Exception) { /* ignored */ }
                 }
@@ -404,14 +404,14 @@ public class FireMethods : MonoBehaviour
                 coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
                 coll.targetColliderGroup = ragdollPart.colliderGroup;
                 coll.sourceColliderGroup = gunItem.colliderGroups[0];
-                coll.contactPoint = hit.point;
-                coll.contactNormal = hit.normal;
+                coll.contactPoint = hit.Point;
+                coll.contactNormal = hit.Normal;
                 coll.impactVelocity = muzzle.forward * 200;
 
                 var penPoint = new GameObject().transform;
-                penPoint.position = hit.point;
-                penPoint.rotation = hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal);
-                penPoint.parent = hit.transform;
+                penPoint.position = hit.Point;
+                penPoint.rotation = hit.Normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.Normal);
+                penPoint.parent = hit.Transform;
                 coll.damageStruct.penetration = DamageStruct.Penetration.Hit;
                 coll.damageStruct.penetrationPoint = penPoint;
                 coll.damageStruct.penetrationDepth = 10;
@@ -441,9 +441,9 @@ public class FireMethods : MonoBehaviour
                 if ((data.forceDestabilize || data.isElectrifying) && !cr.isPlayer && !cr.isKilled) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
 
                 //RB Push
-                if (cr.isKilled && !cr.isPlayer && hit.rigidbody != null)
+                if (cr.isKilled && !cr.isPlayer && hit.Rigidbody != null)
                 {
-                    hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
+                    hit.Rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
                     //cr.locomotion.rb.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
                 }
 
@@ -483,18 +483,51 @@ public class FireMethods : MonoBehaviour
 
         if (data.hasImpactEffect)
         {
-            var ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.point, hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal));
+            var ei = Catalog.GetData<EffectData>("BulletImpactGround_Ghetto05_FirearmSDKv2").Spawn(hit.Point, hit.Normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.Normal));
             ei.SetIntensity(100f);
             ei.Play();
         }
 
-        hit.rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
+        hit.Rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
 
         lowerDamageLevel = true;
-        cancel = GetRequiredPenetrationLevel(hit.collider) > penetrationPower;
+        cancel = GetRequiredPenetrationLevel(hit.Collider) > penetrationPower;
         return null;
 
         #endregion non creature hit
+    }
+
+    public struct HitData
+    {
+        public Collider Collider;
+        public Vector3 Point;
+        public Rigidbody Rigidbody;
+        public Vector3 Normal;
+        public Transform Transform;
+        
+        public static explicit operator HitData(RaycastHit hit)
+        {
+            return new HitData()
+                   {
+                       Collider = hit.collider,
+                       Transform = hit.transform,
+                       Normal = hit.normal,
+                       Point = hit.point,
+                       Rigidbody = hit.rigidbody
+                   };
+        }
+        
+        public static explicit operator HitData(CollisionInstance hit)
+        {
+            return new HitData()
+                   {
+                       Collider = hit.targetCollider,
+                       Transform = hit.targetCollider?.transform,
+                       Normal = hit.contactNormal,
+                       Point = hit.contactPoint,
+                       Rigidbody = hit.targetCollider?.attachedRigidbody
+                   };
+        }
     }
 
     private static IEnumerator DelayedStopAnimating(Creature cr)
@@ -511,7 +544,7 @@ public class FireMethods : MonoBehaviour
         return !Settings.disableGore && (part.sliceAllowed || part.name.Equals("Spine")) && !part.ragdoll.creature.isPlayer;
     }
 
-    private static void DrawDecal(RagdollPart rp, RaycastHit hit, string customDecal, bool isGore = true)
+    private static void DrawDecal(RagdollPart rp, HitData hit, string customDecal, bool isGore = true)
     {
         if (Settings.disableGore && isGore) return;
 
@@ -537,8 +570,8 @@ public class FireMethods : MonoBehaviour
         }
 
         var rev = new GameObject().transform;
-        rev.position = hit.point;
-        rev.rotation = hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal);
+        rev.position = hit.Point;
+        rev.rotation = hit.Normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.Normal);
         GameManager.local.StartCoroutine(RevealMaskProjection.ProjectAsync(
             rev.position + rev.forward * rem.offsetDistance, -rev.forward, rev.up, rem.depth, rem.maxSize,
             rem.textureContainer.GetRandomTexture(), rem.maxChannelMultiplier, controllers, rem.revealData, null));
@@ -732,15 +765,15 @@ public class FireMethods : MonoBehaviour
         return EvaluateDamage(perFifty, c) >= c.currentHealth;
     }
 
-    public static int GetRequiredPenetrationLevel(RaycastHit hit, Vector3 direction, Item handler)
+    public static int GetRequiredPenetrationLevel(HitData hit, Vector3 direction, Item handler)
     {
         var hitMaterialHash = -1;
-        var colliderGroup = hit.collider.GetComponentInParent<ColliderGroup>();
+        var colliderGroup = hit.Collider.GetComponentInParent<ColliderGroup>();
 
-        if (colliderGroup != null)
-            handler.mainCollisionHandler.MeshRaycast(colliderGroup, hit.point, hit.normal, direction, ref hitMaterialHash);
+        if (colliderGroup)
+            handler.mainCollisionHandler.MeshRaycast(colliderGroup, hit.Point, hit.Normal, direction, ref hitMaterialHash);
         if (hitMaterialHash == -1)
-            hitMaterialHash = Animator.StringToHash(hit.collider.material.name);
+            hitMaterialHash = Animator.StringToHash(hit.Collider.material.name);
         TryGetMaterial(hitMaterialHash, out var matDat);
         return (int)RequiredPenetrationPowerData.GetRequiredLevel(matDat.id);
     }

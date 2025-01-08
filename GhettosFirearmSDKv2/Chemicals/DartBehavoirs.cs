@@ -17,19 +17,63 @@ namespace GhettosFirearmSDKv2
         }
 
         public Cartridge cartridge;
+        public Projectile projectile;
         public Behaviours behaviour;
 
         private void Awake()
         {
-            cartridge.OnFiredWithHitPointsAndMuzzleAndCreatures += Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures;
+            if (cartridge)
+                cartridge.OnFiredWithHitPointsAndMuzzleAndCreatures += Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures;
+            
+            if (projectile)
+                projectile.HitEvent += ProjectileOnHitEvent;
+        }
+
+        private void OnDestroy()
+        {
+            if (cartridge)
+                cartridge.OnFiredWithHitPointsAndMuzzleAndCreatures -= Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures;
+            
+            if (projectile)
+                projectile.HitEvent -= ProjectileOnHitEvent;
+        }
+
+        private void ProjectileOnHitEvent(List<Creature> hitCreatures, List<Creature> killedCreatures)
+        {
+            switch (behaviour)
+            {
+                case Behaviours.Gun:
+                    Gun(hitCreatures);
+                    break;
+                case Behaviours.MissingTextures:
+                    MissingTexture(hitCreatures);
+                    break;
+                case Behaviours.Heal:
+                    Heal(hitCreatures);
+                    break;
+                case Behaviours.Poison:
+                    Poison(hitCreatures);
+                    break;
+            }
         }
 
         private void Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures(List<Vector3> hitPoints, List<Vector3> trajectories, List<Creature> hitCreatures, Transform muzzle, List<Creature> killedCreatures)
         {
-            if (behaviour == Behaviours.Heal) Heal(hitCreatures);
-            else if (behaviour == Behaviours.MissingTextures) MissingTexture(hitCreatures);
-            else if (behaviour == Behaviours.Gun) Gun(hitCreatures);
-            else if (behaviour == Behaviours.Poison) Poison(hitCreatures);
+            switch (behaviour)
+            {
+                case Behaviours.Gun:
+                    Gun(hitCreatures);
+                    break;
+                case Behaviours.MissingTextures:
+                    MissingTexture(hitCreatures);
+                    break;
+                case Behaviours.Heal:
+                    Heal(hitCreatures);
+                    break;
+                case Behaviours.Poison:
+                    Poison(hitCreatures);
+                    break;
+            }
         }
 
         private void Heal(List<Creature> creatures)

@@ -48,6 +48,7 @@
     <Compile Include="Firearms\Ammunition\ICaliberGettable.cs" />
     <Compile Include="Firearms\Ammunition\MagazinePositionSet.cs" />
     <Compile Include="Firearms\Ammunition\PowderGrain.cs" />
+    <Compile Include="Firearms\Ammunition\Projectile.cs" />
     <Compile Include="Firearms\Ammunition\StripperClip.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearmModeManager.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFireModeSeletor.cs" />
