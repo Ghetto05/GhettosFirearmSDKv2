@@ -51,6 +51,7 @@
     <Compile Include="Firearms\Ammunition\StripperClip.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearmModeManager.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFireModeSeletor.cs" />
+    <Compile Include="Firearms\Attachments\AttachmentUtils\BipodAxis.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\BoltAttacher.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\FireModeReplacer.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs" />
