@@ -209,22 +209,25 @@ namespace GhettosFirearmSDKv2
 
         private void AddInfo(string name, IEnumerable<string> data, StringBuilder builder)
         {
-            builder.AppendLine($"{name}: {string.Join(", ", data)}");
+            var enumerable = data?.ToList();
+            if (enumerable?.Any() != true)
+                return;
+            builder.AppendLine($"{name}: {string.Join(", ", enumerable)}");
         }
 
         private void GenerateFirearmDescription()
         {
             var builder = new StringBuilder();
             
-            AddInfo("Firearm class", FirearmClass.Select(x => x.GetName()), builder);
-            AddInfo("Actions", Actions.Select(x => x.GetName()), builder);
-            AddInfo("Fire modes", FireModes.Select(x => x.GetName()), builder);
-            AddInfo("Fire rates", FireRates.Select(x => x.Equals("0") ? "manual/single shot" : x), builder);
+            AddInfo("Firearm class", FirearmClass?.Select(x => x.GetName()), builder);
+            AddInfo("Actions", Actions?.Select(x => x.GetName()), builder);
+            AddInfo("Fire modes", FireModes?.Select(x => x.GetName()), builder);
+            AddInfo("Fire rates", FireRates?.Select(x => x.Equals("0") ? "manual/single shot" : x), builder);
             AddInfo("Calibers", Calibers, builder);
             AddInfo("Magazine types", MagazineTypes, builder);
             AddInfo("Manufacturers", Manufacturer, builder);
             AddInfo("Country of origin", CountryOfOrigin, builder);
-            AddInfo("Eras", Era.Select(x => x.GetName()), builder);
+            AddInfo("Eras", Era?.Select(x => x.GetName()), builder);
             AddInfo("Year of introduction", YearOfIntroduction, builder);
             AddInfo("Designer", Designer, builder);
             
