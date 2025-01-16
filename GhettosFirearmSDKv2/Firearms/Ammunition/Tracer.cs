@@ -89,10 +89,10 @@ namespace GhettosFirearmSDKv2
             _fired = true;
         }
 
-        public void LateUpdate()
+        public void Update()
         {
             if (_fired)
-                transform.position += _dir * _speed * Time.deltaTime;
+                transform.Translate(_dir * _speed * Time.deltaTime);
         }
     }
 }
