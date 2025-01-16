@@ -361,7 +361,7 @@ namespace GhettosFirearmSDKv2
         private static ObsoleteIdData _obsoleteIdData;
         private static bool _triedLoadingObsoleteIds;
 
-        public static string GetSubstituteId(string id, string handler)
+        public static string GetSubstituteId(string id, string handler, bool hideDebug = false)
         {
             if (_obsoleteIdData == null && !_triedLoadingObsoleteIds)
             {
@@ -383,7 +383,15 @@ namespace GhettosFirearmSDKv2
             }
             return id;
         }
-        
+
+        public static bool CompareSubstitutedIDs(string id, string id2)
+        {
+            return id.Equals(id2) ||
+                   GetSubstituteId(id, "", true).Equals(id2) ||
+                   id.Equals(GetSubstituteId(id2, "", true)) ||
+                   GetSubstituteId(id, "", true).Equals(GetSubstituteId(id2, "", true));
+        }
+
         public static void DebugObject(object obj, string debugName)
         {
             var output = new StringBuilder();

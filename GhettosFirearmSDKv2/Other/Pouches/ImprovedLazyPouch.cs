@@ -140,7 +140,7 @@ namespace GhettosFirearmSDKv2
 
         private void Holder_Snapped(Item item)
         {
-            if (item.data.id != _lastHeldFirearm?.GetAmmoItem()?.ItemID)
+            if (!Util.CompareSubstitutedIDs(item.data.id, _lastHeldFirearm?.GetAmmoItem()?.ItemID))
             {
                 holder.UnSnap(item, true);
                 item.Despawn();
