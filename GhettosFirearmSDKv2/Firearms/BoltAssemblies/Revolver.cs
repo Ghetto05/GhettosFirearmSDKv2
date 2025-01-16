@@ -222,7 +222,7 @@ namespace GhettosFirearmSDKv2
 
         public void LoadChamber(int index, Cartridge cartridge, bool overrideSave = true)
         {
-            if (_loadedCartridges[index] == null && Util.AllowLoadCartridge(cartridge, calibers[index]))
+            if (!_loadedCartridges[index] && Util.AllowLoadCartridge(cartridge, calibers[index]))
             {
                 if (overrideSave)
                     Util.PlayRandomAudioSource(loadSounds);
@@ -399,7 +399,7 @@ namespace GhettosFirearmSDKv2
 
         public void TryEjectSingle(int i)
         {
-            if (_loadedCartridges[i] != null)
+            if (_loadedCartridges[i])
             {
                 Util.PlayRandomAudioSource(ejectSounds);
                 var c = _loadedCartridges[i];
@@ -418,7 +418,8 @@ namespace GhettosFirearmSDKv2
                 c.loaded = false;
                 rb.isKinematic = false;
                 rb.WakeUp();
-                if (ejectDir != null) AddForceToCartridge(c, ejectDir, ejectForce);
+                if (ejectDir)
+                    AddForceToCartridge(c, ejectDir, ejectForce);
                 c.ToggleHandles(true);
                 InvokeEjectRound(c);
                 SaveCartridges();
@@ -429,7 +430,7 @@ namespace GhettosFirearmSDKv2
 
         public void Cock()
         {
-            if (hammerAxis == null || cocked)
+            if (!hammerAxis || cocked)
                 return;
 
             hammerAxis.localEulerAngles = hammerCockedPosition.localEulerAngles;
@@ -439,7 +440,7 @@ namespace GhettosFirearmSDKv2
 
         public void Uncock()
         {
-            if (hammerAxis == null || !cocked)
+            if (!hammerAxis || !cocked)
                 return;
 
             _autoTurning = false;

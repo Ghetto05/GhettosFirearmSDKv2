@@ -54,7 +54,7 @@ namespace GhettosFirearmSDKv2
         {
             var hs = new List<Handle>();
             hs.AddRange(additionalTriggerHandles);
-            if (disableMainFireHandle || item == null || item.mainHandleLeft == null)
+            if (disableMainFireHandle || !item || !item.mainHandleLeft)
                 return hs;
 
             hs.Add(item.mainHandleLeft);
@@ -83,12 +83,13 @@ namespace GhettosFirearmSDKv2
             }
 
             base.Start();
-            if (attachmentPoints.Count == 0 || attachmentPoints.Any(a => a == null))
+            if (attachmentPoints.Count == 0 || attachmentPoints.Any(a => !a))
             {
                 attachmentPoints = GetComponentsInChildren<AttachmentPoint>().ToList();
             }
 
-            if (item == null) item = GetComponent<Item>();
+            if (!item)
+                item = GetComponent<Item>();
             item.OnDespawnEvent += Item_OnDespawnEvent;
             Invoke(nameof(InvokedStart), Settings.invokeTime);
             all.Add(this);
@@ -202,7 +203,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (var han in preSnapActiveHandles)
             {
-                if (han != null && han.touchCollider != null) han.SetTouch(true);
+                if (han && han.touchCollider) han.SetTouch(true);
             }
         }
 
@@ -211,7 +212,7 @@ namespace GhettosFirearmSDKv2
             preSnapActiveHandles = new List<Handle>();
             foreach (var han in item.handles)
             {
-                if (han != null && han.enabled && han.touchCollider.enabled && !(han.data.id.Equals("ObjectHandleHeavy") || han.data.id.Equals("ObjectHandleHeavyPistol")))
+                if (han && han.enabled && han.touchCollider.enabled && !(han.data.id.Equals("ObjectHandleHeavy") || han.data.id.Equals("ObjectHandleHeavyPistol")))
                 {
                     preSnapActiveHandles.Add(han);
                     han.SetTouch(false);

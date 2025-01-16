@@ -161,34 +161,32 @@ namespace GhettosFirearmSDKv2
         public void FillMagazine()
         {
             var loadable = GetHeld<IAmmunitionLoadable>();
-            if (loadable != null && Util.AllowLoadCartridge(currentCaliber, loadable, true))
-            {
-                loadable.ClearRounds();
-                SpawnAndInsertCar(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
-            }
-        }
-
-        private void SpawnAndInsertCar(IAmmunitionLoadable mag, string carId)
-        {
-            if (mag != null && mag.GetLoadedCartridges().Count(x => x) < mag.GetCapacity() && !string.IsNullOrWhiteSpace(carId))
-            {
-                Util.SpawnItem(carId, "Ammo Spawner", cartridge => 
-                {
-                    mag.LoadRound(cartridge.GetComponent<Cartridge>());
-                    SpawnAndInsertCar(mag, carId);
-                }, transform.position);
-            }
+            if (loadable == null || !Util.AllowLoadCartridge(currentCaliber, loadable, true))
+                return;
+            
+            loadable.ClearRounds();
+            SpawnAndInsertCar(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
         }
 
         public void TopOffMagazine()
         {
-            var mag = GetHeld<IAmmunitionLoadable>();
-            if (mag == null)
-                return;
-            if (!Util.AllowLoadCartridge(currentCaliber, mag))
+            var loadable = GetHeld<IAmmunitionLoadable>();
+            if (loadable == null || !Util.AllowLoadCartridge(currentCaliber, loadable))
                 return;
 
-            SpawnAndInsertCar(mag, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+            SpawnAndInsertCar(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+        }
+
+        private void SpawnAndInsertCar(IAmmunitionLoadable loadable, string carId)
+        {
+            if (loadable == null || loadable.GetLoadedCartridges().Count(x => x) >= loadable.GetCapacity() || string.IsNullOrWhiteSpace(carId))
+                return;
+            
+            Util.SpawnItem(carId, "Ammo Spawner", cartridge => 
+            {
+                loadable.LoadRound(cartridge.GetComponent<Cartridge>());
+                SpawnAndInsertCar(loadable, carId);
+            }, transform.position);
         }
 
         public void SpawnRound()

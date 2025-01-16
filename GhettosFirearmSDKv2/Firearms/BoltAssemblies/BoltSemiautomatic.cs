@@ -280,7 +280,6 @@ namespace GhettosFirearmSDKv2
             if (!hasBoltcatch && !isOpenBolt) return true;
             var behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(catchPoint.localPosition, startPoint.localPosition);
             var hasChargingHandle = chargingHandle != null;
-            //Debug.Log($"Handle behind lock point: {hasChargingHandle && behindCatchpoint} no charging handle: {!hasChargingHandle} not caught: {!caught} state: {state.ToString()}");
             return (hasChargingHandle && behindCatchpoint) || !hasChargingHandle || !caught;
         }
 
