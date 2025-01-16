@@ -61,7 +61,7 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (currentWell && currentWell.firearm && canBeGrabbedInWell)
+            if (currentWell && currentWell.firearm && CanGrab)
             {
                 foreach (var handle in handles)
                 {
@@ -188,7 +188,7 @@ namespace GhettosFirearmSDKv2
 
         private void HandleOnGrabbed(RagdollHand ragdollhand, Handle handle, EventTime eventTime)
         {
-            if (canBeGrabbedInWell && eventTime == EventTime.OnStart) Eject();
+            if (CanGrab && eventTime == EventTime.OnStart) Eject();
         }
 
         private void OnOnLoadFinished(Magazine mag)
@@ -387,7 +387,7 @@ namespace GhettosFirearmSDKv2
             
             foreach (var handle in handles)
             {
-                if (!canBeGrabbedInWell)
+                if (!CanGrab)
                 {
                     handle.SetTouch(false);
                 }
@@ -550,6 +550,14 @@ namespace GhettosFirearmSDKv2
             foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
             {
                 Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
+            }
+        }
+
+        public bool CanGrab
+        {
+            get
+            {
+                return canBeGrabbedInWell || (currentWell && currentWell.forceCanGrab);
             }
         }
 

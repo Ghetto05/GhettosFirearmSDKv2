@@ -184,7 +184,7 @@ namespace GhettosFirearmSDKv2
         public void ShortPress()
         {
             OnAltActionEvent?.Invoke(false);
-            if (magazineWell != null && (magazineWell.canEject || (!magazineWell.canEject && magazineWell.currentMagazine != null && !magazineWell.currentMagazine.canBeGrabbedInWell && !magazineWell.currentMagazine.overrideItem && !magazineWell.currentMagazine.overrideAttachment)))
+            if (magazineWell != null && (magazineWell.canEject || (!magazineWell.canEject && magazineWell.currentMagazine != null && !magazineWell.currentMagazine.CanGrab && !magazineWell.currentMagazine.overrideItem && !magazineWell.currentMagazine.overrideAttachment)))
             {
                 if (bolt.disallowRelease || !bolt.caught || (bolt.caught && (magazineWell.IsEmptyAndHasMagazine() || bolt.isHeld))) magazineWell.Eject();
                 else if (bolt.caught && !magazineWell.IsEmpty()) bolt.TryRelease();

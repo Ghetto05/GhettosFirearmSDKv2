@@ -13,7 +13,6 @@ namespace GhettosFirearmSDKv2
         public Rigidbody rb;
         public Transform closedPosition;
         public Transform openedPosition;
-        public MagazineWell magazineWell;
 
         public List<Handle> coverHandles;
 
@@ -24,6 +23,8 @@ namespace GhettosFirearmSDKv2
         public float maxAngle;
         
         public BoltBase.BoltState state = BoltBase.BoltState.Locked;
+        public bool preventGrab;
+        public List<MagazineWell> magazineWells;
 
         private HingeJoint _joint;
         private bool _locked;
@@ -45,6 +46,7 @@ namespace GhettosFirearmSDKv2
         
         private void FixedUpdate()
         {
+            ChangeState();
             if (_joint == null)
                 return;
             if (!coverHandles.Any(h => h.handlers.Count > 0))
@@ -127,6 +129,21 @@ namespace GhettosFirearmSDKv2
         public override bool GetIsUnlocked()
         {
             return state == BoltBase.BoltState.Back;
+        }
+
+        public void ChangeState()
+        {
+            foreach (var well in magazineWells)
+            {
+                if (preventGrab && well.currentMagazine?.CanGrab == true)
+                {
+                    foreach (var handle in well.currentMagazine.handles)
+                    {
+                        handle.SetTouch(GetIsUnlocked()); 
+                        handle.SetTelekinesis(GetIsUnlocked());
+                    }
+                }
+            }
         }
     }
 }

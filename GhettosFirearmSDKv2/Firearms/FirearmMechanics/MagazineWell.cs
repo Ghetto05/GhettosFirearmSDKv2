@@ -15,6 +15,7 @@ namespace GhettosFirearmSDKv2
         public Collider loadingCollider;
         public Transform mountPoint;
         public bool canEject;
+        public bool forceCanGrab;
         public bool ejectOnEmpty;
         public Magazine currentMagazine;
         public bool mountCurrentMagazine = true;
@@ -130,7 +131,7 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Eject(bool forced = false)
         {
-            if (!currentMagazine || currentMagazine.overrideItem || currentMagazine.overrideAttachment || (!forced && !BoltExistsAndIsPulled()) || !(canEject | forced) && currentMagazine.canBeGrabbedInWell)
+            if (!currentMagazine || currentMagazine.overrideItem || currentMagazine.overrideAttachment || (!forced && !BoltExistsAndIsPulled()) || !(canEject | forced) && currentMagazine.CanGrab)
                 return;
             var mag = currentMagazine;
             currentMagazine.Eject();
