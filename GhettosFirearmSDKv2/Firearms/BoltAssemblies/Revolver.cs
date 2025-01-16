@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class Revolver : BoltBase
+    public class Revolver : BoltBase, IAmmunitionLoadable
     {
         [Header("FOLDING")]
         public List<Handle> foregripHandles;
@@ -386,22 +386,23 @@ namespace GhettosFirearmSDKv2
             return angle < 50f;
         }
 
-        public void EjectCasings()
+        public void EjectCasings(bool silent = false, bool despawn = false)
         {
             if (_closed || _loadedCartridges == null)
                 return;
 
             for (var i = 0; i < _loadedCartridges.Length; i++)
             {
-                TryEjectSingle(i);
+                TryEjectSingle(i, silent, despawn);
             }
         }
 
-        public void TryEjectSingle(int i)
+        public void TryEjectSingle(int i, bool silent = false, bool despawn = false)
         {
             if (_loadedCartridges[i])
             {
-                Util.PlayRandomAudioSource(ejectSounds);
+                if (!silent)
+                    Util.PlayRandomAudioSource(ejectSounds);
                 var c = _loadedCartridges[i];
                 _loadedCartridges[i] = null;
                 //if (ejectPoints.Count > i && ejectPoints[i] != null)
@@ -423,6 +424,7 @@ namespace GhettosFirearmSDKv2
                 c.ToggleHandles(true);
                 InvokeEjectRound(c);
                 SaveCartridges();
+                c.item.Despawn();
             }
         }
 
@@ -740,5 +742,59 @@ namespace GhettosFirearmSDKv2
         public event OnCloseDelegate OnClose;
         public delegate void OnOpenDelegate();
         public event OnOpenDelegate OnOpen;
+        
+        public string GetCaliber()
+        {
+            return calibers[_currentChamber];
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public int GetCapacity()
+        {
+            return mountPoints.Count;
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return _loadedCartridges.ToList();
+        }
+
+        private int FirstFreeIndex()
+        {
+            for (var i = 0; i < mountPoints.Count; i++)
+            {
+                if (!_loadedCartridges[i])
+                    return i;
+            }
+            return -1;
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            var i = FirstFreeIndex();
+            if (i == -1)
+                return;
+
+            LoadChamber(i, cartridge);
+        }
+
+        public void ClearRounds()
+        {
+            EjectCasings(true, true);
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return false;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return null;
+        }
     }
 }
