@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2
                     itemData.description = "Prebuilt version of the " + itemData.displayName + ".";
                     itemData.displayName = DisplayName;
                     itemData.category = "Firearm Prebuilts";
-                    //itemData.iconAddress = id + ".Icon";
+                    itemData.iconAddress = id + ".Icon";
                     var loader = new PrebuiltLoader
                                  {
                                      OriginalId = ItemId,
