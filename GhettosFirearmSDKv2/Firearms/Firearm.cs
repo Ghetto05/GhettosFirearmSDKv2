@@ -50,6 +50,8 @@ namespace GhettosFirearmSDKv2
 
         private static readonly Vector3 StandardAimPointOffset = new(0.2f, -0.3f, 0.4f);
 
+        private static readonly Vector3 TwoHandedAimPointOffset = new(0.1f, -0.3f, 0.15f);
+
         public override List<Handle> AllTriggerHandles()
         {
             var hs = new List<Handle>();
@@ -96,10 +98,10 @@ namespace GhettosFirearmSDKv2
 
             var aiModule = new ItemModuleAI
                            {
-                               primaryClass = ItemModuleAI.WeaponClass.Melee,
+                               primaryClass = ItemModuleAI.WeaponClass.Firearm,
                                secondaryClass = ItemModuleAI.WeaponClass.Melee,
-                               weaponHandling = ItemModuleAI.WeaponHandling.OneHanded,
-                               secondaryHandling = ItemModuleAI.WeaponHandling.OneHanded,
+                               weaponHandling = ItemModuleAI.WeaponHandling.TwoHanded,
+                               secondaryHandling = ItemModuleAI.WeaponHandling.TwoHanded,
                                weaponAttackTypes = ItemModuleAI.AttackTypeFlags.None,
                                ignoredByDefense = false,
                                alwaysPrimary = false,
@@ -117,8 +119,8 @@ namespace GhettosFirearmSDKv2
                                                       accountForGravity = false,
                                                       tooCloseDistance = PreferredEngagementDistance(),
                                                       weaponAimAngleOffset = Vector3.zero,
-                                                      weaponHoldAngleOffset = Vector3.zero,
-                                                      weaponHoldPositionOffset = StandardAimPointOffset,
+                                                      weaponHoldAngleOffset = IsTwoHanded ? new Vector3(0, -45, 0) : Vector3.zero,
+                                                      weaponHoldPositionOffset = IsTwoHanded ? TwoHandedAimPointOffset : StandardAimPointOffset,
                                                       customRangedAttackAnimationData = null
                                                   },
                                armResistanceMultiplier = 3f,
@@ -183,8 +185,9 @@ namespace GhettosFirearmSDKv2
             base.Update();
             RefreshRecoilModifiers();
             
-            item.data.moduleAI.primaryClass = HeldByAI() ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
-            item.data.moduleAI.weaponHandling = IsTwoHanded && HeldByAI() ? ItemModuleAI.WeaponHandling.TwoHanded : ItemModuleAI.WeaponHandling.OneHanded;
+            item.data.moduleAI.primaryClass = (HeldByAI() || item.holder) ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
+            item.data.moduleAI.weaponHandling = IsTwoHanded && (HeldByAI() || item.holder) ? ItemModuleAI.WeaponHandling.TwoHanded : ItemModuleAI.WeaponHandling.OneHanded;
+            item.data.moduleAI.secondaryHandling = IsTwoHanded && (HeldByAI() || item.holder) ? ItemModuleAI.WeaponHandling.TwoHanded : ItemModuleAI.WeaponHandling.OneHanded;
             item.data.moduleAI.rangedWeaponData.weaponHoldAngleOffset = IsTwoHanded ? new Vector3(0, -45, 0) : Vector2.zero;
             if (IsTwoHanded)
             {
