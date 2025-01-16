@@ -28,9 +28,14 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            if (item != null)
-                item.OnHeldActionEvent += OnHeldActionEvent;
-            else if (attachment != null)
+            if (item)
+            {
+                if (useFireHandle && item.GetComponent<Firearm>() is { } firearm)
+                    firearm.OnAltActionEvent += FirearmOnOnAltActionEvent;
+                else
+                    item.OnHeldActionEvent += OnHeldActionEvent;
+            }
+            else if (attachment)
             {
                 attachment.OnHeldActionEvent += OnHeldActionEvent;
                 if (useFireHandle && attachment.GetComponent<AttachmentFirearm>() is { } firearm)
