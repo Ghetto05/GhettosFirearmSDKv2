@@ -419,66 +419,7 @@ namespace GhettosFirearmSDKv2
                 }
             }
 
-            Addressables.LoadAssetAsync<GameObject>(Catalog.GetData<ItemData>(currentItemId).prefabLocation).Completed += (handle =>
-            {
-                if (handle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    if (handle.Result.GetComponent<ProjectileData>() is { } data)
-                    {
-                        var descriptionText = "";
-                        if (!data.isHitscan)
-                        {
-                            //descriptionText += "Projectile: " + data.projectileItemId + "\n";
-                            descriptionText += "Velocity: " + data.muzzleVelocity;
-                            if (!string.IsNullOrWhiteSpace(data.additionalInformation))
-                            {
-                                descriptionText += "\n";
-                                descriptionText += data.additionalInformation;
-                            }
-                        }
-                        else
-                        {
-                            if (data.projectileCount > 0)
-                            {
-                                if (data.projectileCount == 1)
-                                {
-                                    descriptionText += "Damage: " + (data.damagePerProjectile / 50) * 100 + "%\n";
-                                    descriptionText += "Force: " + data.forcePerProjectile + "\n";
-                                }
-                                else if (data.projectileCount > 1)
-                                {
-                                    descriptionText += "Projectile count: " + data.projectileCount + "\n";
-                                    descriptionText += "Damage per projectile: " + (data.damagePerProjectile / 50) * 100 + "%\n";
-                                    descriptionText += "Force per projectile: " + data.forcePerProjectile + "\n";
-                                }
-                                if (data.fireDamage > 0)
-                                {
-                                    descriptionText += $"\nFire damage: {data.fireDamage}%";
-                                }
-                                descriptionText += "Range: " + data.projectileRange + "\n";
-                                descriptionText += "Penetration level: " + data.penetrationPower;
-                                if (handle.Result.GetComponentInChildren<TracerModule>() != null) descriptionText += "\nHas tracer function";
-                                if (data.forceDestabilize && !data.knocksOutTemporarily) descriptionText += "\nAlways destabilizes hit target";
-                                if (data.forceIncapitate) descriptionText += "\nIncapacitates hit target permanently";
-                                else if (data.knocksOutTemporarily) descriptionText += $"\nincapacitates hit target for {data.temporaryKnockoutTime} seconds";
-                                if (data.isElectrifying) descriptionText += $"\nElectrifies targets for {data.tasingDuration} with a force of {data.tasingForce}";
-                                if (data.isExplosive && data.explosiveData.radius > 0) descriptionText += $"\nExplodes: {data.explosiveData.radius} meters radius, {data.explosiveData.force} force, {data.explosiveData.damage} damage";
-                            }
-                            if (!string.IsNullOrWhiteSpace(data.additionalInformation))
-                            {
-                                descriptionText += "\n" + data.additionalInformation;
-                            }
-                        }
-
-                        description.text = descriptionText;
-                    }
-                    else Debug.LogWarning("No projectile data component found on root object of " + currentCaliber + ", " + currentVariant + "! Please make sure it is added to the root, not a child object!");
-                }
-                else
-                {
-                    Debug.LogError("Couldn't load prefab of " + currentCaliber + ", " + currentVariant + "!");
-                }
-            });
+            description.text = Catalog.GetData<ItemData>(currentItemId)?.description;
         }
         #endregion Updates
 

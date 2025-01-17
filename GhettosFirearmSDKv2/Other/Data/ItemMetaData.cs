@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using ThunderRoad;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace GhettosFirearmSDKv2
 {
@@ -133,7 +135,7 @@ namespace GhettosFirearmSDKv2
 /*
  
 {
-    "$type": "GhettosFirearmSDKv2.ItemMetaData, Assembly-CSharp",
+    "$type": "GhettosFirearmSDKv2.ItemMetaData, GhettosFirearmSDKv2",
     "Types": "Firearm",
     "Category": "Some Category",
     "Actions": [ "ClosedBolt" ],
@@ -146,6 +148,16 @@ namespace GhettosFirearmSDKv2
     "YearOfIntroduction": [ "1890" ],
     "Manufacturer": [ "Colt" ],
     "Designer": [ "Some Designer" ]
+}
+*/
+
+/* for cartridges
+{
+    "$type": "GhettosFirearmSDKv2.ItemMetaData, GhettosFirearmSDKv2",
+    "Types": "Cartridge",
+    "CountryOfOrigin": [ "xxxxxxxx" ],
+    "YearOfIntroduction": [ "xxxxxxx" ],
+    "Designer": [ "xxxxxxxxx" ]
 }
 */
 
@@ -177,6 +189,7 @@ namespace GhettosFirearmSDKv2
                         break;
 
                     case ItemTypes.Cartridge:
+                        GenerateCartridgeDescription();
                         break;
 
                     case ItemTypes.StripperClip:
@@ -207,29 +220,21 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        private void AddInfo(string name, IEnumerable<string> data, StringBuilder builder)
-        {
-            var enumerable = data?.ToList();
-            if (enumerable?.Any() != true)
-                return;
-            builder.AppendLine($"{name}: {string.Join(", ", enumerable)}");
-        }
-
         private void GenerateFirearmDescription()
         {
             var builder = new StringBuilder();
             
-            AddInfo("Firearm class", FirearmClass?.Select(x => x.GetName()), builder);
-            AddInfo("Actions", Actions?.Select(x => x.GetName()), builder);
-            AddInfo("Fire modes", FireModes?.Select(x => x.GetName()), builder);
-            AddInfo("Fire rates", FireRates?.Select(x => x.Equals("0") ? "manual/single shot" : x), builder);
-            AddInfo("Calibers", Calibers, builder);
-            AddInfo("Magazine types", MagazineTypes, builder);
-            AddInfo("Manufacturers", Manufacturer, builder);
-            AddInfo("Country of origin", CountryOfOrigin, builder);
-            AddInfo("Eras", Era?.Select(x => x.GetName()), builder);
-            AddInfo("Year of introduction", YearOfIntroduction, builder);
-            AddInfo("Designer", Designer, builder);
+            Util.AddInfoToBuilder("Firearm class", FirearmClass?.Select(x => x.GetName()), builder);
+            Util.AddInfoToBuilder("Actions", Actions?.Select(x => x.GetName()), builder);
+            Util.AddInfoToBuilder("Fire modes", FireModes?.Select(x => x.GetName()), builder);
+            Util.AddInfoToBuilder("Fire rates", FireRates?.Select(x => x.Equals("0") ? "manual/single shot" : x), builder);
+            Util.AddInfoToBuilder("Calibers", Calibers, builder);
+            Util.AddInfoToBuilder("Magazine types", MagazineTypes, builder);
+            Util.AddInfoToBuilder("Manufacturers", Manufacturer, builder);
+            Util.AddInfoToBuilder("Country of origin", CountryOfOrigin, builder);
+            Util.AddInfoToBuilder("Eras", Era?.Select(x => x.GetName()), builder);
+            Util.AddInfoToBuilder("Year of introduction", YearOfIntroduction, builder);
+            Util.AddInfoToBuilder("Designer", Designer, builder);
             
             itemData.description = builder.ToString();
         }
@@ -238,10 +243,47 @@ namespace GhettosFirearmSDKv2
         {
             var builder = new StringBuilder();
             
-            AddInfo("Type", MagazineTypes, builder);
-            AddInfo("Calibers/capacities", CaliberCapacityDatas.Select(x => $"{x.Caliber} ({x.Capacity} rounds)"), builder);
+            Util.AddInfoToBuilder("Type", MagazineTypes, builder);
+            Util.AddInfoToBuilder("Calibers/capacities", CaliberCapacityDatas.Select(x => $"{x.Caliber} ({x.Capacity} rounds)"), builder);
             
             itemData.description = builder.ToString();
+        }
+
+        private void GenerateCartridgeDescription()
+        {
+            var builder = new StringBuilder();
+            
+            Util.AddInfoToBuilder("Country of origin", CountryOfOrigin, builder);
+            Util.AddInfoToBuilder("Year of introduction", YearOfIntroduction, builder);
+            Util.AddInfoToBuilder("Designer", Designer, builder);
+            builder.AppendLine();
+
+            itemData.description = builder.ToString();
+            
+            GetProjectileDataString();
+        }
+
+        private void GetProjectileDataString()
+        {
+            try
+            {
+                Addressables.LoadAssetAsync<GameObject>(itemData.prefabAddress).Completed += handle =>
+                {
+                    if (handle.Status == AsyncOperationStatus.Succeeded)
+                    {
+                        if (handle.Result.GetComponent<ProjectileData>() is { } data)
+                            itemData.description += $"\n{data}";
+                        else
+                            Debug.LogWarning($"No projectile data component found on root object of {itemData.id}! Please make sure it is added to the root, not a child object!");
+
+                        Addressables.Release(handle);
+                    }
+                };
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Couldn't load prefab for {itemData.id}!\n{e}");
+            }
         }
     }
 }

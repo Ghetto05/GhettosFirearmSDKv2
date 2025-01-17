@@ -445,5 +445,26 @@ namespace GhettosFirearmSDKv2
             var threashold = Mathf.Clamp(baseChance * multiplier * Settings.malfunctionMode, 0f, 100f);
             return malfunctionEnabled && !heldByAI && threashold >= random;
         }
+
+        public static void AddInfoToBuilder(string name, object data, StringBuilder builder) => AddInfoToBuilder(name, new[] {data}, builder);
+
+        public static void AddInfoToBuilder(string name, IEnumerable<object> data, StringBuilder builder, bool ignoreEmpty = true)
+        {
+            var dataList = data?.ToList();
+            var empty = dataList?.Any() != true;
+            if (empty && ignoreEmpty)
+                return;
+            builder.Append(name);
+            builder.Append(": ");
+            if (empty)
+                return;
+            for (var i = 0; i < dataList.Count; i++)
+            {
+                if (i != 0)
+                    builder.Append(", ");
+                builder.Append(dataList[i]);
+            }
+            builder.AppendLine();
+        }
     }
 }

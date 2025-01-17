@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using GhettosFirearmSDKv2.Explosives;
 using UnityEngine;
 
@@ -77,6 +78,62 @@ namespace GhettosFirearmSDKv2
         private void Awake()
         {
             if (projectileCount <= 1) projectileSpread = 0f;
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            if (!isHitscan)
+            {
+                Util.AddInfoToBuilder("Velocity", muzzleVelocity, builder);
+                if (!string.IsNullOrWhiteSpace(additionalInformation))
+                {
+                    builder.AppendLine();
+                    builder.AppendLine(additionalInformation);
+                }
+            }
+            else
+            {
+                if (projectileCount > 0)
+                {
+                    if (projectileCount == 1)
+                    {
+                        Util.AddInfoToBuilder("Damage", $"{damagePerProjectile / 50 * 100}%", builder);
+                        Util.AddInfoToBuilder("Force", forcePerProjectile, builder);
+                    }
+                    else if (projectileCount > 1)
+                    {
+                        
+                        Util.AddInfoToBuilder("Projectile count", projectileCount, builder);
+                        Util.AddInfoToBuilder("Damage per projectile", $"{damagePerProjectile / 50 * 100}%", builder);
+                        Util.AddInfoToBuilder("Force per projectile", forcePerProjectile, builder);
+                    }
+                    if (fireDamage > 0)
+                    {
+                        Util.AddInfoToBuilder("Fire damage", $"{fireDamage}%", builder);
+                    }
+                    Util.AddInfoToBuilder("Range", projectileRange, builder);
+                    Util.AddInfoToBuilder("Penetration level", penetrationPower, builder);
+                    if (gameObject.GetComponentInChildren<TracerModule>() != null)
+                        builder.AppendLine("Has tracer charge");
+                    if (forceDestabilize && !knocksOutTemporarily)
+                        builder.AppendLine("Always destabilizes target");
+                    if (forceIncapitate)
+                        builder.AppendLine("Incapacitates permanently");
+                    else if (knocksOutTemporarily)
+                        builder.AppendLine("$Incapacitates {temporaryKnockoutTime}s");
+                    if (isElectrifying)
+                        builder.AppendLine("$Electrifies for {tasingDuration}s, force: {tasingForce}");
+                    if (isExplosive && explosiveData.radius > 0)
+                        builder.AppendLine("$Explodes: {explosiveData.radius}m radius, {explosiveData.force} force, {explosiveData.damage} damage");
+                }
+                if (!string.IsNullOrWhiteSpace(additionalInformation))
+                {
+                    builder.AppendLine(additionalInformation);
+                }
+            }
+
+            return builder.ToString();
         }
     }
 }
