@@ -110,6 +110,11 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "Hide update notifications", tooltip = "Hide popup notifications for updates.", saveValue = true)]
         public static bool hideUpdateNotifications = false;
 
+        [ModOptionOrder(13)]
+        [ModOptionCategory("Settings", 1)]
+        [ModOption(name = "Disable cartridge impact sounds", tooltip = "Remove cartridge impact sounds to prevent sound bugs.", saveValue = true)]
+        public static bool disableCartridgeImpactSounds = false;
+
         #endregion
 
         #region Clothing

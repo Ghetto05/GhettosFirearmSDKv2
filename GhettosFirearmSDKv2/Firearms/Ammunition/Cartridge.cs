@@ -52,6 +52,11 @@ namespace GhettosFirearmSDKv2
             if (unfiredOnlyObject && !Fired)
                 unfiredOnlyObject.SetActive(true);
             Invoke(nameof(InvokedStart), Settings.invokeTime);
+            if (Settings.disableCartridgeImpactSounds)
+                foreach (var c in colliders)
+                {
+                    c.material = null;
+                }
         }
 
         private void InvokedStart()
