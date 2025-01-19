@@ -55,7 +55,6 @@ namespace GhettosFirearmSDKv2
             attachment.attachmentPoint.parentFirearm.item.mainHandleLeft = newMainHandle;
             attachment.attachmentPoint.parentFirearm.item.mainHandleRight = newMainHandle;
             
-            //Debug.Log($"FUCK YOU! Handle: {newMainHandle.name}, handlers: {handlers.Length}");
             foreach (var h in handlers)
             {
                 h.Grab(newMainHandle);

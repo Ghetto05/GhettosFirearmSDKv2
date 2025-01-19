@@ -192,16 +192,13 @@ namespace GhettosFirearmSDKv2
 
         private bool FirstFreeSlot(out int firstFree)
         {
-            Debug.Log("Getting first slot");
             for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 firstFree = i;
-                Debug.Log($"{i} - Empty: {!loadedCartridges[i]} - {loadedCartridges[i]?.item.itemId}");
                 if (!loadedCartridges[i])
                     return true; 
             }
 
-            Debug.Log("No free slot found");
             firstFree = 0;
             return false;
         }

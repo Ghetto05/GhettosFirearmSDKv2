@@ -13,15 +13,14 @@ namespace GhettosFirearmSDKv2
 
         public void Update()
         {
-            if (firearm == null || mainHandle == null || secondaryHandle == null)
+            if (!firearm || !mainHandle || !secondaryHandle)
             {
-                if (Settings.debugMode && attachment == null)
+                if (!attachment)
                 {
-                    Debug.Log("Handle switcher on " + GetComponentInParent<Item>().itemId + " is not set up!");
                     return;
                 }
 
-                if (attachment?.attachmentPoint?.parentFirearm != null)
+                if (attachment.attachmentPoint?.parentFirearm)
                     firearm = attachment.attachmentPoint.parentFirearm;
             }
 

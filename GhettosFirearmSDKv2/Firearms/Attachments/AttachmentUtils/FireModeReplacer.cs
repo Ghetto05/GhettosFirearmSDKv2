@@ -33,7 +33,6 @@ public class FireModeReplacer : MonoBehaviour
         var firearm = attachment.attachmentPoint.parentFirearm;
         foreach (var selector in firearm.GetComponentsInChildren<FiremodeSelector>().Where(x => x.firearm == firearm))
         {
-            Debug.Log($"Applying to {selector.name}");
             _replacedIndexes.Add(selector, new List<int>());
 
             for (var i = 0; i < selector.firemodes.Length; i++)
