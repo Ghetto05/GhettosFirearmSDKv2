@@ -80,7 +80,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            Invoke(nameof(InvokedStart), Settings.invokeTime + (overrideAttachment ? 30 : 0));
+            Invoke(nameof(InvokedStart), Settings.invokeTime + (overrideAttachment ? 2 : 0));
         }
 
         public void InvokedStart()
