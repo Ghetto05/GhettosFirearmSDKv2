@@ -14,7 +14,7 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            if (attachment == null)
+            if (!attachment)
                 Debug.LogError($"Attachment for AttachableItemDetacher on {GetComponentInParent<Attachment>()?.name} is not assigned!");
             attachment.OnHeldActionEvent += Attachment_OnHeldActionEvent;
         }
@@ -24,11 +24,18 @@ namespace GhettosFirearmSDKv2
             if (detachHandles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
             {
                 var oldItem = attachment.attachmentPoint.parentFirearm.item;
+                var node = attachment.Node.CloneJson();
                 Util.SpawnItem(itemId, "Attachable Item Detach",item =>
                 {
                     Util.IgnoreCollision(item.gameObject, oldItem.gameObject, true);
                     Util.DelayIgnoreCollision(item.gameObject, oldItem.gameObject, false, 1f, item);
                     ragdollHand.Grab(item.GetMainHandle(ragdollHand.side));
+                    if (item.GetComponent<Firearm>() is { } firearm)
+                    {
+                        firearm.SaveData = new FirearmSaveData();
+                        firearm.SaveData.FirearmNode = node;
+                        firearm.GetComponent<Item>().AddCustomData(firearm.SaveData);
+                    }
                     item.SetOwner(oldItem.owner);
                 }, ragdollHand.grip.position, ragdollHand.grip.rotation);
 

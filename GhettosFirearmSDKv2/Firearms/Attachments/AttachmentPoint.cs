@@ -46,9 +46,10 @@ namespace GhettosFirearmSDKv2
             {
                 if ((ati.attachmentType.Equals(type) || alternateTypes.Contains(ati.attachmentType)) && Util.CheckForCollisionWithColliders(attachColliders, ati.attachColliders, collision))
                 {
-                    Catalog.GetData<AttachmentData>(Util.GetSubstituteId(ati.attachmentId, $"[Attachable item - point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this);
+                    var node = ati.item.GetComponent<Firearm>()?.SaveData.FirearmNode.CloneJson();
+                    Catalog.GetData<AttachmentData>(Util.GetSubstituteId(ati.attachmentId, $"[Attachable item - point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this, null, node);
                     var s = Util.PlayRandomAudioSource(ati.attachSounds);
-                    if (s != null)
+                    if (s)
                     {
                         s.transform.SetParent(transform);
                         StartCoroutine(Explosive.DelayedDestroy(s.gameObject, s.clip.length + 1f));
