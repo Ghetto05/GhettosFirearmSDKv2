@@ -29,6 +29,7 @@ namespace GhettosFirearmSDKv2
                     Util.IgnoreCollision(item.gameObject, oldItem.gameObject, true);
                     Util.DelayIgnoreCollision(item.gameObject, oldItem.gameObject, false, 1f, item);
                     ragdollHand.Grab(item.GetMainHandle(ragdollHand.side));
+                    item.SetOwner(oldItem.owner);
                 }, ragdollHand.grip.position, ragdollHand.grip.rotation);
 
                 var s = Util.PlayRandomAudioSource(detachSounds);
