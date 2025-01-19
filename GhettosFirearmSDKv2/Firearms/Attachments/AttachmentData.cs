@@ -45,7 +45,7 @@ namespace GhettosFirearmSDKv2
                 return;
             }
             
-            var target = !point.usesRail ?
+            var target = !point.usesRail || RailLength == -1 ?
                 point.transform :
                 point.railSlots != null ?
                     thisNode != null ?
@@ -54,8 +54,16 @@ namespace GhettosFirearmSDKv2
                             point.railSlots[railPosition.Value] :
                             point.railSlots[0] :
                     point.transform;
-            
-            if (point.usesRail && target == point.transform&& thisNode != null)
+
+            if (point.usesRail && RailLength == -1)
+            {
+                foreach (var attachment in point.currentAttachments.ToList())
+                {
+                    attachment.Detach();
+                }
+            }
+
+            if (point.usesRail && target == point.transform && thisNode != null)
                 Debug.LogError($"Couldn't use rail points on point '{point.name}' on attachment '{id}'!");
             
             Addressables.InstantiateAsync(PrefabAddress, target.position, target.rotation, target, false).Completed += (handle =>
