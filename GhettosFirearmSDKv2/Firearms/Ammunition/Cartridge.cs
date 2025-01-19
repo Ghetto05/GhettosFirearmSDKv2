@@ -11,6 +11,8 @@ namespace GhettosFirearmSDKv2
     {
         public bool disallowDespawn;
         public bool keepRotationAtZero;
+        public bool forceRotation;
+        public float forceRotationIncrement;
         public GameObject firedOnlyObject;
         public GameObject unfiredOnlyObject;
         public string caliber;
@@ -88,10 +90,26 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (keepRotationAtZero && loaded && transform.localEulerAngles != Vector3.zero)
-                transform.localEulerAngles = Vector3.zero;
+            if (loaded)
+            {
+                if (keepRotationAtZero && transform.localEulerAngles != Vector3.zero)
+                    transform.localEulerAngles = Vector3.zero;
+                if (forceRotation && transform.localEulerAngles.z % forceRotationIncrement > 0.001f)
+                    SnapToNearestRotation();
+            }
+            
             if (!disallowDespawn && !loaded && Fired && !Mathf.Approximately(Settings.cartridgeDespawnTime, 0f))
                 StartCoroutine(Despawn());
+        }
+        
+        public void SnapToNearestRotation()
+        {
+            var currentZ = transform.eulerAngles.z;
+            currentZ = currentZ % 360;
+            if (currentZ < 0)
+                currentZ += 360;
+            var nearestSnap = Mathf.Round(currentZ / forceRotationIncrement) * forceRotationIncrement;
+            transform.rotation = Quaternion.Euler(0, 0, nearestSnap);
         }
 
         private IEnumerator Despawn()
