@@ -19,6 +19,7 @@ namespace GhettosFirearmSDKv2
 
         public string additionalInformation;
 
+        public bool isInert;
         public bool isHitscan = true;
         public float accuracyMultiplier = 1;
         public float recoil;
@@ -83,6 +84,13 @@ namespace GhettosFirearmSDKv2
         public override string ToString()
         {
             var builder = new StringBuilder();
+
+            if (isInert)
+            {
+                builder.AppendLine("Inert");
+                return builder.ToString();
+            }
+
             if (!isHitscan)
             {
                 Util.AddInfoToBuilder("Velocity", muzzleVelocity, builder);
