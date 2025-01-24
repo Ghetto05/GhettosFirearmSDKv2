@@ -424,7 +424,8 @@ namespace GhettosFirearmSDKv2
                 c.ToggleHandles(true);
                 InvokeEjectRound(c);
                 SaveCartridges();
-                c.item.Despawn();
+                if (despawn)
+                    c.item.Despawn();
             }
         }
 
