@@ -109,7 +109,7 @@ namespace GhettosFirearmSDKv2
             if (currentZ < 0)
                 currentZ += 360;
             var nearestSnap = Mathf.Round(currentZ / forceRotationIncrement) * forceRotationIncrement;
-            transform.rotation = Quaternion.Euler(0, 0, nearestSnap);
+            transform.localEulerAngles = new Vector3(0, 0, nearestSnap);
         }
 
         private IEnumerator Despawn()

@@ -10,7 +10,7 @@ namespace GhettosFirearmSDKv2
             {
                 var receiver = other.collider.GetComponentInParent<PowderReceiver>();
                 if (receiver.currentAmount < receiver.grainCapacity && !receiver.blocked && other.collider == receiver.loadCollider)
-                    receiver.currentAmount++;
+                    receiver.currentAmount += 2;
                 Destroy(gameObject);
             }
         }
