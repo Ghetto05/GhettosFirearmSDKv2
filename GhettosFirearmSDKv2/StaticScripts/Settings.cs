@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using GhettosFirearmSDKv2.Other.LockSpell;
 using Newtonsoft.Json;
 using ThunderRoad;
 using UnityEngine;
@@ -332,7 +333,7 @@ namespace GhettosFirearmSDKv2
             }
         }
         
-        [ModOptionOrder(42)]
+        [ModOptionOrder(43)]
         [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Spawn Attachment Validation Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
         public static bool SpawnAttachmentValidator
@@ -346,6 +347,26 @@ namespace GhettosFirearmSDKv2
                 Catalog.GetData<ItemData>("Ghetto05.FirearmSDKv2.AttachmentValidator").SpawnAsync(_ => { }, Player.local.transform.position + Vector3.up * 2);
             }
         }
+
+        [ModOptionOrder(61)]
+        [ModOptionCategory("Debug", 30)]
+        [ModOption(name = "Equip lock spell", tooltip = "Equip a spell used to freeze items for screenshots.", saveValue = true)]
+        public static bool SpawnLockSpell
+        {
+            get => _spawnLockSpell;
+            set
+            {
+                _spawnLockSpell = value;
+                LockSpell.ToggleEquip();
+            }
+        }
+
+        private static bool _spawnLockSpell;
+
+        [ModOptionOrder(62)]
+        [ModOptionCategory("Debug", 30)]
+        [ModOption(name = "Strip locked items", tooltip = "Remove any scripts from items that may cause performance problems.", saveValue = true)]
+        public static bool stripLockedItems;
         
         #endregion Debug
         

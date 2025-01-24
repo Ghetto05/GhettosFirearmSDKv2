@@ -12,7 +12,7 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -77,6 +77,8 @@
     <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs" />
     <Compile Include="Firearms\FirearmMechanics\RotationLimitedFollower.cs" />
     <Compile Include="Firearms\FirearmMechanics\StripperClipWell.cs" />
+    <Compile Include="Other\LockSpell\LockedItemModule.cs" />
+    <Compile Include="Other\LockSpell\LockSpell.cs" />
     <Compile Include="Other\Pouches\ImprovedLazyPouch.cs" />
     <Compile Include="Other\VariationRandomizer.cs" />
     <Compile Include="SaveData\CartridgeSaveData.cs" />

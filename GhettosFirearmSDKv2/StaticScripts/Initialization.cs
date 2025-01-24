@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using GhettosFirearmSDKv2.Chemicals;
+using GhettosFirearmSDKv2.Other.LockSpell;
 using ThunderRoad;
 using UnityEngine;
 
@@ -17,48 +18,58 @@ namespace GhettosFirearmSDKv2
                 glsd.GenerateItem();
             }
 
-            EventManager.OnPlayerPrefabSpawned += EventManager_OnPlayerSpawned;
-            EventManager.onCreatureSpawn += EventManager_onCreatureSpawn;
-            Item.OnItemSpawn += EventManager_onItemSpawn;
+            EventManager.OnPlayerPrefabSpawned += OnPlayerPrefabSpawned;
+            EventManager.onPossess += OnPossess;
+            EventManager.onCreatureSpawn += OnCreatureSpawn;
+            Item.OnItemSpawn += OnItemSpawn;
         }
 
         public override void ScriptDisable()
         {
-            EventManager.OnPlayerPrefabSpawned -= EventManager_OnPlayerSpawned;
-            EventManager.onCreatureSpawn -= EventManager_onCreatureSpawn;
-            Item.OnItemSpawn -= EventManager_onItemSpawn;
+            EventManager.OnPlayerPrefabSpawned -= OnPlayerPrefabSpawned;
+            EventManager.onPossess -= OnPossess;
+            EventManager.onCreatureSpawn -= OnCreatureSpawn;
+            Item.OnItemSpawn -= OnItemSpawn;
         }
 
-        private void EventManager_onItemSpawn(Item item)
+        private static void OnPossess(Creature creature, EventTime eventTime)
         {
-            if (item.spawnPoint == null)
+            LockSpell.ToggleEquip();
+        }
+
+        private static void OnItemSpawn(Item item)
+        {
+            if (!item.spawnPoint)
                 item.spawnPoint = item.transform;
         }
 
-        private void EventManager_onCreatureSpawn(Creature creature)
+        private static void OnCreatureSpawn(Creature creature)
         {
             //Chemicals (NPC)
-            if (!creature.isPlayer)
+            if (creature.isPlayer)
+                return;
+            
+            creature.gameObject.AddComponent<NpcChemicalsModule>();
+
+            var id = creature.data.prefabAddress switch
             {
-                creature.gameObject.AddComponent<NpcChemicalsModule>();
+                "Bas.Creature.HumanMale" => "Ghetto05.FirearmSDKv2.ThermalBody.Male",
+                "Bas.Creature.HumanFemale" => "Ghetto05.FirearmSDKv2.ThermalBody.Female",
+                "Bas.Creature.Chicken" => "Ghetto05.FirearmSDKv2.ThermalBody.Chicken",
+                _ => "NoneFound"
+            };
 
-                var id = "NoneFound";
-                if (creature.data.prefabAddress.Equals("Bas.Creature.HumanMale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Male";
-                else if (creature.data.prefabAddress.Equals("Bas.Creature.HumanFemale")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Female";
-                else if (creature.data.prefabAddress.Equals("Bas.Creature.Chicken")) id = "Ghetto05.FirearmSDKv2.ThermalBody.Chicken";
-
-                if (!id.Equals("NoneFound"))
+            if (!id.Equals("NoneFound"))
+            {
+                Catalog.InstantiateAsync(id, creature.transform.position, creature.transform.rotation, creature.transform, body =>
                 {
-                    Catalog.InstantiateAsync(id, creature.transform.position, creature.transform.rotation, creature.transform, body =>
-                    {
-                        var tb = body.GetComponent<ThermalBody>();
-                        tb.ApplyTo(creature);
-                    }, "Thermal Imaging Spawner");
-                }
+                    var tb = body.GetComponent<ThermalBody>();
+                    tb.ApplyTo(creature);
+                }, "Thermal Imaging Spawner");
             }
         }
 
-        private void EventManager_OnPlayerSpawned()
+        private static void OnPlayerPrefabSpawned()
         {
             //Chemicals (Player)
             Player.local.gameObject.AddComponent<PlayerEffectsAndChemicalsModule>();
@@ -94,7 +105,7 @@ namespace GhettosFirearmSDKv2
             Debug.Log(initialMessage);
         }
 
-        private void ExecuteHandposeValidation()
+        private static void ExecuteHandposeValidation()
         {
             var incompleteData = Catalog.GetDataList<HandPoseData>().Where(x =>
                 !x.poses.Any(y => y.creatureName.Equals("HumanMale")) ||
