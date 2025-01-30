@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using ThunderRoad;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace GhettosFirearmSDKv2.Other.LockSpell;
 
@@ -11,7 +13,8 @@ public class LockSpell : SpellCastCharge
 
     public static void ToggleEquip()
     {
-        if (!Player.characterData.mode.data.TryGetGameModeSaveData(out SandboxSaveData saveData) ||
+        if (!Player.currentCreature ||
+            !Player.characterData.mode.data.TryGetGameModeSaveData(out SandboxSaveData saveData) ||
             saveData.gameModeId != "Sandbox")
             return;
 
@@ -27,10 +30,7 @@ public class LockSpell : SpellCastCharge
     {
         base.Fire(active);
 
-        if (spellCaster.ragdollHand.grabbedHandle?.item is not { } item)
-            return;
-
-        if (item.GetComponent<LockedItemModule>())
+        if (spellCaster.ragdollHand.otherHand.grabbedHandle?.item is not { } item || item.GetComponent<LockedItemModule>())
             return;
 
         if (Settings.stripLockedItems)
@@ -41,7 +41,7 @@ public class LockSpell : SpellCastCharge
     private static void Strip(Transform t)
     {
         foreach (var c in t.GetComponents<MonoBehaviour>()
-                     .Where(x => x.GetType().Assembly == Assembly.GetAssembly(typeof(LockSpell))))
+                     .Where(x => !_typeWhiteList.Contains(x.GetType()) && x.GetType().Assembly == Assembly.GetAssembly(typeof(LockSpell))))
         {
             Object.Destroy(c);
         }
@@ -51,4 +51,9 @@ public class LockSpell : SpellCastCharge
             Strip(ct);
         }
     }
+
+    private static Type[] _typeWhiteList = new[]
+                                           {
+                                               typeof(GhettoHandle)
+                                           };
 }
