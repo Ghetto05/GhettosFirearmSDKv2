@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Events;
@@ -30,6 +31,7 @@ namespace GhettosFirearmSDKv2
         private bool _open;
         private bool _moving;
         private GunCaseSaveData _data;
+        private bool _frozen;
 
         private void Start()
         {
@@ -104,8 +106,8 @@ namespace GhettosFirearmSDKv2
             {
                 if (freezeHandles.Contains(handle))
                 {
-                    item.physicBody.isKinematic = !item.physicBody.isKinematic;
-                    item.DisallowDespawn = item.physicBody.isKinematic;
+                    _frozen = !_frozen;
+                    item.DisallowDespawn = _frozen;
                 }
                 if (toggleHandles.Contains(handle))
                 {
@@ -113,6 +115,12 @@ namespace GhettosFirearmSDKv2
                     else Open();
                 }
             }
+        }
+
+        private void FixedUpdate()
+        {
+            var frozen = _frozen && !item.handlers.Any(x => !freezeHandles.Contains(x.grabbedHandle));
+            item.physicBody.isKinematic = frozen;
         }
 
         public void Open()

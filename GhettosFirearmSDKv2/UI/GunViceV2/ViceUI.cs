@@ -49,24 +49,25 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private bool _allowSwitchingSlots = true;
         private Item _item;
+        private bool _frozen;
 
         private void Start()
         {
             removeAttachmentButton.onClick.AddListener(RemoveAttachment);
             moveAttachmentForwardButton.onClick.AddListener(delegate { MoveAttachment(true); });
             moveAttachmentRearwardButton.onClick.AddListener(delegate { MoveAttachment(false); });
-            saveAmmoItemButton.onClick.AddListener(delegate { MoveAttachment(false); });
+            saveAmmoItemButton.onClick.AddListener(delegate { SaveAmmoItem(); });
             
             removeAttachmentButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
             moveAttachmentForwardButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
             moveAttachmentRearwardButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
-            saveAmmoItemButton.onClick.AddListener(SaveAmmoItem);
+            saveAmmoItemButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
             
             holder.Snapped += HolderOnSnapped;
             holder.UnSnapped += HolderOnUnSnapped;
 
             _item = GetComponentInParent<Item>();
-            if (_item != null)
+            if (_item)
                 _item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
         }
 
@@ -81,9 +82,8 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         {
             if (action == Interactable.Action.UseStart && freezeHandles.Contains(handle))
             {
-                var freeze = !_item.physicBody.isKinematic;
-                _item.physicBody.isKinematic = freeze;
-                _item.DisallowDespawn = freeze;
+                _frozen = !_item.DisallowDespawn;
+                _item.DisallowDespawn = _frozen;
             }
         }
 
@@ -94,6 +94,9 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
                 firearm.ChangeTrigger(FirearmClicker.Trigger());
                 firearm.triggerState = FirearmClicker.Trigger();
             }
+
+            if (_item && !_item.holder && freezeHandles.Any())
+                _item.physicBody.isKinematic = _frozen && !_item.handlers.Any();
         }
 
         private void HolderOnSnapped(Item item)
@@ -131,10 +134,10 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private void RemoveAttachment()
         {
-            if (_currentSlot == null)
+            if (!_currentSlot)
                 return;
 
-            if (_currentSlot.AttachmentPoint.usesRail && _currentRailAttachment != null && !_currentRailAttachment.IsNewButton)
+            if (_currentSlot.AttachmentPoint.usesRail && _currentRailAttachment && !_currentRailAttachment.IsNewButton)
             {
                 if (_currentRailAttachment.CurrentAttachment.Data.RailLength == -1)
                     AddRailAttachment(null);
@@ -441,7 +444,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         private UIAttachmentCategory GetOrAddCategory(string category)
         {
             var c = _attachmentCategories.FirstOrDefault(x => x.headerText.text.Equals(category));
-            if (c != null)
+            if (c)
                 return c;
             
             c = Instantiate(attachmentCategoryTemplate, attachmentCategoryContent).GetComponent<UIAttachmentCategory>();
@@ -490,11 +493,11 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             switch (soundType)
             {
                 case SoundTypes.Interact:
-                    if (interactSound != null)
+                    if (interactSound)
                         interactSound.Play();
                     break;
                 case SoundTypes.Select:
-                    if (selectSound != null)
+                    if (selectSound)
                         selectSound.Play();
                     break;
             }

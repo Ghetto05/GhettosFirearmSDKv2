@@ -3,8 +3,6 @@ using System.Linq;
 using ThunderRoad;
 using TMPro;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
 namespace GhettosFirearmSDKv2
@@ -62,7 +60,8 @@ namespace GhettosFirearmSDKv2
             else
             {
                 locked = false;
-                Lock();
+                if (item)
+                    item.DisallowDespawn = true;
             }
 
             SortingData = Catalog.GetDataList<CaliberSortingData>().FirstOrDefault();
@@ -73,7 +72,22 @@ namespace GhettosFirearmSDKv2
         private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
             if (action == Interactable.Action.UseStart)
-                Lock();
+            {
+                locked = !locked;
+                if (item)
+                    item.DisallowDespawn = locked;
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            var frozen = alwaysFrozen || (locked && !item.handlers.Any());
+            canvasCollider.enabled = frozen;
+            canvas.enabled = frozen;
+            if (item)
+            {
+                item.physicBody.isKinematic = frozen;
+            }
         }
 
         #region Actions
@@ -81,12 +95,12 @@ namespace GhettosFirearmSDKv2
         public T GetHeld<T>() where T : class, ICaliberGettable
         {
             Handle foundHandle = null;
-            if (Player.local.handRight.ragdollHand.grabbedHandle != null)
+            if (Player.local.handRight.ragdollHand.grabbedHandle)
                 foundHandle = Player.local.handRight.ragdollHand.grabbedHandle;
-            else if (Player.local.handLeft.ragdollHand.grabbedHandle != null)
+            else if (Player.local.handLeft.ragdollHand.grabbedHandle)
                 foundHandle = Player.local.handLeft.ragdollHand.grabbedHandle;
 
-            if (foundHandle != null)
+            if (foundHandle)
             {
                 T found;
 
@@ -195,18 +209,6 @@ namespace GhettosFirearmSDKv2
             {
                 Util.SpawnItem(currentItemId, "Ammo Spawner", _ => {}, spawnPosition.position, spawnPosition.rotation);
             }
-        }
-
-        public void Lock()
-        {
-            locked = !locked;
-            if (item != null)
-            {
-                item.physicBody.isKinematic = locked;
-                item.DisallowDespawn = locked;
-            }
-            canvasCollider.enabled = locked;
-            canvas.enabled = locked;
         }
         
         #endregion Actions
