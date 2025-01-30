@@ -47,12 +47,12 @@ namespace GhettosFirearmSDKv2
             
             if (isPulled)
             {
-                if (firearm && pullSound && firearm.item.holder)
+                if (firearm && pullSound && !firearm.item.holder)
                     pullSound.Play();
             }
             else
             {
-                if (firearm && resetSound && firearm.item.holder)
+                if (firearm && resetSound && !firearm.item.holder)
                     resetSound.Play();
             }
         }
