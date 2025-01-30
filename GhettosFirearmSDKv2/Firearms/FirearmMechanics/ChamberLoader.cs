@@ -26,8 +26,8 @@ namespace GhettosFirearmSDKv2
 
         public bool TryLoad(Cartridge cartridge)
         {
-            if ((lockingCondition == null || lockingCondition.IsUnlocked()) &&
-                Util.AllowLoadCartridge(cartridge, caliber) &&
+            if ((!lockingCondition || lockingCondition.IsUnlocked()) &&
+                Util.AllowLoadCartridge(cartridge, firearm.magazineWell?.caliber ?? caliber) &&
                 boltToBeLoaded.LoadChamber(cartridge, false))
             {
                 Util.PlayRandomAudioSource(insertSounds);
@@ -38,7 +38,7 @@ namespace GhettosFirearmSDKv2
 
         public string GetCaliber()
         {
-            return caliber;
+            return firearm.magazineWell?.caliber ?? caliber;
         }
 
         public Transform GetTransform()
