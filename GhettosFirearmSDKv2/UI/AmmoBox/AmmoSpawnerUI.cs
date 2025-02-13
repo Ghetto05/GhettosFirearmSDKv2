@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ThunderRoad;
@@ -92,106 +93,86 @@ namespace GhettosFirearmSDKv2
 
         #region Actions
 
-        public T GetHeld<T>() where T : class, ICaliberGettable
+        public List<T> GetHeld<T>() where T : class, ICaliberGettable
         {
-            Handle foundHandle = null;
-            if (Player.local.handRight.ragdollHand.grabbedHandle)
-                foundHandle = Player.local.handRight.ragdollHand.grabbedHandle;
-            else if (Player.local.handLeft.ragdollHand.grabbedHandle)
-                foundHandle = Player.local.handLeft.ragdollHand.grabbedHandle;
+            var results = GetHeldFromHandle<T>(Player.local.handLeft.ragdollHand.grabbedHandle);
+            results.AddRange(GetHeldFromHandle<T>(Player.local.handRight.ragdollHand.grabbedHandle));
+            return results;
+        }
 
-            if (foundHandle)
+        private List<T> GetHeldFromHandle<T>(Handle handle) where T : class, ICaliberGettable
+        {
+            if (handle.item && handle.item.GetComponent<T>() is { } held)
+                return [held];
+
+            var attachmentFirearm = handle.GetComponentInParent<AttachmentFirearm>();
+            var firearm = handle.item.GetComponent<Firearm>();
+            FirearmBase f = !attachmentFirearm ? attachmentFirearm : firearm;
+            if (f)
             {
-                T found;
-
-                found = typeof(T) == typeof(IAmmunitionLoadable) ? 
-                    foundHandle.GetComponentsInParent<T>().FirstOrDefault(x => ((IAmmunitionLoadable)x).GetCapacity() != 0) : 
-                    foundHandle.GetComponentsInParent<T>().FirstOrDefault();
-
-                if (found != null)
-                    return found;
-
-                var firearm = foundHandle.GetComponentInParent<FirearmBase>();
-                if (firearm != null)
-                {
-                    if (firearm.magazineWell != null && firearm.magazineWell.currentMagazine != null)
-                        return firearm.magazineWell.currentMagazine.GetComponent<T>();
-
-                    var foundAmmunitionLoaders = firearm.GetComponentsInChildren<IAmmunitionLoadable>();
-                    if (foundAmmunitionLoaders.Any())
-                    {
-                        found = (T)foundAmmunitionLoaders.FirstOrDefault(x => x.GetTransform().GetComponentInParent<FirearmBase>() == null);
-
-                        if (found == null)
-                            found = (T)foundAmmunitionLoaders.FirstOrDefault(x => x.GetCapacity() != 0);
-
-                        if (found == null)
-                            found = (T)foundAmmunitionLoaders.FirstOrDefault();
-
-                        return found;
-                    }
-                    
-                    var foundCaliberGetters = firearm.GetComponentsInChildren<ICaliberGettable>();
-                    if (foundCaliberGetters.Any())
-                    {
-                        found = (T)foundCaliberGetters.FirstOrDefault(x => x.GetTransform().GetComponentInParent<FirearmBase>() == null);
-
-                        if (found == null)
-                            found = (T)foundCaliberGetters.FirstOrDefault();
-
-                        return found;
-                    }
-                }
+                var fRes = new List<T>();
+                if (f.bolt is T bolt)
+                    fRes.Add(bolt);
+                if (f.magazineWell.currentMagazine is T magazine)
+                    fRes.Add(magazine);
+                fRes.AddRange(f.GetComponentsInParent<T>().Where(x => x.GetTransform().GetComponentInParent<FirearmBase>() == f && !fRes.Contains(x)));
+                return fRes;
             }
 
-            return default;
+            return [];
         }
 
         public void GetCaliberFromGunOrMag()
         {
-            var gettable = GetHeld<ICaliberGettable>();
-            if (gettable != null)
-            {
-                currentCaliber = gettable.GetCaliber();
-                currentCategory = AmmoModule.GetCaliberCategory(currentCaliber);
-                var variantsOfCaliber = AmmoModule.AllVariantsOfCaliber(currentCaliber);
-                variantsOfCaliber.Sort(new FirstFourNumbersCompare());
-                currentVariant = variantsOfCaliber[0].Remove(0, 5);
+            var gettables = GetHeld<ICaliberGettable>();
+            if (gettables.Any())
+                return;
 
-                SetupCategories();
-                SetupCaliberList(currentCategory);
-                SetupVariantList(currentCaliber);
-                SetVariant(currentVariant);
-            }
+            currentCaliber = gettables.First().GetCaliber();
+            currentCategory = AmmoModule.GetCaliberCategory(currentCaliber);
+            var variantsOfCaliber = AmmoModule.AllVariantsOfCaliber(currentCaliber);
+            variantsOfCaliber.Sort(new FirstFourNumbersCompare());
+            currentVariant = variantsOfCaliber[0].Remove(0, 5);
+
+            SetupCategories();
+            SetupCaliberList(currentCategory);
+            SetupVariantList(currentCaliber);
+            SetVariant(currentVariant);
         }
 
         public void ClearMagazine()
         {
             var loadable = GetHeld<IAmmunitionLoadable>();
             if (loadable != null)
-                loadable.ClearRounds();
+                loadable.ForEach(x => x.ClearRounds());
         }
 
         public void FillMagazine()
         {
-            var loadable = GetHeld<IAmmunitionLoadable>();
-            if (loadable == null || !Util.AllowLoadCartridge(currentCaliber, loadable, true))
-                return;
+            var loadables = GetHeld<IAmmunitionLoadable>();
+            foreach (var loadable in loadables)
+            {
+                if (loadable == null || !Util.AllowLoadCartridge(currentCaliber, loadable, true))
+                    continue;
             
-            loadable.ClearRounds();
-            SpawnAndInsertCar(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+                loadable.ClearRounds();
+                SpawnAndInsertCarRecursive(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+            }
         }
 
         public void TopOffMagazine()
         {
-            var loadable = GetHeld<IAmmunitionLoadable>();
-            if (loadable == null || !Util.AllowLoadCartridge(currentCaliber, loadable))
-                return;
+            var loadables = GetHeld<IAmmunitionLoadable>();
+            foreach (var loadable in loadables)
+            {
+                if (loadable == null || !Util.AllowLoadCartridge(currentCaliber, loadable))
+                    continue;
 
-            SpawnAndInsertCar(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+                SpawnAndInsertCarRecursive(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
+            }
         }
 
-        private void SpawnAndInsertCar(IAmmunitionLoadable loadable, string carId)
+        private void SpawnAndInsertCarRecursive(IAmmunitionLoadable loadable, string carId)
         {
             if (loadable == null || loadable.GetLoadedCartridges().Count(x => x) >= loadable.GetCapacity() || string.IsNullOrWhiteSpace(carId))
                 return;
@@ -199,7 +180,7 @@ namespace GhettosFirearmSDKv2
             Util.SpawnItem(carId, "Ammo Spawner", cartridge => 
             {
                 loadable.LoadRound(cartridge.GetComponent<Cartridge>());
-                SpawnAndInsertCar(loadable, carId);
+                SpawnAndInsertCarRecursive(loadable, carId);
             }, transform.position);
         }
 
@@ -211,7 +192,7 @@ namespace GhettosFirearmSDKv2
             }
         }
         
-        #endregion Actions
+        #endregion
 
         #region Setups
         public void SetupCategories()
