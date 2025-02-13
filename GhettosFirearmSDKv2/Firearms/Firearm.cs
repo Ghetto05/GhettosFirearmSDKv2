@@ -232,6 +232,8 @@ namespace GhettosFirearmSDKv2
             if (!item.holder)
                 return;
             var h = item.holder;
+            if (h.GetComponentInParent<AmmunitionPouch>() is { } pouch)
+                pouch.nextSnapFromFirearmLoad = true;
             item.holder.UnSnap(item, true);
             h.Snap(item, true);
         }

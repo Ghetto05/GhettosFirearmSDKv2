@@ -10,6 +10,7 @@ namespace GhettosFirearmSDKv2
         public Holder holder;
         public Item pouchItem;
         public PouchSaveData SavedData;
+        public bool nextSnapFromFirearmLoad;
 
         private void Start()
         {
@@ -42,14 +43,16 @@ namespace GhettosFirearmSDKv2
         private void Holder_UnSnapped(Item item)
         {
             item.Hide(false);
-            SpawnSavedItem();
+            if (!nextSnapFromFirearmLoad)
+                SpawnSavedItem();
             Util.IgnoreCollision(gameObject, item.gameObject, false);
         }
 
         private void Holder_Snapped(Item item)
         {
+            nextSnapFromFirearmLoad = false;
             item.Hide(true);
-            if (item.GetComponent<Firearm>()) holder.UnSnap(item);
+            //if (item.GetComponent<Firearm>()) holder.UnSnap(item);
             if (string.IsNullOrEmpty(SavedData.ItemID)) SaveItem();
             Util.IgnoreCollision(gameObject, item.gameObject, true);
         }
