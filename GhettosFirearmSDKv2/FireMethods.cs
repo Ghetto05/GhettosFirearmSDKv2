@@ -418,13 +418,19 @@ public class FireMethods : MonoBehaviour
                 coll.damageStruct.hitRagdollPart = ragdollPart;
                 coll.intensity = EvaluateDamage(data.damagePerProjectile * damageModifier * damageMultiplier, cr);
                 coll.pressureRelativeVelocity = muzzle.forward * 200;
-
-                if (WouldCreatureBeKilled(EvaluateDamage(data.damagePerProjectile * damageModifier, cr), cr) && !cr.isKilled && !killedCreatures.Contains(cr))
+                
+                try
                 {
-                    killedCreatures.Add(cr);
+                    if (WouldCreatureBeKilled(EvaluateDamage(data.damagePerProjectile * damageModifier, cr), cr) && !cr.isKilled && !killedCreatures.Contains(cr))
+                    {
+                        killedCreatures.Add(cr);
+                        cr.Kill(coll);
+                    }
+                    else
+                    {
+                        cr.Damage(coll);
+                    }
                 }
-
-                try { cr.Damage(coll); }
                 catch (Exception)
                 {
                     /* ignored */
