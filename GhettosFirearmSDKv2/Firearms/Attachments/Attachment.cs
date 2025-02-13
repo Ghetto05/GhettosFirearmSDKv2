@@ -49,8 +49,8 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (attachmentPoint != null && attachmentPoint.parentFirearm != null && attachmentPoint.parentFirearm.item != null)
-                Hide(!attachmentPoint.parentFirearm.item.renderers[0].enabled);
+            if (attachmentPoint != null && attachmentPoint.parentManager != null && attachmentPoint.parentManager.Item != null)
+                Hide(!attachmentPoint.parentManager.Item.renderers[0].enabled);
         }
 
         public void Hide(bool hidden)
@@ -64,6 +64,9 @@ namespace GhettosFirearmSDKv2
 
         public void Initialize(Action<Attachment> callback, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
+            Firearm firearm = null;
+            if (attachmentPoint.parentManager is Firearm f)
+                firearm = f;
             addedByInitialSetup = initialSetup;
             if (thisNode != null) Node = thisNode;
             _renderers = new List<Renderer>();
@@ -71,23 +74,23 @@ namespace GhettosFirearmSDKv2
             foreach (var ren in gameObject.GetComponentsInChildren<Renderer>(true))
             {
                 if (!_renderers.Contains(ren)) _renderers.Add(ren);
-                if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.parentFirearm.item.renderers.Contains(ren)) attachmentPoint.parentFirearm.item.renderers.Add(ren);
+                if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.parentManager.Item.renderers.Contains(ren)) attachmentPoint.parentManager.Item.renderers.Add(ren);
             }
             foreach (var dec in gameObject.GetComponentsInChildren<RevealDecal>(true))
             {
                 if (!_decals.Contains(dec)) _decals.Add(dec);
-                if (!attachmentPoint.parentFirearm.item.revealDecals.Contains(dec)) attachmentPoint.parentFirearm.item.revealDecals.Add(dec);
+                if (!attachmentPoint.parentManager.Item.revealDecals.Contains(dec)) attachmentPoint.parentManager.Item.revealDecals.Add(dec);
             }
-            try { attachmentPoint.parentFirearm.item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentFirearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
+            try { attachmentPoint.parentManager.Item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentManager.Item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
 
             transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             foreach (var ap in attachmentPoints.Where(x => x))
             {
-                ap.parentFirearm = attachmentPoint.parentFirearm;
+                ap.parentManager = attachmentPoint.parentManager;
                 ap.attachment = this;
             }
-            attachmentPoint.parentFirearm.UpdateAttachments(initialSetup);
-            attachmentPoint.parentFirearm.item.OnDespawnEvent += Item_OnDespawnEvent;
+            attachmentPoint.parentManager.UpdateAttachments();
+            attachmentPoint.parentManager.Item.OnDespawnEvent += Item_OnDespawnEvent;
 
             if (Settings.debugMode)
             {
@@ -106,34 +109,31 @@ namespace GhettosFirearmSDKv2
             if (colliderGroup != null)
             {
                 colliderGroup.Load(Catalog.GetData<ColliderGroupData>(colliderGroupId));
-                attachmentPoint.parentFirearm.item.colliderGroups.Add(colliderGroup);
-                attachmentPoint.parentFirearm.item.RefreshCollision();
+                attachmentPoint.parentManager.Item.colliderGroups.Add(colliderGroup);
+                attachmentPoint.parentManager.Item.RefreshCollision();
                 foreach (var c in colliderGroup.colliders)
                 {
-                    c.gameObject.layer = attachmentPoint.parentFirearm.item.currentPhysicsLayer;
+                    c.gameObject.layer = attachmentPoint.parentManager.Item.currentPhysicsLayer;
                 }
             }
             foreach (var colll in alternateGroups.Where(x => x))
             {
                 colll.Load(Catalog.GetData<ColliderGroupData>(alternateGroupsIds[alternateGroups.IndexOf(colll)]));
-                attachmentPoint.parentFirearm.item.colliderGroups.Add(colll);
-                attachmentPoint.parentFirearm.item.RefreshCollision();
+                attachmentPoint.parentManager.Item.colliderGroups.Add(colll);
+                attachmentPoint.parentManager.Item.RefreshCollision();
                 foreach (var c in colll.colliders)
                 {
-                    c.gameObject.layer = attachmentPoint.parentFirearm.item.currentPhysicsLayer;
+                    c.gameObject.layer = attachmentPoint.parentManager.Item.currentPhysicsLayer;
                 }
             }
             foreach (var han in handles.Where(x => x))
             {
-                han.item = attachmentPoint.parentFirearm.item;
-                han.physicBody.rigidBody = attachmentPoint.parentFirearm.item.physicBody.rigidBody;
-                attachmentPoint.parentFirearm.item.handles.Add(han);
-                if (attachmentPoint.parentFirearm.item.holder != null) han.SetTouch(false);
-            }
-            foreach (var han in additionalTriggerHandles.Where(x => x))
-            {
-                attachmentPoint.parentFirearm.additionalTriggerHandles.Add(han);
-            }
+                han.item = attachmentPoint.parentManager.Item;
+                han.physicBody.rigidBody = attachmentPoint.parentManager.Item.physicBody.rigidBody;
+                attachmentPoint.parentManager.Item.handles.Add(han);
+                if (attachmentPoint.parentManager.Item.holder != null) han.SetTouch(false);
+            } 
+            firearm?.additionalTriggerHandles.AddRange(additionalTriggerHandles.Where(x => x));
             if (damagers != null)
             {
                 foreach (var dmg in damagers)
@@ -142,18 +142,18 @@ namespace GhettosFirearmSDKv2
                     {
                         if (damagerIds[damagers.IndexOf(dmg)].Equals("Mace1H"))
                             damagerIds[damagers.IndexOf(dmg)] = "Ghetto05.FirearmSDKv2.Damagers.NearlyNoDamage";
-                        dmg.Load(Catalog.GetData<DamagerData>(damagerIds[damagers.IndexOf(dmg)]), attachmentPoint.parentFirearm.item.mainCollisionHandler);
-                        attachmentPoint.parentFirearm.item.mainCollisionHandler.damagers.Add(dmg);
+                        dmg.Load(Catalog.GetData<DamagerData>(damagerIds[damagers.IndexOf(dmg)]), attachmentPoint.parentManager.Item.mainCollisionHandler);
+                        attachmentPoint.parentManager.Item.mainCollisionHandler.damagers.Add(dmg);
                     }
                 }
             }
-            attachmentPoint.parentFirearm.item.OnHeldActionEvent += InvokeHeldAction;
+            attachmentPoint.parentManager.Item.OnHeldActionEvent += InvokeHeldAction;
             OnDelayedAttachEvent?.Invoke();
-            attachmentPoint.parentFirearm.InvokeAttachmentAdded(this, attachmentPoint);
+            firearm?.InvokeAttachmentAdded(this, attachmentPoint);
             initialized = true;
 
             attachmentPoint.SetDependantObjectVisibility();
-            attachmentPoint.parentFirearm.item.UpdateReveal();
+            attachmentPoint.parentManager.Item.UpdateReveal();
             callback?.Invoke(this);
         }
 
@@ -162,7 +162,7 @@ namespace GhettosFirearmSDKv2
             foreach (var n in Node.Childs)
             {
                 var point = GetSlotFromId(n.Slot);
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.AttachmentId, $"[Point {point?.id} on {point?.parentFirearm?.item?.itemId}]")).SpawnAndAttach(point, null, n, addedByInitialSetup);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.AttachmentId, $"[Point {point?.id} on {point?.parentManager?.Item?.itemId}]")).SpawnAndAttach(point, null, n, addedByInitialSetup);
             }
         }
 
@@ -178,63 +178,69 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            if (colliderGroup == null || colliderGroup.colliders == null || attachmentPoint == null || attachmentPoint.parentFirearm == null) return;
+            if (colliderGroup == null || colliderGroup.colliders == null || attachmentPoint == null || attachmentPoint.parentManager == null) return;
             foreach (var c in colliderGroup.colliders)
             {
-                c.gameObject.layer = attachmentPoint.parentFirearm.item.currentPhysicsLayer;
+                c.gameObject.layer = attachmentPoint.parentManager.Item.currentPhysicsLayer;
             }
         }
 
         public void Detach(bool despawnDetach = false)
         {
-            if (attachmentPoint != null && attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.item.OnHeldActionEvent -= InvokeHeldAction;
+            if (attachmentPoint != null && attachmentPoint.parentManager != null) attachmentPoint.parentManager.Item.OnHeldActionEvent -= InvokeHeldAction;
             OnDetachEvent?.Invoke(despawnDetach);
-            if (despawnDetach) return;
+            if (despawnDetach || attachmentPoint.parentManager == null) return;
             if (attachmentPoint.attachment != null) attachmentPoint.attachment.Node.Childs.Remove(Node);
-            else if (attachmentPoint.parentFirearm != null) attachmentPoint.parentFirearm.SaveData.FirearmNode.Childs.Remove(Node);
+            else if (attachmentPoint.parentManager != null) attachmentPoint.parentManager.SaveData.FirearmNode.Childs.Remove(Node);
             foreach (var eve in onDetachEvents)
             {
                 eve.Invoke();
             }
-            var firearm = attachmentPoint.parentFirearm;
-            firearm.InvokeAttachmentRemoved(this, attachmentPoint);
-            foreach (var han in additionalTriggerHandles.Where(x => x))
+            var manager = attachmentPoint.parentManager;
+            Firearm firearm = null;
+            if (manager is Firearm f)
+                firearm = f;
+            manager.InvokeAttachmentRemoved(this, attachmentPoint);
+            if (firearm)
             {
-                firearm.additionalTriggerHandles.Remove(han);
+                foreach (var han in additionalTriggerHandles.Where(x => x))
+                {
+                    firearm.additionalTriggerHandles.Remove(han);
+                }
             }
             attachmentPoint.currentAttachments.Remove(this);
             attachmentPoint.SetDependantObjectVisibility();
             var attachments = attachmentPoints.Where(x => x).SelectMany(x => x.currentAttachments).ToArray();
-            for (var i = 0; i < attachments.Length; i++)
+            foreach (var t in attachments)
             {
-                attachments[i].Detach();
+                t.Detach();
             }
             foreach (var han in handles.Where(x => x))
             {
-                firearm.item.handles.Remove(han);
+                manager.Item.handles.Remove(han);
                 if (han.touchCollider != null && han.touchCollider.gameObject != null)
                     Destroy(han.touchCollider.gameObject);
             }
             foreach (var d in damagers.Where(x => x))
             {
-                firearm.item.mainCollisionHandler.damagers.Remove(d);
+                manager.Item.mainCollisionHandler.damagers.Remove(d);
             }
-            firearm.UpdateAttachments();
-            firearm.item.colliderGroups.Remove(colliderGroup);
+            manager.UpdateAttachments();
+            manager.Item.colliderGroups.Remove(colliderGroup);
             foreach (var colll in alternateGroups.Where(x => x))
             {
-                firearm.item.colliderGroups.Remove(colll);
+                manager.Item.colliderGroups.Remove(colll);
             }
             foreach (var ren in _renderers.Where(x => x))
             {
-                if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.renderers.Remove(ren);
-                if (!nonLightVolumeRenderers.Contains(ren)) firearm.item.lightVolumeReceiver.renderers.Remove(ren);
+                if (!nonLightVolumeRenderers.Contains(ren)) manager.Item.renderers.Remove(ren);
+                if (!nonLightVolumeRenderers.Contains(ren)) manager.Item.lightVolumeReceiver.renderers.Remove(ren);
             }
             foreach (var dec in _decals.Where(x => x))
             {
-                firearm.item.revealDecals.Remove(dec);
+                manager.Item.revealDecals.Remove(dec);
             }
-            try { firearm.item.lightVolumeReceiver.SetRenderers(firearm.item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
+            try { manager.Item.lightVolumeReceiver.SetRenderers(manager.Item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
 
             if (this == null || gameObject == null) return;
 

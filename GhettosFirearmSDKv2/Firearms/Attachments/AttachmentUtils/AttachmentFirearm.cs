@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
@@ -17,9 +18,9 @@ namespace GhettosFirearmSDKv2
         public override void InvokedStart()
         {
             if (!disableMainFireHandle) mainFireHandle = fireHandle;
-            item = attachment.GetComponentInParent<AttachmentPoint>().parentFirearm.item;
-            attachment.attachmentPoint.parentFirearm.OnCollisionEvent += OnCollisionEnter;
-            attachment.attachmentPoint.parentFirearm.item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
+            item = attachment.GetComponentInParent<AttachmentPoint>().parentManager.Item;
+            attachment.attachmentPoint.parentManager.OnCollision += OnCollisionEnter;
+            attachment.attachmentPoint.parentManager.Item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             attachment.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
@@ -81,7 +82,7 @@ namespace GhettosFirearmSDKv2
         
         public override bool HeldByAI()
         {
-            return attachment.attachmentPoint.parentFirearm.HeldByAI();
+            return !(attachment.attachmentPoint.parentManager.Item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? true);
         }
     }
 }

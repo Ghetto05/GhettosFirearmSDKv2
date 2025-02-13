@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Events;
@@ -33,14 +34,14 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            if (parentItem != null) parentItem.OnHeldActionEvent += OnHeldActionEvent;
-            else if (parentAttachment != null) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
+            if (parentItem) parentItem.OnHeldActionEvent += OnHeldActionEvent;
+            else if (parentAttachment) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
 
-            if (parentAttachment != null && parentAttachment.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
+            if (parentAttachment && parentAttachment.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
             {
                 _current = value.Value;
             }
-            else if (parentItem != null && parentItem.TryGetComponent(out Firearm firearm) && firearm.SaveData.FirearmNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value2))
+            else if (parentItem && parentItem.TryGetComponent(out IAttachmentManager manager) && manager.SaveData.FirearmNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value2))
             {
                 _current = value2.Value;
             }
@@ -87,7 +88,7 @@ namespace GhettosFirearmSDKv2
             }
 
             if (parentAttachment != null) parentAttachment.Node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
-            else if (parentItem != null && parentItem.TryGetComponent(out Firearm firearm)) firearm.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
+            else if (parentItem != null && parentItem.TryGetComponent(out IAttachmentManager manager)) manager.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
         }
 
         public void AlignSwitch(SwitchRelation swi, int index)

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 
@@ -25,23 +27,23 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            if (attachment == null && item == null && handles.Count > 0)
+            if (!attachment && !item && handles.Count > 0)
                 item = handles[0].item;
 
-            if (attachment != null)
-                attachment.attachmentPoint.parentFirearm.item.OnHeldActionEvent += OnAttachmentsAction;
-            else if (item != null)
+            if (attachment)
+                attachment.attachmentPoint.parentManager.item.OnHeldActionEvent += OnAttachmentsAction;
+            else if (item)
                 item.OnHeldActionEvent += OnOffhandAction;
 
             if (toggleMode)
             {
-                if (attachment != null)
+                if (attachment)
                 {
                     _saveData = attachment.Node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
                 }
-                else if (item.GetComponent<Firearm>() is { } firearm)
+                else if (item.GetComponent<IAttachmentManager>() is { } manager)
                 {
-                    _saveData = firearm.SaveData.FirearmNode.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
+                    _saveData = manager.SaveData.FirearmNode.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
                 }
 
                 if (_saveData != null)
@@ -53,8 +55,8 @@ namespace GhettosFirearmSDKv2
 
         public void InitialSet()
         {
-            item = item != null ? item : attachment != null ? attachment.attachmentPoint.parentFirearm.item : null;
-            if (item == null)
+            item = item ? item : attachment ? attachment.attachmentPoint.parentManager.item : null;
+            if (!item)
                 return;
 
             foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
@@ -65,11 +67,11 @@ namespace GhettosFirearmSDKv2
 
         private void OnDestroy()
         {
-            if (attachment != null) attachment.attachmentPoint.parentFirearm.item.OnHeldActionEvent -= OnAttachmentsAction;
-            else if (item != null) item.OnHeldActionEvent -= OnOffhandAction;
+            if (attachment) attachment.attachmentPoint.parentManager.item.OnHeldActionEvent -= OnAttachmentsAction;
+            else if (item) item.OnHeldActionEvent -= OnOffhandAction;
 
-            item = attachment == null ? item : attachment.attachmentPoint.parentFirearm.item;
-            if (item == null) return;
+            item = !attachment ? item : attachment.attachmentPoint.parentManager.item;
+            if (!item) return;
 
             foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
             {
@@ -94,16 +96,16 @@ namespace GhettosFirearmSDKv2
 
         private void OnAttachmentsAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            if (handle != handle.item.mainHandleLeft && !attachment.attachmentPoint.parentFirearm.AllTriggerHandles().Contains(handle))
+            if (handle == handle.item.mainHandleLeft ||
+                attachment.attachmentPoint.parentManager.AllTriggerHandles().Contains(handle)) return;
+            switch (action)
             {
-                if (action == Interactable.Action.UseStart)
-                {
+                case Interactable.Action.UseStart:
                     Toggle(true, handle.item);
-                }
-                else if (action == Interactable.Action.UseStop)
-                {
+                    break;
+                case Interactable.Action.UseStop:
                     Toggle(false, handle.item);
-                }
+                    break;
             }
         }
 

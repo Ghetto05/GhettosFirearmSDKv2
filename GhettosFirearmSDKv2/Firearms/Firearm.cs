@@ -1,19 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2
 {
-    public class Firearm : FirearmBase
+    public class Firearm : FirearmBase, IAttachmentManager
     {
+        public Item Item => item ?? GetComponent<Item>();
+        public Transform Transform => transform;
+
+        public List<AttachmentPoint> AttachmentPoints
+        {
+            get => attachmentPoints;
+            set => attachmentPoints = value;
+        }
+
+        public List<Attachment> CurrentAttachments { get; set; }
+
+        public FirearmSaveData SaveData { get; set; }
+
         public List<AttachmentPoint> attachmentPoints;
-        public List<Attachment> allAttachments;
-        public Texture icon;
         public List<Handle> preSnapActiveHandles;
-        public FirearmSaveData SaveData;
 
         private ItemMetaData _metaData;
 
@@ -62,7 +73,7 @@ namespace GhettosFirearmSDKv2
 
         public override float CalculateDamageMultiplier()
         {
-            return allAttachments.Where(a => a.multiplyDamage).Aggregate(1f, (current, a) => current * a.damageMultiplier);
+            return CurrentAttachments.Where(a => a.multiplyDamage).Aggregate(1f, (current, a) => current * a.damageMultiplier);
         }
 
         public override void Start()
@@ -74,16 +85,10 @@ namespace GhettosFirearmSDKv2
             }
 
             base.Start();
-            if (attachmentPoints.Count == 0 || attachmentPoints.Any(a => !a))
-            {
-                attachmentPoints = GetComponentsInChildren<AttachmentPoint>().ToList();
-            }
 
             if (!item)
                 item = GetComponent<Item>();
-            item.OnDespawnEvent += Item_OnDespawnEvent;
             Invoke(nameof(InvokedStart), Settings.invokeTime);
-            all.Add(this);
 
             var aiModule = new ItemModuleAI
                            {
@@ -120,13 +125,9 @@ namespace GhettosFirearmSDKv2
             item.data.moduleAI = aiModule;
         }
 
-        private void Item_OnDespawnEvent(EventTime eventTime)
-        {
-            all.Remove(this);
-        }
-
         public override void InvokedStart()
         {
+            all.Add(this);
             if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
@@ -135,23 +136,12 @@ namespace GhettosFirearmSDKv2
             item.OnUnSnapEvent += Item_OnUnSnapEvent2;
             item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
-            allAttachments = [];
+            item.OnDespawnEvent += OnDespawn;
+            CurrentAttachments = [];
             fireEvent.AddListener(AIFire);
-            foreach (var ap in attachmentPoints)
-            {
-                ap.parentFirearm = this;
-            }
 
-            if (!item.TryGetCustomData(out SaveData))
-            {
-                SaveData = new FirearmSaveData
-                {
-                    FirearmNode = new FirearmSaveData.AttachmentTreeNode()
-                };
-                item.AddCustomData(SaveData);
-            }
-
-            SaveData.ApplyToFirearm(this);
+            SharedAttachmentManagerFunctions.LoadAndApplyData(this);
+            
             CalculateMuzzle();
 
             #region handle type validation
@@ -169,6 +159,21 @@ namespace GhettosFirearmSDKv2
             Invoke(nameof(DelayedLoad), 2.3f);
 
             base.InvokedStart();
+        }
+
+        private void OnDespawn(EventTime eventTime)
+        {
+            if (eventTime != EventTime.OnStart)
+                return;
+            item.OnHeldActionEvent -= Item_OnHeldActionEvent;
+            item.OnSnapEvent -= Item_OnSnapEvent;
+            item.OnUnSnapEvent -= Item_OnUnSnapEvent;
+            item.OnSnapEvent -= Item_OnSnapEvent2;
+            item.OnUnSnapEvent -= Item_OnUnSnapEvent2;
+            item.OnDespawnEvent -= OnDespawn;
+            item.lightVolumeReceiver.onVolumeChangeEvent -= UpdateAllLightVolumeReceivers;
+            item.mainCollisionHandler.OnCollisionStartEvent -= InvokeCollisionTR;
+            all.Remove(this);
         }
 
         public override void Update()
@@ -193,6 +198,12 @@ namespace GhettosFirearmSDKv2
             }
         }
 
+        public override void OnCollisionEnter(Collision collision)
+        {
+            OnCollision?.Invoke(collision);
+            base.OnCollisionEnter(collision);
+        }
+
         public void Item_OnUnSnapEvent2(Holder holder)
         {
             foreach (var han in preSnapActiveHandles.Where(han => han && han.touchCollider))
@@ -211,20 +222,10 @@ namespace GhettosFirearmSDKv2
             }
         }
 
-        public void UpdateAttachments(bool initialSetup = false)
+        public void UpdateAttachments()
         {
-            allAttachments = [];
-            AddAttachments(attachmentPoints);
+            SharedAttachmentManagerFunctions.UpdateAttachments(this);
             CalculateMuzzle();
-        }
-
-        public void AddAttachments(List<AttachmentPoint> points)
-        {
-            foreach (var point in points.Where(x => x && x.currentAttachments.Any()))
-            {
-                allAttachments.AddRange(point.currentAttachments);
-                AddAttachments(point.currentAttachments.SelectMany(x => x.attachmentPoints).ToList());
-            }
         }
 
         public void DelayedLoad()
@@ -240,13 +241,13 @@ namespace GhettosFirearmSDKv2
 
         public AttachmentPoint GetSlotFromId(string id)
         {
-            return attachmentPoints.FirstOrDefault(x => x.id.Equals(id));
+            return SharedAttachmentManagerFunctions.GetSlotFromId(this, id);
         }
 
         public override void PlayMuzzleFlash(Cartridge cartridge)
         {
             var overridden = false;
-            foreach (var at in allAttachments)
+            foreach (var at in CurrentAttachments)
             {
                 if (at.overridesMuzzleFlash && !at.attachmentPoint.dummyMuzzleSlot)
                     overridden = true;
@@ -266,14 +267,14 @@ namespace GhettosFirearmSDKv2
 
         public override bool IsSuppressed()
         {
-            return integrallySuppressed || allAttachments.Any(at => at.isSuppressing && !at.attachmentPoint.dummyMuzzleSlot && at.gameObject.activeInHierarchy);
+            return integrallySuppressed || CurrentAttachments.Any(at => at.isSuppressing && !at.attachmentPoint.dummyMuzzleSlot && at.gameObject.activeInHierarchy);
         }
 
         public override void CalculateMuzzle()
         {
             if (!hitscanMuzzle)
                 return;
-            actualHitscanMuzzle = allAttachments.Where(at => at.minimumMuzzlePosition && !at.attachmentPoint.dummyMuzzleSlot).OrderByDescending(at => Vector3.Distance(transform.position, at.minimumMuzzlePosition.position)).FirstOrDefault()?.minimumMuzzlePosition;
+            actualHitscanMuzzle = CurrentAttachments.Where(at => at.minimumMuzzlePosition && !at.attachmentPoint.dummyMuzzleSlot).OrderByDescending(at => Vector3.Distance(transform.position, at.minimumMuzzlePosition.position)).FirstOrDefault()?.minimumMuzzlePosition;
             if (!actualHitscanMuzzle)
                 actualHitscanMuzzle = hitscanMuzzle;
             base.CalculateMuzzle();
@@ -300,10 +301,7 @@ namespace GhettosFirearmSDKv2
 
         private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
         {
-            foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != item.lightVolumeReceiver))
-            {
-                Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
-            }
+            SharedAttachmentManagerFunctions.UpdateAllLightVolumeReceivers(this, currentLightProbeVolume, lightProbeVolumes);
         }
 
         public override bool HeldByAI()
@@ -336,5 +334,19 @@ namespace GhettosFirearmSDKv2
                 return base.CanFire && attachmentPointsAllow;
             }
         }
+
+        public void InvokeAttachmentAdded(Attachment attachment, AttachmentPoint attachmentPoint)
+        {
+            OnAttachmentAdded?.Invoke(attachment, attachmentPoint);
+        }
+
+        public void InvokeAttachmentRemoved(Attachment attachment, AttachmentPoint attachmentPoint)
+        {
+            OnAttachmentRemoved?.Invoke(attachment, attachmentPoint);
+        }
+
+        public event IAttachmentManager.Collision OnCollision;
+        public event IAttachmentManager.AttachmentAdded OnAttachmentAdded;
+        public event IAttachmentManager.AttachmentRemoved OnAttachmentRemoved;
     }
 }

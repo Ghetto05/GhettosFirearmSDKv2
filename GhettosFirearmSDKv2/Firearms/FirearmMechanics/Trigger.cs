@@ -59,9 +59,9 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (firearm && attachment && attachment.attachmentPoint?.parentFirearm)
+            if (firearm && attachment && attachment.attachmentPoint?.parentManager)
             {
-                firearm = attachment.attachmentPoint.parentFirearm;
+                firearm = attachment.attachmentPoint.parentManager;
                 firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             }
             

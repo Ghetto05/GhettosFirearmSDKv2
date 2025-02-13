@@ -7,6 +7,7 @@ namespace GhettosFirearmSDKv2
         public Attachment attachment;
         public float newFireRate;
         private float _oldFireRate;
+        private FirearmBase _firearm;
 
         private void Awake()
         {
@@ -19,13 +20,18 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDetachEvent(bool despawnDetach)
         {
-            attachment.attachmentPoint.parentFirearm.roundsPerMinute = _oldFireRate;
+            if (_firearm)
+                _firearm.roundsPerMinute = _oldFireRate;
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            _oldFireRate = attachment.attachmentPoint.parentFirearm.roundsPerMinute;
-            attachment.attachmentPoint.parentFirearm.roundsPerMinute = newFireRate;
+            if (attachment.attachmentPoint.parentManager is not FirearmBase f)
+                return;
+
+            _firearm = f;
+            _oldFireRate = _firearm.roundsPerMinute;
+            _firearm.roundsPerMinute = newFireRate;
         }
     }
 }

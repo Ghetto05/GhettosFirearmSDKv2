@@ -41,7 +41,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!firearm && attachment)
             {
-                firearm = attachment.attachmentPoint.parentFirearm;
+                firearm = attachment.attachmentPoint.parentManager;
                 attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
                 _preAttachFireMode = firearm.fireMode;
             }

@@ -134,17 +134,7 @@ namespace GhettosFirearmSDKv2
 
         public void SaveChamber(string id, bool fired)
         {
-            FirearmSaveData.AttachmentTreeNode node;
-            if (firearm.GetType() == typeof(Firearm))
-            {
-                var f = (Firearm)firearm;
-                node = f.SaveData.FirearmNode;
-            }
-            else
-            {
-                var f = (AttachmentFirearm)firearm;
-                node = f.attachment.Node;
-            }
+            var node = FirearmSaveData.GetNode(firearm);
 
             if (node != null)
             {

@@ -30,26 +30,26 @@ namespace GhettosFirearmSDKv2
 
             if (!string.IsNullOrWhiteSpace(newType))
             {
-                _originalType = attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType;
-                attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType = newType;
+                _originalType = attachment.attachmentPoint.parentManager.magazineWell.acceptedMagazineType;
+                attachment.attachmentPoint.parentManager.magazineWell.acceptedMagazineType = newType;
             }
 
             if (!string.IsNullOrWhiteSpace(newCaliber))
             {
-                _originalCaliber = attachment.attachmentPoint.parentFirearm.magazineWell.caliber;
-                attachment.attachmentPoint.parentFirearm.magazineWell.caliber = newCaliber;
+                _originalCaliber = attachment.attachmentPoint.parentManager.magazineWell.caliber;
+                attachment.attachmentPoint.parentManager.magazineWell.caliber = newCaliber;
             }
 
             if (!string.IsNullOrWhiteSpace(newDefaultAmmo) && !attachment.addedByInitialSetup)
             {
-                _originalDefaultAmmo = attachment.attachmentPoint.parentFirearm.GetAmmoItem();
+                _originalDefaultAmmo = attachment.attachmentPoint.parentManager.GetAmmoItem();
 
                 var dataList = new List<ContentCustomData>();
                 
                 if (overrideMagazineLoad)
                     dataList.Add(overrideMagazineLoad.ToSaveData());
                     
-                attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(newDefaultAmmo, dataList.Any() ? dataList.ToArray() : null);
+                attachment.attachmentPoint.parentManager.SetSavedAmmoItem(newDefaultAmmo, dataList.Any() ? dataList.ToArray() : null);
             }
 
             attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
@@ -64,17 +64,17 @@ namespace GhettosFirearmSDKv2
 
             if (!string.IsNullOrWhiteSpace(newType))
             {
-                attachment.attachmentPoint.parentFirearm.magazineWell.acceptedMagazineType = _originalType;
+                attachment.attachmentPoint.parentManager.magazineWell.acceptedMagazineType = _originalType;
             }
 
             if (!string.IsNullOrWhiteSpace(newCaliber))
             {
-                attachment.attachmentPoint.parentFirearm.magazineWell.caliber = _originalCaliber;
+                attachment.attachmentPoint.parentManager.magazineWell.caliber = _originalCaliber;
             }
 
             if (!string.IsNullOrWhiteSpace(newDefaultAmmo) && !attachment.addedByInitialSetup)
             {
-                attachment.attachmentPoint.parentFirearm.SetSavedAmmoItem(_originalDefaultAmmo);
+                attachment.attachmentPoint.parentManager.SetSavedAmmoItem(_originalDefaultAmmo);
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using TMPro;
 using UnityEngine;
@@ -27,7 +28,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         public Holder holder;
         public Handle[] freezeHandles;
         
-        private Firearm _currentFirearm;
+        private IAttachmentManager _currentManager;
         private UISlot _currentSlot;
         private UIRailAttachment _currentRailAttachment;
 
@@ -101,12 +102,12 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private void HolderOnSnapped(Item item)
         {
-            if (item.GetComponent<Firearm>() is not { } firearm)
+            if (item.GetComponent<IAttachmentManager>() is not { } manager)
                 return;
             
             screenCollider.enabled = true;
             GetComponent<Canvas>().enabled = true;
-            SetupForFirearm(firearm);
+            SetupForManager(manager);
         }
 
         private void HolderOnUnSnapped(Item item)
@@ -127,7 +128,7 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             foreach (var x in _railAttachments.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
             _railAttachments.Clear();
 
-            _currentFirearm = null;
+            _currentManager = null;
             _currentSlot = null;
             _currentRailAttachment = null;
         }
@@ -173,12 +174,21 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private void UpdateSaveAmmoButton()
         {
-            saveAmmoItemButtonText.text = GetSelectedFirearm().GetType() == typeof(AttachmentFirearm) ? "Save held item as ammo\n(For current attachment)" : "Save held item as ammo\n(For firearm base)";
+            var f = GetSelectedFirearm();
+            if (!f)
+            {
+                saveAmmoItemButtonText.gameObject.SetActive(true);
+                saveAmmoItemButtonText.text = f.GetType() == typeof(AttachmentFirearm) ? "Save held item as ammo\n(For current attachment)" : "Save held item as ammo\n(For firearm base)";
+            }
+            else
+            {
+                saveAmmoItemButtonText.gameObject.SetActive(false);
+            }
         }
 
-        public void SetupForFirearm(Firearm firearm)
+        public void SetupForManager(IAttachmentManager manager)
         {
-            _currentFirearm = firearm;
+            _currentManager = manager;
             SetupSlots();
         }
         
@@ -187,9 +197,9 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             foreach (var x in _slots.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
             _slots.Clear();
             
-            foreach (var point in _currentFirearm.attachmentPoints)
+            foreach (var point in _currentManager.AttachmentPoints)
             {
-                AddSlot(point, _currentFirearm.item.data.iconAddress);
+                AddSlot(point, _currentManager.Item.data.iconAddress);
                 point.currentAttachments.ForEach(x => AddSlotsFromAttachment(x));
             }
         }
@@ -229,9 +239,9 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
             foreach (var x in _slots.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
             _slots.Clear();
             
-            foreach (var point in _currentFirearm.attachmentPoints.Where(x => x.gameObject.activeInHierarchy))
+            foreach (var point in _currentManager.AttachmentPoints.Where(x => x.gameObject.activeInHierarchy))
             {
-                AddSlot(point, _currentFirearm.item.data.iconAddress);
+                AddSlot(point, _currentManager.Item.data.iconAddress);
                 point.currentAttachments.ForEach(x => AddSlotsFromAttachment(x));
             }
 
@@ -468,7 +478,10 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
 
         private FirearmBase GetSelectedFirearm()
         {
-            FirearmBase firearm = _currentFirearm;
+            FirearmBase firearm = null;
+
+            if (_currentManager is Firearm f)
+                firearm = f;
 
             if (_currentSlot?.AttachmentPoint?.usesRail != true)
             {

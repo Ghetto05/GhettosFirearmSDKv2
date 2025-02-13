@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -37,7 +38,8 @@ namespace GhettosFirearmSDKv2
         public float noZoomMagnification;
         public bool hasZoom;
         public Handle controllingHandle;
-        public Firearm connectedFirearm;
+        [FormerlySerializedAs("connectedFirearm"), SerializeField, SerializeReference]
+        public IAttachmentManager attachmentManager;
         public Attachment connectedAttachment;
         public List<float> magnificationLevels;
         public Transform selector;
@@ -61,10 +63,10 @@ namespace GhettosFirearmSDKv2
             cam.targetTexture = rt;
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 
-            if (hasZoom && connectedFirearm != null)
+            if (hasZoom && attachmentManager != null)
             {
-                connectedFirearm.item.OnHeldActionEvent += Item_OnHeldActionEvent;
-                _zoomIndex = connectedFirearm.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
+                attachmentManager.Item.OnHeldActionEvent += Item_OnHeldActionEvent;
+                _zoomIndex = attachmentManager.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
             }
             else if (hasZoom && connectedAttachment != null)
             {

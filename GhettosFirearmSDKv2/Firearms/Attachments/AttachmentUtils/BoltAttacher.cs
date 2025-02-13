@@ -6,6 +6,7 @@ namespace GhettosFirearmSDKv2
 {
     public class BoltAttacher : MonoBehaviour
     {
+        public FirearmBase firearm;
         public Attachment attachment;
         public Transform boltChild;
         public Transform boltRbChild;
@@ -19,6 +20,9 @@ namespace GhettosFirearmSDKv2
 
         private void InvokedStart()
         {
+            if (attachment.attachmentPoint.parentManager is not FirearmBase f)
+                return;
+            firearm = f;
             attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
             if (GetParent() is { } p)
             {
@@ -48,7 +52,7 @@ namespace GhettosFirearmSDKv2
 
         private Transform GetParent()
         {
-            var bolt = attachment.attachmentPoint.parentFirearm.bolt;
+            var bolt = firearm.bolt;
             if (bolt == null)
                 return null;
 
@@ -63,7 +67,7 @@ namespace GhettosFirearmSDKv2
 
         private Transform GetParentRb()
         {
-            var bolt = attachment.attachmentPoint.parentFirearm.bolt;
+            var bolt = firearm.bolt;
             if (bolt == null)
                 return null;
 
@@ -78,7 +82,7 @@ namespace GhettosFirearmSDKv2
 
         private void SetHandles()
         {
-            var bolt = attachment.attachmentPoint.parentFirearm.bolt;
+            var bolt = firearm.bolt;
             if (bolt == null)
                 return;
 
@@ -91,7 +95,7 @@ namespace GhettosFirearmSDKv2
 
         private void ResetHandles()
         {
-            var bolt = attachment.attachmentPoint.parentFirearm.bolt;
+            var bolt = firearm.bolt;
             if (bolt == null)
                 return;
 

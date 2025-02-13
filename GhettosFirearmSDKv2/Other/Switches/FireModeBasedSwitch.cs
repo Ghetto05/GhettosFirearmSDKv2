@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            firearm = attachment.attachmentPoint.parentFirearm;
+            firearm = attachment.attachmentPoint.parentManager;
             firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
             Util.DelayedExecute(1f, Firearm_OnFiremodeChangedEvent, this);
         }

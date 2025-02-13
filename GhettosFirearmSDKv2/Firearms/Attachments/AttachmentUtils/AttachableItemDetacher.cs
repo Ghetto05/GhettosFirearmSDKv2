@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
 using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
@@ -23,18 +24,20 @@ namespace GhettosFirearmSDKv2
         {
             if (detachHandles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
             {
-                var oldItem = attachment.attachmentPoint.parentFirearm.item;
+                var oldItem = attachment.attachmentPoint.parentManager.Item;
                 var node = attachment.Node.CloneJson();
                 Util.SpawnItem(itemId, "Attachable Item Detach",item =>
                 {
                     Util.IgnoreCollision(item.gameObject, oldItem.gameObject, true);
                     Util.DelayIgnoreCollision(item.gameObject, oldItem.gameObject, false, 1f, item);
                     ragdollHand.Grab(item.GetMainHandle(ragdollHand.side));
-                    if (item.GetComponent<Firearm>() is { } firearm)
+                    if (item.GetComponent<IAttachmentManager>() is { } firearm)
                     {
-                        firearm.SaveData = new FirearmSaveData();
-                        firearm.SaveData.FirearmNode = node;
-                        firearm.GetComponent<Item>().AddCustomData(firearm.SaveData);
+                        firearm.SaveData = new FirearmSaveData
+                        {
+                            FirearmNode = node
+                        };
+                        firearm.Item.AddCustomData(firearm.SaveData);
                     }
                     item.SetOwner(oldItem.owner);
                 }, ragdollHand.grip.position, ragdollHand.grip.rotation);

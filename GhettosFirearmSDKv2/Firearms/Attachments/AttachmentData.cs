@@ -87,7 +87,7 @@ namespace GhettosFirearmSDKv2
                     if (point.attachment && !point.attachment.Node.Childs.Contains(thisNode))
                         point.attachment.Node.Childs.Add(attachment.Node);
                     else if (thisNode == null)
-                        point.parentFirearm.SaveData.FirearmNode.Childs.Add(attachment.Node);
+                        point.parentManager.SaveData.FirearmNode.Childs.Add(attachment.Node);
                     attachment.Initialize(callback, thisNode, initialSetup);
                     point.InvokeAttachmentAdded(attachment);
                 }

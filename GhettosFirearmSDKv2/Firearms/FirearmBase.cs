@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
@@ -313,19 +314,9 @@ namespace GhettosFirearmSDKv2
             return true;
         }
 
-        public void OnCollisionEnter(Collision collision)
+        public virtual void OnCollisionEnter(Collision collision)
         {
             OnCollisionEvent?.Invoke(collision);
-        }
-
-        public void InvokeAttachmentAdded(Attachment attachment, AttachmentPoint attachmentPoint)
-        {
-            OnAttachmentAddedEvent?.Invoke(attachment, attachmentPoint);
-        }
-
-        public void InvokeAttachmentRemoved(Attachment attachment, AttachmentPoint attachmentPoint)
-        {
-            OnAttachmentRemovedEvent?.Invoke(attachment, attachmentPoint);
         }
 
         public void AddRecoilModifier(float linearModifier, float muzzleRiseModifier, object modifierHandler)
@@ -417,9 +408,7 @@ namespace GhettosFirearmSDKv2
         //EVENTS
         public delegate void OnTriggerChange(bool isPulled);
         public event OnTriggerChange OnTriggerChangeEvent;
-
-        public delegate void OnCollision(Collision collision);
-        public event OnCollision OnCollisionEvent;
+        public event IAttachmentManager.Collision OnCollisionEvent;
 
         public delegate void OnCollisionTR(CollisionInstance collisionInstance);
         public event OnCollisionTR OnCollisionEventTR;
@@ -438,12 +427,6 @@ namespace GhettosFirearmSDKv2
 
         public delegate void OnFiremodeChanged();
         public event OnFiremodeChanged OnFiremodeChangedEvent;
-
-        public delegate void OnAttachmentAdded(Attachment attachment, AttachmentPoint attachmentPoint);
-        public event OnAttachmentAdded OnAttachmentAddedEvent;
-
-        public delegate void OnAttachmentRemoved(Attachment attachment, AttachmentPoint attachmentPoint);
-        public event OnAttachmentRemoved OnAttachmentRemovedEvent;
 
         public delegate void OnMuzzleCalculated();
         public event OnMuzzleCalculated OnMuzzleCalculatedEvent;

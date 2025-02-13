@@ -12,7 +12,7 @@ namespace GhettosFirearmSDKv2
         {
             foreach (var joint in joints)
             {
-                joint.connectedBody = attachment.attachmentPoint.parentFirearm.item.physicBody.rigidBody;
+                joint.connectedBody = attachment.attachmentPoint.parentManager.Item.physicBody.rigidBody;
                 joint.gameObject.GetComponent<Rigidbody>().isKinematic = false;
             }
         }

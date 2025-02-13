@@ -30,7 +30,8 @@ public class FireModeReplacer : MonoBehaviour
 
     private void Apply()
     {
-        var firearm = attachment.attachmentPoint.parentFirearm;
+        if (attachment.attachmentPoint.parentManager is not FirearmBase firearm)
+            return;
         foreach (var selector in firearm.GetComponentsInChildren<FiremodeSelector>().Where(x => x.firearm == firearm))
         {
             _replacedIndexes.Add(selector, new List<int>());
@@ -55,7 +56,8 @@ public class FireModeReplacer : MonoBehaviour
 
     private void Revert()
     {
-        var firearm = attachment.attachmentPoint.parentFirearm;
+        if (attachment.attachmentPoint.parentManager is not FirearmBase firearm)
+            return;
         foreach (var pair in _replacedIndexes)
         {
             foreach (var i in pair.Value)

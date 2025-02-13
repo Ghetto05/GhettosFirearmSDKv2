@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 
 namespace GhettosFirearmSDKv2
@@ -7,12 +8,12 @@ namespace GhettosFirearmSDKv2
     {
         public AttachmentTreeNode FirearmNode;
 
-        public void ApplyToFirearm(Firearm firearm)
+        public void ApplyToFirearm(IAttachmentManager manager)
         {
             foreach (var node in FirearmNode.Childs)
             {
-                var point = firearm.GetSlotFromId(node.Slot);
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(node.AttachmentId, $"[Firearm save data - slot {node.Slot} on {firearm.item?.data?.displayName} | {firearm.item?.itemId}]"))?.SpawnAndAttach(point, null, node, true);
+                var point = manager.GetSlotFromId(node.Slot);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(node.AttachmentId, $"[Firearm save data - slot {node.Slot} on {manager.Item?.data?.displayName} | {manager.Item?.itemId}]"))?.SpawnAndAttach(point, null, node, true);
             }
         }
 

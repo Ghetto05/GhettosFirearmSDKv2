@@ -13,6 +13,8 @@ namespace GhettosFirearmSDKv2
         [HideInInspector]
         public Transform oldMount;
 
+        private FirearmBase _firearm;
+
         private void Awake()
         {
             if (attachment.initialized) Attachment_OnDelayedAttachEvent();
@@ -28,27 +30,31 @@ namespace GhettosFirearmSDKv2
             {
                 if (oldCollider != null)
                     oldCollider.enabled = true;
-                attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = oldCollider;
+                _firearm.magazineWell.loadingCollider = oldCollider;
             }
             if (newMount != null)
             {
-                attachment.attachmentPoint.parentFirearm.magazineWell.mountPoint = oldMount;
+                _firearm.magazineWell.mountPoint = oldMount;
             }
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
+            if (attachment.attachmentPoint.parentManager is not FirearmBase f)
+                return;
+            _firearm = f;
+            
             if (newCollider != null)
             {
-                oldCollider = attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider;
+                oldCollider = _firearm.magazineWell.loadingCollider;
                 if (oldCollider != null)
                     oldCollider.enabled = false;
-                attachment.attachmentPoint.parentFirearm.magazineWell.loadingCollider = newCollider;
+                _firearm.magazineWell.loadingCollider = newCollider;
             }
             if (newMount != null)
             {
-                oldMount = attachment.attachmentPoint.parentFirearm.magazineWell.mountPoint;
-                attachment.attachmentPoint.parentFirearm.magazineWell.mountPoint = newMount;
+                oldMount = _firearm.magazineWell.mountPoint;
+                _firearm.magazineWell.mountPoint = newMount;
             }
         }
     }

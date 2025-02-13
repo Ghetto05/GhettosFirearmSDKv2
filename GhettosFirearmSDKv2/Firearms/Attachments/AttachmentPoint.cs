@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2
 {
@@ -12,8 +14,9 @@ namespace GhettosFirearmSDKv2
         public string type;
         public List<string> alternateTypes;
         public string id;
-        public Firearm parentFirearm;
-        public List<Attachment> currentAttachments = new();
+        [FormerlySerializedAs("parentFirearm"), SerializeField, SerializeReference]
+        public IAttachmentManager parentManager;
+        public List<Attachment> currentAttachments = [];
         public string defaultAttachment;
         public GameObject disableOnAttach;
         public GameObject enableOnAttach;
@@ -36,18 +39,18 @@ namespace GhettosFirearmSDKv2
 
         private void InvokedStart()
         {
-            if (parentFirearm != null)
-                parentFirearm.OnCollisionEvent += ParentFirearm_OnCollisionEvent;
+            if (parentManager != null)
+                parentManager.OnCollision += ParentManagerOnCollision;
         }
 
-        private void ParentFirearm_OnCollisionEvent(Collision collision)
+        private void ParentManagerOnCollision(Collision collision)
         {
             if (!currentAttachments.Any() && collision.contacts[0].otherCollider.gameObject.GetComponentInParent<Item>()?.GetComponentInChildren<AttachableItem>() is { } ati)
             {
                 if ((ati.attachmentType.Equals(type) || alternateTypes.Contains(ati.attachmentType)) && Util.CheckForCollisionWithColliders(attachColliders, ati.attachColliders, collision))
                 {
-                    var node = ati.item.GetComponent<Firearm>()?.SaveData.FirearmNode.CloneJson();
-                    Catalog.GetData<AttachmentData>(Util.GetSubstituteId(ati.attachmentId, $"[Attachable item - point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this, null, node);
+                    var node = ati.item.GetComponent<IAttachmentManager>()?.SaveData.FirearmNode.CloneJson();
+                    Catalog.GetData<AttachmentData>(Util.GetSubstituteId(ati.attachmentId, $"[Attachable item - point {id} on {parentManager?.Item?.itemId}]")).SpawnAndAttach(this, null, node);
                     var s = Util.PlayRandomAudioSource(ati.attachSounds);
                     if (s)
                     {
@@ -80,12 +83,12 @@ namespace GhettosFirearmSDKv2
             string parentFound;
             if (GetComponentInParent<Attachment>() is { } a)
                 parentFound = "Attachment name: " + a.gameObject.name;
-            else if (GetComponentInParent<Firearm>() is { } f)
-                parentFound = "Firearm name: " + f.gameObject.name;
+            else if (GetComponentInParent<IAttachmentManager>() is { } f)
+                parentFound = "Firearm name: " + f.Transform.name;
             else
                 parentFound = "No parent firearm or attachment found!";
             
-            if (parentFirearm == null)
+            if (parentManager == null)
                 Debug.Log("Not initialized! Name: " + name + "\n" + parentFound);
 
             if (gameObject.name.Equals("mod_muzzle") && !attachColliders.Any())
@@ -96,7 +99,7 @@ namespace GhettosFirearmSDKv2
         {
             if (!string.IsNullOrEmpty(defaultAttachment))
             {
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(defaultAttachment, $"[Default attachment on point {id} on {parentFirearm?.item?.itemId}]")).SpawnAndAttach(this);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(defaultAttachment, $"[Default attachment on point {id} on {parentManager?.Item?.itemId}]")).SpawnAndAttach(this);
             }
         }
 

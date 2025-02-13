@@ -23,7 +23,7 @@ namespace GhettosFirearmSDKv2
         private void InvokedStart()
         {
             if (attachment != null)
-                item = attachment.attachmentPoint.parentFirearm.item;
+                item = attachment.attachmentPoint.parentManager.Item;
             
             item.OnGrabEvent += OnGrab;
             item.OnUngrabEvent += OnUnGrab;
