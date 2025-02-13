@@ -119,7 +119,7 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            var frozen = _frozen && !item.handlers.Any(x => !freezeHandles.Contains(x.grabbedHandle));
+            var frozen = _frozen && !item.handlers.Any(x => freezeHandles.Contains(x.grabbedHandle));
             item.physicBody.isKinematic = frozen;
         }
 
