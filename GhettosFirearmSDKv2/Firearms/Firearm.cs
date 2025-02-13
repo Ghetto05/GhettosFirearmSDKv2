@@ -21,29 +21,26 @@ namespace GhettosFirearmSDKv2
         {
             get
             {
-                if (_metaData == null)
-                {
-                    _metaData = (ItemMetaData)item.data.modules.FirstOrDefault(x => x.GetType() == typeof(ItemMetaData));
-                }
-                return _metaData;
+                return _metaData ??= (ItemMetaData)item.data.modules.FirstOrDefault(x => x.GetType() == typeof(ItemMetaData));
             }
         }
 
         private CustomReference _preferredForegripReference;
 
-        public CustomReference PreferredForegripReference
+        private CustomReference PreferredForegripReference
         {
             get
             {
-                if (_preferredForegripReference == null)
+                if (_preferredForegripReference != null)
+                    return _preferredForegripReference;
+                
+                _preferredForegripReference = new CustomReference()
                 {
-                    _preferredForegripReference = new CustomReference()
-                                                  {
-                                                      name = "FirearmSecondaryHandle", 
-                                                      transform = GetPreferredForegrip()
-                                                  };
-                    item.customReferences.Add(_preferredForegripReference);
-                }
+                    name = "FirearmSecondaryHandle", 
+                    transform = GetPreferredForegrip()
+                };
+                item.customReferences.Add(_preferredForegripReference);
+                
                 return _preferredForegripReference;
             }
         }
@@ -65,15 +62,7 @@ namespace GhettosFirearmSDKv2
 
         public override float CalculateDamageMultiplier()
         {
-            var multiply = 1f;
-            foreach (var a in allAttachments)
-            {
-                if (a.multiplyDamage)
-                {
-                    multiply *= a.damageMultiplier;
-                }
-            }
-            return multiply;
+            return allAttachments.Where(a => a.multiplyDamage).Aggregate(1f, (current, a) => current * a.damageMultiplier);
         }
 
         public override void Start()
@@ -146,7 +135,7 @@ namespace GhettosFirearmSDKv2
             item.OnUnSnapEvent += Item_OnUnSnapEvent2;
             item.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
             item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
-            allAttachments = new List<Attachment>();
+            allAttachments = [];
             fireEvent.AddListener(AIFire);
             foreach (var ap in attachmentPoints)
             {
@@ -155,8 +144,10 @@ namespace GhettosFirearmSDKv2
 
             if (!item.TryGetCustomData(out SaveData))
             {
-                SaveData = new FirearmSaveData();
-                SaveData.FirearmNode = new FirearmSaveData.AttachmentTreeNode();
+                SaveData = new FirearmSaveData
+                {
+                    FirearmNode = new FirearmSaveData.AttachmentTreeNode()
+                };
                 item.AddCustomData(SaveData);
             }
 
@@ -204,61 +195,50 @@ namespace GhettosFirearmSDKv2
 
         public void Item_OnUnSnapEvent2(Holder holder)
         {
-            foreach (var han in preSnapActiveHandles)
+            foreach (var han in preSnapActiveHandles.Where(han => han && han.touchCollider))
             {
-                if (han && han.touchCollider) han.SetTouch(true);
+                han.SetTouch(true);
             }
         }
 
         public void Item_OnSnapEvent2(Holder holder)
         {
-            preSnapActiveHandles = new List<Handle>();
-            foreach (var han in item.handles)
+            preSnapActiveHandles = [];
+            foreach (var han in item.handles.Where(han => han && han.enabled && han.touchCollider.enabled && !(han.data.id.Equals("ObjectHandleHeavy") || han.data.id.Equals("ObjectHandleHeavyPistol"))))
             {
-                if (han && han.enabled && han.touchCollider.enabled && !(han.data.id.Equals("ObjectHandleHeavy") || han.data.id.Equals("ObjectHandleHeavyPistol")))
-                {
-                    preSnapActiveHandles.Add(han);
-                    han.SetTouch(false);
-                }
+                preSnapActiveHandles.Add(han);
+                han.SetTouch(false);
             }
         }
 
         public void UpdateAttachments(bool initialSetup = false)
         {
-            allAttachments = new List<Attachment>();
+            allAttachments = [];
             AddAttachments(attachmentPoints);
             CalculateMuzzle();
         }
 
         public void AddAttachments(List<AttachmentPoint> points)
         {
-            foreach (var point in points.Where(x => x))
+            foreach (var point in points.Where(x => x && x.currentAttachments.Any()))
             {
-                if (point.currentAttachments.Any())
-                {
-                    allAttachments.AddRange(point.currentAttachments);
-                    AddAttachments(point.currentAttachments.SelectMany(x => x.attachmentPoints).ToList());
-                }
+                allAttachments.AddRange(point.currentAttachments);
+                AddAttachments(point.currentAttachments.SelectMany(x => x.attachmentPoints).ToList());
             }
         }
 
         public void DelayedLoad()
         {
-            if (item.holder != null)
-            {
-                var h = item.holder;
-                item.holder.UnSnap(item, true);
-                h.Snap(item, true);
-            }
+            if (!item.holder)
+                return;
+            var h = item.holder;
+            item.holder.UnSnap(item, true);
+            h.Snap(item, true);
         }
 
         public AttachmentPoint GetSlotFromId(string id)
         {
-            foreach (var point in attachmentPoints)
-            {
-                if (point.id.Equals(id)) return point;
-            }
-            return null;
+            return attachmentPoints.FirstOrDefault(x => x.id.Equals(id));
         }
 
         public override void PlayMuzzleFlash(Cartridge cartridge)
@@ -268,22 +248,18 @@ namespace GhettosFirearmSDKv2
             {
                 if (at.overridesMuzzleFlash && !at.attachmentPoint.dummyMuzzleSlot)
                     overridden = true;
-                if (at.overridesMuzzleFlash && !at.attachmentPoint.dummyMuzzleSlot && NoMuzzleFlashOverridingAttachmentChildren(at))
-                {
-                    if (at.newFlash != null)
-                    {
-                        at.newFlash.Play();
-                        StartCoroutine(PlayMuzzleFlashLight(cartridge));
-                    }
-                }
+                if (!at.overridesMuzzleFlash || at.attachmentPoint.dummyMuzzleSlot ||
+                    !NoMuzzleFlashOverridingAttachmentChildren(at) || !at.newFlash)
+                    continue;
+                at.newFlash.Play();
+                StartCoroutine(PlayMuzzleFlashLight(cartridge));
             }
 
             //default
-            if (!overridden && defaultMuzzleFlash is { } mf)
-            {
-                mf.Play();
-                StartCoroutine(PlayMuzzleFlashLight(cartridge));
-            }
+            if (overridden || defaultMuzzleFlash is not { } mf)
+                return;
+            mf.Play();
+            StartCoroutine(PlayMuzzleFlashLight(cartridge));
         }
 
         public override bool IsSuppressed()
@@ -333,7 +309,7 @@ namespace GhettosFirearmSDKv2
             return !(item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? true);
         }
 
-        public Handle GetPreferredForegrip()
+        private Handle GetPreferredForegrip()
         {
             return item.handles
                        .Where(x => x.GetType() == typeof(GhettoHandle))
@@ -343,13 +319,7 @@ namespace GhettosFirearmSDKv2
                        .FirstOrDefault();
         }
 
-        private bool IsTwoHanded
-        {
-            get
-            {
-                return GetPreferredForegrip();
-            }
-        }
+        private bool IsTwoHanded => GetPreferredForegrip();
 
         private float PreferredEngagementDistance()
         {
