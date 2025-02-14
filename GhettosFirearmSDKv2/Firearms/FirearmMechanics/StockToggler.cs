@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -14,7 +15,7 @@ namespace GhettosFirearmSDKv2
         public Transform pivot;
         public Transform[] positions;
         [FormerlySerializedAs("connectedFirearm"), SerializeField, SerializeReference]
-        public Firearm connectedManager;
+        public IAttachmentManager connectedManager;
         public Attachment connectedAttachment;
         public int currentIndex;
         public bool useAsSeparateObjects;
@@ -29,7 +30,7 @@ namespace GhettosFirearmSDKv2
         {
             if (connectedManager != null)
             {
-                connectedManager.item.OnHeldActionEvent += OnAction;
+                connectedManager.Item.OnHeldActionEvent += OnAction;
                 _stockPosition = connectedManager.SaveData.FirearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
                 currentIndex = _stockPosition.Value;
                 ApplyPosition(_stockPosition.Value, false);
@@ -108,7 +109,7 @@ namespace GhettosFirearmSDKv2
                 if (connectedAttachment != null)
                     Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.parentManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
                 else if (connectedManager != null)
-                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedManager.name}: Index {index}, list is {positions.Length} entries long!");
+                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
             }
         }
 
