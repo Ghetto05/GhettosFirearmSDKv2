@@ -175,14 +175,14 @@ namespace GhettosFirearmSDKv2.UI.GunViceV2
         private void UpdateSaveAmmoButton()
         {
             var f = GetSelectedFirearm();
-            if (!f)
+            if (f)
             {
-                saveAmmoItemButtonText.gameObject.SetActive(true);
+                saveAmmoItemButton.gameObject.SetActive(true);
                 saveAmmoItemButtonText.text = f.GetType() == typeof(AttachmentFirearm) ? "Save held item as ammo\n(For current attachment)" : "Save held item as ammo\n(For firearm base)";
             }
             else
             {
-                saveAmmoItemButtonText.gameObject.SetActive(false);
+                saveAmmoItemButton.gameObject.SetActive(false);
             }
         }
 

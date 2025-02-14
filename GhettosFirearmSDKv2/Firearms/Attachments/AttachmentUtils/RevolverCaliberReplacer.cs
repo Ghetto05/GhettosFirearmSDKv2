@@ -13,6 +13,7 @@ namespace GhettosFirearmSDKv2
         private ItemSaveData _newAmmoItem;
 
         private BoltBase _bolt;
+        private FirearmBase _firearm;
         
         private void Awake()
         {
@@ -27,9 +28,14 @@ namespace GhettosFirearmSDKv2
         private void Attachment_OnDelayedAttachEvent()
         {
             attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
+
+            if (attachment.attachmentPoint.parentManager is not FirearmBase f)
+                return;
+
+            _firearm = f;
             
-            _bolt = attachment.attachmentPoint == null ? null : attachment.attachmentPoint.parentManager != null ? attachment.attachmentPoint.parentManager.bolt : null;
-            if (_bolt == null)
+            _bolt = !attachment.attachmentPoint ? null : f ? f.bolt : null;
+            if (!_bolt )
                 return;
             
             if (_bolt.GetType() == typeof(Revolver))
@@ -56,14 +62,14 @@ namespace GhettosFirearmSDKv2
         {
             if (newCalibers != null && newCalibers.Length > 0)
             {
-                _originalCalibers = ((Revolver)attachment.attachmentPoint.parentManager.bolt).calibers.ToArray();
-                ((Revolver)attachment.attachmentPoint.parentManager.bolt).calibers = newCalibers.ToList();
+                _originalCalibers = ((Revolver)_firearm.bolt).calibers.ToArray();
+                ((Revolver)_firearm.bolt).calibers = newCalibers.ToList();
             }
 
             if (!string.IsNullOrWhiteSpace(newAmmoItem) && !attachment.addedByInitialSetup)
             {
-                _originalAmmoItem = attachment.attachmentPoint.parentManager.GetAmmoItem();
-                attachment.attachmentPoint.parentManager.SetSavedAmmoItem(_newAmmoItem);
+                _originalAmmoItem = _firearm.GetAmmoItem();
+                _firearm.SetSavedAmmoItem(_newAmmoItem);
             }
         }
 
@@ -71,14 +77,14 @@ namespace GhettosFirearmSDKv2
         {
             if (newCalibers != null && newCalibers.Length > 0)
             {
-                _originalCalibers = ((GateLoadedRevolver)attachment.attachmentPoint.parentManager.bolt).calibers.ToArray();
-                ((GateLoadedRevolver)attachment.attachmentPoint.parentManager.bolt).calibers = newCalibers;
+                _originalCalibers = ((GateLoadedRevolver)_firearm.bolt).calibers.ToArray();
+                ((GateLoadedRevolver)_firearm.bolt).calibers = newCalibers;
             }
 
             if (!string.IsNullOrWhiteSpace(newAmmoItem) && !attachment.addedByInitialSetup)
             {
-                _originalAmmoItem = attachment.attachmentPoint.parentManager.GetAmmoItem();
-                attachment.attachmentPoint.parentManager.SetSavedAmmoItem(_newAmmoItem);
+                _originalAmmoItem = _firearm.GetAmmoItem();
+                _firearm.SetSavedAmmoItem(_newAmmoItem);
             }
         }
 
@@ -89,12 +95,12 @@ namespace GhettosFirearmSDKv2
             
             if (newCalibers != null && newCalibers.Length > 0)
             {
-                ((Revolver)attachment.attachmentPoint.parentManager.bolt).calibers = _originalCalibers.ToList();
+                ((Revolver)_firearm.bolt).calibers = _originalCalibers.ToList();
             }
 
             if (!string.IsNullOrWhiteSpace(newAmmoItem) && !attachment.addedByInitialSetup)
             {
-                attachment.attachmentPoint.parentManager.SetSavedAmmoItem(_originalAmmoItem);
+                _firearm.SetSavedAmmoItem(_originalAmmoItem);
             }
         }
 
@@ -105,12 +111,12 @@ namespace GhettosFirearmSDKv2
             
             if (newCalibers != null && newCalibers.Length > 0)
             {
-                ((GateLoadedRevolver)attachment.attachmentPoint.parentManager.bolt).calibers = _originalCalibers;
+                ((GateLoadedRevolver)_firearm.bolt).calibers = _originalCalibers;
             }
 
             if (!string.IsNullOrWhiteSpace(newAmmoItem) && !attachment.addedByInitialSetup)
             {
-                attachment.attachmentPoint.parentManager.SetSavedAmmoItem(_originalAmmoItem);
+                _firearm.SetSavedAmmoItem(_originalAmmoItem);
             }
         }
     }

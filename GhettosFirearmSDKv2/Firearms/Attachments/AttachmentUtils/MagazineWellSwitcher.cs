@@ -18,6 +18,8 @@ namespace GhettosFirearmSDKv2
         public string newDefaultAmmo;
         public MagazineLoad overrideMagazineLoad;
 
+        private FirearmBase _firearm;
+
         private void Start()
         {
             if (attachment.initialized) Attachment_OnDelayedAttachEvent();
@@ -26,30 +28,35 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDelayedAttachEvent()
         {
+            if (attachment.attachmentPoint.parentManager is not FirearmBase f)
+                return;
+
+            _firearm = f;
+            
             attachment.OnDetachEvent += Attachment_OnDetachEvent;
 
             if (!string.IsNullOrWhiteSpace(newType))
             {
-                _originalType = attachment.attachmentPoint.parentManager.magazineWell.acceptedMagazineType;
-                attachment.attachmentPoint.parentManager.magazineWell.acceptedMagazineType = newType;
+                _originalType = _firearm.magazineWell.acceptedMagazineType;
+                _firearm.magazineWell.acceptedMagazineType = newType;
             }
 
             if (!string.IsNullOrWhiteSpace(newCaliber))
             {
-                _originalCaliber = attachment.attachmentPoint.parentManager.magazineWell.caliber;
-                attachment.attachmentPoint.parentManager.magazineWell.caliber = newCaliber;
+                _originalCaliber = _firearm.magazineWell.caliber;
+                _firearm.magazineWell.caliber = newCaliber;
             }
 
             if (!string.IsNullOrWhiteSpace(newDefaultAmmo) && !attachment.addedByInitialSetup)
             {
-                _originalDefaultAmmo = attachment.attachmentPoint.parentManager.GetAmmoItem();
+                _originalDefaultAmmo = _firearm.GetAmmoItem();
 
                 var dataList = new List<ContentCustomData>();
                 
                 if (overrideMagazineLoad)
                     dataList.Add(overrideMagazineLoad.ToSaveData());
                     
-                attachment.attachmentPoint.parentManager.SetSavedAmmoItem(newDefaultAmmo, dataList.Any() ? dataList.ToArray() : null);
+                _firearm.SetSavedAmmoItem(newDefaultAmmo, dataList.Any() ? dataList.ToArray() : null);
             }
 
             attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
@@ -59,22 +66,22 @@ namespace GhettosFirearmSDKv2
         {
             attachment.OnDetachEvent -= Attachment_OnDetachEvent;
 
-            if (despawnDetach)
+            if (despawnDetach || !_firearm)
                 return;
 
             if (!string.IsNullOrWhiteSpace(newType))
             {
-                attachment.attachmentPoint.parentManager.magazineWell.acceptedMagazineType = _originalType;
+                _firearm.magazineWell.acceptedMagazineType = _originalType;
             }
 
             if (!string.IsNullOrWhiteSpace(newCaliber))
             {
-                attachment.attachmentPoint.parentManager.magazineWell.caliber = _originalCaliber;
+                _firearm.magazineWell.caliber = _originalCaliber;
             }
 
             if (!string.IsNullOrWhiteSpace(newDefaultAmmo) && !attachment.addedByInitialSetup)
             {
-                attachment.attachmentPoint.parentManager.SetSavedAmmoItem(_originalDefaultAmmo);
+                _firearm.SetSavedAmmoItem(_originalDefaultAmmo);
             }
         }
     }

@@ -20,8 +20,8 @@ namespace GhettosFirearmSDKv2
                     return;
                 }
 
-                if (attachment.attachmentPoint?.parentManager)
-                    firearm = attachment.attachmentPoint.parentManager;
+                if (attachment.attachmentPoint?.parentManager is Firearm f)
+                    firearm = f;
             }
 
             mainHandle.SetTouch(mainHandle.handlers.Count == 0);

@@ -39,12 +39,15 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            if (!firearm && attachment)
+            if (!firearm && attachment && attachment.attachmentPoint.parentManager is Firearm f)
             {
-                firearm = attachment.attachmentPoint.parentManager;
+                firearm = f;
                 attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
                 _preAttachFireMode = firearm.fireMode;
             }
+            
+            if (!firearm)
+                return;
 
             firearm.OnAltActionEvent += Firearm_OnAltActionEvent;
             firearm.fireMode = firemodes[currentIndex];

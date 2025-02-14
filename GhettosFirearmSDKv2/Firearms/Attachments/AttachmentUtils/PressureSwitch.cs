@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
@@ -31,7 +30,7 @@ namespace GhettosFirearmSDKv2
                 item = handles[0].item;
 
             if (attachment)
-                attachment.attachmentPoint.parentManager.item.OnHeldActionEvent += OnAttachmentsAction;
+                attachment.attachmentPoint.parentManager.Item.OnHeldActionEvent += OnAttachmentsAction;
             else if (item)
                 item.OnHeldActionEvent += OnOffhandAction;
 
@@ -55,7 +54,7 @@ namespace GhettosFirearmSDKv2
 
         public void InitialSet()
         {
-            item = item ? item : attachment ? attachment.attachmentPoint.parentManager.item : null;
+            item = item ? item : attachment ? attachment.attachmentPoint.parentManager.Item : null;
             if (!item)
                 return;
 
@@ -67,10 +66,10 @@ namespace GhettosFirearmSDKv2
 
         private void OnDestroy()
         {
-            if (attachment) attachment.attachmentPoint.parentManager.item.OnHeldActionEvent -= OnAttachmentsAction;
+            if (attachment) attachment.attachmentPoint.parentManager.Item.OnHeldActionEvent -= OnAttachmentsAction;
             else if (item) item.OnHeldActionEvent -= OnOffhandAction;
 
-            item = !attachment ? item : attachment.attachmentPoint.parentManager.item;
+            item = !attachment ? item : attachment.attachmentPoint.parentManager.Item;
             if (!item) return;
 
             foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
@@ -97,7 +96,7 @@ namespace GhettosFirearmSDKv2
         private void OnAttachmentsAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
             if (handle == handle.item.mainHandleLeft ||
-                attachment.attachmentPoint.parentManager.AllTriggerHandles().Contains(handle)) return;
+                (attachment.attachmentPoint.parentManager is FirearmBase f && f.AllTriggerHandles().Contains(handle))) return;
             switch (action)
             {
                 case Interactable.Action.UseStart:

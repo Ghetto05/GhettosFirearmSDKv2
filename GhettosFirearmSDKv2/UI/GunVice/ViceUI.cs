@@ -355,7 +355,7 @@ namespace GhettosFirearmSDKv2
 
         public void SpawnAttachment(string id)
         {
-            currentSlot.parentManager.item.lastInteractionTime = Time.time;
+            currentSlot.parentManager.Item.lastInteractionTime = Time.time;
             for (var i = 0; i < currentSlot.currentAttachments.Count; i++)
             {
                 currentSlot.currentAttachments[0].Detach();

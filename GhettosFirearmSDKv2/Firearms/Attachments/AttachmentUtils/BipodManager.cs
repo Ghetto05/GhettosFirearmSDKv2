@@ -37,15 +37,9 @@ namespace GhettosFirearmSDKv2
         {
             if (!_active)
                 return;
-            var extended = true;
-            foreach (var bp in bipods.Where(bp => bp.index == 0))
-            {
+            var extended = !bipods.Any(x => x.index == 0);
+            if (groundFollowers.Any(t => !Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default"))))
                 extended = false;
-            }
-            foreach (var t in groundFollowers.Where(t => !Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default"))))
-            {
-                extended = false;
-            }
 
             if (attachmentManager is Firearm firearm)
             {

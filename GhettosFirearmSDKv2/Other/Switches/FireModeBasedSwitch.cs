@@ -19,13 +19,13 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            if (firearm == null && attachment != null)
+            if (!firearm && attachment)
             {
                 if (attachment.initialized) Attachment_OnDelayedAttachEvent();
                 else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
             }
 
-            if (firearm != null)
+            if (firearm)
             {
                 firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
                 Firearm_OnFiremodeChangedEvent();
@@ -35,7 +35,9 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            firearm = attachment.attachmentPoint.parentManager;
+            if (attachment.attachmentPoint.parentManager is not FirearmBase f)
+                return;
+            firearm = f;
             firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
             Util.DelayedExecute(1f, Firearm_OnFiremodeChangedEvent, this);
         }

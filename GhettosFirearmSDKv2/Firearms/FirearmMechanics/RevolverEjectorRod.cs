@@ -1,9 +1,11 @@
+using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
     public class RevolverEjectorRod : MonoBehaviour
     {
+        private Firearm _firearm;
         public Revolver revolver;
         public Rigidbody rigidBody;
         public Transform axis;
@@ -11,17 +13,39 @@ namespace GhettosFirearmSDKv2
         public Transform ejectPoint;
         private ConfigurableJoint _joint;
         private bool _ejectedSinceLastOpen;
+        private CollisionRelay _collisionRelay;
 
         private void Start()
         {
             InitializeJoint();
-            revolver.firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
+            if (revolver.firearm is Firearm f)
+            {
+                _firearm = f;
+                _firearm.OnAttachmentAdded += Firearm_OnAttachmentAddedEvent;
+            }
             revolver.OnClose += Revolver_onClose;
             revolver.OnOpen += Revolver_onOpen;
+            revolver.firearm.item.OnDespawnEvent += OnDespawn;
             revolver.useGravityEject = false;
-            rigidBody.gameObject.AddComponent<CollisionRelay>().OnCollisionEnterEvent += revolver.OnCollisionEvent;
+            _collisionRelay = rigidBody.gameObject.AddComponent<CollisionRelay>();
+            _collisionRelay.OnCollisionEnterEvent += revolver.OnCollisionEvent;
             Util.IgnoreCollision(axis.gameObject, revolver.firearm.gameObject, true);
             Revolver_onClose();
+        }
+
+        private void OnDespawn(EventTime eventTime)
+        {
+            if (eventTime != EventTime.OnStart)
+                return;
+            
+            if (_firearm)
+            {
+                _firearm.OnAttachmentAdded -= Firearm_OnAttachmentAddedEvent;
+            }
+            revolver.OnClose -= Revolver_onClose;
+            revolver.OnOpen -= Revolver_onOpen;
+            revolver.firearm.item.OnDespawnEvent -= OnDespawn;
+            _collisionRelay.OnCollisionEnterEvent -= revolver.OnCollisionEvent;
         }
 
         private void Firearm_OnAttachmentAddedEvent(Attachment attachment, AttachmentPoint attachmentPoint)

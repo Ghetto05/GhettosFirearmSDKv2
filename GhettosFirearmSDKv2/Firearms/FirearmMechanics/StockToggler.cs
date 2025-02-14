@@ -106,7 +106,7 @@ namespace GhettosFirearmSDKv2
             catch (Exception)
             {
                 if (connectedAttachment != null)
-                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.parentManager.name}: Index {index}, list is {positions.Length} entries long!");
+                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.parentManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
                 else if (connectedManager != null)
                     Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedManager.name}: Index {index}, list is {positions.Length} entries long!");
             }

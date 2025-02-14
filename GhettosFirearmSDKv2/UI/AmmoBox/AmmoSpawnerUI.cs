@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using ThunderRoad;
@@ -102,6 +101,9 @@ namespace GhettosFirearmSDKv2
 
         private List<T> GetHeldFromHandle<T>(Handle handle) where T : class, ICaliberGettable
         {
+            if (!handle)
+                return [];
+            
             if (handle.item && handle.item.GetComponent<T>() is { } held)
                 return [held];
 
@@ -125,7 +127,7 @@ namespace GhettosFirearmSDKv2
         public void GetCaliberFromGunOrMag()
         {
             var gettables = GetHeld<ICaliberGettable>();
-            if (gettables.Any())
+            if (!gettables.Any())
                 return;
 
             currentCaliber = gettables.First().GetCaliber();

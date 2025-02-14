@@ -90,8 +90,12 @@ namespace GhettosFirearmSDKv2
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
             firearm.item.OnHeldActionEvent += BoltSemiautomatic_OnHeldActionEvent;
-            firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
-            firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
+            firearm.item.OnDespawnEvent += OnDespawn;
+            if (firearm is Firearm f)
+            {
+                f.OnAttachmentAdded += Firearm_OnAttachmentAddedEvent;
+                f.OnAttachmentRemoved += Firearm_OnAttachmentRemovedEvent;
+            }
 
             rigidBody.transform.position = startPoint.position;
             if (firearm.roundsPerMinute == 0 && !rigidBody.gameObject.TryGetComponent(out ConstantForce _)) InitializeJoint(false, false, true);
@@ -116,6 +120,22 @@ namespace GhettosFirearmSDKv2
             chamber.transform.localEulerAngles = Vector3.zero;
             _chamberPositionRoundMount = chamber.transform;
             chamber.transform.parent = firearm.transform;
+        }
+
+        private void OnDespawn(EventTime eventTime)
+        {
+            if (eventTime != EventTime.OnStart)
+                return;
+            
+            firearm.OnTriggerChangeEvent -= Firearm_OnTriggerChangeEvent;
+            firearm.OnFiremodeChangedEvent -= Firearm_OnFiremodeChangedEvent;
+            firearm.item.OnHeldActionEvent -= BoltSemiautomatic_OnHeldActionEvent;
+            firearm.item.OnDespawnEvent -= OnDespawn;
+            if (firearm is Firearm f)
+            {
+                f.OnAttachmentAdded -= Firearm_OnAttachmentAddedEvent;
+                f.OnAttachmentRemoved -= Firearm_OnAttachmentRemovedEvent;
+            }
         }
 
         public override List<Handle> GetNoInfluenceHandles()

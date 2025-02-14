@@ -50,14 +50,33 @@ namespace GhettosFirearmSDKv2
         {
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
             firearm.item.OnGrabEvent += Item_OnGrabEvent;
-            firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
-            firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
+            firearm.item.OnDespawnEvent += OnDespawn;
+            if (firearm is Firearm f)
+            {
+                f.OnAttachmentAdded += Firearm_OnAttachmentAddedEvent;
+                f.OnAttachmentRemoved += Firearm_OnAttachmentRemovedEvent;
+            }
             RefreshBoltHandles();
             ChamberSaved();
             if (loadedCartridge != null) Invoke(nameof(DelayedReparent), 0.03f);
             Lock(true);
             _ready = true;
             Invoke(nameof(UpdateChamberedRounds), 1f);
+        }
+
+        private void OnDespawn(EventTime eventTime)
+        {
+            if (eventTime != EventTime.OnStart)
+                return;
+            
+            firearm.OnTriggerChangeEvent -= Firearm_OnTriggerChangeEvent;
+            firearm.item.OnGrabEvent -= Item_OnGrabEvent;
+            firearm.item.OnDespawnEvent -= OnDespawn;
+            if (firearm is Firearm f)
+            {
+                f.OnAttachmentAdded -= Firearm_OnAttachmentAddedEvent;
+                f.OnAttachmentRemoved -= Firearm_OnAttachmentRemovedEvent;
+            }
         }
 
         private void Firearm_OnAttachmentRemovedEvent(Attachment attachment, AttachmentPoint attachmentPoint)
