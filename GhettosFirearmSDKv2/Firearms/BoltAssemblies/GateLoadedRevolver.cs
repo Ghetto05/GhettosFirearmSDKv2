@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class GateLoadedRevolver : BoltBase
+    public class GateLoadedRevolver : BoltBase, IAmmunitionLoadable
     {
         private bool _loadMode;
         private bool _cocked;
@@ -408,6 +409,65 @@ namespace GhettosFirearmSDKv2
         public void ApplyChamber()
         {
             cylinderAxis.localEulerAngles = _loadMode ? cylinderLoadRotations[_currentChamber] : cylinderRotations[_currentChamber];
+        }
+
+        public string GetCaliber()
+        {
+            return calibers[_currentChamber];
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public int GetCapacity()
+        {
+            return mountPoints.Length;
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return loadedCartridges.Where(x => x).ToList();
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            var i = FirstFreeIndex();
+            if (i == -1)
+                return;
+
+            LoadChamber(i, cartridge);
+        }
+
+        private int FirstFreeIndex()
+        {
+            for (var i = 0; i < mountPoints.Length; i++)
+            {
+                if (!loadedCartridges[i])
+                    return i;
+            }
+            return -1;
+        }
+
+        public void ClearRounds()
+        {
+            for (var index = 0; index < loadedCartridges.Length; index++)
+            {
+                loadedCartridges[index]?.item.Despawn();
+                loadedCartridges[index] = null;
+            }
+            SaveCartridges();
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return false;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return [];
         }
     }
 }

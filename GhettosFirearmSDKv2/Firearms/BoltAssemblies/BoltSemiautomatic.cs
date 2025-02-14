@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class BoltSemiautomatic : BoltBase
+    public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
     {
         public BoltState chargingHandleState;
         public BoltState previousChargingHandleState;
@@ -772,6 +772,50 @@ namespace GhettosFirearmSDKv2
             var totalDistance = Util.AbsDist(startPoint, endPoint);
             LastCyclePercentage = cyclePercentage;
             cyclePercentage = Mathf.Clamp01(distanceStartBolt / totalDistance);
+        }
+
+        public string GetCaliber()
+        {
+            return firearm.magazineWell?.caliber;
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public int GetCapacity()
+        {
+            return isOpenBolt ? 0 : 1;
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return loadedCartridge ? [loadedCartridge] : [];
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            LoadChamber(cartridge, true);
+        }
+
+        public void ClearRounds()
+        {
+            if (!loadedCartridge)
+                return;
+            SaveChamber(null, false);
+            loadedCartridge.item.Despawn();
+            loadedCartridge = null;
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return false;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return firearm.magazineWell?.alternateCalibers ?? [];
         }
     }
 }

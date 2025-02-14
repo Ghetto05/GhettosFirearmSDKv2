@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class FlintLock : BoltBase
+    public class FlintLock : BoltBase, IAmmunitionLoadable
     {
         [Header("Firing")]
         public float fireDelay;
@@ -537,6 +538,50 @@ namespace GhettosFirearmSDKv2
             }
             c.ToggleHandles(true);
             InvokeEjectRound(c);
+        }
+
+        public string GetCaliber()
+        {
+            return caliber;
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public int GetCapacity()
+        {
+            return 1;
+        }
+
+        public List<Cartridge> GetLoadedCartridges()
+        {
+            return loadedCartridge ? [loadedCartridge] : [];
+        }
+
+        public void LoadRound(Cartridge cartridge)
+        {
+            LoadChamber(cartridge, false);
+        }
+
+        public void ClearRounds()
+        {
+            if (!loadedCartridge)
+                return;
+            SaveChamber(null, false);
+            loadedCartridge.item.Despawn();
+            loadedCartridge = null;
+        }
+
+        public bool GetForceCorrectCaliber()
+        {
+            return false;
+        }
+
+        public List<string> GetAlternativeCalibers()
+        {
+            return [];
         }
     }
 }
