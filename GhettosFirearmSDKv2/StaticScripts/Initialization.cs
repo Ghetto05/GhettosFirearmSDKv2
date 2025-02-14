@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
+    // ReSharper disable once UnusedType.Global - Instantinated by game code
     public class Initialization : ThunderScript
     {
         public override void ScriptEnable()

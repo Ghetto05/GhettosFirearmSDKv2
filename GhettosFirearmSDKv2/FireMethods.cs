@@ -14,10 +14,10 @@ public class FireMethods : MonoBehaviour
 {
     public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitPoints, out List<Vector3> trajectories, out List<Creature> hitCreatures, out List<Creature> killedCreatures, float damageMultiplier, bool useAISpread)
     {
-        hitPoints = new List<Vector3>();
-        trajectories = new List<Vector3>();
-        hitCreatures = new List<Creature>();
-        killedCreatures = new List<Creature>();
+        hitPoints = [];
+        trajectories = [];
+        hitCreatures = [];
+        killedCreatures = [];
         try
         {
             if (data.isHitscan)
@@ -58,10 +58,12 @@ public class FireMethods : MonoBehaviour
 
     public static List<Creature> FireHitScan(Transform muzzle, ProjectileData data, Item item, out List<Vector3> returnedEndpoints, out List<Vector3> returnedTrajectories, out List<Creature> killedCreatures, float damageMultiplier, bool useAISpread)
     {
-        returnedEndpoints = new List<Vector3>();
-        returnedTrajectories = new List<Vector3>();
-        killedCreatures = new List<Creature>();
-        var crs = new List<Creature>();
+        returnedEndpoints = [];
+        returnedTrajectories = [];
+        killedCreatures = [];
+        var hitParts = new List<RagdollPart>();
+        var hitCreatures = new List<Creature>();
+        var hitShootables = new List<object>();
         try
         {
             for (var i = 0; i < data.projectileCount; i++)
@@ -73,54 +75,49 @@ public class FireMethods : MonoBehaviour
                     tempMuz.localEulerAngles = new Vector3(Random.Range(-data.projectileSpread, data.projectileSpread), Random.Range(-data.projectileSpread, data.projectileSpread), 0);
                 else
                     tempMuz.localEulerAngles = new Vector3(Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), 0);
-                var cr = HitScan(tempMuz, data, item, out var endpoint, damageMultiplier, out var kc);
+                hitCreatures.AddRange(HitScan(tempMuz, data, item, out var endpoint, damageMultiplier, killedCreatures, hitParts, hitShootables));
                 returnedEndpoints.Add(endpoint);
                 returnedTrajectories.Add(tempMuz.forward);
-                killedCreatures.AddRange(kc);
                 Destroy(tempMuz.gameObject);
-                crs.AddRange(cr);
             }
         }
         catch (Exception)
         {
             // ignored
         }
+        
+        Score.local.ShotFired(hitCreatures.Any() || hitShootables.Any(), hitParts.Any(x => x.type == RagdollPart.Type.Head));
 
-        return crs;
+        return hitCreatures;
     }
 
-    private static List<Creature> HitScan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 endpoint, float damageMultiplier, out List<Creature> killedCreatures)
+    private static List<Creature> HitScan(Transform muzzle, ProjectileData data, Item gunItem, out Vector3 endpoint, float damageMultiplier, List<Creature> killedCreatures, List<RagdollPart> hitParts, List<object> hitShootables)
     {
-        FirearmsScore.local.ShotsFired++;
         var forward = muzzle.forward;
-        killedCreatures = new List<Creature>();
 
         #region physics toggle
 
         foreach (var physicsToggleHit in Physics.RaycastAll(muzzle.position, muzzle.forward, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion")))
         {
-            if (physicsToggleHit.collider.gameObject.GetComponentInParent<Creature>() is { } cr)
+            if (physicsToggleHit.collider.gameObject.GetComponentInParent<Creature>() is not { } cr)
+                continue;
+            
+            foreach (var part in cr.ragdoll.parts)
             {
-                if (cr)
-                {
-                    foreach (var part in cr.ragdoll.parts)
-                    {
-                        part.gameObject.SetActive(true);
-                    }
+                part.gameObject.SetActive(true);
+            }
 
-                    if (cr.equipment != null)
-                    {
-                        if (cr.equipment.GetHeldItem(Side.Left) != null)
-                        {
-                            cr.equipment.GetHeldItem(Side.Left).SetColliders(true);
-                        }
+            if (!cr.equipment)
+                continue;
+            
+            if (cr.equipment.GetHeldItem(Side.Left))
+            {
+                cr.equipment.GetHeldItem(Side.Left).SetColliders(true);
+            }
 
-                        if (cr.equipment.GetHeldItem(Side.Right) != null)
-                        {
-                            cr.equipment.GetHeldItem(Side.Right).SetColliders(true);
-                        }
-                    }
-                }
+            if (cr.equipment.GetHeldItem(Side.Right))
+            {
+                cr.equipment.GetHeldItem(Side.Right).SetColliders(true);
             }
         }
 
@@ -155,7 +152,7 @@ public class FireMethods : MonoBehaviour
 
         #endregion no hits
 
-        var successfullHits = new List<HitData>();
+        var successfulHits = new List<HitData>();
 
         #region explosive
 
@@ -181,49 +178,55 @@ public class FireMethods : MonoBehaviour
         #endregion explosive
 
         var processing = true;
-        foreach (var hit in hits)
+        foreach (var hit in hits.Where(_ => processing))
         {
-            if (processing)
+            try
             {
-                try
+                var c = ProcessHit(muzzle, (HitData)hit, successfulHits, data, damageMultiplier, hitCreatures, killedCreatures, hitParts, hitShootables, gunItem, out var lowerDamageLevel, out var cancel, ref power);
+                if (lowerDamageLevel)
                 {
-                    var c = ProcessHit(muzzle, (HitData)hit, successfullHits, data, damageMultiplier, hitCreatures, killedCreatures, gunItem, out var lowerDamageLevel, out var cancel, ref power);
-                    if (lowerDamageLevel)
-                    {
-                        if (power == (int)ProjectileData.PenetrationLevels.None || power == (int)ProjectileData.PenetrationLevels.Leather) processing = false;
-                        else power -= 2;
-                    }
+                    if (power is (int)ProjectileData.PenetrationLevels.None or (int)ProjectileData.PenetrationLevels.Leather)
+                        processing = false;
+                    else
+                        power -= 2;
+                }
 
-                    if (cancel) processing = false;
-                    if (c != null) hitCreatures.Add(c);
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
+                if (cancel)
+                    processing = false;
+                if (c)
+                    hitCreatures.Add(c);
+            }
+            catch (Exception)
+            {
+                // ignored
             }
         }
 
-        if (successfullHits.Count > 0) endpoint = successfullHits.Last().Point;
-        else endpoint = Vector3.zero;
+        endpoint = successfulHits.Count > 0 ? successfulHits.Last().Point : Vector3.zero;
 
         return hitCreatures;
     }
 
-    public static Creature ProcessHit(Transform muzzle, HitData hit, List<HitData> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, List<Creature> killedCreatures, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)
+    public static Creature ProcessHit(Transform muzzle, HitData hit, List<HitData> successfulHits, ProjectileData data, float damageMultiplier, List<Creature> hitCreatures, List<Creature> killedCreatures, List<RagdollPart> hitParts, List<object> hitShootables, Item gunItem, out bool lowerDamageLevel, out bool cancel, ref int penetrationPower)
     {
-        if (hit.Collider.GetComponentInParent<Shootable>() is { } shootable) shootable.Shoot((ProjectileData.PenetrationLevels)penetrationPower);
+        if (hit.Collider.GetComponentInParent<Shootable>() is { } shootable)
+        {
+            shootable.Shoot((ProjectileData.PenetrationLevels)penetrationPower);
+            hitShootables.Add(shootable);
+        }
 
         #region Breakables
 
         foreach (var breakable in hit.Collider.GetComponentsInParent<Breakable>())
         {
             breakable.Break();
+            hitShootables.Add(breakable);
         }
 
         foreach (var breakable in hit.Collider.GetComponentsInParent<SimpleBreakable>())
         {
             breakable.Break();
+            hitShootables.Add(breakable);
         }
 
         #endregion
@@ -253,13 +256,12 @@ public class FireMethods : MonoBehaviour
         {
             if (!hitCreatures.Contains(rag.creature))
             {
-                hitCreatures.Add(rag.creature);
-
                 var cr = rag.creature;
                 var ragdollPart = hit.Collider.gameObject.GetComponentInParent<RagdollPart>();
-                FirearmsScore.local.ShotsHit++;
-
                 var penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= penetrationPower;
+                
+                hitCreatures.Add(cr);
+                hitParts.Add(ragdollPart);
 
                 #region Impact effect
 
@@ -294,96 +296,68 @@ public class FireMethods : MonoBehaviour
                 switch (ragdollPart.type)
                 {
                     case RagdollPart.Type.Head: //damage = infinity, remove voice, push(3)
-                    {
-                        FirearmsScore.local.Headshots++;
-                        if (penetrated && data.lethalHeadshot)
-                            damageModifier = Mathf.Infinity;
-                        else
-                            damageModifier = 2;
+                        damageModifier = penetrated && data.lethalHeadshot ? Mathf.Infinity : 2;
                         if (penetrated && data.lethalHeadshot && WouldCreatureBeKilled(data.damagePerProjectile * damageModifier, cr) && !cr.isPlayer)
                         {
                             cr.brain.instance.GetModule<BrainModuleSpeak>().Unload();
                             cr.brain.instance.tree.Reset();
                             cr.StartCoroutine(DelayedStopAnimating(cr));
                         }
-
                         if (penetrated && data.slicesBodyParts)
                             ragdollPart.TrySlice();
-                    }
                         break;
 
                     case RagdollPart.Type.Neck: //damage = infinity, push(1)
-                    {
-                        if (penetrated && data.lethalHeadshot) damageModifier = Mathf.Infinity;
-                        else damageModifier = 2;
-                    }
+                        damageModifier = penetrated && data.lethalHeadshot ? Mathf.Infinity : 2;
                         break;
 
                     case RagdollPart.Type.Torso: //damage = damage, push(2)
-                    {
                         if (penetrated && Settings.incapacitateOnTorsoShot > 0f && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
-                        {
-                            gunItem.StartCoroutine(TemporaryKnockout(Settings.incapacitateOnTorsoShot, 0, cr));
-                        }
-                    }
+                            cr.StartCoroutine(TemporaryKnockout(Settings.incapacitateOnTorsoShot, 0, cr));
                         break;
 
                     case RagdollPart.Type.LeftArm: //damage = damage/3, release weapon, push(1)
-                    {
-                        damageModifier = 0.3f;
-                        if (!cr.isKilled && !cr.isPlayer) cr.handLeft.TryRelease();
-                    }
+                        damageModifier = 1f / 3;
+                        if (!cr.isKilled && !cr.isPlayer)
+                            cr.handLeft.TryRelease();
                         break;
 
                     case RagdollPart.Type.RightArm: //damage = damage/3, release weapon, push(1)
-                    {
-                        damageModifier = 0.3f;
-                        if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
-                    }
+                        damageModifier = 1f / 3;
+                        if (!cr.isKilled && !cr.isPlayer)
+                            cr.handRight.TryRelease();
                         break;
 
+                    case RagdollPart.Type.RightFoot:
                     case RagdollPart.Type.LeftFoot: //damage = damage/4, destabilize, push(3)
-                    {
                         damageModifier = 0.25f;
-                        if (!cr.isKilled && !cr.isPlayer) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
-                    }
-                        break;
-
-                    case RagdollPart.Type.RightFoot: //damage = damage/4, destabilize, push(3)
-                    {
-                        damageModifier = 0.25f;
-                        if (!cr.isKilled && !cr.isPlayer) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
-                    }
+                        if (!cr.isKilled && !cr.isPlayer)
+                            cr.ragdoll.SetState(Ragdoll.State.Destabilized);
                         break;
 
                     case RagdollPart.Type.LeftHand: //damage = damage/4, release weapon, push(1)
-                    {
                         damageModifier = 0.25f;
-                        if (!cr.isKilled && !cr.isPlayer) cr.handLeft.TryRelease();
-                    }
+                        if (!cr.isKilled && !cr.isPlayer)
+                            cr.handLeft.TryRelease();
                         break;
-
+                    
                     case RagdollPart.Type.RightHand: //damage = damage/4, release weapon, push(1)
-                    {
                         damageModifier = 0.25f;
-                        if (!cr.isKilled && !cr.isPlayer) cr.handRight.TryRelease();
-                    }
+                        if (!cr.isKilled && !cr.isPlayer)
+                            cr.handRight.TryRelease();
                         break;
-
+                    
+                    case RagdollPart.Type.RightLeg:
                     case RagdollPart.Type.LeftLeg: //damage = damage/3, destabilize, push(3)
-                    {
-                        damageModifier = 0.3f;
+                        damageModifier = 1f / 3;
                         if (!cr.isKilled && !cr.isPlayer)
                             cr.ragdoll.SetState(Ragdoll.State.Destabilized);
-                    }
                         break;
-
-                    case RagdollPart.Type.RightLeg: //damage = damage/3, destabilize, push(3)
-                    {
-                        damageModifier = 0.3f;
-                        if (!cr.isKilled && !cr.isPlayer)
-                            cr.ragdoll.SetState(Ragdoll.State.Destabilized);
-                    }
+                    
+                    case RagdollPart.Type.LeftWing:
+                    case RagdollPart.Type.RightWing:
+                    case RagdollPart.Type.Tail: //damage = damage/3, push(1)
+                        damageModifier = 1f / 3;
                         break;
                 }
 
@@ -589,22 +563,21 @@ public class FireMethods : MonoBehaviour
             return;
 
         var layer = LayerMask.GetMask("Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject");
-        if (Physics.Raycast(origin, direction, out var hit, force * projectileCount / 30, layer, QueryTriggerInteraction.Ignore))
-        {
-            var go = new GameObject("temp_" + Random.Range(0, 10000));
-            go.transform.position = hit.point;
-            go.transform.rotation = hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal);
-            Util.RandomizeZRotation(go.transform);
-            var ei = Catalog.GetData<EffectData>("DropBlood").Spawn(hit.point, go.transform.rotation, null, null, false);
-            ei.SetIntensity(100f);
+        if (!Physics.Raycast(origin, direction, out var hit, force * projectileCount / 30, layer,
+                QueryTriggerInteraction.Ignore)) return;
+        var go = new GameObject("temp_" + Random.Range(0, 10000));
+        go.transform.position = hit.point;
+        go.transform.rotation = hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal);
+        Util.RandomizeZRotation(go.transform);
+        var ei = Catalog.GetData<EffectData>("DropBlood").Spawn(hit.point, go.transform.rotation, null, null, false);
+        ei.SetIntensity(100f);
 
-            var particle = (EffectDecal)ei.effects[0];
-            particle.baseLifeTime = particle.baseLifeTime * 20f * Settings.bloodSplatterLifetimeMultiplier;
-            particle.emissionLifeTime = particle.emissionLifeTime * 20 * Settings.bloodSplatterLifetimeMultiplier;
-            particle.size = particle.size * force / 40 * projectileCount * Settings.bloodSplatterSizeMultiplier;
+        var particle = (EffectDecal)ei.effects[0];
+        particle.baseLifeTime = particle.baseLifeTime * 20f * Settings.bloodSplatterLifetimeMultiplier;
+        particle.emissionLifeTime = particle.emissionLifeTime * 20 * Settings.bloodSplatterLifetimeMultiplier;
+        particle.size = particle.size * force / 40 * (projectileCount * Settings.bloodSplatterSizeMultiplier);
 
-            ei.Play();
-        }
+        ei.Play();
     }
 
     public static void FireItem(Transform muzzle, ProjectileData data, Item item)
@@ -653,18 +626,17 @@ public class FireMethods : MonoBehaviour
         //PHYSICS TOGGLE
         foreach (var locomotionHit in Physics.OverlapSphere(point, data.radius, LayerMask.GetMask("BodyLocomotion")))
         {
-            if (locomotionHit.GetComponentInParent<Creature>() != null)
+            if (locomotionHit.GetComponentInParent<Creature>() == null)
+                continue;
+            var cr = locomotionHit.GetComponentInParent<Creature>();
+            foreach (var part in cr.ragdoll.parts)
             {
-                var cr = locomotionHit.GetComponentInParent<Creature>();
-                foreach (var part in cr.ragdoll.parts)
-                {
-                    part.gameObject.SetActive(true);
-                }
+                part.gameObject.SetActive(true);
             }
         }
 
-        hitCreatures = new List<Creature>();
-        hitItems = new List<Item>();
+        hitCreatures = [];
+        hitItems = [];
         var hitShootables = new List<Shootable>();
         var hitSimpleBreakables = new List<SimpleBreakable>();
         var hitBreakables = new List<Breakable>();
@@ -685,29 +657,25 @@ public class FireMethods : MonoBehaviour
 
         foreach (var hitCreature in hitCreatures)
         {
-            if (CheckExplosionCreatureHit(hitCreature, point))
-            {
-                var coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, EvaluateDamage(data.damage, hitCreature)));
-                coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
-                coll.damageStruct.damageType = DamageType.Energy;
-                coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
-                coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
-                coll.targetColliderGroup = hitCreature.ragdoll.parts[0].colliderGroup;
-                coll.sourceColliderGroup = item.colliderGroups[0];
+            if (!CheckExplosionCreatureHit(hitCreature, point))
+                continue;
+            var coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, EvaluateDamage(data.damage, hitCreature)));
+            coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
+            coll.damageStruct.damageType = DamageType.Energy;
+            coll.sourceMaterial = Catalog.GetData<MaterialData>("Blade");
+            coll.targetMaterial = Catalog.GetData<MaterialData>("Flesh");
+            coll.targetColliderGroup = hitCreature.ragdoll.parts[0].colliderGroup;
+            coll.sourceColliderGroup = item.colliderGroups[0];
 
-                coll.damageStruct.penetration = DamageStruct.Penetration.Hit;
-                coll.damageStruct.penetrationDepth = 10;
-                coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
-                coll.intensity = EvaluateDamage(data.damage, hitCreature);
-                try { hitCreature.Damage(coll); }
-                catch (Exception)
-                {
-                    /*ignored*/
-                }
+            coll.damageStruct.penetration = DamageStruct.Penetration.Hit;
+            coll.damageStruct.penetrationDepth = 10;
+            coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
+            coll.intensity = EvaluateDamage(data.damage, hitCreature);
+            try { hitCreature.Damage(coll); }
+            catch (Exception) { /*ignored*/ }
 
-                hitCreature.locomotion.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
-                if (hitCreature.isKilled) hitCreature.StartCoroutine(ExplodeCreature(point, data, hitCreature));
-            }
+            hitCreature.locomotion.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
+            if (hitCreature.isKilled) hitCreature.StartCoroutine(ExplodeCreature(point, data, hitCreature));
         }
 
         foreach (var hitShootable in hitShootables) { hitShootable.Shoot(ProjectileData.PenetrationLevels.Kevlar); }
@@ -727,34 +695,25 @@ public class FireMethods : MonoBehaviour
 
     private static IEnumerator ExplodeCreature(Vector3 point, ExplosiveData data, Creature hitCreature)
     {
-        if (!hitCreature.isPlayer && Settings.explosionsDismember && !Settings.disableGore)
+        if (hitCreature.isPlayer || !Settings.explosionsDismember || Settings.disableGore)
+            yield break;
+        
+        foreach (var rp in hitCreature.ragdoll.parts.ToArray().Reverse())
         {
-            foreach (var rp in hitCreature.ragdoll.parts.ToArray().Reverse())
-            {
-                yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
 
-                if (Vector3.Distance(rp.transform.position, point) < (data.radius / 2) && Slice(rp))
-                {
-                    rp.TrySlice();
-                    rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 2);
-                }
-                else rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 10);
+            if (Vector3.Distance(rp.transform.position, point) < (data.radius / 2) && Slice(rp))
+            {
+                rp.TrySlice();
+                rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 2);
             }
+            else rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 10);
         }
     }
 
     public static bool CheckExplosionCreatureHit(Creature c, Vector3 origin)
     {
-        foreach (var b in c.ragdoll.parts)
-        {
-            if (!Physics.Raycast(b.transform.position,
-                    origin - b.transform.position,
-                    Vector3.Distance(b.transform.position, origin) - 0.1f,
-                    LayerMask.GetMask("Default")))
-                return true;
-        }
-
-        return false;
+        return c.ragdoll.parts.Any(b => !Physics.Raycast(b.transform.position, origin - b.transform.position, Vector3.Distance(b.transform.position, origin) - 0.1f, LayerMask.GetMask("Default")));
     }
 
     public static float EvaluateDamage(float perFifty, Creature c)

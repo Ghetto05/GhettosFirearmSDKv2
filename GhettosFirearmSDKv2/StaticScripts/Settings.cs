@@ -7,6 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace GhettosFirearmSDKv2
 {
+    // ReSharper disable once ClassNeverInstantiated.Global - Instantinated by game code
     public class Settings : ThunderScript
     {
         #region Settings

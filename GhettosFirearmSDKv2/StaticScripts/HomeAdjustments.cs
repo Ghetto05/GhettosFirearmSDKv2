@@ -7,6 +7,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace GhettosFirearmSDKv2
 {
+    // ReSharper disable once ClassNeverInstantiated.Global - Instantinated by game code
     public class HomeAdjustments : ThunderScript
     {
         public static HomeAdjustments local;

@@ -93,6 +93,7 @@
     <Compile Include="StaticScripts\FirearmsSettingsValues.cs" />
     <Compile Include="StaticScripts\HomeAdjustments.cs" />
     <Compile Include="StaticScripts\Initialization.cs" />
+    <Compile Include="StaticScripts\Score.cs" />
     <Compile Include="StaticScripts\UpdateChecker.cs" />
     <Compile Include="Other\ChemLight.cs" />
     <Compile Include="Other\CollapsibleBaton.cs" />
@@ -144,8 +145,6 @@
     <Compile Include="Firearms\BoltAssemblies\HandleFolder.cs" />
     <Compile Include="Firearms\FirearmMechanics\Hammer.cs" />
     <Compile Include="Firearms\FirearmMechanics\RevolverEjectorRod.cs" />
-    <Compile Include="StaticScripts\GunGame\GunGameWeaponData.cs" />
-    <Compile Include="StaticScripts\GunGame\GunGame.cs" />
     <Compile Include="Imaging\NVGOnlyRenderer.cs" />
     <Compile Include="Imaging\NVGOnlyRendererMeshModule.cs" />
     <Compile Include="Other\GhettoHandle.cs" />
@@ -163,7 +162,6 @@
     <Compile Include="SaveData\SaveNodeValueInt.cs" />
     <Compile Include="SaveData\SaveNodeValue.cs" />
     <Compile Include="SaveData\FirearmSaveData.cs" />
-    <Compile Include="StaticScripts\FirearmsScore.cs" />
     <Compile Include="Other\Switches\SwitchRelation.cs" />
     <Compile Include="Firearms\BoltAssemblies\BoltBase.cs" />
     <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearm.cs" />
@@ -209,7 +207,6 @@
     <Compile Include="UI\GunViceV2\UIRailAttachment.cs" />
     <Compile Include="UI\GunViceV2\UISlot.cs" />
     <Compile Include="UI\GunViceV2\ViceUI.cs" />
-    <Compile Include="UI\SettingsPanel\ScoreWindow.cs" />
     <Compile Include="Util\AdditionalFireSoundManager.cs" />
     <Compile Include="Other\BetterAudioLoader.cs" />
     <Compile Include="Util\AttachmentValidator.cs" />
@@ -234,13 +231,8 @@
     <Compile Include="Firearms\Ammunition\MagazineLoad.cs" />
     <Compile Include="Firearms\FirearmMechanics\StockToggler.cs" />
     <Compile Include="UI\CanvasCamAssigner.cs" />
-    <Compile Include="UI\SettingsPanel\CheatsWindow.cs" />
     <Compile Include="Firearms\BoltAssemblies\PumpAction.cs" />
     <Compile Include="Firearms\FirearmMechanics\Trigger.cs" />
-    <Compile Include="UI\SettingsPanel\SettingsWindow.cs" />
-    <Compile Include="UI\GunVice\ViceUI.cs" />
-    <Compile Include="UI\GunVice\ViceUIAttachment.cs" />
-    <Compile Include="UI\GunVice\ViceUIAttachmentSlot.cs" />
     <Compile Include="Util\EnumDescription.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\LineAttacher.cs" />

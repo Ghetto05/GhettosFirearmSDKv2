@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
+    // ReSharper disable once ClassNeverInstantiated.Global - Instantinated by game code
     public class UpdateChecker
     {
         public static string message = "";

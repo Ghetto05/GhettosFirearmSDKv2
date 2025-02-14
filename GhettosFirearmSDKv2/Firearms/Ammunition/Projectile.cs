@@ -37,7 +37,9 @@ public class Projectile : MonoBehaviour
         var penPow = 0;
         var hitCreatures = new List<Creature>();
         var killedCreatures = new List<Creature>();
-        FireMethods.ProcessHit(transform, (FireMethods.HitData)collision, new List<FireMethods.HitData>(), data, 1, hitCreatures, killedCreatures, item, out _, out _, ref penPow);
+        var hitParts = new List<RagdollPart>();
+        var hitShootables = new List<object>();
+        FireMethods.ProcessHit(transform, (FireMethods.HitData)collision, [], data, 1, hitCreatures, killedCreatures, hitParts, hitShootables, item, out _, out _, ref penPow);
         
         HitEvent?.Invoke(hitCreatures, killedCreatures);
         
