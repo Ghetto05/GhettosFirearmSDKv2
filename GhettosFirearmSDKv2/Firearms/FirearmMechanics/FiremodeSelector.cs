@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            if (!firearm && attachment && attachment.attachmentPoint.parentManager is Firearm f)
+            if (!firearm && attachment && attachment.attachmentPoint.ConnectedManager is Firearm f)
             {
                 firearm = f;
                 attachment.OnDetachEvent += AttachmentOnOnDetachEvent;

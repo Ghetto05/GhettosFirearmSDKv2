@@ -25,7 +25,7 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            if (attachment.attachmentPoint.parentManager is FirearmBase { magazineWell.currentMagazine: { } mag })
+            if (attachment.attachmentPoint.ConnectedManager is FirearmBase { magazineWell.currentMagazine: { } mag })
             {
                 _magazine = mag;
                 Apply();

@@ -28,7 +28,7 @@ namespace GhettosFirearmSDKv2
 
         private void InvokedStart()
         {
-            if (attachmentFirearm.attachment.attachmentPoint.parentManager is not Firearm f)
+            if (attachmentFirearm.attachment.attachmentPoint.ConnectedManager is not Firearm f)
                 return;
             _connectedFirearm = f;
             _firearmTriggerHandle = _connectedFirearm.item.mainHandleLeft;

@@ -20,7 +20,7 @@ namespace GhettosFirearmSDKv2
                     return;
                 }
 
-                if (attachment.attachmentPoint?.parentManager is Firearm f)
+                if (attachment.attachmentPoint?.ConnectedManager is Firearm f)
                     firearm = f;
             }
 

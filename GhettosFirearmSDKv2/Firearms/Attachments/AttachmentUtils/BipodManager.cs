@@ -9,9 +9,11 @@ namespace GhettosFirearmSDKv2
     [AddComponentMenu("Firearm SDK v2/Attachments/Systems/Bipod Manager")]
     public class BipodManager : MonoBehaviour
     {
-        [FormerlySerializedAs("firearm"), SerializeField, SerializeReference]
-        public IAttachmentManager attachmentManager;
+        public Firearm firearm;
+        public AttachmentManager attachmentManager;
+        public IAttachmentManager ConnectedManager;
         public Attachment attachment;
+        
         public List<Bipod> bipods;
         public List<Transform> groundFollowers;
         public float linearRecoilModifier;
@@ -21,15 +23,20 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
-            if (attachmentManager != null && attachment)
+            if (firearm)
+                ConnectedManager = firearm;
+            if (attachmentManager)
+                ConnectedManager = attachmentManager;
+            
+            if (ConnectedManager != null && attachment)
                 attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
-            else if (attachmentManager != null)
+            else if (ConnectedManager != null)
                 _active = true;
         }
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            attachmentManager = attachment.attachmentPoint.parentManager;
+            ConnectedManager = attachment.attachmentPoint.ConnectedManager;
             _active = true;
         }
 
@@ -41,7 +48,7 @@ namespace GhettosFirearmSDKv2
             if (groundFollowers.Any(t => !Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default"))))
                 extended = false;
 
-            if (attachmentManager is Firearm firearm)
+            if (ConnectedManager is Firearm firearm)
             {
                 switch (extended)
                 {

@@ -125,7 +125,7 @@ namespace GhettosFirearmSDKv2
             }
             else if (overrideAttachment)
             {
-                overrideAttachment.attachmentPoint.parentManager.OnCollision += OnCollisionEnter;
+                overrideAttachment.attachmentPoint.ConnectedManager.OnCollision += OnCollisionEnter;
                 _firearmSave = overrideAttachment.Node.GetOrAddValue("MagazineSaveData", new SaveNodeValueMagazineContents(), out var addedNew);
                 if (addedNew && defaultLoad)
                 {

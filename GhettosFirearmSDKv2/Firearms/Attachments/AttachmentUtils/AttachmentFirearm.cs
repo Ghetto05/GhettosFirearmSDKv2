@@ -18,9 +18,9 @@ namespace GhettosFirearmSDKv2
         public override void InvokedStart()
         {
             if (!disableMainFireHandle) mainFireHandle = fireHandle;
-            item = attachment.GetComponentInParent<AttachmentPoint>().parentManager.Item;
-            attachment.attachmentPoint.parentManager.OnCollision += OnCollisionEnter;
-            attachment.attachmentPoint.parentManager.Item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
+            item = attachment.GetComponentInParent<AttachmentPoint>().ConnectedManager.Item;
+            attachment.attachmentPoint.ConnectedManager.OnCollision += OnCollisionEnter;
+            attachment.attachmentPoint.ConnectedManager.Item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
             attachment.OnHeldActionEvent += Item_OnHeldActionEvent;
             item.OnSnapEvent += Item_OnSnapEvent;
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
@@ -82,7 +82,7 @@ namespace GhettosFirearmSDKv2
         
         public override bool HeldByAI()
         {
-            return !(attachment.attachmentPoint.parentManager.Item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? true);
+            return !(attachment.attachmentPoint.ConnectedManager.Item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? true);
         }
     }
 }

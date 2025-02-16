@@ -43,7 +43,7 @@ public static class SharedAttachmentManagerFunctions
         
         foreach (var ap in manager.AttachmentPoints)
         {
-            ap.parentManager = manager;
+            ap.ConnectedManager = manager;
         }
 
         manager.SaveData.ApplyToFirearm(manager);

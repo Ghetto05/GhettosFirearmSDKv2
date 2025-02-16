@@ -35,7 +35,7 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            if (attachment.attachmentPoint.parentManager is not FirearmBase f)
+            if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
                 return;
             firearm = f;
             firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;

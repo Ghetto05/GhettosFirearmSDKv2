@@ -29,7 +29,7 @@ namespace GhettosFirearmSDKv2
         {
             attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
 
-            if (attachment.attachmentPoint.parentManager is not FirearmBase f)
+            if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
                 return;
 
             _firearm = f;

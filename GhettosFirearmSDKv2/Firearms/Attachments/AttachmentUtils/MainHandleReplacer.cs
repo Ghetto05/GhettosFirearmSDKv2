@@ -27,8 +27,8 @@ namespace GhettosFirearmSDKv2
             oldMainHandle.enabled = true;
             oldMainHandle.gameObject.SetActive(true);
 
-            attachment.attachmentPoint.parentManager.Item.mainHandleLeft = oldMainHandle;
-            attachment.attachmentPoint.parentManager.Item.mainHandleRight = oldMainHandle;
+            attachment.attachmentPoint.ConnectedManager.Item.mainHandleLeft = oldMainHandle;
+            attachment.attachmentPoint.ConnectedManager.Item.mainHandleRight = oldMainHandle;
 
             attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
             attachment.OnDetachEvent -= Attachment_OnDetachEvent;
@@ -52,8 +52,8 @@ namespace GhettosFirearmSDKv2
             newMainHandle.enabled = true;
             newMainHandle.gameObject.SetActive(true);
 
-            attachment.attachmentPoint.parentManager.Item.mainHandleLeft = newMainHandle;
-            attachment.attachmentPoint.parentManager.Item.mainHandleRight = newMainHandle;
+            attachment.attachmentPoint.ConnectedManager.Item.mainHandleLeft = newMainHandle;
+            attachment.attachmentPoint.ConnectedManager.Item.mainHandleRight = newMainHandle;
             
             foreach (var h in handlers)
             {
@@ -63,8 +63,8 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            oldMainHandle = attachment.attachmentPoint.parentManager.Item.mainHandleLeft;
-            attachment.attachmentPoint.parentManager.OnAttachmentAdded += OnAttachmentChanged;
+            oldMainHandle = attachment.attachmentPoint.ConnectedManager.Item.mainHandleLeft;
+            attachment.attachmentPoint.ConnectedManager.OnAttachmentAdded += OnAttachmentChanged;
             Invoke(nameof(Apply), 0.05f);
         }
 

@@ -20,7 +20,7 @@ namespace GhettosFirearmSDKv2
 
         private void InvokedStart()
         {
-            if (attachment.attachmentPoint.parentManager is not Firearm f)
+            if (attachment.attachmentPoint.ConnectedManager is not Firearm f)
                 return;
             _connectedFirearm = f;
             UpdatePosition();

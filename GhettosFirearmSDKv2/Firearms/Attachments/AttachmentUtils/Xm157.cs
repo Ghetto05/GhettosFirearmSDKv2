@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
             uiColor = (UiColors)_colorSaveData.Value;
             ApplyColor();
             scope.connectedAttachment.OnHeldActionEvent += ConnectedAttachmentOnOnHeldActionEvent;
-            scope.connectedAttachment.attachmentPoint.parentManager.Item.OnGrabEvent += MenuHandleOnGrabbed;
+            scope.connectedAttachment.attachmentPoint.ConnectedManager.Item.OnGrabEvent += MenuHandleOnGrabbed;
         }
 
         private void ConnectedAttachmentOnOnHeldActionEvent(RagdollHand hand, Handle handle, Interactable.Action action)
@@ -92,7 +92,7 @@ namespace GhettosFirearmSDKv2
         {
             if (menuHandle == null)
                 return;
-            scope.connectedAttachment.attachmentPoint.parentManager.Item.OnGrabEvent -= MenuHandleOnGrabbed;
+            scope.connectedAttachment.attachmentPoint.ConnectedManager.Item.OnGrabEvent -= MenuHandleOnGrabbed;
             scope.connectedAttachment.OnHeldActionEvent -= ConnectedAttachmentOnOnHeldActionEvent;
         }
 

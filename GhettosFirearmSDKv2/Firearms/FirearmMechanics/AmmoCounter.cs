@@ -23,7 +23,7 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            if (attachment && attachment.attachmentPoint.parentManager is FirearmBase f)
+            if (attachment && attachment.attachmentPoint.ConnectedManager is FirearmBase f)
             {
                 firearm = f;
             }

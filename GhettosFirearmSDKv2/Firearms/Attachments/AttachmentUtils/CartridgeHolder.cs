@@ -8,9 +8,10 @@ namespace GhettosFirearmSDKv2
 {
     public class CartridgeHolder : MonoBehaviour
     {
-        [FormerlySerializedAs("firearm"), SerializeField, SerializeReference]
-        public IAttachmentManager manager;
+        public IAttachmentManager ConnectedManager;
         public Attachment attachment;
+        public AttachmentManager attachmentManager;
+        public Firearm firearm;
 
         public int slot;
         public string caliber;
@@ -24,21 +25,26 @@ namespace GhettosFirearmSDKv2
 
         private void Start()
         {
+            if (firearm)
+                ConnectedManager = firearm;
+            if (attachmentManager)
+                ConnectedManager = attachmentManager;
+            
             Invoke(nameof(InvokedStart), Settings.invokeTime);
             Invoke(nameof(UpdateCartridgePositions), Settings.invokeTime * 5);
         }
 
         public void InvokedStart()
         {
-            if (manager != null)
+            if (ConnectedManager != null)
             {
-                manager.OnCollision += Collision;
-                manager.Item.OnGrabEvent += Firearm_OnGrabEvent;
+                ConnectedManager.OnCollision += Collision;
+                ConnectedManager.Item.OnGrabEvent += Firearm_OnGrabEvent;
             }
             else if (attachment != null)
             {
-                attachment.attachmentPoint.parentManager.OnCollision += Collision;
-                attachment.attachmentPoint.parentManager.Item.OnGrabEvent += Firearm_OnGrabEvent;
+                attachment.attachmentPoint.ConnectedManager.OnCollision += Collision;
+                attachment.attachmentPoint.ConnectedManager.Item.OnGrabEvent += Firearm_OnGrabEvent;
             }
 
             SaveNodeValueCartridgeData save = null;
@@ -46,14 +52,14 @@ namespace GhettosFirearmSDKv2
             {
                 save = value;
             }
-            else if (manager != null && manager.SaveData.FirearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value2))
+            else if (ConnectedManager != null && ConnectedManager.SaveData.FirearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value2))
             {
                 save = value2;
             }
 
             if (save != null)
             {
-                Util.SpawnItem(save.Value.ItemId, $"[Cartridge holder - Firearm: {manager?.Item?.itemId ?? "--"} Attachment: {attachment?.Data.id ?? "--"} Slot: {slot}]", cartridge =>
+                Util.SpawnItem(save.Value.ItemId, $"[Cartridge holder - Firearm: {ConnectedManager?.Item?.itemId ?? "--"} Attachment: {attachment?.Data.id ?? "--"} Slot: {slot}]", cartridge =>
                 {
                     var c = cartridge.GetComponent<Cartridge>();
                     save.Value.Apply(c);
@@ -82,8 +88,8 @@ namespace GhettosFirearmSDKv2
             {
                 Util.PlayRandomAudioSource(roundEjectSounds);
                 loaded.ToggleCollision(true);
-                if (manager != null)
-                    Util.DelayIgnoreCollision(manager.Transform.gameObject, loaded.gameObject, false, 1f, loaded.item);
+                if (ConnectedManager != null)
+                    Util.DelayIgnoreCollision(ConnectedManager.Transform.gameObject, loaded.gameObject, false, 1f, loaded.item);
                 if (attachment != null)
                     Util.DelayIgnoreCollision(attachment.gameObject, loaded.gameObject, false, 1f, loaded.item);
                 loaded.loaded = false;
@@ -95,8 +101,8 @@ namespace GhettosFirearmSDKv2
 
                 if (attachment != null)
                     attachment.Node.RemoveValue("CartridgeHolder" + slot);
-                else if (manager != null)
-                    manager.SaveData.FirearmNode.RemoveValue("CartridgeHolder" + slot);
+                else if (ConnectedManager != null)
+                    ConnectedManager.SaveData.FirearmNode.RemoveValue("CartridgeHolder" + slot);
             }
             UpdateCartridgePositions();
             return loaded;
@@ -111,8 +117,8 @@ namespace GhettosFirearmSDKv2
                 c.ToggleCollision(false);
                 loadedCartridge = c;
                 c.UngrabAll();
-                if (manager != null)
-                    Util.IgnoreCollision(c.gameObject, manager.Transform.gameObject, true);
+                if (ConnectedManager != null)
+                    Util.IgnoreCollision(c.gameObject, ConnectedManager.Transform.gameObject, true);
                 if (attachment != null)
                     Util.IgnoreCollision(c.gameObject, attachment.gameObject, true);
                 if (!silent) Util.PlayRandomAudioSource(roundInsertSounds);
@@ -126,8 +132,8 @@ namespace GhettosFirearmSDKv2
                 FirearmSaveData.AttachmentTreeNode target = null;
                 if (attachment != null)
                     target = attachment.Node;
-                else if (manager != null)
-                    target = manager.SaveData.FirearmNode;
+                else if (ConnectedManager != null)
+                    target = ConnectedManager.SaveData.FirearmNode;
                 
                 if (target != null)
                 {
@@ -141,7 +147,7 @@ namespace GhettosFirearmSDKv2
         {
             var c = EjectRound();
             var success = chamberLoader?.TryLoad(c) ?? false;
-            if (success && manager is FirearmBase { bolt: BoltSemiautomatic { caught: true } bolt })
+            if (success && ConnectedManager is FirearmBase { bolt: BoltSemiautomatic { caught: true } bolt })
                 bolt.TryRelease();
         }
 

@@ -10,13 +10,15 @@ namespace GhettosFirearmSDKv2
 {
     public class StockToggler : MonoBehaviour
     {
+        public IAttachmentManager ConnectedManager;
+        public Firearm connectedFirearm;
+        public AttachmentManager attachmentManager;
+        public Attachment connectedAttachment;
+        
         public AudioSource toggleSound;
         public Handle toggleHandle;
         public Transform pivot;
         public Transform[] positions;
-        [FormerlySerializedAs("connectedFirearm"), SerializeField, SerializeReference]
-        public IAttachmentManager connectedManager;
-        public Attachment connectedAttachment;
         public int currentIndex;
         public bool useAsSeparateObjects;
         private SaveNodeValueInt _stockPosition;
@@ -24,14 +26,20 @@ namespace GhettosFirearmSDKv2
         private void Start()
         {
             Invoke(nameof(InvokedStart), Settings.invokeTime);
+            if (connectedFirearm)
+                ConnectedManager = connectedFirearm;
+            if (attachmentManager)
+                ConnectedManager = attachmentManager;
         }
 
         public void InvokedStart()
         {
-            if (connectedManager != null)
+            Debug.Log(ConnectedManager);
+            Debug.Log(connectedFirearm);
+            if (ConnectedManager != null)
             {
-                connectedManager.Item.OnHeldActionEvent += OnAction;
-                _stockPosition = connectedManager.SaveData.FirearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
+                ConnectedManager.Item.OnHeldActionEvent += OnAction;
+                _stockPosition = ConnectedManager.SaveData.FirearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
                 currentIndex = _stockPosition.Value;
                 ApplyPosition(_stockPosition.Value, false);
             }
@@ -107,9 +115,9 @@ namespace GhettosFirearmSDKv2
             catch (Exception)
             {
                 if (connectedAttachment != null)
-                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.parentManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
-                else if (connectedManager != null)
-                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {connectedManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
+                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.ConnectedManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
+                else if (ConnectedManager != null)
+                    Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {ConnectedManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
             }
         }
 

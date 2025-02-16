@@ -24,7 +24,7 @@ namespace GhettosFirearmSDKv2
 
         private void Attachment_OnDelayedAttachEvent()
         {
-            _actualItem = attachment.attachmentPoint.parentManager.Item;
+            _actualItem = attachment.attachmentPoint.ConnectedManager.Item;
         }
 
         public void SetActive()

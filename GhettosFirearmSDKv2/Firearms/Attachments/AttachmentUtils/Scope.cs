@@ -10,6 +10,11 @@ namespace GhettosFirearmSDKv2
 {
     public class Scope : MonoBehaviour
     {
+        public Firearm connectedFirearm;
+        public IAttachmentManager ConnectedManager;
+        public Attachment connectedAttachment;
+        public AttachmentManager attachmentManager;
+        
         public enum LensSizes
         {
             _10mm = 10,
@@ -38,9 +43,6 @@ namespace GhettosFirearmSDKv2
         public float noZoomMagnification;
         public bool hasZoom;
         public Handle controllingHandle;
-        [FormerlySerializedAs("connectedFirearm"), SerializeField, SerializeReference]
-        public IAttachmentManager attachmentManager;
-        public Attachment connectedAttachment;
         public List<float> magnificationLevels;
         public Transform selector;
         public List<Transform> selectorPositions;
@@ -52,7 +54,13 @@ namespace GhettosFirearmSDKv2
 
         public virtual void Start()
         {
-            if (lens != null) lenses.Add(lens);
+            if (connectedFirearm)
+                ConnectedManager = connectedFirearm;
+            if (attachmentManager)
+                ConnectedManager = attachmentManager;
+            
+            if (lens)
+                lenses.Add(lens);
             Invoke(nameof(InvokedStart), Settings.invokeTime);
         }
 
@@ -63,10 +71,10 @@ namespace GhettosFirearmSDKv2
             cam.targetTexture = rt;
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 
-            if (hasZoom && attachmentManager != null)
+            if (hasZoom && ConnectedManager != null)
             {
-                attachmentManager.Item.OnHeldActionEvent += Item_OnHeldActionEvent;
-                _zoomIndex = attachmentManager.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
+                ConnectedManager.Item.OnHeldActionEvent += Item_OnHeldActionEvent;
+                _zoomIndex = ConnectedManager.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
             }
             else if (hasZoom && connectedAttachment != null)
             {

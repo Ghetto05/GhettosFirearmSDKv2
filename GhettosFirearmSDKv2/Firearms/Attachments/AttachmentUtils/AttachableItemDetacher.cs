@@ -24,7 +24,7 @@ namespace GhettosFirearmSDKv2
         {
             if (detachHandles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
             {
-                var oldItem = attachment.attachmentPoint.parentManager.Item;
+                var oldItem = attachment.attachmentPoint.ConnectedManager.Item;
                 var node = attachment.Node.CloneJson();
                 Util.SpawnItem(itemId, "Attachable Item Detach",item =>
                 {

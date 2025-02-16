@@ -49,8 +49,8 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            if (attachmentPoint != null && attachmentPoint.parentManager != null && attachmentPoint.parentManager.Item != null)
-                Hide(!attachmentPoint.parentManager.Item.renderers[0].enabled);
+            if (attachmentPoint != null && attachmentPoint.ConnectedManager != null && attachmentPoint.ConnectedManager.Item != null)
+                Hide(!attachmentPoint.ConnectedManager.Item.renderers[0].enabled);
         }
 
         public void Hide(bool hidden)
@@ -65,7 +65,7 @@ namespace GhettosFirearmSDKv2
         public void Initialize(Action<Attachment> callback, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
         {
             Firearm firearm = null;
-            if (attachmentPoint.parentManager is Firearm f)
+            if (attachmentPoint.ConnectedManager is Firearm f)
                 firearm = f;
             addedByInitialSetup = initialSetup;
             if (thisNode != null) Node = thisNode;
@@ -74,23 +74,23 @@ namespace GhettosFirearmSDKv2
             foreach (var ren in gameObject.GetComponentsInChildren<Renderer>(true))
             {
                 if (!_renderers.Contains(ren)) _renderers.Add(ren);
-                if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.parentManager.Item.renderers.Contains(ren)) attachmentPoint.parentManager.Item.renderers.Add(ren);
+                if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.ConnectedManager.Item.renderers.Contains(ren)) attachmentPoint.ConnectedManager.Item.renderers.Add(ren);
             }
             foreach (var dec in gameObject.GetComponentsInChildren<RevealDecal>(true))
             {
                 if (!_decals.Contains(dec)) _decals.Add(dec);
-                if (!attachmentPoint.parentManager.Item.revealDecals.Contains(dec)) attachmentPoint.parentManager.Item.revealDecals.Add(dec);
+                if (!attachmentPoint.ConnectedManager.Item.revealDecals.Contains(dec)) attachmentPoint.ConnectedManager.Item.revealDecals.Add(dec);
             }
-            try { attachmentPoint.parentManager.Item.lightVolumeReceiver.SetRenderers(attachmentPoint.parentManager.Item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
+            try { attachmentPoint.ConnectedManager.Item.lightVolumeReceiver.SetRenderers(attachmentPoint.ConnectedManager.Item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
 
             transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             foreach (var ap in attachmentPoints.Where(x => x))
             {
-                ap.parentManager = attachmentPoint.parentManager;
+                ap.ConnectedManager = attachmentPoint.ConnectedManager;
                 ap.attachment = this;
             }
-            attachmentPoint.parentManager.UpdateAttachments();
-            attachmentPoint.parentManager.Item.OnDespawnEvent += Item_OnDespawnEvent;
+            attachmentPoint.ConnectedManager.UpdateAttachments();
+            attachmentPoint.ConnectedManager.Item.OnDespawnEvent += Item_OnDespawnEvent;
 
             if (Settings.debugMode)
             {
@@ -109,29 +109,29 @@ namespace GhettosFirearmSDKv2
             if (colliderGroup != null)
             {
                 colliderGroup.Load(Catalog.GetData<ColliderGroupData>(colliderGroupId));
-                attachmentPoint.parentManager.Item.colliderGroups.Add(colliderGroup);
-                attachmentPoint.parentManager.Item.RefreshCollision();
+                attachmentPoint.ConnectedManager.Item.colliderGroups.Add(colliderGroup);
+                attachmentPoint.ConnectedManager.Item.RefreshCollision();
                 foreach (var c in colliderGroup.colliders)
                 {
-                    c.gameObject.layer = attachmentPoint.parentManager.Item.currentPhysicsLayer;
+                    c.gameObject.layer = attachmentPoint.ConnectedManager.Item.currentPhysicsLayer;
                 }
             }
             foreach (var colll in alternateGroups.Where(x => x))
             {
                 colll.Load(Catalog.GetData<ColliderGroupData>(alternateGroupsIds[alternateGroups.IndexOf(colll)]));
-                attachmentPoint.parentManager.Item.colliderGroups.Add(colll);
-                attachmentPoint.parentManager.Item.RefreshCollision();
+                attachmentPoint.ConnectedManager.Item.colliderGroups.Add(colll);
+                attachmentPoint.ConnectedManager.Item.RefreshCollision();
                 foreach (var c in colll.colliders)
                 {
-                    c.gameObject.layer = attachmentPoint.parentManager.Item.currentPhysicsLayer;
+                    c.gameObject.layer = attachmentPoint.ConnectedManager.Item.currentPhysicsLayer;
                 }
             }
             foreach (var han in handles.Where(x => x))
             {
-                han.item = attachmentPoint.parentManager.Item;
-                han.physicBody.rigidBody = attachmentPoint.parentManager.Item.physicBody.rigidBody;
-                attachmentPoint.parentManager.Item.handles.Add(han);
-                if (attachmentPoint.parentManager.Item.holder != null) han.SetTouch(false);
+                han.item = attachmentPoint.ConnectedManager.Item;
+                han.physicBody.rigidBody = attachmentPoint.ConnectedManager.Item.physicBody.rigidBody;
+                attachmentPoint.ConnectedManager.Item.handles.Add(han);
+                if (attachmentPoint.ConnectedManager.Item.holder != null) han.SetTouch(false);
             } 
             firearm?.additionalTriggerHandles.AddRange(additionalTriggerHandles.Where(x => x));
             if (damagers != null)
@@ -142,18 +142,18 @@ namespace GhettosFirearmSDKv2
                     {
                         if (damagerIds[damagers.IndexOf(dmg)].Equals("Mace1H"))
                             damagerIds[damagers.IndexOf(dmg)] = "Ghetto05.FirearmSDKv2.Damagers.NearlyNoDamage";
-                        dmg.Load(Catalog.GetData<DamagerData>(damagerIds[damagers.IndexOf(dmg)]), attachmentPoint.parentManager.Item.mainCollisionHandler);
-                        attachmentPoint.parentManager.Item.mainCollisionHandler.damagers.Add(dmg);
+                        dmg.Load(Catalog.GetData<DamagerData>(damagerIds[damagers.IndexOf(dmg)]), attachmentPoint.ConnectedManager.Item.mainCollisionHandler);
+                        attachmentPoint.ConnectedManager.Item.mainCollisionHandler.damagers.Add(dmg);
                     }
                 }
             }
-            attachmentPoint.parentManager.Item.OnHeldActionEvent += InvokeHeldAction;
+            attachmentPoint.ConnectedManager.Item.OnHeldActionEvent += InvokeHeldAction;
             OnDelayedAttachEvent?.Invoke();
             firearm?.InvokeAttachmentAdded(this, attachmentPoint);
             initialized = true;
 
             attachmentPoint.SetDependantObjectVisibility();
-            attachmentPoint.parentManager.Item.UpdateReveal();
+            attachmentPoint.ConnectedManager.Item.UpdateReveal();
             callback?.Invoke(this);
         }
 
@@ -162,7 +162,7 @@ namespace GhettosFirearmSDKv2
             foreach (var n in Node.Childs)
             {
                 var point = GetSlotFromId(n.Slot);
-                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.AttachmentId, $"[Point {point?.id} on {point?.parentManager?.Item?.itemId}]")).SpawnAndAttach(point, null, n, addedByInitialSetup);
+                Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.AttachmentId, $"[Point {point?.id} on {point?.ConnectedManager?.Item?.itemId}]")).SpawnAndAttach(point, null, n, addedByInitialSetup);
             }
         }
 
@@ -178,25 +178,25 @@ namespace GhettosFirearmSDKv2
 
         private void FixedUpdate()
         {
-            if (colliderGroup == null || colliderGroup.colliders == null || attachmentPoint == null || attachmentPoint.parentManager == null) return;
+            if (colliderGroup == null || colliderGroup.colliders == null || attachmentPoint == null || attachmentPoint.ConnectedManager == null) return;
             foreach (var c in colliderGroup.colliders)
             {
-                c.gameObject.layer = attachmentPoint.parentManager.Item.currentPhysicsLayer;
+                c.gameObject.layer = attachmentPoint.ConnectedManager.Item.currentPhysicsLayer;
             }
         }
 
         public void Detach(bool despawnDetach = false)
         {
-            if (attachmentPoint != null && attachmentPoint.parentManager != null) attachmentPoint.parentManager.Item.OnHeldActionEvent -= InvokeHeldAction;
+            if (attachmentPoint != null && attachmentPoint.ConnectedManager != null) attachmentPoint.ConnectedManager.Item.OnHeldActionEvent -= InvokeHeldAction;
             OnDetachEvent?.Invoke(despawnDetach);
-            if (despawnDetach || attachmentPoint.parentManager == null) return;
+            if (despawnDetach || attachmentPoint.ConnectedManager == null) return;
             if (attachmentPoint.attachment != null) attachmentPoint.attachment.Node.Childs.Remove(Node);
-            else if (attachmentPoint.parentManager != null) attachmentPoint.parentManager.SaveData.FirearmNode.Childs.Remove(Node);
+            else if (attachmentPoint.ConnectedManager != null) attachmentPoint.ConnectedManager.SaveData.FirearmNode.Childs.Remove(Node);
             foreach (var eve in onDetachEvents)
             {
                 eve.Invoke();
             }
-            var manager = attachmentPoint.parentManager;
+            var manager = attachmentPoint.ConnectedManager;
             Firearm firearm = null;
             if (manager is Firearm f)
                 firearm = f;
