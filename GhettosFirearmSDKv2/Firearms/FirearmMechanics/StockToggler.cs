@@ -34,8 +34,6 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            Debug.Log(ConnectedManager);
-            Debug.Log(connectedFirearm);
             if (ConnectedManager != null)
             {
                 ConnectedManager.Item.OnHeldActionEvent += OnAction;
