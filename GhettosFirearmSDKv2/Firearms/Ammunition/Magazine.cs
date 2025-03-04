@@ -86,11 +86,11 @@ namespace GhettosFirearmSDKv2
         public void InvokedStart()
         {
             cartridges = new List<Cartridge>();
-            if (!overrideItem && !overrideItem)
+            if (!overrideItem)
                 item = GetComponent<Item>();
             else if (overrideItem)
                 item = overrideItem;
-            if (item == null && !overrideAttachment)
+            if (!item && !overrideAttachment)
                 return;
             if (!overrideItem && !overrideAttachment)
                 item.SetPhysicBodyAndMainCollisionHandler();

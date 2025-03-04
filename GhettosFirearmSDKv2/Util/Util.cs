@@ -80,9 +80,12 @@ namespace GhettosFirearmSDKv2
 
         public static bool AllowLoadMagazine(Magazine magazine, MagazineWell well)
         {
-            if (magazine.currentWell != null || magazine.item.holder != null || well.currentMagazine != null) return false;
-            if (!Settings.doMagazineTypeChecks) return true;
-            if (magazine.magazineType.Equals("DEBUG UNIVERSAL")) return true;
+            if (magazine.currentWell || magazine.item.holder || well.currentMagazine)
+                return false;
+            if (!Settings.doMagazineTypeChecks)
+                return true;
+            if (magazine.magazineType.Equals("DEBUG UNIVERSAL"))
+                return true;
 
             var sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
             foreach (var t in well.alternateMagazineTypes)
