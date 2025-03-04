@@ -33,7 +33,7 @@ namespace GhettosFirearmSDKv2
         public Transform akBoltLockPoint;
         public Transform roundLoadPoint;
         public Transform hammerCockPoint;
-        public Transform stovepipeBoltPosition; // still needs to be added to SDK!
+        public Transform stovepipeBoltPosition;
         public Transform roundMount;
         public Transform stovepipeRoundPosition;
         public Cartridge loadedCartridge;
@@ -318,11 +318,23 @@ namespace GhettosFirearmSDKv2
             return false;
         }
 
-        public bool MoveBoltWithRb()
+        public bool MoveBoltWithRb(out Transform point)
         {
-            if (!hasBoltcatch && !isOpenBolt) return true;
-            var behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(catchPoint.localPosition, startPoint.localPosition);
-            var hasChargingHandle = chargingHandle != null;
+            point = null;
+            var behindCatchpoint = true;
+            var hasChargingHandle = chargingHandle;
+            
+            if ((hasBoltcatch || isOpenBolt) && caught)
+            {
+                point = catchPoint;
+                behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(catchPoint.localPosition, startPoint.localPosition);
+            }
+            else if (_failureToEject)
+            {
+                point = stovepipeBoltPosition;
+                behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(stovepipeBoltPosition.localPosition, startPoint.localPosition);
+            }
+            
             return (hasChargingHandle && behindCatchpoint) || !hasChargingHandle || !caught;
         }
 
@@ -358,8 +370,11 @@ namespace GhettosFirearmSDKv2
             //state check
             if (isHeld || _letGoBeforeClosed || _closingAfterRelease)
             {
-                if (MoveBoltWithRb()) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rigidBody.transform.localPosition.z);
-                else bolt.localPosition = catchPoint.localPosition;
+                if (MoveBoltWithRb(out var point))
+                    bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rigidBody.transform.localPosition.z);
+                else
+                    bolt.localPosition = point.localPosition;
+
                 if (chargingHandle && (!_closingAfterRelease || chargingHandleLocksBack))
                 {
                     chargingHandle.localPosition = new Vector3(chargingHandle.localPosition.x, chargingHandle.localPosition.y, rigidBody.transform.localPosition.z);
@@ -506,9 +521,19 @@ namespace GhettosFirearmSDKv2
             #region firing movement
             else if (firearm.roundsPerMinute != 0)
             {
-                if (_isClosing && (!_stuckFromFailureToEject || cyclePercentage >= _minimumCyclePercentageForFailureToEject))
+                if (_isClosing)
                 {
-                    bolt.localPosition = Vector3.Lerp(endPoint.localPosition, startPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
+                    if (!_failureToEject || cyclePercentage >= _minimumCyclePercentageForFailureToEject)
+                        bolt.localPosition = Vector3.Lerp(endPoint.localPosition, startPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
+                    else
+                    {
+                        bolt.localPosition = stovepipeBoltPosition.localPosition;
+                        _closedAfterLoad = false;
+                        _isClosing = false;
+                        _isReciprocating = false;
+                        state = BoltState.Locked;
+                        UpdateChamberedRounds();
+                    }
                 }
 
                 if (_isReciprocating)
