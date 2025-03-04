@@ -8,6 +8,8 @@ namespace GhettosFirearmSDKv2
 {
     public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
     {
+        private const float StuckFromEjectFailureReleaseForce = 5f;
+        
         public BoltState chargingHandleState;
         public BoltState previousChargingHandleState;
 
@@ -31,6 +33,7 @@ namespace GhettosFirearmSDKv2
         public Transform akBoltLockPoint;
         public Transform roundLoadPoint;
         public Transform hammerCockPoint;
+        public Transform stovepipeBoltPosition; // still needs to be added to SDK!
         public Transform roundMount;
         public Transform stovepipeRoundPosition;
         public Cartridge loadedCartridge;
@@ -75,6 +78,8 @@ namespace GhettosFirearmSDKv2
 
         private bool _failureToExtract;
         private bool _failureToEject;
+        private bool _stuckFromFailureToEject;
+        private float _minimumCyclePercentageForFailureToEject;
 
         public void Start()
         {
@@ -95,6 +100,7 @@ namespace GhettosFirearmSDKv2
             {
                 f.OnAttachmentAdded += Firearm_OnAttachmentAddedEvent;
                 f.OnAttachmentRemoved += Firearm_OnAttachmentRemovedEvent;
+                f.OnCollisionEventTR += OnCollisionStart;
             }
 
             rigidBody.transform.position = startPoint.position;
@@ -120,6 +126,22 @@ namespace GhettosFirearmSDKv2
             chamber.transform.localEulerAngles = Vector3.zero;
             _chamberPositionRoundMount = chamber.transform;
             chamber.transform.parent = firearm.transform;
+
+            // calculate minimum distance for stovepipe failure
+            if (stovepipeBoltPosition)
+                _minimumCyclePercentageForFailureToEject = Mathf.Clamp01(Util.AbsDist(stovepipeBoltPosition, startPoint) / Util.AbsDist(startPoint, endPoint));
+        }
+
+        private void OnCollisionStart(CollisionInstance collisionInstance)
+        {
+            if (_stuckFromFailureToEject &&
+                collisionInstance.impactVelocity.magnitude >= StuckFromEjectFailureReleaseForce &&
+                collisionInstance.IsDoneByPlayer())
+            {
+                _stuckFromFailureToEject = false;
+                
+                boltHandles.ForEach(x => x.gameObject.SetActive(true));
+            }
         }
 
         private void OnDespawn(EventTime eventTime)
@@ -135,6 +157,7 @@ namespace GhettosFirearmSDKv2
             {
                 f.OnAttachmentAdded -= Firearm_OnAttachmentAddedEvent;
                 f.OnAttachmentRemoved -= Firearm_OnAttachmentRemovedEvent;
+                f.OnCollisionEventTR -= OnCollisionStart;
             }
         }
 
@@ -335,12 +358,6 @@ namespace GhettosFirearmSDKv2
             //state check
             if (isHeld || _letGoBeforeClosed || _closingAfterRelease)
             {
-                if (_failureToExtract && Random.Range(1, 4) == 1)
-                {
-                    _failureToExtract = false;
-                    UpdateChamberedRounds();
-                }
-                
                 if (MoveBoltWithRb()) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rigidBody.transform.localPosition.z);
                 else bolt.localPosition = catchPoint.localPosition;
                 if (chargingHandle && (!_closingAfterRelease || chargingHandleLocksBack))
@@ -428,6 +445,12 @@ namespace GhettosFirearmSDKv2
                 {
                     laststate = state;
                     state = BoltState.Moving;
+
+                    if (_failureToExtract && Random.Range(1, 4) == 1)
+                    {
+                        _failureToExtract = false;
+                        UpdateChamberedRounds();
+                    }
                 }
                 //loading
                 if (state == BoltState.Moving && (laststate == BoltState.Back || laststate == BoltState.LockedBack))
@@ -483,7 +506,7 @@ namespace GhettosFirearmSDKv2
             #region firing movement
             else if (firearm.roundsPerMinute != 0)
             {
-                if (_isClosing)
+                if (_isClosing && (!_stuckFromFailureToEject || cyclePercentage >= _minimumCyclePercentageForFailureToEject))
                 {
                     bolt.localPosition = Vector3.Lerp(endPoint.localPosition, startPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
                 }
@@ -541,6 +564,8 @@ namespace GhettosFirearmSDKv2
                         else
                         {
                             _failureToEject = true;
+                            _stuckFromFailureToEject = true;
+                            boltHandles.ForEach(x => x.gameObject.SetActive(false));
                         }
                     }
                     Util.PlayRandomAudioSource(pullSounds);
