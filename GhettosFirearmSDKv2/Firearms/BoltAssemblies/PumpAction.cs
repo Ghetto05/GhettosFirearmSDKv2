@@ -255,7 +255,7 @@ namespace GhettosFirearmSDKv2
                 if (_nonHeldLockJoint != null) Destroy(_nonHeldLockJoint);
 
                 if (_lockJoint == null) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
-                if (Util.AbsDist(bolt.position, startPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
+                if (Util.AbsDist(bolt.position, startPoint.position) < Settings.boltPointThreshold && state == BoltState.Moving)
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Locked;
@@ -269,7 +269,7 @@ namespace GhettosFirearmSDKv2
                     if (_wentToFrontSinceLastLock) Lock(true);
                     Util.PlayRandomAudioSource(rackSounds);
                 }
-                else if (Util.AbsDist(bolt.position, endPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
+                else if (Util.AbsDist(bolt.position, endPoint.position) < Settings.boltPointThreshold && state == BoltState.Moving)
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Back;
@@ -278,7 +278,7 @@ namespace GhettosFirearmSDKv2
                     if (_closedSinceLastEject) EjectRound();
                     _closedSinceLastEject = false;
                 }
-                else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > Settings.boltPointTreshold && Util.AbsDist(bolt.position, startPoint.position) > Settings.boltPointTreshold)
+                else if (state != BoltState.Moving && Util.AbsDist(bolt.position, endPoint.position) > Settings.boltPointThreshold && Util.AbsDist(bolt.position, startPoint.position) > Settings.boltPointThreshold)
                 {
                     laststate = state;
                     state = BoltState.Moving;

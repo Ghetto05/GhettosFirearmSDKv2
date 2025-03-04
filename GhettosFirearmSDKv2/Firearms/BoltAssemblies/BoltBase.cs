@@ -72,7 +72,7 @@ namespace GhettosFirearmSDKv2
 
         public static void AddForceToCartridge(Cartridge c, Transform direction, float force)
         {
-            var f = Settings.cartridgeEjectionForceRandomizationDevision;
+            var f = Settings.cartridgeEjectionForceRandomizationDivision;
             c.item.physicBody.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
         }
 

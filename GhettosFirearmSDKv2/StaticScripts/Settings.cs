@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using GhettosFirearmSDKv2.Other.LockSpell;
 using Newtonsoft.Json;
 using ThunderRoad;
@@ -8,6 +9,8 @@ using Object = UnityEngine.Object;
 namespace GhettosFirearmSDKv2
 {
     // ReSharper disable once ClassNeverInstantiated.Global - Instantinated by game code
+    [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
+    [SuppressMessage("ReSharper", "ConvertToConstant.Global")]
     public class Settings : ThunderScript
     {
         #region Settings
@@ -16,9 +19,9 @@ namespace GhettosFirearmSDKv2
         
         public static float scopeX1MagnificationFOV = 20f; //45f; //60f; //13f; //28.5f
         public static float cartridgeEjectionTorque = 10f;
-        public static float cartridgeEjectionForceRandomizationDevision = 3f;
+        public static float cartridgeEjectionForceRandomizationDivision = 3f;
         public static float firingSoundDeviation = 0.2f;
-        public static float boltPointTreshold = 0.004f;
+        public static float boltPointThreshold = 0.004f;
         public static float aiFirearmSpread = 0f;
 
         public static float failureToFeedChance = 0.2f;
@@ -71,7 +74,7 @@ namespace GhettosFirearmSDKv2
 
         [ModOptionOrder(7)]
         [ModOptionCategory("Settings", 1)]
-        [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like headbreaker. Has no impact on damage.", saveValue = true)]
+        [ModOption(name = "Do blunt damage", tooltip = "If enabled, bullets will deal blunt damage rather than pierce damage. Intended for things like head breaker. Has no impact on damage.", saveValue = true)]
         public static bool bulletsAreBlunt = false;
 
         [ModOptionOrder(8)]
@@ -94,7 +97,7 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "Spawn workbench and locker", tooltip = "If enabled, the locker and workbench will spawn in the home", saveValue = true)]
         public static bool SpawnWorkbenchAndLocker
         {
-            get { return _spawnWorkbenchAndLocker; }
+            get => _spawnWorkbenchAndLocker;
             set
             {
                 _spawnWorkbenchAndLocker = value;
@@ -129,7 +132,7 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgForwardOffset
         {
-            get { return _nvgForwardOffset; }
+            get => _nvgForwardOffset;
             set 
             { 
                 _nvgForwardOffset = value; 
@@ -143,7 +146,7 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgUpwardOffset
         {
-            get { return _nvgUpwardOffset; }
+            get => _nvgUpwardOffset;
             set 
             { 
                 _nvgUpwardOffset = value; 
@@ -157,7 +160,7 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
         public static float NvgSidewaysOffset
         {
-            get { return _nvgSidewaysOffset; }
+            get => _nvgSidewaysOffset;
             set 
             { 
                 _nvgSidewaysOffset = value; 
@@ -165,16 +168,16 @@ namespace GhettosFirearmSDKv2
             }
         }
         
-        private static bool _foldNvgs;
+        private static bool _foldNVGs;
         [ModOptionOrder(4)]
         [ModOptionCategory("NVG Offsets", 5)]
         [ModOption(name = "Fold NVGs", tooltip = "Folds all NVGs upwards.", saveValue = true)]
-        public static bool FoldNvgs
+        public static bool FoldNVGs
         {
-            get { return _foldNvgs; }
+            get => _foldNVGs;
             set
             {
-                _foldNvgs = value;
+                _foldNVGs = value;
                 NvgAdjuster.UpdateAllOffsets();
             }
         }
@@ -286,7 +289,7 @@ namespace GhettosFirearmSDKv2
         [ModOption(name = "Spawn Liam", tooltip = "Spawn the blue guy.", saveValue = true)]
         public static bool SpawnLiam
         {
-            get { return _spawnLiam; }
+            get => _spawnLiam;
             set
             {
                 _spawnLiam = value;
@@ -307,9 +310,10 @@ namespace GhettosFirearmSDKv2
         [ModOptionOrder(41)]
         [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Spawn Collider Layer Check Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+        // ReSharper disable once UnusedMember.Global - spawner dummy
         public static bool SpawnColliderLayerChecker
         {
-            get { return false; }
+            get => false;
             set
             {
                 _ = value;
@@ -322,9 +326,10 @@ namespace GhettosFirearmSDKv2
         [ModOptionOrder(42)]
         [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Spawn Rail Type Check Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+        // ReSharper disable once UnusedMember.Global - spawner dummy
         public static bool SpawnRailTypeChecker
         {
-            get { return false; }
+            get => false;
             set
             {
                 _ = value;
@@ -337,9 +342,10 @@ namespace GhettosFirearmSDKv2
         [ModOptionOrder(43)]
         [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Spawn Attachment Validation Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+        // ReSharper disable once UnusedMember.Global - spawner dummy
         public static bool SpawnAttachmentValidator
         {
-            get { return false; }
+            get => false;
             set
             {
                 _ = value;
@@ -367,6 +373,7 @@ namespace GhettosFirearmSDKv2
         [ModOptionOrder(62)]
         [ModOptionCategory("Debug", 30)]
         [ModOption(name = "Strip locked items", tooltip = "Remove any scripts from items that may cause performance problems.", saveValue = true)]
+        // ReSharper disable once UnassignedField.Global - assigned by game UI
         public static bool stripLockedItems;
         
         #endregion Debug

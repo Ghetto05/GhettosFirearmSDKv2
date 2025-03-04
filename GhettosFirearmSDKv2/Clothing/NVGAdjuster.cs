@@ -50,7 +50,7 @@ namespace GhettosFirearmSDKv2
             if (sidewaysAxisRight != null) sidewaysAxisRight.localPosition = Offset(Settings.NvgSidewaysOffset);
             if (foldAxis != null)
             {
-                if (Settings.FoldNvgs)
+                if (Settings.FoldNVGs)
                     foldAxis.SetLocalPositionAndRotation(foldedPosition.localPosition, foldedPosition.localRotation);
                 else
                     foldAxis.SetLocalPositionAndRotation(idlePosition.localPosition, idlePosition.localRotation);

@@ -352,14 +352,14 @@ namespace GhettosFirearmSDKv2
                     hasBoltcatch &&
                     state == BoltState.Moving &&
                     boltHandles.Any(x => x.handlers.Any(hand => hand.playerHand?.controlHand?.usePressed == true)) &&
-                    Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < Settings.boltPointTreshold)
+                    Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < Settings.boltPointThreshold)
                 {
                     _pressedTriggerWhileMoving = true;
                     CatchBolt(true);
                 }
                 
                 //racked
-                if (Util.AbsDist(bolt.position, startPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
+                if (Util.AbsDist(bolt.position, startPoint.position) < Settings.boltPointThreshold && state == BoltState.Moving)
                 {
                     bolt.localPosition = startPoint.localPosition;
                     _closedAfterLoad = true;
@@ -371,7 +371,7 @@ namespace GhettosFirearmSDKv2
                     Util.PlayRandomAudioSource(rackSoundsHeld);
                 }
                 //pulled
-                else if (Util.AbsDist(bolt.position, endPoint.position) < Settings.boltPointTreshold && state == BoltState.Moving)
+                else if (Util.AbsDist(bolt.position, endPoint.position) < Settings.boltPointThreshold && state == BoltState.Moving)
                 {
                     laststate = BoltState.Moving;
                     state = BoltState.Back;
@@ -414,7 +414,7 @@ namespace GhettosFirearmSDKv2
                         TryLoadRound();
                 }
                 //caught
-                else if (state == BoltState.Moving && caught && Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < Settings.boltPointTreshold)
+                else if (state == BoltState.Moving && caught && Util.AbsDist(catchPoint.localPosition, bolt.localPosition) < Settings.boltPointThreshold)
                 {
                     if (!chargingHandle)
                         _letGoBeforeClosed = false;
@@ -424,7 +424,7 @@ namespace GhettosFirearmSDKv2
                     state = BoltState.LockedBack;
                 }
                 //moving
-                else if (state != BoltState.Moving && !(caught && state == BoltState.LockedBack && Util.AbsDist(bolt.position, catchPoint.position) < Settings.boltPointTreshold) && Util.AbsDist(bolt.position, endPoint.position) > Settings.boltPointTreshold && Util.AbsDist(bolt.position, startPoint.position) > Settings.boltPointTreshold)
+                else if (state != BoltState.Moving && !(caught && state == BoltState.LockedBack && Util.AbsDist(bolt.position, catchPoint.position) < Settings.boltPointThreshold) && Util.AbsDist(bolt.position, endPoint.position) > Settings.boltPointThreshold && Util.AbsDist(bolt.position, startPoint.position) > Settings.boltPointThreshold)
                 {
                     laststate = state;
                     state = BoltState.Moving;
@@ -464,7 +464,7 @@ namespace GhettosFirearmSDKv2
                 }
 
                 //Charging handle racked
-                if (chargingHandle && Util.AbsDist(chargingHandle.position, startPoint.position) < Settings.boltPointTreshold && chargingHandleState == BoltState.Moving)
+                if (chargingHandle && Util.AbsDist(chargingHandle.position, startPoint.position) < Settings.boltPointThreshold && chargingHandleState == BoltState.Moving)
                 {
                     Util.PlayRandomAudioSource(chargingHandleRackSounds);
                     previousChargingHandleState = chargingHandleState;
@@ -472,7 +472,7 @@ namespace GhettosFirearmSDKv2
                     chargingHandleState = BoltState.Front;
                 }
                 //Charging handle moving
-                else if (chargingHandle && chargingHandleState != BoltState.Moving && Util.AbsDist(chargingHandle.position, endPoint.position) > Settings.boltPointTreshold && Util.AbsDist(chargingHandle.position, startPoint.position) > Settings.boltPointTreshold)
+                else if (chargingHandle && chargingHandleState != BoltState.Moving && Util.AbsDist(chargingHandle.position, endPoint.position) > Settings.boltPointThreshold && Util.AbsDist(chargingHandle.position, startPoint.position) > Settings.boltPointThreshold)
                 {
                     previousChargingHandleState = chargingHandleState;
                     chargingHandleState = BoltState.Moving;
@@ -533,7 +533,7 @@ namespace GhettosFirearmSDKv2
                     //bolt test below
                     if ((reciprocatingBarrel == null || !reciprocatingBarrel.lockBoltBack) && !isOpenBolt)
                     {
-                        if (!Util.DoMalfunction(Settings.malfunctionFailureToEject, Settings.failureToEjectChance, firearm.malfunctionChanceMultiplier, firearm.HeldByAI()))
+                        if (!Util.DoMalfunction(Settings.malfunctionFailureToEject, Settings.failureToEjectChance, firearm.malfunctionChanceMultiplier, firearm.HeldByAI()) || !stovepipeBoltPosition)
                         {
                             EjectRound();
                             TryLoadRound();

@@ -55,7 +55,7 @@ namespace GhettosFirearmSDKv2
         private IEnumerator LinkEject(Item item)
         {
             yield return new WaitForSeconds(0.01f);
-            var f = Settings.cartridgeEjectionForceRandomizationDevision;
+            var f = Settings.cartridgeEjectionForceRandomizationDivision;
             item.physicBody.AddForce(magazine.currentWell.beltLinkEjectDir.forward * (beltLinkEjectForce + Random.Range(-(beltLinkEjectForce / f), beltLinkEjectForce / f)), ForceMode.Impulse);
             f = Settings.cartridgeEjectionTorque;
             var torque = new Vector3

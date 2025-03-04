@@ -247,7 +247,7 @@ namespace GhettosFirearmSDKv2
                 mainReceiver.currentAmount = 0;
             if (loadedCartridge != null)
             {
-                if (Vector3.Distance(loadedCartridge.transform.position, rodRearEnd.position) < Settings.boltPointTreshold)
+                if (Vector3.Distance(loadedCartridge.transform.position, rodRearEnd.position) < Settings.boltPointThreshold)
                 {
                     firearm.PlayFireSound(loadedCartridge);
                     if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
@@ -335,11 +335,11 @@ namespace GhettosFirearmSDKv2
             #region Ram rod movement
             
             if (_currentRamRod != null && !_rodAwayFromBreach &&
-                Vector3.Distance(_currentRamRod.transform.position, rodRearEnd.position) < Settings.boltPointTreshold)
+                Vector3.Distance(_currentRamRod.transform.position, rodRearEnd.position) < Settings.boltPointThreshold)
                 _rodAwayFromBreach = true;
 
             if (_currentRamRod != null && _rodAwayFromBreach &&
-                Vector3.Distance(_currentRamRod.transform.position, rodFrontEnd.position) < Settings.boltPointTreshold)
+                Vector3.Distance(_currentRamRod.transform.position, rodFrontEnd.position) < Settings.boltPointThreshold)
             {
                 InitializeRamRodJoint(null);
                 Util.DisableCollision(_currentRamRod, false);
@@ -366,11 +366,11 @@ namespace GhettosFirearmSDKv2
             #region Ram rod store movement
             
             if (_currentStoredRamRod != null && !_rodAwayFromStoreEnd &&
-                Vector3.Distance(_currentStoredRamRod.transform.position, rodStoreRearEnd.position) < Settings.boltPointTreshold)
+                Vector3.Distance(_currentStoredRamRod.transform.position, rodStoreRearEnd.position) < Settings.boltPointThreshold)
                 _rodAwayFromStoreEnd = true;
 
             if (_currentStoredRamRod != null && _rodAwayFromStoreEnd &&
-                Vector3.Distance(_currentStoredRamRod.transform.position, rodStoreFrontEnd.position) < Settings.boltPointTreshold)
+                Vector3.Distance(_currentStoredRamRod.transform.position, rodStoreFrontEnd.position) < Settings.boltPointThreshold)
             {
                 InitializeRamRodJoint(null, true);
                 Util.DisableCollision(_currentStoredRamRod, false);
