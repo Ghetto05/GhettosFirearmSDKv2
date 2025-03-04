@@ -1,10 +1,9 @@
 ﻿using ThunderRoad;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class ItemSaveData : ContentCustomData
 {
-    public class ItemSaveData : ContentCustomData
-    {
-        public string ItemID;
-        public ContentCustomData[] CustomData;
-    }
+    public string ItemID;
+    public ContentCustomData[] CustomData;
 }

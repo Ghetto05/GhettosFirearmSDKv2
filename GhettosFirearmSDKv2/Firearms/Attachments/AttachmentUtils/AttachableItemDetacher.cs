@@ -4,54 +4,53 @@ using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class AttachableItemDetacher : MonoBehaviour
 {
-    public class AttachableItemDetacher : MonoBehaviour
+    public Attachment attachment;
+    public List<Handle> detachHandles;
+    public List<AudioSource> detachSounds;
+    public string itemId;
+
+    private void Start()
     {
-        public Attachment attachment;
-        public List<Handle> detachHandles;
-        public List<AudioSource> detachSounds;
-        public string itemId;
+        if (!attachment)
+            Debug.LogError($"Attachment for AttachableItemDetacher on {GetComponentInParent<Attachment>()?.name} is not assigned!");
+        attachment.OnHeldActionEvent += Attachment_OnHeldActionEvent;
+    }
 
-        private void Start()
+    private void Attachment_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
+    {
+        if (detachHandles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
         {
-            if (!attachment)
-                Debug.LogError($"Attachment for AttachableItemDetacher on {GetComponentInParent<Attachment>()?.name} is not assigned!");
-            attachment.OnHeldActionEvent += Attachment_OnHeldActionEvent;
-        }
-
-        private void Attachment_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
-        {
-            if (detachHandles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
+            var oldItem = attachment.attachmentPoint.ConnectedManager.Item;
+            var node = attachment.Node.CloneJson();
+            Util.SpawnItem(itemId, "Attachable Item Detach",item =>
             {
-                var oldItem = attachment.attachmentPoint.ConnectedManager.Item;
-                var node = attachment.Node.CloneJson();
-                Util.SpawnItem(itemId, "Attachable Item Detach",item =>
+                Util.IgnoreCollision(item.gameObject, oldItem.gameObject, true);
+                Util.DelayIgnoreCollision(item.gameObject, oldItem.gameObject, false, 1f, item);
+                ragdollHand.Grab(item.GetMainHandle(ragdollHand.side));
+                if (item.GetComponent<IAttachmentManager>() is { } firearm)
                 {
-                    Util.IgnoreCollision(item.gameObject, oldItem.gameObject, true);
-                    Util.DelayIgnoreCollision(item.gameObject, oldItem.gameObject, false, 1f, item);
-                    ragdollHand.Grab(item.GetMainHandle(ragdollHand.side));
-                    if (item.GetComponent<IAttachmentManager>() is { } firearm)
-                    {
-                        firearm.SaveData = new FirearmSaveData
-                        {
-                            FirearmNode = node
-                        };
-                        firearm.Item.AddCustomData(firearm.SaveData);
-                    }
-                    item.SetOwner(oldItem.owner);
-                }, ragdollHand.grip.position, ragdollHand.grip.rotation);
-
-                var s = Util.PlayRandomAudioSource(detachSounds);
-                if (s != null)
-                {
-                    s.transform.SetParent(ragdollHand.transform);
-                    ragdollHand.StartCoroutine(Explosive.DelayedDestroy(s.gameObject, s.clip.length + 1f));
+                    firearm.SaveData = new FirearmSaveData
+                                       {
+                                           FirearmNode = node
+                                       };
+                    firearm.Item.AddCustomData(firearm.SaveData);
                 }
+                item.SetOwner(oldItem.owner);
+            }, ragdollHand.grip.position, ragdollHand.grip.rotation);
 
-                attachment.handles.ForEach(h => h.Release());
-                attachment.Detach();
+            var s = Util.PlayRandomAudioSource(detachSounds);
+            if (s != null)
+            {
+                s.transform.SetParent(ragdollHand.transform);
+                ragdollHand.StartCoroutine(Explosive.DelayedDestroy(s.gameObject, s.clip.length + 1f));
             }
+
+            attachment.handles.ForEach(h => h.Release());
+            attachment.Detach();
         }
     }
 }

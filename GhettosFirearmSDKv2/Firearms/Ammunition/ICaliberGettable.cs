@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
 
-namespace GhettosFirearmSDKv2
-{
-    public interface ICaliberGettable
-    {
-        string GetCaliber();
+namespace GhettosFirearmSDKv2;
 
-        Transform GetTransform();
-    }
+public interface ICaliberGettable
+{
+    string GetCaliber();
+
+    Transform GetTransform();
 }

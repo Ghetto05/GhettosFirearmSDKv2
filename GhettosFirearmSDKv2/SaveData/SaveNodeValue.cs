@@ -1,7 +1,6 @@
-﻿namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2;
+
+public abstract class SaveNodeValue
 {
-    public abstract class SaveNodeValue
-    {
-        public string ID;
-    }
+    public string ID;
 }

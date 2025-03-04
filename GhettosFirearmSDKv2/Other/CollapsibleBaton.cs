@@ -1,15 +1,14 @@
-namespace GhettosFirearmSDKv2
-{
-    public class CollapsibleBaton : StateTogglerWithAnimation
-    {
-        public float threshold = 23f;
+namespace GhettosFirearmSDKv2;
 
-        private void FixedUpdate()
+public class CollapsibleBaton : StateTogglerWithAnimation
+{
+    public float threshold = 23f;
+
+    private void FixedUpdate()
+    {
+        if (currentState == 1 && item.physicBody.angularVelocity.magnitude > threshold)
         {
-            if (currentState == 1 && item.physicBody.angularVelocity.magnitude > threshold)
-            {
-                TryToggle();
-            }
+            TryToggle();
         }
     }
 }

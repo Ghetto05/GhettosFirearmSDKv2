@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class BreakActionMuzzleOverride : MonoBehaviour
 {
-    public class BreakActionMuzzleOverride : MonoBehaviour
-    {
-        public List<Transform> newMuzzles;
-        public List<ParticleSystem> newMuzzleFlashes;
-    }
+    public List<Transform> newMuzzles;
+    public List<ParticleSystem> newMuzzleFlashes;
 }

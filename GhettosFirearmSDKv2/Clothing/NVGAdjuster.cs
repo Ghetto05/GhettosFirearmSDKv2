@@ -1,65 +1,64 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class NvgAdjuster : MonoBehaviour
 {
-    public class NvgAdjuster : MonoBehaviour
+    private static List<NvgAdjuster> _all;
+    public static List<NvgAdjuster> All
     {
-        private static List<NvgAdjuster> _all;
-        public static List<NvgAdjuster> All
+        get
         {
-            get
-            {
-                if (_all == null)
-                    _all = new List<NvgAdjuster>();
-                return _all;
-            }
-            set
-            {
-                _all = value;
-            }
+            if (_all == null)
+                _all = new List<NvgAdjuster>();
+            return _all;
         }
-
-        public static void UpdateAllOffsets()
+        set
         {
-            foreach (var nvg in All)
-            {
-                nvg.UpdateOffsets();
-            }
+            _all = value;
         }
+    }
 
-        public Transform upwardAxis;
-        public Transform forwardAxis;
-        public Transform sidewaysAxisLeft;
-        public Transform sidewaysAxisRight;
-        public Transform foldAxis;
-        public Transform idlePosition;
-        public Transform foldedPosition;
-
-        private void Start()
+    public static void UpdateAllOffsets()
+    {
+        foreach (var nvg in All)
         {
-            All.Add(this);
-            UpdateOffsets();
+            nvg.UpdateOffsets();
         }
+    }
 
-        public void UpdateOffsets()
-        {
-            if (upwardAxis != null) upwardAxis.localPosition = Offset(Settings.NvgUpwardOffset);
-            if (forwardAxis != null) forwardAxis.localPosition = Offset(Settings.NvgForwardOffset);
-            if (sidewaysAxisLeft != null) sidewaysAxisLeft.localPosition = Offset(Settings.NvgSidewaysOffset);
-            if (sidewaysAxisRight != null) sidewaysAxisRight.localPosition = Offset(Settings.NvgSidewaysOffset);
-            if (foldAxis != null)
-            {
-                if (Settings.FoldNVGs)
-                    foldAxis.SetLocalPositionAndRotation(foldedPosition.localPosition, foldedPosition.localRotation);
-                else
-                    foldAxis.SetLocalPositionAndRotation(idlePosition.localPosition, idlePosition.localRotation);
-            }
-        }
+    public Transform upwardAxis;
+    public Transform forwardAxis;
+    public Transform sidewaysAxisLeft;
+    public Transform sidewaysAxisRight;
+    public Transform foldAxis;
+    public Transform idlePosition;
+    public Transform foldedPosition;
 
-        private Vector3 Offset(float offset)
+    private void Start()
+    {
+        All.Add(this);
+        UpdateOffsets();
+    }
+
+    public void UpdateOffsets()
+    {
+        if (upwardAxis != null) upwardAxis.localPosition = Offset(Settings.NvgUpwardOffset);
+        if (forwardAxis != null) forwardAxis.localPosition = Offset(Settings.NvgForwardOffset);
+        if (sidewaysAxisLeft != null) sidewaysAxisLeft.localPosition = Offset(Settings.NvgSidewaysOffset);
+        if (sidewaysAxisRight != null) sidewaysAxisRight.localPosition = Offset(Settings.NvgSidewaysOffset);
+        if (foldAxis != null)
         {
-            return new Vector3(0, 0, offset);
+            if (Settings.FoldNVGs)
+                foldAxis.SetLocalPositionAndRotation(foldedPosition.localPosition, foldedPosition.localRotation);
+            else
+                foldAxis.SetLocalPositionAndRotation(idlePosition.localPosition, idlePosition.localRotation);
         }
+    }
+
+    private Vector3 Offset(float offset)
+    {
+        return new Vector3(0, 0, offset);
     }
 }

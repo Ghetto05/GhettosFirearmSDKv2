@@ -2,85 +2,84 @@ using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class Hammer : MonoBehaviour
 {
-    public class Hammer : MonoBehaviour
+    public Item item;
+    public Firearm firearm;
+    public Transform hammer;
+    public Transform idlePosition;
+    public Transform cockedPosition;
+    public List<AudioSource> hitSounds;
+    public List<AudioSource> cockSounds;
+    public bool cocked;
+    public bool hasDecocker;
+    public bool allowManualCock;
+    public bool allowCockUncockWhenSafetyIsOn = true;
+    private SaveNodeValueBool _hammerState;
+
+    private void Start()
     {
-        public Item item;
-        public Firearm firearm;
-        public Transform hammer;
-        public Transform idlePosition;
-        public Transform cockedPosition;
-        public List<AudioSource> hitSounds;
-        public List<AudioSource> cockSounds;
-        public bool cocked;
-        public bool hasDecocker;
-        public bool allowManualCock;
-        public bool allowCockUncockWhenSafetyIsOn = true;
-        private SaveNodeValueBool _hammerState;
+        Invoke(nameof(InvokedStart), Settings.invokeTime);
+    }
 
-        private void Start()
-        {
-            Invoke(nameof(InvokedStart), Settings.invokeTime);
-        }
+    public void InvokedStart()
+    {
+        if (firearm == null && item.gameObject.TryGetComponent(out Firearm f))
+            firearm = f;
+        firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
+        firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
+        _hammerState = firearm.SaveData.FirearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
+        if (_hammerState.Value)
+            Cock(true, true);
+        else
+            Fire(true, true);
+    }
 
-        public void InvokedStart()
-        {
-            if (firearm == null && item.gameObject.TryGetComponent(out Firearm f))
-                firearm = f;
-            firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
-            firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
-            _hammerState = firearm.SaveData.FirearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
-            if (_hammerState.Value)
-                Cock(true, true);
-            else
-                Fire(true, true);
-        }
+    private void Firearm_OnFiremodeChangedEvent()
+    {
+        if (hasDecocker && firearm.fireMode == FirearmBase.FireModes.Safe)
+            Fire();
+    }
 
-        private void Firearm_OnFiremodeChangedEvent()
-        {
-            if (hasDecocker && firearm.fireMode == FirearmBase.FireModes.Safe)
-                Fire();
-        }
+    private void Firearm_OnCockActionEvent()
+    {
+        if (!allowManualCock || (!allowCockUncockWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe))
+            return;
+        if (cocked)
+            Fire(true);
+        else
+            Cock();
+    }
 
-        private void Firearm_OnCockActionEvent()
+    public void Cock(bool silent = false, bool forced = false)
+    {
+        if (cocked && !forced)
+            return;
+        _hammerState.Value = true;
+        cocked = true;
+        if (hammer != null)
         {
-            if (!allowManualCock || (!allowCockUncockWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe))
-                return;
-            if (cocked)
-                Fire(true);
-            else
-                Cock();
+            hammer.localPosition = cockedPosition.localPosition;
+            hammer.localEulerAngles = cockedPosition.localEulerAngles;
         }
+        if (!silent)
+            Util.PlayRandomAudioSource(cockSounds);
+    }
 
-        public void Cock(bool silent = false, bool forced = false)
+    public void Fire(bool silent = false, bool forced = false)
+    {
+        if (!cocked && !forced)
+            return;
+        _hammerState.Value = false;
+        cocked = false;
+        if (hammer != null)
         {
-            if (cocked && !forced)
-                return;
-            _hammerState.Value = true;
-            cocked = true;
-            if (hammer != null)
-            {
-                hammer.localPosition = cockedPosition.localPosition;
-                hammer.localEulerAngles = cockedPosition.localEulerAngles;
-            }
-            if (!silent)
-                Util.PlayRandomAudioSource(cockSounds);
+            hammer.localPosition = idlePosition.localPosition;
+            hammer.localEulerAngles = idlePosition.localEulerAngles;
         }
-
-        public void Fire(bool silent = false, bool forced = false)
-        {
-            if (!cocked && !forced)
-                return;
-            _hammerState.Value = false;
-            cocked = false;
-            if (hammer != null)
-            {
-                hammer.localPosition = idlePosition.localPosition;
-                hammer.localEulerAngles = idlePosition.localEulerAngles;
-            }
-            if (!silent)
-                Util.PlayRandomAudioSource(hitSounds);
-        }
+        if (!silent)
+            Util.PlayRandomAudioSource(hitSounds);
     }
 }

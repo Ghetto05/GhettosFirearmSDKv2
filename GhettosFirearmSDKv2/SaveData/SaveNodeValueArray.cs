@@ -1,7 +1,6 @@
-﻿namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2;
+
+public class SaveNodeValueArray<T> : SaveNodeValue
 {
-    public class SaveNodeValueArray<T> : SaveNodeValue
-    {
-        public T[] Value;
-    }
+    public T[] Value;
 }

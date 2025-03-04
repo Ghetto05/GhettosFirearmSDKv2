@@ -2,66 +2,64 @@ using System.Collections.Generic;
 using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+[AddComponentMenu("Firearm SDK v2/Attachments/Systems/Bipod Manager")]
+public class BipodManager : MonoBehaviour
 {
-    [AddComponentMenu("Firearm SDK v2/Attachments/Systems/Bipod Manager")]
-    public class BipodManager : MonoBehaviour
-    {
-        public Firearm firearm;
-        public AttachmentManager attachmentManager;
-        public IAttachmentManager ConnectedManager;
-        public Attachment attachment;
+    public Firearm firearm;
+    public AttachmentManager attachmentManager;
+    public IAttachmentManager ConnectedManager;
+    public Attachment attachment;
         
-        public List<Bipod> bipods;
-        public List<Transform> groundFollowers;
-        public float linearRecoilModifier;
-        public float muzzleRiseModifier;
-        private bool _lastFrameOverriden;
-        private bool _active;
+    public List<Bipod> bipods;
+    public List<Transform> groundFollowers;
+    public float linearRecoilModifier;
+    public float muzzleRiseModifier;
+    private bool _lastFrameOverriden;
+    private bool _active;
 
-        private void Start()
-        {
-            if (firearm)
-                ConnectedManager = firearm;
-            if (attachmentManager)
-                ConnectedManager = attachmentManager;
+    private void Start()
+    {
+        if (firearm)
+            ConnectedManager = firearm;
+        if (attachmentManager)
+            ConnectedManager = attachmentManager;
             
-            if (ConnectedManager != null && attachment)
-                attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
-            else if (ConnectedManager != null)
-                _active = true;
-        }
-
-        private void Attachment_OnDelayedAttachEvent()
-        {
-            ConnectedManager = attachment.attachmentPoint.ConnectedManager;
+        if (ConnectedManager != null && attachment)
+            attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        else if (ConnectedManager != null)
             _active = true;
-        }
+    }
 
-        private void FixedUpdate()
+    private void Attachment_OnDelayedAttachEvent()
+    {
+        ConnectedManager = attachment.attachmentPoint.ConnectedManager;
+        _active = true;
+    }
+
+    private void FixedUpdate()
+    {
+        if (!_active)
+            return;
+        var extended = !bipods.Any(x => x.index == 0);
+        if (groundFollowers.Any(t => !Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default"))))
+            extended = false;
+
+        if (ConnectedManager is Firearm f)
         {
-            if (!_active)
-                return;
-            var extended = !bipods.Any(x => x.index == 0);
-            if (groundFollowers.Any(t => !Physics.Raycast(t.position, t.forward, 0.1f, LayerMask.GetMask("Default"))))
-                extended = false;
-
-            if (ConnectedManager is Firearm firearm)
+            switch (extended)
             {
-                switch (extended)
-                {
-                    case true when !_lastFrameOverriden:
-                        firearm.AddRecoilModifier(linearRecoilModifier, muzzleRiseModifier, this);
-                        break;
-                    case false when _lastFrameOverriden:
-                        firearm.RemoveRecoilModifier(this);
-                        break;
-                }
+                case true when !_lastFrameOverriden:
+                    f.AddRecoilModifier(linearRecoilModifier, muzzleRiseModifier, this);
+                    break;
+                case false when _lastFrameOverriden:
+                    f.RemoveRecoilModifier(this);
+                    break;
             }
-
-            _lastFrameOverriden = extended;
         }
+
+        _lastFrameOverriden = extended;
     }
 }

@@ -4,108 +4,107 @@ using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+[AddComponentMenu("Firearm SDK v2/Switches/Handle action based")]
+public class OnActionSwitch : MonoBehaviour
 {
-    [AddComponentMenu("Firearm SDK v2/Switches/Handle action based")]
-    public class OnActionSwitch : MonoBehaviour
+    public enum Actions
     {
-        public enum Actions
+        TriggerPull,
+        TriggerRelease,
+        AlternateButtonPress,
+        AlternateButtonRelease
+    }
+
+    public Handle handle;
+    public Actions switchAction;
+    public AudioSource switchSound;
+    private int _current;
+    public List<UnityEvent> events;
+    public Item parentItem;
+    public Attachment parentAttachment;
+    public List<SwitchRelation> switches;
+    public float lastSwitchTime;
+
+    private void Start()
+    {
+        Invoke(nameof(InvokedStart), Settings.invokeTime);
+    }
+
+    public void InvokedStart()
+    {
+        if (parentItem) parentItem.OnHeldActionEvent += OnHeldActionEvent;
+        else if (parentAttachment) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
+
+        if (parentAttachment && parentAttachment.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
         {
-            TriggerPull,
-            TriggerRelease,
-            AlternateButtonPress,
-            AlternateButtonRelease
+            _current = value.Value;
         }
-
-        public Handle handle;
-        public Actions switchAction;
-        public AudioSource switchSound;
-        private int _current;
-        public List<UnityEvent> events;
-        public Item parentItem;
-        public Attachment parentAttachment;
-        public List<SwitchRelation> switches;
-        public float lastSwitchTime;
-
-        private void Start()
+        else if (parentItem && parentItem.TryGetComponent(out IAttachmentManager manager) && manager.SaveData.FirearmNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value2))
         {
-            Invoke(nameof(InvokedStart), Settings.invokeTime);
+            _current = value2.Value;
         }
+        Util.DelayedExecute(1f, Delay, this);
+    }
 
-        public void InvokedStart()
+    public void Delay()
+    {
+        events[_current]?.Invoke();
+        foreach (var swi in switches)
         {
-            if (parentItem) parentItem.OnHeldActionEvent += OnHeldActionEvent;
-            else if (parentAttachment) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
-
-            if (parentAttachment && parentAttachment.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
-            {
-                _current = value.Value;
-            }
-            else if (parentItem && parentItem.TryGetComponent(out IAttachmentManager manager) && manager.SaveData.FirearmNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value2))
-            {
-                _current = value2.Value;
-            }
-            Util.DelayedExecute(1f, Delay, this);
+            if (swi != null) AlignSwitch(swi, _current);
         }
+    }
 
-        public void Delay()
+    private void OnHeldActionEvent(RagdollHand ragdollHand, Handle actionHandle, Interactable.Action action)
+    {
+        if ((switchAction == Actions.AlternateButtonRelease && action == Interactable.Action.AlternateUseStop) || (switchAction == Actions.AlternateButtonPress && action == Interactable.Action.AlternateUseStart) || (switchAction == Actions.TriggerRelease && action == Interactable.Action.UseStop) || (switchAction == Actions.TriggerPull && action == Interactable.Action.UseStart))
         {
-            events[_current]?.Invoke();
-            foreach (var swi in switches)
+            if (Time.time - lastSwitchTime > 0.3f)
             {
-                if (swi != null) AlignSwitch(swi, _current);
-            }
-        }
-
-        private void OnHeldActionEvent(RagdollHand ragdollHand, Handle actionHandle, Interactable.Action action)
-        {
-            if ((switchAction == Actions.AlternateButtonRelease && action == Interactable.Action.AlternateUseStop) || (switchAction == Actions.AlternateButtonPress && action == Interactable.Action.AlternateUseStart) || (switchAction == Actions.TriggerRelease && action == Interactable.Action.UseStop) || (switchAction == Actions.TriggerPull && action == Interactable.Action.UseStart))
-            {
-                if (Time.time - lastSwitchTime > 0.3f)
-                {
-                    lastSwitchTime = Time.time;
-                    Switch();
-                }
+                lastSwitchTime = Time.time;
+                Switch();
             }
         }
+    }
 
-        public void Switch()
+    public void Switch()
+    {
+        if (switchSound != null) switchSound.Play();
+        if (_current + 1 < events.Count)
         {
-            if (switchSound != null) switchSound.Play();
-            if (_current + 1 < events.Count)
-            {
-                _current++;
-            }
-            else
-            {
-                _current = 0;
-            }
-            if (switchSound != null) switchSound.Play();
-            events[_current]?.Invoke();
-            foreach (var swi in switches)
-            {
-                if (swi != null) AlignSwitch(swi, _current);
-            }
-
-            if (parentAttachment != null) parentAttachment.Node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
-            else if (parentItem != null && parentItem.TryGetComponent(out IAttachmentManager manager)) manager.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
+            _current++;
+        }
+        else
+        {
+            _current = 0;
+        }
+        if (switchSound != null) switchSound.Play();
+        events[_current]?.Invoke();
+        foreach (var swi in switches)
+        {
+            if (swi != null) AlignSwitch(swi, _current);
         }
 
-        public void AlignSwitch(SwitchRelation swi, int index)
+        if (parentAttachment != null) parentAttachment.Node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
+        else if (parentItem != null && parentItem.TryGetComponent(out IAttachmentManager manager)) manager.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
+    }
+
+    public void AlignSwitch(SwitchRelation swi, int index)
+    {
+        if (!swi.usePositionsAsDifferentObjects && swi.switchObject != null && swi.modePositions.Count > index && swi.modePositions[index] != null)
         {
-            if (!swi.usePositionsAsDifferentObjects && swi.switchObject != null && swi.modePositions.Count > index && swi.modePositions[index] != null)
+            swi.switchObject.localPosition = swi.modePositions[index].localPosition;
+            swi.switchObject.localEulerAngles = swi.modePositions[index].localEulerAngles;
+        }
+        else
+        {
+            foreach (var t in swi.modePositions)
             {
-                swi.switchObject.localPosition = swi.modePositions[index].localPosition;
-                swi.switchObject.localEulerAngles = swi.modePositions[index].localEulerAngles;
+                t.gameObject.SetActive(false);
             }
-            else
-            {
-                foreach (var t in swi.modePositions)
-                {
-                    t.gameObject.SetActive(false);
-                }
-                swi.modePositions[_current].gameObject.SetActive(true);
-            }
+            swi.modePositions[_current].gameObject.SetActive(true);
         }
     }
 }

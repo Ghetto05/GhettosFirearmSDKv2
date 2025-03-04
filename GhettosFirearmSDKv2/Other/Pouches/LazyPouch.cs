@@ -4,164 +4,163 @@ using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class LazyPouch : MonoBehaviour
 {
-    public class LazyPouch : MonoBehaviour
+    public Holder holder;
+    public Item pouchItem;
+    public List<Item> spawnedItems;
+    public List<string> containedItems;
+    public Handle lastHeldHandle;
+    private bool _setup;
+    private bool _nextUnsnapIsCleaning;
+    private FirearmBase _lastFirearm;
+    private bool _spawning;
+
+    private void Start()
     {
-        public Holder holder;
-        public Item pouchItem;
-        public List<Item> spawnedItems;
-        public List<string> containedItems;
-        public Handle lastHeldHandle;
-        private bool _setup;
-        private bool _nextUnsnapIsCleaning;
-        private FirearmBase _lastFirearm;
-        private bool _spawning;
+        Invoke(nameof(InvokedStart), Settings.invokeTime);
+    }
 
-        private void Start()
+    public void InvokedStart()
+    {
+        spawnedItems = new List<Item>();
+        containedItems = new List<string>();
+
+        holder.Snapped += Holder_Snapped;
+        holder.UnSnapped += Holder_UnSnapped;
+        pouchItem.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
+
+        holder.data.maxQuantity = 9999999;
+
+        for (var i = 0; i < 1000; i++)
         {
-            Invoke(nameof(InvokedStart), Settings.invokeTime);
+            holder.slots.Add(holder.transform);
         }
 
-        public void InvokedStart()
+        _setup = true;
+    }
+
+    private void Update()
+    {
+        if (!_setup || Player.local == null || Player.local.creature == null || Player.local.creature.ragdoll == null)
+            return;
+
+        foreach (var i in holder.items.ToArray())
         {
-            spawnedItems = new List<Item>();
-            containedItems = new List<string>();
-
-            holder.Snapped += Holder_Snapped;
-            holder.UnSnapped += Holder_UnSnapped;
-            pouchItem.lightVolumeReceiver.onVolumeChangeEvent += UpdateAllLightVolumeReceivers;
-
-            holder.data.maxQuantity = 9999999;
-
-            for (var i = 0; i < 1000; i++)
+            if (!spawnedItems.Contains(i))
             {
-                holder.slots.Add(holder.transform);
+                _nextUnsnapIsCleaning = true;
+                holder.UnSnap(i, true);
             }
-
-            _setup = true;
         }
-
-        private void Update()
-        {
-            if (!_setup || Player.local == null || Player.local.creature == null || Player.local.creature.ragdoll == null)
-                return;
-
-            foreach (var i in holder.items.ToArray())
-            {
-                if (!spawnedItems.Contains(i))
-                {
-                    _nextUnsnapIsCleaning = true;
-                    holder.UnSnap(i, true);
-                }
-            }
             
-            GetHeldFirearm();
+        GetHeldFirearm();
             
-            if (_lastFirearm != null)
+        if (_lastFirearm != null)
+        {
+            if (!containedItems.Contains(_lastFirearm.defaultAmmoItem) && !_lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
             {
-                if (!containedItems.Contains(_lastFirearm.defaultAmmoItem) && !_lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
+                containedItems.Add(_lastFirearm.defaultAmmoItem);
+                _spawning = true;
+                Util.SpawnItem(_lastFirearm.defaultAmmoItem, "LazyPouch", newItem =>
                 {
-                    containedItems.Add(_lastFirearm.defaultAmmoItem);
-                    _spawning = true;
-                    Util.SpawnItem(_lastFirearm.defaultAmmoItem, "LazyPouch", newItem =>
-                    {
-                        newItem.DisallowDespawn = true;
-                        StartCoroutine(DelayedSnap(newItem));
-                        spawnedItems.Add(newItem);
-                    });
-                }
-                else if (!_lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !_spawning)
-                {
-                    GetById(_lastFirearm.defaultAmmoItem);
-                }
+                    newItem.DisallowDespawn = true;
+                    StartCoroutine(DelayedSnap(newItem));
+                    spawnedItems.Add(newItem);
+                });
+            }
+            else if (!_lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && !_spawning)
+            {
+                GetById(_lastFirearm.defaultAmmoItem);
             }
         }
+    }
 
-        private void GetHeldFirearm()
+    private void GetHeldFirearm()
+    {
+        var h = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
+        if (h != null && h.item is { } item)
         {
-            var h = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
-            if (h != null && h.item is { } item)
+            FirearmBase firearm;
+            if (lastHeldHandle != h)
             {
-                FirearmBase firearm;
-                if (lastHeldHandle != h)
+                if (h.GetComponentInParent<AttachmentFirearm>() != null)
                 {
-                    if (h.GetComponentInParent<AttachmentFirearm>() != null)
-                    {
-                        firearm = h.GetComponentInParent<AttachmentFirearm>();
-                    }
-                    else
-                    {
-                        firearm = item.GetComponent<Firearm>();
-                    }
-
-                    if (firearm != null && firearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is { } ff)
-                        firearm = ff;
-
-                    _lastFirearm = firearm;
+                    firearm = h.GetComponentInParent<AttachmentFirearm>();
                 }
+                else
+                {
+                    firearm = item.GetComponent<Firearm>();
+                }
+
+                if (firearm != null && firearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is { } ff)
+                    firearm = ff;
+
+                _lastFirearm = firearm;
+            }
                 
-                lastHeldHandle = h;
+            lastHeldHandle = h;
+        }
+    }
+
+    public void GetById(string id)
+    {
+        var searching = true;
+        var requestedId = Util.GetSubstituteId(id, "Lazy pouch");
+        foreach (var i in spawnedItems)
+        {
+            if (searching && i.data.id.Equals(requestedId))
+            {
+                searching = false;
+                holder.items.Remove(i);
+                holder.items.Add(i);
             }
         }
+    }
 
-        public void GetById(string id)
+    private void Holder_UnSnapped(Item item)
+    {
+        item.Hide(false);
+        if (_nextUnsnapIsCleaning)
         {
-            var searching = true;
-            var requestedId = Util.GetSubstituteId(id, "Lazy pouch");
-            foreach (var i in spawnedItems)
-            {
-                if (searching && i.data.id.Equals(requestedId))
-                {
-                    searching = false;
-                    holder.items.Remove(i);
-                    holder.items.Add(i);
-                }
-            }
+            _nextUnsnapIsCleaning = false;
+            return;
         }
-
-        private void Holder_UnSnapped(Item item)
+        if (!_setup) return;
+        item.DisallowDespawn = false;
+        Util.IgnoreCollision(gameObject, item.gameObject, false);
+        spawnedItems.Remove(item);
+        if (item.TryGetComponent(out Firearm _)) return;
+        _spawning = true;
+        Util.SpawnItem(item.data.id, $"[Lazy Pouch - Default ammo on {_lastFirearm?.item?.itemId}]", newItem =>
         {
-            item.Hide(false);
-            if (_nextUnsnapIsCleaning)
-            {
-                _nextUnsnapIsCleaning = false;
-                return;
-            }
-            if (!_setup) return;
-            item.DisallowDespawn = false;
-            Util.IgnoreCollision(gameObject, item.gameObject, false);
-            spawnedItems.Remove(item);
-            if (item.TryGetComponent(out Firearm _)) return;
-            _spawning = true;
-            Util.SpawnItem(item.data.id, $"[Lazy Pouch - Default ammo on {_lastFirearm?.item?.itemId}]", newItem =>
-            {
-                item.DisallowDespawn = true;
-                StartCoroutine(DelayedSnap(newItem));
-                spawnedItems.Add(newItem);
-            });
-        }
+            item.DisallowDespawn = true;
+            StartCoroutine(DelayedSnap(newItem));
+            spawnedItems.Add(newItem);
+        });
+    }
 
-        private void Holder_Snapped(Item item)
-        {
-            item.Hide(true);
-            if (!_setup) return;
-            Util.IgnoreCollision(gameObject, item.gameObject, true);
-        }
+    private void Holder_Snapped(Item item)
+    {
+        item.Hide(true);
+        if (!_setup) return;
+        Util.IgnoreCollision(gameObject, item.gameObject, true);
+    }
 
-        private IEnumerator DelayedSnap(Item item)
-        {
-            yield return new WaitForSeconds(0.05f);
-            holder.Snap(item, true);
-            _spawning = false;
-        }
+    private IEnumerator DelayedSnap(Item item)
+    {
+        yield return new WaitForSeconds(0.05f);
+        holder.Snap(item, true);
+        _spawning = false;
+    }
 
-        private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
+    private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
+    {
+        foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != pouchItem.lightVolumeReceiver))
         {
-            foreach (var lvr in GetComponentsInChildren<LightVolumeReceiver>().Where(lvr => lvr != pouchItem.lightVolumeReceiver))
-            {
-                Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
-            }
+            Util.UpdateLightVolumeReceiver(lvr, currentLightProbeVolume, lightProbeVolumes);
         }
     }
 }

@@ -2,108 +2,107 @@ using System.Linq;
 using ThunderRoad;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class PowderPouch : MonoBehaviour
 {
-    public class PowderPouch : MonoBehaviour
+    private readonly float _delay = 0.15f;
+
+    public Item item;
+    public bool opened;
+    public Transform source;
+    public GameObject grain;
+    public float maxAngle;
+
+    public Transform lid;
+    public Transform lidClosedPosition;
+    public Transform lidOpenedPosition;
+
+    public AudioSource[] tapSounds;
+    public AudioSource[] grainSpawnSounds;
+    public AudioSource grainFlowSound;
+
+    private float _lastEject;
+
+    private void Start()
     {
-        private readonly float _delay = 0.15f;
+        item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
+    }
 
-        public Item item;
-        public bool opened;
-        public Transform source;
-        public GameObject grain;
-        public float maxAngle;
-
-        public Transform lid;
-        public Transform lidClosedPosition;
-        public Transform lidOpenedPosition;
-
-        public AudioSource[] tapSounds;
-        public AudioSource[] grainSpawnSounds;
-        public AudioSource grainFlowSound;
-
-        private float _lastEject;
-
-        private void Start()
+    private void ItemOnOnHeldActionEvent(RagdollHand ragdollhand, Handle handle, Interactable.Action action)
+    {
+        if (action == Interactable.Action.UseStart)
         {
-            item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
+            Tap();
         }
 
-        private void ItemOnOnHeldActionEvent(RagdollHand ragdollhand, Handle handle, Interactable.Action action)
-        {
-            if (action == Interactable.Action.UseStart)
-            {
-                Tap();
-            }
-
-            if (action == Interactable.Action.AlternateUseStart)
-            {
-                if (opened)
-                    Close();
-                else
-                    Open();
-            }
-        }
-
-        public void Open()
+        if (action == Interactable.Action.AlternateUseStart)
         {
             if (opened)
-                return;
-            opened = true;
-            if (lid != null)
-                lid.SetPositionAndRotation(lidOpenedPosition.position, lidOpenedPosition.rotation);
+                Close();
+            else
+                Open();
         }
+    }
 
-        public void Close()
-        {
-            if (!opened)
-                return;
-            opened = false;
-            if (lid != null)
-                lid.SetPositionAndRotation(lidClosedPosition.position, lidClosedPosition.rotation);
+    public void Open()
+    {
+        if (opened)
+            return;
+        opened = true;
+        if (lid != null)
+            lid.SetPositionAndRotation(lidOpenedPosition.position, lidOpenedPosition.rotation);
+    }
+
+    public void Close()
+    {
+        if (!opened)
+            return;
+        opened = false;
+        if (lid != null)
+            lid.SetPositionAndRotation(lidClosedPosition.position, lidClosedPosition.rotation);
+    }
+
+    public void Tap()
+    {
+        if (opened)
+        { 
+            Spawn();
+            Util.PlayRandomAudioSource(tapSounds);
         }
+    }
 
-        public void Tap()
+    private void FixedUpdate()
+    {
+        if (opened && Vector3.Angle(source.forward, Vector3.down) <= maxAngle)
         {
-            if (opened)
-            { 
-                Spawn();
-                Util.PlayRandomAudioSource(tapSounds);
-            }
+            Util.PlayRandomAudioSource(grainSpawnSounds);
+            Spawn();
+            if (grainFlowSound?.isPlaying != true)
+                grainFlowSound?.Play();
         }
-
-        private void FixedUpdate()
+        else if (grainFlowSound?.isPlaying == true)
         {
-            if (opened && Vector3.Angle(source.forward, Vector3.down) <= maxAngle)
+            grainFlowSound.Stop();
+        }
+    }
+
+    private void Spawn()
+    {
+        if (Time.time - _lastEject > _delay)
+        {
+            var grainIn = Instantiate(grain, source.position, Quaternion.Euler(Util.RandomRotation()));
+            _lastEject = Time.time;
+            foreach (var ic in item.colliderGroups.SelectMany(cg => cg.colliders))
             {
-                Util.PlayRandomAudioSource(grainSpawnSounds);
-                Spawn();
-                if (grainFlowSound?.isPlaying != true)
-                    grainFlowSound?.Play();
-            }
-            else if (grainFlowSound?.isPlaying == true)
-            {
-                grainFlowSound.Stop();
-            }
-        }
-
-        private void Spawn()
-        {
-            if (Time.time - _lastEject > _delay)
-            {
-                var grainIn = Instantiate(grain, source.position, Quaternion.Euler(Util.RandomRotation()));
-                _lastEject = Time.time;
-                foreach (var ic in item.colliderGroups.SelectMany(cg => cg.colliders))
+                var cs = grainIn.GetComponentsInChildren<Collider>(true);
+                foreach (var cpg in cs)
                 {
-                    var cs = grainIn.GetComponentsInChildren<Collider>(true);
-                    foreach (var cpg in cs)
-                    {
-                        Physics.IgnoreCollision(ic, cpg, true);
-                    }
+                    Physics.IgnoreCollision(ic, cpg, true);
                 }
-                grainIn.SetActive(true);
-                Destroy(grainIn, 5f);
             }
+            grainIn.SetActive(true);
+            Destroy(grainIn, 5f);
         }
     }
 }

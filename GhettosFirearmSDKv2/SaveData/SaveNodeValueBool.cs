@@ -1,7 +1,6 @@
-﻿namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2;
+
+public class SaveNodeValueBool : SaveNodeValue
 {
-    public class SaveNodeValueBool : SaveNodeValue
-    {
-        public bool Value = false;
-    }
+    public bool Value = false;
 }

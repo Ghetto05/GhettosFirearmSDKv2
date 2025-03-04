@@ -1,71 +1,70 @@
 using TMPro;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class AmmoCounter : MonoBehaviour
 {
-    public class AmmoCounter : MonoBehaviour
-    {
-        public TextMeshProUGUI counter;
-        public FirearmBase firearm;
-        public Attachment attachment;
-        public string counterTextFormat;
-        public bool tryToDisplayCapacity;
-        public bool countChamberAsCapacity;
-        public string nullText;
+    public TextMeshProUGUI counter;
+    public FirearmBase firearm;
+    public Attachment attachment;
+    public string counterTextFormat;
+    public bool tryToDisplayCapacity;
+    public bool countChamberAsCapacity;
+    public string nullText;
 
-        private BoltBase _bolt;
-        private MagazineWell _magazineWell;
+    private BoltBase _bolt;
+    private MagazineWell _magazineWell;
         
-        public void Start()
+    public void Start()
+    {
+        Invoke(nameof(InvokedStart), Settings.invokeTime);
+    }
+
+    public void InvokedStart()
+    {
+        if (attachment && attachment.attachmentPoint.ConnectedManager is FirearmBase f)
         {
-            Invoke(nameof(InvokedStart), Settings.invokeTime);
+            firearm = f;
         }
 
-        public void InvokedStart()
+        if (firearm != null)
         {
-            if (attachment && attachment.attachmentPoint.ConnectedManager is FirearmBase f)
-            {
-                firearm = f;
-            }
+            _bolt = firearm.bolt;
+            _magazineWell = firearm.magazineWell;
+        }
+    }
 
-            if (firearm != null)
-            {
-                _bolt = firearm.bolt;
-                _magazineWell = firearm.magazineWell;
-            }
+    private void Update()
+    {
+        var count = -1;
+        var capacity = -1;
+        if (_bolt != null)
+        {
+            count = 0;
+            capacity = 1;
+            if (_bolt.GetChamber() != null) count++;
         }
 
-        private void Update()
+        if (_magazineWell != null)
         {
-            var count = -1;
-            var capacity = -1;
-            if (_bolt != null)
-            {
+            if (count == -1)
                 count = 0;
-                capacity = 1;
-                if (_bolt.GetChamber() != null) count++;
-            }
-
-            if (_magazineWell != null)
+            if (_magazineWell.currentMagazine != null)
             {
-                if (count == -1)
-                    count = 0;
-                if (_magazineWell.currentMagazine != null)
-                {
-                    capacity += _magazineWell.currentMagazine.ActualCapacity;
-                    count += _magazineWell.currentMagazine.cartridges.Count;
-                }
+                capacity += _magazineWell.currentMagazine.ActualCapacity;
+                count += _magazineWell.currentMagazine.cartridges.Count;
             }
-
-            if (count != -1)
-            {
-                if (!tryToDisplayCapacity)
-                    counter.text = string.Format(counterTextFormat.Replace("\\n", "\n"), count);
-                else
-                    counter.text = string.Format(counterTextFormat.Replace("\\n", "\n"), count, capacity);
-            }
-            else
-                counter.text = nullText;
         }
+
+        if (count != -1)
+        {
+            if (!tryToDisplayCapacity)
+                counter.text = string.Format(counterTextFormat.Replace("\\n", "\n"), count);
+            else
+                counter.text = string.Format(counterTextFormat.Replace("\\n", "\n"), count, capacity);
+        }
+        else
+            counter.text = nullText;
     }
 }

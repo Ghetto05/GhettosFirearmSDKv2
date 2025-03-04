@@ -2,37 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class TracerModule : MonoBehaviour
 {
-    public class TracerModule : MonoBehaviour
+    public Cartridge cartridge;
+    public float speed;
+    public GameObject tracerObject;
+
+    public void Start()
     {
-        public Cartridge cartridge;
-        public float speed;
-        public GameObject tracerObject;
+        cartridge.OnFiredWithHitPointsAndMuzzle += Fire;
+    }
 
-        public void Start()
+    public void Fire(List<Vector3> hitPoints, List<Vector3> trajectories, Transform muzzle)
+    {
+        transform.SetParent(null);
+        gameObject.SetActive(true);
+        for (var i = 0; i < hitPoints.Count; i++)
         {
-            cartridge.OnFiredWithHitPointsAndMuzzle += Fire;
-        }
+            var obj = Instantiate(tracerObject);
 
-        public void Fire(List<Vector3> hitPoints, List<Vector3> trajectories, Transform muzzle)
-        {
-            transform.SetParent(null);
-            gameObject.SetActive(true);
-            for (var i = 0; i < hitPoints.Count; i++)
-            {
-                var obj = Instantiate(tracerObject);
-
-                obj.SetActive(true);
-                obj.transform.position = muzzle.position;
-                obj.GetComponent<Tracer>().Fire(muzzle, hitPoints[i], trajectories[i], speed);
-            }
+            obj.SetActive(true);
+            obj.transform.position = muzzle.position;
+            obj.GetComponent<Tracer>().Fire(muzzle, hitPoints[i], trajectories[i], speed);
         }
+    }
 
-        public IEnumerator DelayedDestroy()
-        {
-            yield return new WaitForSeconds(20f);
-            Destroy(gameObject);
-        }
+    public IEnumerator DelayedDestroy()
+    {
+        yield return new WaitForSeconds(20f);
+        Destroy(gameObject);
     }
 }

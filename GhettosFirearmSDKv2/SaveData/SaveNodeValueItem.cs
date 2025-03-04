@@ -1,20 +1,19 @@
-﻿namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2;
+
+public class SaveNodeValueItem : SaveNodeValue
 {
-    public class SaveNodeValueItem : SaveNodeValue
+    private ItemSaveData _value;
+    public ItemSaveData Value
     {
-        private ItemSaveData _value;
-        public ItemSaveData Value
+        get
         {
-            get
-            {
-                if (_value == null)
-                    _value = new ItemSaveData();
-                return _value;
-            }
-            set
-            {
-                _value = value;
-            }
+            if (_value == null)
+                _value = new ItemSaveData();
+            return _value;
+        }
+        set
+        {
+            _value = value;
         }
     }
 }

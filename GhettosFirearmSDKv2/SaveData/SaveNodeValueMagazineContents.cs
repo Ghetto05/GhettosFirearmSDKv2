@@ -1,7 +1,6 @@
-﻿namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2;
+
+public class SaveNodeValueMagazineContents : SaveNodeValue
 {
-    public class SaveNodeValueMagazineContents : SaveNodeValue
-    {
-        public MagazineSaveData Value = new();
-    }
+    public MagazineSaveData Value = new();
 }

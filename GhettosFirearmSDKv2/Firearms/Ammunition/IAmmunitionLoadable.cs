@@ -1,19 +1,18 @@
 ﻿using System.Collections.Generic;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public interface IAmmunitionLoadable : ICaliberGettable
 {
-    public interface IAmmunitionLoadable : ICaliberGettable
-    {
-        int GetCapacity();
+    int GetCapacity();
 
-        List<Cartridge> GetLoadedCartridges();
+    List<Cartridge> GetLoadedCartridges();
 
-        void LoadRound(Cartridge cartridge);
+    void LoadRound(Cartridge cartridge);
 
-        void ClearRounds();
+    void ClearRounds();
 
-        bool GetForceCorrectCaliber();
+    bool GetForceCorrectCaliber();
 
-        List<string> GetAlternativeCalibers();
-    }
+    List<string> GetAlternativeCalibers();
 }

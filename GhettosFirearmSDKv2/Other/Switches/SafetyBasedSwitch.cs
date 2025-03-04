@@ -1,45 +1,44 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class SafetyBasedSwitch : MonoBehaviour
 {
-    public class SafetyBasedSwitch : MonoBehaviour
+    public FiremodeSelector selector;
+    public UnityEvent onSafe;
+    public UnityEvent onSemi;
+    public UnityEvent onBurst;
+    public UnityEvent onAuto;
+
+    private void Start()
     {
-        public FiremodeSelector selector;
-        public UnityEvent onSafe;
-        public UnityEvent onSemi;
-        public UnityEvent onBurst;
-        public UnityEvent onAuto;
+        selector.OnFiremodeChanged += Selector_onFiremodeChanged;
+        Util.DelayedExecute(1f, Init, this);
+    }
 
-        private void Start()
+    private void Init()
+    {
+        Selector_onFiremodeChanged(selector.firearm.fireMode);
+    }
+
+    private void Selector_onFiremodeChanged(FirearmBase.FireModes newMode)
+    {
+        if (newMode == FirearmBase.FireModes.Safe)
         {
-            selector.OnFiremodeChanged += Selector_onFiremodeChanged;
-            Util.DelayedExecute(1f, Init, this);
+            onSafe?.Invoke();
         }
-
-        private void Init()
+        else if (newMode == FirearmBase.FireModes.Semi)
         {
-            Selector_onFiremodeChanged(selector.firearm.fireMode);
+            onSemi?.Invoke();
         }
-
-        private void Selector_onFiremodeChanged(FirearmBase.FireModes newMode)
+        else if (newMode == FirearmBase.FireModes.Burst)
         {
-            if (newMode == FirearmBase.FireModes.Safe)
-            {
-                onSafe?.Invoke();
-            }
-            else if (newMode == FirearmBase.FireModes.Semi)
-            {
-                onSemi?.Invoke();
-            }
-            else if (newMode == FirearmBase.FireModes.Burst)
-            {
-                onBurst?.Invoke();
-            }
-            else if (newMode == FirearmBase.FireModes.Auto)
-            {
-                onAuto?.Invoke();
-            }
+            onBurst?.Invoke();
+        }
+        else if (newMode == FirearmBase.FireModes.Auto)
+        {
+            onAuto?.Invoke();
         }
     }
 }

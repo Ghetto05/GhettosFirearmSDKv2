@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using ThunderRoad;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class CaliberSortingData : CustomData
 {
-    public class CaliberSortingData : CustomData
-    {
-        // ReSharper disable once CollectionNeverUpdated.Global
-        public List<string> SortedCategories;
-        // ReSharper disable once CollectionNeverUpdated.Global
-        public List<string> SortedCalibers;
-    }
+    // ReSharper disable once CollectionNeverUpdated.Global
+    public List<string> SortedCategories;
+    // ReSharper disable once CollectionNeverUpdated.Global
+    public List<string> SortedCalibers;
 }

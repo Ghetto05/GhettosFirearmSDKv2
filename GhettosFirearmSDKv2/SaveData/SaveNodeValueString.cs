@@ -1,7 +1,6 @@
-﻿namespace GhettosFirearmSDKv2
+﻿namespace GhettosFirearmSDKv2;
+
+public class SaveNodeValueString : SaveNodeValue
 {
-    public class SaveNodeValueString : SaveNodeValue
-    {
-        public string Value = "";
-    }
+    public string Value = "";
 }

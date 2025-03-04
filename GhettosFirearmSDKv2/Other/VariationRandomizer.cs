@@ -1,19 +1,18 @@
 ﻿using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class VariationRandomizer : MonoBehaviour
 {
-    public class VariationRandomizer : MonoBehaviour
+    public GameObject[] variants;
+
+    private void Start()
     {
-        public GameObject[] variants;
-
-        private void Start()
+        foreach (var v in variants)
         {
-            foreach (var v in variants)
-            {
-                v.SetActive(false);
-            }
-
-            variants[Random.Range(0, variants.Length)].SetActive(true);
+            v.SetActive(false);
         }
+
+        variants[Random.Range(0, variants.Length)].SetActive(true);
     }
 }
