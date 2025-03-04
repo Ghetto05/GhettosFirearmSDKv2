@@ -31,6 +31,7 @@ namespace GhettosFirearmSDKv2
         public List<Transform> railSlots;
         public bool requiredToFire;
         public bool dummyMuzzleSlot;
+        public bool useOverrideMagazineAttachmentType;
 
         private void Start()
         {

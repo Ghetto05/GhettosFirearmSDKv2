@@ -27,6 +27,7 @@ namespace GhettosFirearmSDKv2
         public AudioSource[] magazineEjectSounds;
         public AudioSource[] magazineInsertSounds;
         public Collider mountCollider;
+        public Transform overrideMountPoint;
         public bool canBeGrabbedInWell;
         public List<Handle> handles;
         public MagazineWell currentWell;
@@ -50,6 +51,8 @@ namespace GhettosFirearmSDKv2
         public bool onlyAllowLoadWhenBoltIsBack;
         public List<MagazinePositionSet> positionSets;
         private List<ColliderGroup> _colliderGroups = new();
+        public bool addHandlesToParentMagazine;
+        public string overrideMagazineAttachmentType;
 
         public int ActualCapacity
         {
