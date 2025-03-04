@@ -28,7 +28,13 @@ namespace GhettosFirearmSDKv2
         {
             if (attachment.attachmentPoint.ConnectedManager is FirearmBase { magazineWell.currentMagazine: { } internalMagazine })
             {
-                _magazine = mag;
+                _magazine = internalMagazine;
+                Apply();
+            }
+
+            if (attachment.attachmentPoint.ConnectedManager.Transform.GetComponent<Magazine>() is { } magazine)
+            {
+                _magazine = magazine;
                 Apply();
             }
         }
