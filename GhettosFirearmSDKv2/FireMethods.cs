@@ -395,7 +395,7 @@ public class FireMethods : MonoBehaviour
                 
                 try
                 {
-                    if (WouldCreatureBeKilled(EvaluateDamage(data.damagePerProjectile * damageModifier, cr), cr) && !cr.isKilled && !killedCreatures.Contains(cr))
+                    if (WouldCreatureBeKilled(data.damagePerProjectile * damageModifier, cr) && !cr.isKilled && !killedCreatures.Contains(cr))
                     {
                         killedCreatures.Add(cr);
                         cr.Kill(coll);
@@ -727,7 +727,8 @@ public class FireMethods : MonoBehaviour
 
     public static bool WouldCreatureBeKilled(float perFifty, Creature c)
     {
-        return EvaluateDamage(perFifty, c) >= c.currentHealth;
+        var damage = EvaluateDamage(perFifty, c);
+        return (Mathf.Approximately(damage, c.currentHealth) || damage > c.currentHealth) && (!c.isPlayer || !Player.invincibility);
     }
 
     public static int GetRequiredPenetrationLevel(HitData hit, Vector3 direction, Item handler)
