@@ -1,97 +1,111 @@
-﻿using ThunderRoad;
+﻿using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class Laser : TacticalDevice
 {
-    public class Laser : TacticalDevice
+    public GameObject sourceObject;
+    public Transform source;
+    public GameObject endPointObject;
+    public Transform cylinderRoot;
+    public float range;
+    public bool activeByDefault;
+    public Text distanceDisplay;
+    public float lastHitDistance;
+
+    private void Start()
     {
-        public GameObject sourceObject;
-        public Transform source;
-        public GameObject endPointObject;
-        public Transform cylinderRoot;
-        public float range;
-        public bool activeByDefault;
-        public Text distanceDisplay;
-        public Item item;
-        public Attachment attachment;
-        private Item _actualItem;
-        public float lastHitDistance;
-
-        private void Start()
+        physicalSwitch = activeByDefault;
+        if (item)
+            ActualItem = item;
+        else if (attachment)
         {
-            physicalSwitch = activeByDefault;
-            if (item != null) _actualItem = item;
-            else if (attachment != null)
-            {
-                if (attachment.initialized) Attachment_OnDelayedAttachEvent();
-                else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
-            }
-            else _actualItem = null;
-        }
-
-        private void Attachment_OnDelayedAttachEvent()
-        {
-            _actualItem = attachment.attachmentPoint.ConnectedManager.Item;
-        }
-
-        private void Update()
-        {
-            if (!tacSwitch || !physicalSwitch || (_actualItem != null && _actualItem.holder != null))
-            {
-                if (cylinderRoot != null)
-                {
-                    cylinderRoot.localScale = Vector3.zero;
-                    cylinderRoot.gameObject.SetActive(false);
-                }
-                if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
-                if (distanceDisplay != null) distanceDisplay.text = "";
-                return;
-            }
-            if (Physics.Raycast(source.position, source.forward, out var hit, range, LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject", "Avatar", "PlayerHandAndFoot")))
-            {
-                if (cylinderRoot != null)
-                {
-                    cylinderRoot.localScale = LengthScale(hit.distance);
-                    cylinderRoot.gameObject.SetActive(true);
-                }
-                if (endPointObject != null && !endPointObject.activeInHierarchy) endPointObject.SetActive(true);
-                if (endPointObject != null) endPointObject.transform.localPosition = LengthPosition(hit.distance);
-                if (distanceDisplay != null) distanceDisplay.text = hit.distance.ToString();
-                lastHitDistance = hit.distance;
-            }
+            if (attachment.initialized)
+                Attachment_OnDelayedAttachEvent();
             else
+                attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        }
+        else ActualItem = null;
+    }
+
+    private void Attachment_OnDelayedAttachEvent()
+    {
+        ActualItem = attachment.attachmentPoint.ConnectedManager.Item;
+    }
+
+    private void Update()
+    {
+        if (!TacSwitchActive || !physicalSwitch || (ActualItem && ActualItem.holder))
+        {
+            if (cylinderRoot)
             {
-                if (cylinderRoot != null)
-                {
-                    cylinderRoot.localScale = LengthScale(200);
-                    cylinderRoot.gameObject.SetActive(true);
-                }
-                if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
-                if (distanceDisplay != null) distanceDisplay.text = "---";
+                cylinderRoot.localScale = Vector3.zero;
+                cylinderRoot.gameObject.SetActive(false);
             }
+
+            if (endPointObject && endPointObject.activeInHierarchy)
+                endPointObject.SetActive(false);
+            if (distanceDisplay)
+                distanceDisplay.text = "";
+            return;
         }
 
-        private Vector3 LengthScale(float length)
+        if (Physics.Raycast(source.position, source.forward, out var hit, range,
+                LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject",
+                    "Avatar", "PlayerHandAndFoot")))
         {
-            return new Vector3(1, 1, length);
-        }
+            if (cylinderRoot)
+            {
+                cylinderRoot.localScale = LengthScale(hit.distance);
+                cylinderRoot.gameObject.SetActive(true);
+            }
 
-        private Vector3 LengthPosition(float length)
-        {
-            return new Vector3(0, 0, length);
+            if (endPointObject && !endPointObject.activeInHierarchy)
+                endPointObject.SetActive(true);
+            if (endPointObject)
+                endPointObject.transform.localPosition = LengthPosition(hit.distance);
+            if (distanceDisplay)
+                distanceDisplay.text = hit.distance.ToString(CultureInfo.InvariantCulture);
+            lastHitDistance = hit.distance;
         }
+        else
+        {
+            if (cylinderRoot)
+            {
+                cylinderRoot.localScale = LengthScale(200);
+                cylinderRoot.gameObject.SetActive(true);
+            }
 
-        public void SetActive()
-        {
-            if (sourceObject != null) sourceObject.SetActive(true);
-            physicalSwitch = true;
+            if (endPointObject && endPointObject.activeInHierarchy)
+                endPointObject.SetActive(false);
+            if (distanceDisplay)
+                distanceDisplay.text = "---";
         }
+    }
 
-        public void SetNotActive()
-        {
-            if (sourceObject != null) sourceObject.SetActive(false);
-            physicalSwitch = false;
-        }
+    private static Vector3 LengthScale(float length)
+    {
+        return new Vector3(1, 1, length);
+    }
+
+    private static Vector3 LengthPosition(float length)
+    {
+        return new Vector3(0, 0, length);
+    }
+
+    public void SetActive()
+    {
+        if (sourceObject)
+            sourceObject.SetActive(true);
+        physicalSwitch = true;
+    }
+
+    public void SetNotActive()
+    {
+        if (sourceObject)
+            sourceObject.SetActive(false);
+        physicalSwitch = false;
     }
 }

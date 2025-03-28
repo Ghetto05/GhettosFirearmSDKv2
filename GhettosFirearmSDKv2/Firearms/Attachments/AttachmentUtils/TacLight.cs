@@ -39,7 +39,7 @@ namespace GhettosFirearmSDKv2
 
         private void Update()
         {
-            lights.SetActive(tacSwitch && physicalSwitch && (_actualItem == null || _actualItem.holder == null));
+            lights.SetActive(TacSwitchActive && physicalSwitch && (_actualItem == null || _actualItem.holder == null));
         }
     }
 }

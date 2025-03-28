@@ -64,7 +64,7 @@ namespace GhettosFirearmSDKv2
             _active = active;
             foreach (var td in firearm.GetComponentsInChildren<TacticalDevice>())
             {
-                td.tacSwitch = _active;
+                // td.TacSwitchActive = _active;
             }
         }
 

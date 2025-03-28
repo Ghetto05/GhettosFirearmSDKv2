@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 
@@ -19,6 +18,16 @@ namespace GhettosFirearmSDKv2
         private bool _active;
         private SaveNodeValueBool _saveData;
 
+
+        public bool dualMode;
+        public bool useAltUse;
+        public int triggerChannel = 1;
+        public int alternateUseChannel = 2;
+        public TacticalDevice exclusiveDevice;
+
+        private bool _triggerState;
+        private bool _alternateUseState;
+
         private void Start()
         {
             Invoke(nameof(InvokedStart), Settings.invokeTime);
@@ -26,107 +35,40 @@ namespace GhettosFirearmSDKv2
 
         public void InvokedStart()
         {
-            if (!attachment && !item && handles.Count > 0)
-                item = handles[0].item;
-
             if (attachment)
-                attachment.attachmentPoint.ConnectedManager.Item.OnHeldActionEvent += OnAttachmentsAction;
+                attachment.attachmentPoint.ConnectedManager.Item.OnHeldActionEvent += OnHeldAction;
             else if (item)
-                item.OnHeldActionEvent += OnOffhandAction;
-
-            if (toggleMode)
-            {
-                if (attachment)
-                {
-                    _saveData = attachment.Node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
-                }
-                else if (item.GetComponent<IAttachmentManager>() is { } manager)
-                {
-                    _saveData = manager.SaveData.FirearmNode.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
-                }
-
-                if (_saveData != null)
-                    _active = _saveData.Value;
-            }
-
-            Invoke(nameof(InitialSet), 1f);
+                item.OnHeldActionEvent += OnHeldAction;
         }
 
-        public void InitialSet()
+        private void OnHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            item = item ? item : attachment ? attachment.attachmentPoint.ConnectedManager.Item : null;
-            if (!item)
-                return;
-
-            foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
-            {
-                td.tacSwitch = _active;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (attachment) attachment.attachmentPoint.ConnectedManager.Item.OnHeldActionEvent -= OnAttachmentsAction;
-            else if (item) item.OnHeldActionEvent -= OnOffhandAction;
-
-            item = !attachment ? item : attachment.attachmentPoint.ConnectedManager.Item;
-            if (!item) return;
-
-            foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
-            {
-                td.tacSwitch = true;
-            }
-        }
-
-        private void OnOffhandAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
-        {
-            if (handles.Contains(handle))
-            {
-                if (action == Interactable.Action.UseStart)
-                {
-                    Toggle(true, handle.item);
-                }
-                else if (action == Interactable.Action.UseStop)
-                {
-                    Toggle(false, handle.item);
-                }
-            }
-        }
-
-        private void OnAttachmentsAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
-        {
-            if (handle == handle.item.mainHandleLeft ||
-                (attachment.attachmentPoint.ConnectedManager is FirearmBase f && f.AllTriggerHandles().Contains(handle))) return;
+            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (action)
             {
-                case Interactable.Action.UseStart:
-                    Toggle(true, handle.item);
+                case Interactable.Action.UseStart when !_triggerState && (!dualMode || !useAltUse):
+                    _triggerState = true;
+                    pressSounds.RandomChoice().Play();
                     break;
-                case Interactable.Action.UseStop:
-                    Toggle(false, handle.item);
+                case Interactable.Action.UseStop when _triggerState && (!dualMode || !useAltUse):
+                    _triggerState = false;
+                    releaseSounds.RandomChoice().Play();
+                    break;
+                case Interactable.Action.UseStart when !dualMode || useAltUse:
+                    _triggerState = !_triggerState;
+                    if (_triggerState)
+                        pressSounds.RandomChoice().Play();
+                    else
+                        releaseSounds.RandomChoice().Play();
                     break;
             }
         }
 
-        public void Toggle(bool active, Item itemToToggleOn)
+        public bool Active(int channel)
         {
-            if (toggleMode && active)
-                _active = !_active;
-            else if (!toggleMode)
-                _active = active;
-
-            if (_active)
-                Util.PlayRandomAudioSource(pressSounds);
-            else
-                Util.PlayRandomAudioSource(releaseSounds);
-
-            foreach (var td in itemToToggleOn.GetComponentsInChildren<TacticalDevice>())
-            {
-                td.tacSwitch = _active;
-            }
-            
-            if (_saveData != null)
-                _saveData.Value = _active;
+            if (!dualMode)
+                return true;
+            return (channel == triggerChannel && _triggerState) || (channel == alternateUseChannel && _alternateUseState);
         }
     }
 }
