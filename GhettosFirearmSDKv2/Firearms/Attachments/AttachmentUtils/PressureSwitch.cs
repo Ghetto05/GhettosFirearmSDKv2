@@ -1,131 +1,74 @@
 ﻿using System.Collections.Generic;
-using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2;
-
-public class PressureSwitch : MonoBehaviour
+namespace GhettosFirearmSDKv2
 {
-    public bool toggleMode;
-
-    public Attachment attachment;
-    public List<Handle> handles;
-    public Item item;
-
-    public List<AudioSource> pressSounds;
-    public List<AudioSource> releaseSounds;
-
-    private bool _active;
-    private SaveNodeValueBool _saveData;
-
-    private void Start()
+    public class PressureSwitch : MonoBehaviour
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
-    }
+        public bool toggleMode;
 
-    public void InvokedStart()
-    {
-        if (!attachment && !item && handles.Count > 0)
-            item = handles[0].item;
+        public Attachment attachment;
+        public List<Handle> handles;
+        public Item item;
 
-        if (attachment)
-            attachment.attachmentPoint.ConnectedManager.Item.OnHeldActionEvent += OnAttachmentsAction;
-        else if (item)
-            item.OnHeldActionEvent += OnOffhandAction;
+        public List<AudioSource> pressSounds;
+        public List<AudioSource> releaseSounds;
 
-        if (toggleMode)
+        private bool _active;
+        private SaveNodeValueBool _saveData;
+
+
+        public bool dualMode;
+        public bool useAltUse;
+        public int triggerChannel = 1;
+        public int alternateUseChannel = 2;
+        public TacticalDevice exclusiveDevice;
+
+        private bool _triggerState;
+        private bool _alternateUseState;
+
+        private void Start()
+        {
+            Invoke(nameof(InvokedStart), Settings.invokeTime);
+        }
+
+        public void InvokedStart()
         {
             if (attachment)
-            {
-                _saveData = attachment.Node.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
-            }
-            else if (item.GetComponent<IAttachmentManager>() is { } manager)
-            {
-                _saveData = manager.SaveData.FirearmNode.GetOrAddValue("PressureSwitchState", new SaveNodeValueBool {Value = true});
-            }
-
-            if (_saveData != null)
-                _active = _saveData.Value;
+                attachment.attachmentPoint.ConnectedManager.Item.OnHeldActionEvent += OnHeldAction;
+            else if (item)
+                item.OnHeldActionEvent += OnHeldAction;
         }
 
-        Invoke(nameof(InitialSet), 1f);
-    }
-
-    public void InitialSet()
-    {
-        item = item ? item : attachment ? attachment.attachmentPoint.ConnectedManager.Item : null;
-        if (!item)
-            return;
-
-        foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
+        private void OnHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
-            td.tacSwitch = _active;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (attachment) attachment.attachmentPoint.ConnectedManager.Item.OnHeldActionEvent -= OnAttachmentsAction;
-        else if (item) item.OnHeldActionEvent -= OnOffhandAction;
-
-        item = !attachment ? item : attachment.attachmentPoint.ConnectedManager.Item;
-        if (!item) return;
-
-        foreach (var td in item.GetComponentsInChildren<TacticalDevice>())
-        {
-            td.tacSwitch = true;
-        }
-    }
-
-    private void OnOffhandAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
-    {
-        if (handles.Contains(handle))
-        {
-            if (action == Interactable.Action.UseStart)
+            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+            switch (action)
             {
-                Toggle(true, handle.item);
-            }
-            else if (action == Interactable.Action.UseStop)
-            {
-                Toggle(false, handle.item);
+                case Interactable.Action.UseStart when !_triggerState && (!dualMode || !useAltUse):
+                    _triggerState = true;
+                    pressSounds.RandomChoice().Play();
+                    break;
+                case Interactable.Action.UseStop when _triggerState && (!dualMode || !useAltUse):
+                    _triggerState = false;
+                    releaseSounds.RandomChoice().Play();
+                    break;
+                case Interactable.Action.UseStart when !dualMode || useAltUse:
+                    _triggerState = !_triggerState;
+                    if (_triggerState)
+                        pressSounds.RandomChoice().Play();
+                    else
+                        releaseSounds.RandomChoice().Play();
+                    break;
             }
         }
-    }
 
-    private void OnAttachmentsAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
-    {
-        if (handle == handle.item.mainHandleLeft ||
-            (attachment.attachmentPoint.ConnectedManager is FirearmBase f && f.AllTriggerHandles().Contains(handle))) return;
-        switch (action)
+        public bool Active(int channel)
         {
-            case Interactable.Action.UseStart:
-                Toggle(true, handle.item);
-                break;
-            case Interactable.Action.UseStop:
-                Toggle(false, handle.item);
-                break;
+            if (!dualMode)
+                return true;
+            return (channel == triggerChannel && _triggerState) || (channel == alternateUseChannel && _alternateUseState);
         }
-    }
-
-    public void Toggle(bool active, Item itemToToggleOn)
-    {
-        if (toggleMode && active)
-            _active = !_active;
-        else if (!toggleMode)
-            _active = active;
-
-        if (_active)
-            Util.PlayRandomAudioSource(pressSounds);
-        else
-            Util.PlayRandomAudioSource(releaseSounds);
-
-        foreach (var td in itemToToggleOn.GetComponentsInChildren<TacticalDevice>())
-        {
-            td.tacSwitch = _active;
-        }
-            
-        if (_saveData != null)
-            _saveData.Value = _active;
     }
 }

@@ -1,4 +1,4 @@
-﻿using ThunderRoad;
+﻿using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,84 +13,99 @@ public class Laser : TacticalDevice
     public float range;
     public bool activeByDefault;
     public Text distanceDisplay;
-    public Item item;
-    public Attachment attachment;
-    private Item _actualItem;
     public float lastHitDistance;
 
     private void Start()
     {
         physicalSwitch = activeByDefault;
-        if (item != null) _actualItem = item;
-        else if (attachment != null)
+        if (item)
+            ActualItem = item;
+        else if (attachment)
         {
-            if (attachment.initialized) Attachment_OnDelayedAttachEvent();
-            else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            if (attachment.initialized)
+                Attachment_OnDelayedAttachEvent();
+            else
+                attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
         }
-        else _actualItem = null;
+        else ActualItem = null;
     }
 
     private void Attachment_OnDelayedAttachEvent()
     {
-        _actualItem = attachment.attachmentPoint.ConnectedManager.Item;
+        ActualItem = attachment.attachmentPoint.ConnectedManager.Item;
     }
 
     private void Update()
     {
-        if (!tacSwitch || !physicalSwitch || (_actualItem != null && _actualItem.holder != null))
+        if (!TacSwitchActive || !physicalSwitch || (ActualItem && ActualItem.holder))
         {
-            if (cylinderRoot != null)
+            if (cylinderRoot)
             {
                 cylinderRoot.localScale = Vector3.zero;
                 cylinderRoot.gameObject.SetActive(false);
             }
-            if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
-            if (distanceDisplay != null) distanceDisplay.text = "";
+
+            if (endPointObject && endPointObject.activeInHierarchy)
+                endPointObject.SetActive(false);
+            if (distanceDisplay)
+                distanceDisplay.text = "";
             return;
         }
-        if (Physics.Raycast(source.position, source.forward, out var hit, range, LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject", "Avatar", "PlayerHandAndFoot")))
+
+        if (Physics.Raycast(source.position, source.forward, out var hit, range,
+                LayerMask.GetMask("NPC", "Ragdoll", "Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject",
+                    "Avatar", "PlayerHandAndFoot")))
         {
-            if (cylinderRoot != null)
+            if (cylinderRoot)
             {
                 cylinderRoot.localScale = LengthScale(hit.distance);
                 cylinderRoot.gameObject.SetActive(true);
             }
-            if (endPointObject != null && !endPointObject.activeInHierarchy) endPointObject.SetActive(true);
-            if (endPointObject != null) endPointObject.transform.localPosition = LengthPosition(hit.distance);
-            if (distanceDisplay != null) distanceDisplay.text = hit.distance.ToString();
+
+            if (endPointObject && !endPointObject.activeInHierarchy)
+                endPointObject.SetActive(true);
+            if (endPointObject)
+                endPointObject.transform.localPosition = LengthPosition(hit.distance);
+            if (distanceDisplay)
+                distanceDisplay.text = hit.distance.ToString(CultureInfo.InvariantCulture);
             lastHitDistance = hit.distance;
         }
         else
         {
-            if (cylinderRoot != null)
+            if (cylinderRoot)
             {
                 cylinderRoot.localScale = LengthScale(200);
                 cylinderRoot.gameObject.SetActive(true);
             }
-            if (endPointObject != null && endPointObject.activeInHierarchy) endPointObject.SetActive(false);
-            if (distanceDisplay != null) distanceDisplay.text = "---";
+
+            if (endPointObject && endPointObject.activeInHierarchy)
+                endPointObject.SetActive(false);
+            if (distanceDisplay)
+                distanceDisplay.text = "---";
         }
     }
 
-    private Vector3 LengthScale(float length)
+    private static Vector3 LengthScale(float length)
     {
         return new Vector3(1, 1, length);
     }
 
-    private Vector3 LengthPosition(float length)
+    private static Vector3 LengthPosition(float length)
     {
         return new Vector3(0, 0, length);
     }
 
     public void SetActive()
     {
-        if (sourceObject != null) sourceObject.SetActive(true);
+        if (sourceObject)
+            sourceObject.SetActive(true);
         physicalSwitch = true;
     }
 
     public void SetNotActive()
     {
-        if (sourceObject != null) sourceObject.SetActive(false);
+        if (sourceObject)
+            sourceObject.SetActive(false);
         physicalSwitch = false;
     }
 }
