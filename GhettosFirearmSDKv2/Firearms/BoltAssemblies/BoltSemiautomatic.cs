@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ThunderRoad;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace GhettosFirearmSDKv2;
 
@@ -33,11 +34,11 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
     public Transform akBoltLockPoint;
     public Transform roundLoadPoint;
     public Transform hammerCockPoint;
-    public Transform stovepipeBoltPosition;
     public Transform roundMount;
-    public Transform stovepipeRoundPosition;
     public Cartridge loadedCartridge;
     private Transform _chamberPositionRoundMount;
+
+    public BoltFailureData[] failureData;
 
     private ConfigurableJoint _joint;
     public ConstantForce force;
@@ -128,8 +129,8 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         chamber.transform.parent = firearm.transform;
 
         // calculate minimum distance for stovepipe failure
-        if (stovepipeBoltPosition)
-            _minimumCyclePercentageForFailureToEject = Mathf.Clamp01(Util.AbsDist(stovepipeBoltPosition, startPoint) / Util.AbsDist(startPoint, endPoint));
+        if (CurrentFailureData?.boltPosition)
+            _minimumCyclePercentageForFailureToEject = Mathf.Clamp01(Util.AbsDist(CurrentFailureData.boltPosition, startPoint) / Util.AbsDist(startPoint, endPoint));
     }
 
     private void OnCollisionStart(CollisionInstance collisionInstance)
@@ -214,7 +215,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         if (!loadedCartridge)
             return;
         loadedCartridge.item.physicBody.isKinematic = true;
-        loadedCartridge.transform.parent = _failureToExtract ? _chamberPositionRoundMount : _failureToEject && state == BoltState.Locked ? stovepipeRoundPosition : roundMount;
+        loadedCartridge.transform.parent = _failureToExtract ? _chamberPositionRoundMount : _failureToEject && state == BoltState.Locked ? CurrentFailureData?.cartridgePosition : roundMount;
         loadedCartridge.transform.localPosition = Vector3.zero;
         loadedCartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
     }
@@ -323,19 +324,19 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         point = null;
         var behindCatchpoint = true;
         var hasChargingHandle = chargingHandle;
-            
-        if ((hasBoltcatch || isOpenBolt) && caught)
+
+        if (_failureToEject && CurrentFailureData?.boltPosition)
+        {
+            point = CurrentFailureData.boltPosition;
+            behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(CurrentFailureData.boltPosition.localPosition, startPoint.localPosition);
+        }
+        else if ((hasBoltcatch || isOpenBolt) && caught)
         {
             point = catchPoint;
             behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(catchPoint.localPosition, startPoint.localPosition);
         }
-        else if (_failureToEject)
-        {
-            point = stovepipeBoltPosition;
-            behindCatchpoint = Util.AbsDist(startPoint.localPosition, rigidBody.transform.localPosition) > Util.AbsDist(stovepipeBoltPosition.localPosition, startPoint.localPosition);
-        }
             
-        return (hasChargingHandle && behindCatchpoint) || !hasChargingHandle || !caught;
+        return (hasChargingHandle && behindCatchpoint) || !hasChargingHandle || (!caught && !_failureToEject);
     }
 
     private void FixedUpdate()
@@ -418,6 +419,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
                 {
                     _failureToEject = false;
                     EjectRound(false);
+                    InitializeJoint(false);
                 }
 
                 if (_closedAfterLoad && firearm.roundsPerMinute != 0)
@@ -523,11 +525,11 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         {
             if (_isClosing)
             {
-                if (!_failureToEject || cyclePercentage >= _minimumCyclePercentageForFailureToEject)
+                if (!_failureToEject || cyclePercentage >= _minimumCyclePercentageForFailureToEject || !CurrentFailureData?.boltPosition)
                     bolt.localPosition = Vector3.Lerp(endPoint.localPosition, startPoint.localPosition, BoltLerp(startTimeOfMovement, firearm.roundsPerMinute));
                 else
                 {
-                    bolt.localPosition = stovepipeBoltPosition.localPosition;
+                    bolt.localPosition = CurrentFailureData.boltPosition.localPosition;
                     _closedAfterLoad = false;
                     _isClosing = false;
                     _isReciprocating = false;
@@ -581,7 +583,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
                 //bolt test below
                 if ((reciprocatingBarrel == null || !reciprocatingBarrel.lockBoltBack) && !isOpenBolt)
                 {
-                    if (!Util.DoMalfunction(Settings.malfunctionFailureToEject, Settings.failureToEjectChance, firearm.malfunctionChanceMultiplier, firearm.HeldByAI()) || !stovepipeBoltPosition)
+                    if (!Util.DoMalfunction(Settings.malfunctionFailureToEject, Settings.failureToEjectChance, firearm.malfunctionChanceMultiplier, firearm.HeldByAI()) || !CurrentFailureData?.boltPosition)
                     {
                         EjectRound();
                         TryLoadRound();
@@ -591,6 +593,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
                         _failureToEject = true;
                         _stuckFromFailureToEject = true;
                         boltHandles.ForEach(x => x.gameObject.SetActive(false));
+                        InitializeJoint(false, false, false, true);
                     }
                 }
                 Util.PlayRandomAudioSource(pullSounds);
@@ -679,7 +682,8 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
             c.transform.rotation = roundEjectPoint.rotation;
         }
 
-        Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
+        if (applyForce)
+            Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
         c.ToggleCollision(true);
         Util.DelayIgnoreCollision(c.gameObject, firearm.gameObject, false, 3f, firearm.item);
         var rb = c.item.physicBody.rigidBody;
@@ -730,7 +734,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         InitializeJoint(caught);
     }
 
-    private void InitializeJoint(bool lockedBack, bool safetyLocked = false, bool boltActionLocked = false)
+    private void InitializeJoint(bool lockedBack, bool safetyLocked = false, bool boltActionLocked = false, bool failureToEject = false)
     {
         rigidBody.transform.rotation = startPoint.rotation;
         if (!_joint)
@@ -745,22 +749,24 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
             _joint.anchor = GrandparentLocalPosition(caught? catchPoint : rigidBody.transform, firearm.item.transform);
             limit.limit = 0;
         }
-        //default, start to back movement
-        else if (!lockedBack && !safetyLocked)
+        else if (failureToEject) //can't move forward due to stovepipe
         {
-            _joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((startPoint.localPosition.z - endPoint.localPosition.z) / 2));
+            _joint.anchor = GrandparentLocalPosition(endPoint, firearm.item.transform) + Vector3.forward * ((CurrentFailureData.boltPosition.localPosition.z - endPoint.localPosition.z) / 2);
+            limit.limit = Vector3.Distance(endPoint.position, CurrentFailureData.boltPosition.position) / 2;
+        }
+        else if (!lockedBack && !safetyLocked) //default, start to back movement
+        {
+            _joint.anchor = GrandparentLocalPosition(endPoint, firearm.item.transform) + Vector3.forward * ((startPoint.localPosition.z - endPoint.localPosition.z) / 2);
             limit.limit = Vector3.Distance(endPoint.position, startPoint.position) / 2;
         }
-        //locked back, between end point and lock point movement
-        else if (lockedBack && !safetyLocked)
+        else if (lockedBack && !safetyLocked) //locked back, between end point and lock point movement
         {
-            _joint.anchor = new Vector3(GrandparentLocalPosition(endPoint, firearm.item.transform).x, GrandparentLocalPosition(endPoint, firearm.item.transform).y, GrandparentLocalPosition(endPoint, firearm.item.transform).z + ((catchPoint.localPosition.z - endPoint.localPosition.z) / 2));
+            _joint.anchor = GrandparentLocalPosition(endPoint, firearm.item.transform) + Vector3.forward * ((catchPoint.localPosition.z - endPoint.localPosition.z) / 2);
             limit.limit = Vector3.Distance(endPoint.position, catchPoint.position) / 2;
         }
-        else if (!lockedBack)
-            //locked front by safety, between start and ak lock point movement
+        else if (!lockedBack) //locked front by safety, between start and ak lock point movement
         {
-            _joint.anchor = new Vector3(GrandparentLocalPosition(startPoint, firearm.item.transform).x, GrandparentLocalPosition(startPoint, firearm.item.transform).y, GrandparentLocalPosition(startPoint, firearm.item.transform).z + ((akBoltLockPoint.localPosition.z - startPoint.localPosition.z) / 2));
+            _joint.anchor = GrandparentLocalPosition(startPoint, firearm.item.transform) + Vector3.forward * ((akBoltLockPoint.localPosition.z - startPoint.localPosition.z) / 2);
             limit.limit = Vector3.Distance(startPoint.position, akBoltLockPoint.position) / 2;
         }
         _joint.linearLimit = limit;
@@ -768,27 +774,13 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         _joint.connectedAnchor = Vector3.zero;
         _joint.xMotion = ConfigurableJointMotion.Locked;
         _joint.yMotion = ConfigurableJointMotion.Locked;
-        if (boltActionLocked) _joint.zMotion = ConfigurableJointMotion.Locked;
-        //else if (!lockedBack) joint.zMotion = ConfigurableJointMotion.Limited;
-        //else joint.zMotion = ConfigurableJointMotion.Free;
-        else _joint.zMotion = ConfigurableJointMotion.Limited;
+        if (boltActionLocked)
+            _joint.zMotion = ConfigurableJointMotion.Locked;
+        else
+            _joint.zMotion = ConfigurableJointMotion.Limited;
         _joint.angularXMotion = ConfigurableJointMotion.Locked;
         _joint.angularYMotion = ConfigurableJointMotion.Locked;
         _joint.angularZMotion = ConfigurableJointMotion.Locked;
-        //if (lockedBack)
-        //{
-        //    rigidBody.transform.localPosition = catchPoint.localPosition;
-        //    rigidBody.transform.localRotation = catchPoint.localRotation;
-        //}
-        //else if (boltActionLocked) 
-        //{
-        //    rigidBody.position = oldPos;
-        //}
-        //else
-        //{
-        //    rigidBody.transform.localPosition = startPoint.localPosition;
-        //    rigidBody.transform.localRotation = startPoint.localRotation;
-        //}
     }
 
     private float BoltLerp(float startTime, float rpm)
@@ -866,5 +858,10 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
     public List<string> GetAlternativeCalibers()
     {
         return firearm.magazineWell?.alternateCalibers ?? [];
+    }
+
+    public BoltFailureData CurrentFailureData
+    {
+        get { return failureData.FirstOrDefault(x => x.caliber == loadedCartridge?.caliber) ?? failureData.FirstOrDefault(); }
     }
 }
