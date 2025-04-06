@@ -38,12 +38,14 @@ public class FireMethods : MonoBehaviour
     public static void ApplyRecoil(Transform transform, Item item, float force, float upwardsModifier, float firearmRecoilModifier, List<FirearmBase.RecoilModifier> modifiers)
     {
         if (Settings.noRecoil)
+        {
             return;
+        }
 
         var upMod = 1f;
         var linMod = 1f;
 
-        if (modifiers != null)
+        if (modifiers is not null)
         {
             foreach (var mod in modifiers)
             {
@@ -53,7 +55,7 @@ public class FireMethods : MonoBehaviour
         }
 
         item.physicBody.AddForce(-transform.forward * (force * linMod) * firearmRecoilModifier, ForceMode.Impulse);
-        item.physicBody.AddRelativeTorque(Vector3.right * ((force * upMod) * upwardsModifier) * firearmRecoilModifier, ForceMode.Impulse);
+        item.physicBody.AddRelativeTorque(Vector3.right * (force * upMod * upwardsModifier) * firearmRecoilModifier, ForceMode.Impulse);
     }
 
     public static List<Creature> FireHitScan(Transform muzzle, ProjectileData data, Item item, out List<Vector3> returnedEndpoints, out List<Vector3> returnedTrajectories, out List<Creature> killedCreatures, float damageMultiplier, bool useAISpread)
@@ -72,9 +74,13 @@ public class FireMethods : MonoBehaviour
                 tempMuz.parent = muzzle;
                 tempMuz.localPosition = Vector3.zero;
                 if (!useAISpread || data.projectileCount > 1)
+                {
                     tempMuz.localEulerAngles = new Vector3(Random.Range(-data.projectileSpread, data.projectileSpread), Random.Range(-data.projectileSpread, data.projectileSpread), 0);
+                }
                 else
+                {
                     tempMuz.localEulerAngles = new Vector3(Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), Random.Range(-Settings.aiFirearmSpread, Settings.aiFirearmSpread), 0);
+                }
                 hitCreatures.AddRange(HitScan(tempMuz, data, item, out var endpoint, damageMultiplier, killedCreatures, hitParts, hitShootables));
                 returnedEndpoints.Add(endpoint);
                 returnedTrajectories.Add(tempMuz.forward);
@@ -85,7 +91,7 @@ public class FireMethods : MonoBehaviour
         {
             // ignored
         }
-        
+
         Score.local.ShotFired(hitCreatures.Any() || hitShootables.Any(), hitParts.Any(x => x.type == RagdollPart.Type.Head));
 
         return hitCreatures;
@@ -100,16 +106,20 @@ public class FireMethods : MonoBehaviour
         foreach (var physicsToggleHit in Physics.RaycastAll(muzzle.position, muzzle.forward, Mathf.Infinity, LayerMask.GetMask("BodyLocomotion")))
         {
             if (physicsToggleHit.collider.gameObject.GetComponentInParent<Creature>() is not { } cr)
+            {
                 continue;
-            
+            }
+
             foreach (var part in cr.ragdoll.parts)
             {
                 part.gameObject.SetActive(true);
             }
 
             if (!cr.equipment)
+            {
                 continue;
-            
+            }
+
             if (cr.equipment.GetHeldItem(Side.Left))
             {
                 cr.equipment.GetHeldItem(Side.Left).SetColliders(true);
@@ -160,7 +170,7 @@ public class FireMethods : MonoBehaviour
         {
             var hit = hits[0];
             HitscanExplosion(hit.point, data.explosiveData, gunItem, out _, out _);
-            if (data.explosiveEffect != null)
+            if (data.explosiveEffect)
             {
                 data.explosiveEffect.gameObject.transform.SetParent(null);
                 data.explosiveEffect.transform.position = hit.point;
@@ -186,15 +196,23 @@ public class FireMethods : MonoBehaviour
                 if (lowerDamageLevel)
                 {
                     if (power is (int)ProjectileData.PenetrationLevels.None or (int)ProjectileData.PenetrationLevels.Leather)
+                    {
                         processing = false;
+                    }
                     else
+                    {
                         power -= 2;
+                    }
                 }
 
                 if (cancel)
+                {
                     processing = false;
+                }
                 if (c)
+                {
                     hitCreatures.Add(c);
+                }
             }
             catch (Exception)
             {
@@ -233,7 +251,7 @@ public class FireMethods : MonoBehaviour
 
         #region static non creature hit
 
-        if (hit.Rigidbody == null)
+        if (!hit.Rigidbody)
         {
             if (data.hasImpactEffect)
             {
@@ -259,7 +277,7 @@ public class FireMethods : MonoBehaviour
                 var cr = rag.creature;
                 var ragdollPart = hit.Collider.gameObject.GetComponentInParent<RagdollPart>();
                 var penetrated = GetRequiredPenetrationLevel(hit, muzzle.forward, gunItem) <= penetrationPower;
-                
+
                 hitCreatures.Add(cr);
                 hitParts.Add(ragdollPart);
 
@@ -277,7 +295,9 @@ public class FireMethods : MonoBehaviour
                 }
 
                 if (data.drawsImpactDecal && penetrated)
+                {
                     DrawDecal(ragdollPart, hit, data.customImpactDecalId);
+                }
 
                 #endregion Impact effect
 
@@ -287,7 +307,10 @@ public class FireMethods : MonoBehaviour
                     {
                         BloodSplatter(hit.Point, muzzle.forward, data.forcePerProjectile, data.projectileCount, penetrationPower, penetrated);
                     }
-                    catch (Exception) { /* ignored */ }
+                    catch (Exception)
+                    {
+                        /* ignored */
+                    }
                 }
 
                 #region Damage level determination
@@ -304,7 +327,9 @@ public class FireMethods : MonoBehaviour
                             cr.StartCoroutine(DelayedStopAnimating(cr));
                         }
                         if (penetrated && data.slicesBodyParts)
+                        {
                             ragdollPart.TrySlice();
+                        }
                         break;
 
                     case RagdollPart.Type.Neck: //damage = infinity, push(1)
@@ -313,47 +338,61 @@ public class FireMethods : MonoBehaviour
 
                     case RagdollPart.Type.Torso: //damage = damage, push(2)
                         if (penetrated && Settings.incapacitateOnTorsoShot > 0f && data.enoughToIncapitate && !cr.isKilled && !cr.isPlayer)
+                        {
                             cr.StartCoroutine(TemporaryKnockout(Settings.incapacitateOnTorsoShot, 0, cr));
+                        }
                         break;
 
                     case RagdollPart.Type.LeftArm: //damage = damage/3, release weapon, push(1)
                         damageModifier = 1f / 3;
                         if (!cr.isKilled && !cr.isPlayer)
+                        {
                             cr.handLeft.TryRelease();
+                        }
                         break;
 
                     case RagdollPart.Type.RightArm: //damage = damage/3, release weapon, push(1)
                         damageModifier = 1f / 3;
                         if (!cr.isKilled && !cr.isPlayer)
+                        {
                             cr.handRight.TryRelease();
+                        }
                         break;
 
                     case RagdollPart.Type.RightFoot:
                     case RagdollPart.Type.LeftFoot: //damage = damage/4, destabilize, push(3)
                         damageModifier = 0.25f;
                         if (!cr.isKilled && !cr.isPlayer)
+                        {
                             cr.ragdoll.SetState(Ragdoll.State.Destabilized);
+                        }
                         break;
 
                     case RagdollPart.Type.LeftHand: //damage = damage/4, release weapon, push(1)
                         damageModifier = 0.25f;
                         if (!cr.isKilled && !cr.isPlayer)
+                        {
                             cr.handLeft.TryRelease();
+                        }
                         break;
-                    
+
                     case RagdollPart.Type.RightHand: //damage = damage/4, release weapon, push(1)
                         damageModifier = 0.25f;
                         if (!cr.isKilled && !cr.isPlayer)
+                        {
                             cr.handRight.TryRelease();
+                        }
                         break;
-                    
+
                     case RagdollPart.Type.RightLeg:
                     case RagdollPart.Type.LeftLeg: //damage = damage/3, destabilize, push(3)
                         damageModifier = 1f / 3;
                         if (!cr.isKilled && !cr.isPlayer)
+                        {
                             cr.ragdoll.SetState(Ragdoll.State.Destabilized);
+                        }
                         break;
-                    
+
                     case RagdollPart.Type.LeftWing:
                     case RagdollPart.Type.RightWing:
                     case RagdollPart.Type.Tail: //damage = damage/3, push(1)
@@ -363,9 +402,13 @@ public class FireMethods : MonoBehaviour
 
                 cr.TryPush(Creature.PushType.Hit, muzzle.forward, 0);
                 if (penetrated && data.slicesBodyParts && !cr.isPlayer && Slice(ragdollPart))
+                {
                     ragdollPart.TrySlice();
+                }
                 if (!penetrated)
+                {
                     damageModifier /= 4;
+                }
 
                 #endregion Damage level determination
 
@@ -392,7 +435,7 @@ public class FireMethods : MonoBehaviour
                 coll.damageStruct.hitRagdollPart = ragdollPart;
                 coll.intensity = EvaluateDamage(data.damagePerProjectile * damageModifier * damageMultiplier, cr);
                 coll.pressureRelativeVelocity = muzzle.forward * 200;
-                
+
                 try
                 {
                     if (WouldCreatureBeKilled(data.damagePerProjectile * damageModifier, cr) && !cr.isKilled && !killedCreatures.Contains(cr))
@@ -415,13 +458,19 @@ public class FireMethods : MonoBehaviour
                 #region Additional Effects
 
                 //Taser
-                if (data.isElectrifying) cr.TryElectrocute(data.tasingForce, data.tasingDuration, true, false, data.playTasingEffect ? Catalog.GetData<EffectData>("ImbueLightningRagdoll") : null);
+                if (data.isElectrifying)
+                {
+                    cr.TryElectrocute(data.tasingForce, data.tasingDuration, true, false, data.playTasingEffect ? Catalog.GetData<EffectData>("ImbueLightningRagdoll") : null);
+                }
 
                 //Force knockout
-                if ((data.forceDestabilize || data.isElectrifying) && !cr.isPlayer && !cr.isKilled) cr.ragdoll.SetState(Ragdoll.State.Destabilized);
+                if ((data.forceDestabilize || data.isElectrifying) && !cr.isPlayer && !cr.isKilled)
+                {
+                    cr.ragdoll.SetState(Ragdoll.State.Destabilized);
+                }
 
                 //RB Push
-                if (cr.isKilled && !cr.isPlayer && hit.Rigidbody != null)
+                if (cr.isKilled && !cr.isPlayer && hit.Rigidbody)
                 {
                     hit.Rigidbody.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
                     //cr.locomotion.rb.AddForce(muzzle.forward * data.forcePerProjectile, ForceMode.Impulse);
@@ -430,7 +479,10 @@ public class FireMethods : MonoBehaviour
                 //Stun
                 else if (!cr.isPlayer)
                 {
-                    if (data.forceIncapitate) cr.brain.AddNoStandUpModifier(gunItem);
+                    if (data.forceIncapitate)
+                    {
+                        cr.brain.AddNoStandUpModifier(gunItem);
+                    }
                     else if (data.knocksOutTemporarily)
                     {
                         gunItem.StartCoroutine(TemporaryKnockout(data.temporaryKnockoutTime, data.kockoutDelay, cr));
@@ -484,10 +536,10 @@ public class FireMethods : MonoBehaviour
         public Rigidbody Rigidbody;
         public Vector3 Normal;
         public Transform Transform;
-        
+
         public static explicit operator HitData(RaycastHit hit)
         {
-            return new HitData()
+            return new HitData
                    {
                        Collider = hit.collider,
                        Transform = hit.transform,
@@ -496,10 +548,10 @@ public class FireMethods : MonoBehaviour
                        Rigidbody = hit.rigidbody
                    };
         }
-        
+
         public static explicit operator HitData(CollisionInstance hit)
         {
-            return new HitData()
+            return new HitData
                    {
                        Collider = hit.targetCollider,
                        Transform = hit.targetCollider?.transform,
@@ -526,7 +578,10 @@ public class FireMethods : MonoBehaviour
 
     private static void DrawDecal(RagdollPart rp, HitData hit, string customDecal, bool isGore = true)
     {
-        if (Settings.disableGore && isGore) return;
+        if (Settings.disableGore && isGore)
+        {
+            return;
+        }
 
         EffectModuleReveal rem;
         if (string.IsNullOrWhiteSpace(customDecal))
@@ -539,12 +594,12 @@ public class FireMethods : MonoBehaviour
         }
 
         var controllers = new List<RevealMaterialController>();
-        foreach (var r in rp.renderers.Where(renderer => rem != null && renderer.revealDecal && (renderer.revealDecal.type == RevealDecal.Type.Default &&
-                                                                                                 rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Default) ||
-                                                                                                 renderer.revealDecal.type == RevealDecal.Type.Body &&
-                                                                                                 rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Body) ||
-                                                                                                 renderer.revealDecal.type == RevealDecal.Type.Outfit &&
-                                                                                                 rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Outfit))))
+        foreach (var r in rp.renderers.Where(renderer => rem is not null && renderer.revealDecal && ((renderer.revealDecal.type == RevealDecal.Type.Default &&
+                                                                                                       rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Default)) ||
+                                                                                                      (renderer.revealDecal.type == RevealDecal.Type.Body &&
+                                                                                                       rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Body)) ||
+                                                                                                      (renderer.revealDecal.type == RevealDecal.Type.Outfit &&
+                                                                                                       rem.typeFilter.HasFlag(EffectModuleReveal.TypeFilter.Outfit)))))
         {
             controllers.Add(r.revealDecal.revealMaterialController);
         }
@@ -560,11 +615,16 @@ public class FireMethods : MonoBehaviour
     private static void BloodSplatter(Vector3 origin, Vector3 direction, float force, int projectileCount, int penetrationPower, bool penetratedArmor)
     {
         if (Settings.disableGore || Settings.disableBloodSpatters || penetrationPower < 2 || !penetratedArmor)
+        {
             return;
+        }
 
         var layer = LayerMask.GetMask("Default", "DroppedItem", "MovingItem", "PlayerLocomotionObject");
         if (!Physics.Raycast(origin, direction, out var hit, force * projectileCount / 30, layer,
-                QueryTriggerInteraction.Ignore)) return;
+                QueryTriggerInteraction.Ignore))
+        {
+            return;
+        }
         var go = new GameObject("temp_" + Random.Range(0, 10000));
         go.transform.position = hit.point;
         go.transform.rotation = hit.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(hit.normal);
@@ -589,7 +649,9 @@ public class FireMethods : MonoBehaviour
         {
             item.StartCoroutine(FireItemCoroutine(thisSpawnedItem, item, firePoint, fireRotation, fireDir, data.muzzleVelocity));
             if (data.destroyTime != 0f)
+            {
                 thisSpawnedItem.Despawn(data.destroyTime);
+            }
         }, firePoint, fireRotation);
     }
 
@@ -626,8 +688,10 @@ public class FireMethods : MonoBehaviour
         //PHYSICS TOGGLE
         foreach (var locomotionHit in Physics.OverlapSphere(point, data.radius, LayerMask.GetMask("BodyLocomotion")))
         {
-            if (locomotionHit.GetComponentInParent<Creature>() == null)
+            if (!locomotionHit.GetComponentInParent<Creature>())
+            {
                 continue;
+            }
             var cr = locomotionHit.GetComponentInParent<Creature>();
             foreach (var part in cr.ragdoll.parts)
             {
@@ -644,21 +708,33 @@ public class FireMethods : MonoBehaviour
         foreach (var c in Physics.OverlapSphere(point, data.radius))
         {
             if (c.GetComponentInParent<Ragdoll>() is { } hitRag && !hitCreatures.Contains(hitRag.creature))
+            {
                 hitCreatures.Add(hitRag.creature);
+            }
             else if (c.GetComponentInParent<Item>() is { } hitItem && !hitItems.Contains(hitItem))
+            {
                 hitItems.Add(hitItem);
+            }
             if (c.GetComponentInParent<Shootable>() is { } sb && !hitShootables.Contains(sb))
+            {
                 hitShootables.Add(sb);
+            }
             if (c.GetComponentInParent<Breakable>() is { } br && !hitBreakables.Contains(br))
+            {
                 hitBreakables.Add(br);
+            }
             if (c.GetComponentInParent<SimpleBreakable>() is { } sbr && !hitSimpleBreakables.Contains(sbr))
+            {
                 hitSimpleBreakables.Add(sbr);
+            }
         }
 
         foreach (var hitCreature in hitCreatures)
         {
             if (!CheckExplosionCreatureHit(hitCreature, point))
+            {
                 continue;
+            }
             var coll = new CollisionInstance(new DamageStruct(DamageType.Pierce, EvaluateDamage(data.damage, hitCreature)));
             coll.damageStruct.damage = EvaluateDamage(data.damage, hitCreature);
             coll.damageStruct.damageType = DamageType.Energy;
@@ -672,10 +748,16 @@ public class FireMethods : MonoBehaviour
             coll.damageStruct.hitRagdollPart = hitCreature.ragdoll.parts[0];
             coll.intensity = EvaluateDamage(data.damage, hitCreature);
             try { hitCreature.Damage(coll); }
-            catch (Exception) { /*ignored*/ }
+            catch (Exception)
+            {
+                /*ignored*/
+            }
 
             hitCreature.locomotion.physicBody.rigidBody.AddExplosionForce(data.force, point, data.radius, data.upwardsModifier);
-            if (hitCreature.isKilled) hitCreature.StartCoroutine(ExplodeCreature(point, data, hitCreature));
+            if (hitCreature.isKilled)
+            {
+                hitCreature.StartCoroutine(ExplodeCreature(point, data, hitCreature));
+            }
         }
 
         foreach (var hitShootable in hitShootables) { hitShootable.Shoot(ProjectileData.PenetrationLevels.Kevlar); }
@@ -696,18 +778,23 @@ public class FireMethods : MonoBehaviour
     private static IEnumerator ExplodeCreature(Vector3 point, ExplosiveData data, Creature hitCreature)
     {
         if (hitCreature.isPlayer || !Settings.explosionsDismember || Settings.disableGore)
+        {
             yield break;
-        
+        }
+
         foreach (var rp in hitCreature.ragdoll.parts.ToArray().Reverse())
         {
             yield return new WaitForEndOfFrame();
 
-            if (Vector3.Distance(rp.transform.position, point) < (data.radius / 2) && Slice(rp))
+            if (Vector3.Distance(rp.transform.position, point) < data.radius / 2 && Slice(rp))
             {
                 rp.TrySlice();
                 rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 2);
             }
-            else rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 10);
+            else
+            {
+                rp.physicBody.rigidBody.AddForce((rp.physicBody.rigidBody.position - point).normalized * data.force * 10);
+            }
         }
     }
 
@@ -737,17 +824,23 @@ public class FireMethods : MonoBehaviour
         var colliderGroup = hit.Collider.GetComponentInParent<ColliderGroup>();
 
         if (colliderGroup)
+        {
             handler.mainCollisionHandler.MeshRaycast(colliderGroup, hit.Point, hit.Normal, direction, ref hitMaterialHash);
+        }
         if (hitMaterialHash == -1)
+        {
             hitMaterialHash = Animator.StringToHash(hit.Collider.material.name);
+        }
         TryGetMaterial(hitMaterialHash, out var matDat);
         return (int)RequiredPenetrationPowerData.GetRequiredLevel(matDat.id);
     }
 
     public static int GetRequiredPenetrationLevel(Collider collider)
     {
-        if (collider.material == null)
+        if (!collider.material)
+        {
             return 0;
+        }
 
         var hitMaterialHash = Animator.StringToHash(collider.material.name);
         TryGetMaterial(hitMaterialHash, out var matDat);
@@ -768,7 +861,10 @@ public class FireMethods : MonoBehaviour
                 targetMaterial = materialData;
             }
 
-            if (targetMaterial != null) return true;
+            if (targetMaterial is not null)
+            {
+                return true;
+            }
         }
 
         return false;

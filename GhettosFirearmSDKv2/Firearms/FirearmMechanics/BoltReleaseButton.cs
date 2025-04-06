@@ -24,7 +24,7 @@ public class BoltReleaseButton : MonoBehaviour
 
     private void Update()
     {
-        if (button != null)
+        if (button)
         {
             if (caught)
             {
@@ -41,13 +41,17 @@ public class BoltReleaseButton : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (release == null) return;
-        if (collision.contacts[0].thisCollider == release && collision.contacts[0].otherCollider.GetComponentInParent<Player>() != null)
+        if (!release)
+        {
+            return;
+        }
+        if (collision.contacts[0].thisCollider == release && collision.contacts[0].otherCollider.GetComponentInParent<Player>())
         {
             OnReleaseEvent?.Invoke(true);
         }
     }
 
     public delegate void OnReleaseDelegate(bool forced = false);
+
     public event OnReleaseDelegate OnReleaseEvent;
 }

@@ -7,7 +7,7 @@ namespace GhettosFirearmSDKv2;
 public class Holster : MonoBehaviour
 {
     private HolsterSaveData _data;
-        
+
     public Holder holder;
     public Item item;
 
@@ -16,7 +16,7 @@ public class Holster : MonoBehaviour
         holder.Snapped += HolderOnSnapped;
         holder.UnSnapped += HolderOnUnSnapped;
         item.OnDespawnEvent += ItemOnOnDespawnEvent;
-            
+
         if (!item.TryGetCustomData(out _data))
         {
             _data = new HolsterSaveData();

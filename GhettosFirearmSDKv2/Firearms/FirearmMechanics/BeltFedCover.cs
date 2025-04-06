@@ -8,7 +8,7 @@ namespace GhettosFirearmSDKv2;
 public class BeltFedCover : Lock
 {
     private const float Threshold = 4f;
-        
+
     public Transform axis;
     public Rigidbody rb;
     public Transform closedPosition;
@@ -21,14 +21,14 @@ public class BeltFedCover : Lock
 
     public float minAngle;
     public float maxAngle;
-        
+
     public BoltBase.BoltState state = BoltBase.BoltState.Locked;
     public bool preventGrab;
     public List<MagazineWell> magazineWells;
 
     private HingeJoint _joint;
     private bool _locked;
-        
+
     private void Start()
     {
         Invoke(nameof(InvokedStart), 1f);
@@ -43,37 +43,45 @@ public class BeltFedCover : Lock
             coverHandle.customRigidBody = rb;
         }
     }
-        
+
     private void FixedUpdate()
     {
         ChangeState();
-        if (_joint == null)
+        if (!_joint)
+        {
             return;
+        }
         if (!coverHandles.Any(h => h.handlers.Count > 0))
         {
             if (!_locked)
+            {
                 Lock();
+            }
             return;
         }
         if (_locked)
         {
             Unlock();
         }
-            
+
         var target = Mathf.Clamp(Util.NormalizeAngle(rb.transform.localEulerAngles.x), minAngle, maxAngle);
         axis.localEulerAngles = new Vector3(target, 0, 0);
 
         if (Quaternion.Angle(axis.localRotation, closedPosition.localRotation) <= Threshold)
         {
             if (state == BoltBase.BoltState.Locked)
+            {
                 return;
+            }
             state = BoltBase.BoltState.Locked;
             Util.PlayRandomAudioSource(closeSounds);
         }
         else if (Quaternion.Angle(axis.localRotation, openedPosition.localRotation) <= Threshold)
         {
             if (state == BoltBase.BoltState.Back)
+            {
                 return;
+            }
             state = BoltBase.BoltState.Back;
             Util.PlayRandomAudioSource(openSounds);
         }
@@ -91,7 +99,9 @@ public class BeltFedCover : Lock
     private void Lock()
     {
         if (_locked)
+        {
             return;
+        }
         if (state == BoltBase.BoltState.Locked)
         {
             axis.localRotation = closedPosition.localRotation;
@@ -105,7 +115,9 @@ public class BeltFedCover : Lock
     private void Unlock()
     {
         if (!_locked)
+        {
             return;
+        }
         _locked = false;
         _joint.limits = new JointLimits { min = minAngle, max = maxAngle };
     }
@@ -139,7 +151,7 @@ public class BeltFedCover : Lock
             {
                 foreach (var handle in well.currentMagazine.handles)
                 {
-                    handle.SetTouch(GetIsUnlocked()); 
+                    handle.SetTouch(GetIsUnlocked());
                     handle.SetTelekinesis(GetIsUnlocked());
                 }
             }

@@ -23,37 +23,48 @@ public class Trigger : MonoBehaviour
 
     [Space]
     public bool fireModeSelectionMode;
+
     public float secondModePullWeight = 0.9f;
     public Transform secondModePulledPosition;
     public FirearmBase.FireModes firstMode;
     public FirearmBase.FireModes secondMode;
     private bool _onSecondMode;
+
     [Space]
     public FiremodeSelector selector;
+
     public int[] allowedIndexesForSecondMode;
 
     private const float SecondModeTriggerPull = 0.9f;
 
     private void Start()
     {
-        if (firearm != null) 
+        if (firearm)
+        {
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
+        }
     }
 
     private void Firearm_OnTriggerChangeEvent(bool isPulled)
     {
         if (!triggerEnabled)
+        {
             return;
-            
+        }
+
         if (isPulled)
         {
             if (firearm && pullSound && !firearm.item.holder)
+            {
                 pullSound.Play();
+            }
         }
         else
         {
             if (firearm && resetSound && !firearm.item.holder)
+            {
                 resetSound.Play();
+            }
         }
     }
 
@@ -64,9 +75,11 @@ public class Trigger : MonoBehaviour
             firearm = f;
             firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
         }
-            
+
         if (!triggerEnabled)
+        {
             return;
+        }
 
         var highestPull = 0f;
         if (firearm)
@@ -78,7 +91,9 @@ public class Trigger : MonoBehaviour
                     if (!firearm.HeldByAI())
                     {
                         if (PlayerControl.GetHand(h.handlers[0].side).useAxis > highestPull)
+                        {
                             highestPull = PlayerControl.GetHand(h.handlers[0].side).useAxis;
+                        }
 
                         float weight;
                         if (PlayerControl.GetHand(h.handlers[0].side).usePressed)
@@ -87,9 +102,13 @@ public class Trigger : MonoBehaviour
                             lastTriggerPull = Time.time;
                         }
                         else if (Time.time - lastTriggerPull <= Settings.triggerDisciplineTime)
+                        {
                             weight = onTriggerWeight;
+                        }
                         else
+                        {
                             weight = 0f;
+                        }
 
                         h.handlers[0].poser.SetTargetWeight(weight);
                     }
@@ -102,32 +121,38 @@ public class Trigger : MonoBehaviour
                             lastTriggerPull = Time.time;
                         }
                         else if (Time.time - lastTriggerPull <= Settings.triggerDisciplineTime)
+                        {
                             weight = onTriggerWeight;
+                        }
                         else
+                        {
                             weight = 0f;
-                            
+                        }
+
                         h.handlers[0].poser.SetTargetWeight(weight);
                     }
                 }
             }
         }
-            
+
         UpdateTriggerPosition(highestPull);
     }
 
     private void UpdateTriggerPosition(float pull)
     {
         var target = GetTarget(pull);
-            
-        if (trigger == null || pulledPosition == null || idlePosition == null)
+
+        if (!trigger || !pulledPosition || !idlePosition)
+        {
             return;
-            
+        }
+
         trigger.SetPositionAndRotation(target.position, target.rotation);
     }
 
     private Transform GetTarget(float pull)
     {
-        if (fireModeSelectionMode && (selector == null || allowedIndexesForSecondMode.Contains(selector.currentIndex)))
+        if (fireModeSelectionMode && (!selector || allowedIndexesForSecondMode.Contains(selector.currentIndex)))
         {
             var actual = pull + Settings.progressiveTriggerDeadZone;
             if (actual > SecondModeTriggerPull)

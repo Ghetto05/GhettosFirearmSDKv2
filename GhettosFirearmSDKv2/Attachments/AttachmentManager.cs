@@ -6,16 +6,45 @@ namespace GhettosFirearmSDKv2.Attachments;
 
 public class AttachmentManager : MonoBehaviour, IAttachmentManager
 {
-    public Item Item => item;
-    public Transform Transform => transform;
-    public FirearmSaveData SaveData { get; set; }
+    public Item Item
+    {
+        get
+        {
+            return item;
+        }
+    }
+
+    public Transform Transform
+    {
+        get
+        {
+            return transform;
+        }
+    }
+
+    public FirearmSaveData SaveData
+    {
+        get;
+        set;
+    }
 
     public List<AttachmentPoint> AttachmentPoints
     {
-        get => attachmentPoints;
-        set => attachmentPoints = value;
+        get
+        {
+            return attachmentPoints;
+        }
+        set
+        {
+            attachmentPoints = value;
+        }
     }
-    public List<Attachment> CurrentAttachments { get; set; }
+
+    public List<Attachment> CurrentAttachments
+    {
+        get;
+        set;
+    }
 
     public Item item;
     public List<AttachmentPoint> attachmentPoints;
@@ -31,7 +60,9 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
         var e = new IAttachmentManager.HeldActionData(ragdollHand, handle, action);
         OnHeldAction?.Invoke(e);
         if (!e.Handled)
+        {
             OnUnhandledHeldAction?.Invoke(e);
+        }
     }
 
     private void InvokedStart()

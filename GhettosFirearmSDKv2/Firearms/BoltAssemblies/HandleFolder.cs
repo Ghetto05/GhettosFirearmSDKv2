@@ -28,22 +28,28 @@ public class HandleFolder : MonoBehaviour
                 var it = GetComponentInParent<Item>();
                 for (var x = 0; x < it.handles.Count; x++)
                 {
-                    if (it.handles[x].gameObject.name.Equals(handleNames[i])) handles.Add(it.handles[x]);
+                    if (it.handles[x].gameObject.name.Equals(handleNames[i]))
+                    {
+                        handles.Add(it.handles[x]);
+                    }
                 }
             }
         }
     }
 
     private bool _firstDebug = true;
+
     private void Update()
     {
         var held = false;
         foreach (var h in handles)
         {
             if (!h)
-            { 
+            {
                 if (_firstDebug)
+                {
                     Debug.LogError("Null handle on handle folder on " + (GetComponentInParent<Attachment>()?.name ?? GetComponentInParent<Item>()?.name));
+                }
                 _firstDebug = false;
                 return;
             }
@@ -67,15 +73,21 @@ public class HandleFolder : MonoBehaviour
                 catch (Exception)
                 {
                     if (!positions.Any())
-                        Debug.Log($"Position array is empty! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() != null ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
+                    {
+                        Debug.Log($"Position array is empty! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
+                    }
                     else if (!handles.Any())
-                        Debug.Log($"Handle array is empty! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() != null ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
+                    {
+                        Debug.Log($"Handle array is empty! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
+                    }
                     else
-                        Debug.Log($"Unknown error! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() != null ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
+                    {
+                        Debug.Log($"Unknown error! (Handle folder ---- {transform.name} ---- {(GetComponentInParent<Attachment>() ? GetComponentInParent<Attachment>().gameObject.name : GetComponentInParent<Item>().gameObject.name)})");
+                    }
                 }
             }
         }
-        if (!held && defaultPosition != null)
+        if (!held && defaultPosition)
         {
             if (parentToPosition)
             {

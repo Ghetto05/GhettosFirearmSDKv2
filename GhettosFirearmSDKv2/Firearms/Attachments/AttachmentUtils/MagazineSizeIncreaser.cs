@@ -13,15 +13,23 @@ public class MagazineSizeIncreaser : MonoBehaviour
 
     private void Awake()
     {
-        if (attachment.initialized) Attachment_OnDelayedAttachEvent();
-        else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        if (attachment.initialized)
+        {
+            Attachment_OnDelayedAttachEvent();
+        }
+        else
+        {
+            attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        }
         attachment.OnDetachEvent += Attachment_OnDetachEvent;
     }
 
     private void Attachment_OnDetachEvent(bool despawnDetach)
     {
         if (_magazine)
+        {
             Revert();
+        }
     }
 
     private void Attachment_OnDelayedAttachEvent()
@@ -42,7 +50,9 @@ public class MagazineSizeIncreaser : MonoBehaviour
     public void Apply()
     {
         if (!_magazine)
+        {
             return;
+        }
         _previousSize = _magazine.maximumCapacity;
         if (useDeltaInsteadOfFixed)
         {
@@ -57,7 +67,9 @@ public class MagazineSizeIncreaser : MonoBehaviour
     public void Revert()
     {
         if (!_magazine)
+        {
             return;
+        }
         _magazine.maximumCapacity = _previousSize;
         while (_magazine.cartridges.Count > _magazine.maximumCapacity)
         {

@@ -14,13 +14,16 @@ public class ImpactDetonator : Explosive
     public float selfDestructDelay;
     private bool _armed;
     private Vector3 _startPoint;
-    private float _clearance = 0.3f;
+    private readonly float _clearance = 0.3f;
 
     private float _startTime;
 
     private void Awake()
     {
-        if (startAtAwake) StartArming();
+        if (startAtAwake)
+        {
+            StartArming();
+        }
         _startPoint = transform.position;
     }
 
@@ -40,7 +43,7 @@ public class ImpactDetonator : Explosive
     {
         if (IsArmed() && TriggerColliderHit(collision))
         {
-            if (explosive != null)
+            if (explosive)
             {
                 explosive.Detonate(delay);
                 explosive.impactNormal = collision.contacts[0].normal;
@@ -57,7 +60,10 @@ public class ImpactDetonator : Explosive
     {
         foreach (var c in triggers)
         {
-            if (Util.CheckForCollisionWithThisCollider(collision, c)) return true;
+            if (Util.CheckForCollisionWithThisCollider(collision, c))
+            {
+                return true;
+            }
         }
         return false;
     }

@@ -8,6 +8,7 @@ namespace GhettosFirearmSDKv2;
 public class ImprovedLazyPouch : MonoBehaviour
 {
     public static event SavedAmmoItemChanged SavedAmmoItemChangedEvent;
+
     public delegate void SavedAmmoItemChanged(FirearmBase firearm);
 
     public static void InvokeAmmoItemChanged(FirearmBase firearm)
@@ -45,7 +46,9 @@ public class ImprovedLazyPouch : MonoBehaviour
     private void PouchItemOnOnDespawnEvent(EventTime eventTime)
     {
         if (eventTime == EventTime.OnEnd)
+        {
             return;
+        }
 
         holder.Snapped -= Holder_Snapped;
         holder.UnSnapped -= Holder_UnSnapped;
@@ -57,17 +60,23 @@ public class ImprovedLazyPouch : MonoBehaviour
     private void Update()
     {
         if (!_initialized || !Player.local?.creature?.ragdoll)
+        {
             return;
+        }
 
         var held = GetHeldFirearm();
         var last = _lastFrameHeldFirearm;
         _lastFrameHeldFirearm = held;
 
         if (held)
+        {
             _lastHeldFirearm = held;
+        }
 
-        if (!held || held.GetAmmoItem() == null)
+        if (!held || held.GetAmmoItem() is null)
+        {
             return;
+        }
 
         if (held != last)
         {
@@ -82,17 +91,19 @@ public class ImprovedLazyPouch : MonoBehaviour
     {
         var heldHandleDominant = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
         var heldHandleNonDominant = Player.local.GetHand(Handle.dominantHand).ragdollHand.otherHand.grabbedHandle;
-            
+
         FirearmBase firearm;
 
         if (!heldHandleDominant && !heldHandleNonDominant)
+        {
             return null;
-            
+        }
+
         FirearmBase heldDominant = heldHandleDominant?.GetComponentInParent<Firearm>();
         FirearmBase heldAttachmentDominant = heldHandleDominant?.GetComponentInParent<AttachmentFirearm>();
         FirearmBase heldOffhand = heldHandleNonDominant?.GetComponentInParent<Firearm>();
         FirearmBase heldAttachmentOffhand = heldHandleNonDominant?.GetComponentInParent<AttachmentFirearm>();
-            
+
         if (heldHandleDominant && heldDominant && !heldAttachmentDominant)
         {
             firearm = heldDominant;
@@ -113,7 +124,7 @@ public class ImprovedLazyPouch : MonoBehaviour
         {
             firearm = null;
         }
-            
+
         return firearm;
     }
 
@@ -158,7 +169,9 @@ public class ImprovedLazyPouch : MonoBehaviour
     private void OnSavedAmmoItemChangedEvent(FirearmBase firearm)
     {
         if (_lastFrameHeldFirearm != firearm)
+        {
             return;
+        }
         _lastFrameHeldFirearm = null;
     }
 }

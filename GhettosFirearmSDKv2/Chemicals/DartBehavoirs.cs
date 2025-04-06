@@ -23,19 +23,27 @@ public class DartBehavoirs : MonoBehaviour
     private void Awake()
     {
         if (cartridge)
+        {
             cartridge.OnFiredWithHitPointsAndMuzzleAndCreatures += Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures;
-            
+        }
+
         if (projectile)
+        {
             projectile.HitEvent += ProjectileOnHitEvent;
+        }
     }
 
     private void OnDestroy()
     {
         if (cartridge)
+        {
             cartridge.OnFiredWithHitPointsAndMuzzleAndCreatures -= Cartridge_OnFiredWithHitPointsAndMuzzleAndCreatures;
-            
+        }
+
         if (projectile)
+        {
             projectile.HitEvent -= ProjectileOnHitEvent;
+        }
     }
 
     private void ProjectileOnHitEvent(List<Creature> hitCreatures, List<Creature> killedCreatures)
@@ -45,12 +53,15 @@ public class DartBehavoirs : MonoBehaviour
             case Behaviours.Gun:
                 Gun(hitCreatures);
                 break;
+
             case Behaviours.MissingTextures:
                 MissingTexture(hitCreatures);
                 break;
+
             case Behaviours.Heal:
                 Heal(hitCreatures);
                 break;
+
             case Behaviours.Poison:
                 Poison(hitCreatures);
                 break;
@@ -64,12 +75,15 @@ public class DartBehavoirs : MonoBehaviour
             case Behaviours.Gun:
                 Gun(hitCreatures);
                 break;
+
             case Behaviours.MissingTextures:
                 MissingTexture(hitCreatures);
                 break;
+
             case Behaviours.Heal:
                 Heal(hitCreatures);
                 break;
+
             case Behaviours.Poison:
                 Poison(hitCreatures);
                 break;
@@ -112,7 +126,9 @@ public class DartBehavoirs : MonoBehaviour
             var v = c.ragdoll.GetPart(RagdollPart.Type.Torso).bone.mesh.position;
             c.Despawn();
             if (GunLockerSaveData.allPrebuilts.Count > 0)
+            {
                 GunLockerSaveData.allPrebuilts[Random.Range(0, GunLockerSaveData.allPrebuilts.Count - 1)].SpawnAsync(_ => { }, v + Vector3.up);
+            }
         }
     }
 
@@ -127,6 +143,7 @@ public class DartBehavoirs : MonoBehaviour
     private IEnumerator PoisonIE(Creature c)
     {
         yield return new WaitForSeconds(2f);
+
         while (!c.isKilled)
         {
             c.Damage(new CollisionInstance(new DamageStruct(DamageType.Energy, FireMethods.EvaluateDamage(5, c))));

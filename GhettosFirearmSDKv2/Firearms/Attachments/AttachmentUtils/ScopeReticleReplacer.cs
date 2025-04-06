@@ -6,7 +6,7 @@ public class ScopeReticleReplacer : MonoBehaviour
 {
     public Attachment attachment;
     public MeshRenderer newReticle;
-    
+
     private Scope _scope;
     private MeshRenderer _oldReticle;
 
@@ -20,8 +20,10 @@ public class ScopeReticleReplacer : MonoBehaviour
         _scope = GetComponentInParent<Scope>();
 
         if (!_scope)
+        {
             return;
-        
+        }
+
         attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
 
         _oldReticle = _scope.lens;
@@ -35,8 +37,10 @@ public class ScopeReticleReplacer : MonoBehaviour
     private void AttachmentOnOnDetachEvent(bool despawnDetach)
     {
         if (despawnDetach)
+        {
             return;
-        
+        }
+
         _oldReticle.gameObject.SetActive(true);
         _scope.lens = _oldReticle;
         _scope.lenses.Remove(newReticle);

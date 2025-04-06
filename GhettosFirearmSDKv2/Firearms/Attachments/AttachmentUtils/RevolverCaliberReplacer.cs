@@ -14,15 +14,19 @@ public class RevolverCaliberReplacer : MonoBehaviour
 
     private BoltBase _bolt;
     private FirearmBase _firearm;
-        
+
     private void Awake()
     {
         if (attachment.initialized)
+        {
             Attachment_OnDelayedAttachEvent();
+        }
         else
+        {
             attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        }
 
-        _newAmmoItem = new ItemSaveData() { ItemID = newAmmoItem };
+        _newAmmoItem = new ItemSaveData { ItemID = newAmmoItem };
     }
 
     private void Attachment_OnDelayedAttachEvent()
@@ -30,37 +34,51 @@ public class RevolverCaliberReplacer : MonoBehaviour
         attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
 
         if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
+        {
             return;
+        }
 
         _firearm = f;
-            
+
         _bolt = !attachment.attachmentPoint ? null : f ? f.bolt : null;
-        if (!_bolt )
+        if (!_bolt)
+        {
             return;
-            
+        }
+
         if (_bolt.GetType() == typeof(Revolver))
+        {
             ApplyRevolver();
+        }
         else if (_bolt.GetType() == typeof(GateLoadedRevolver))
+        {
             ApplyGateLoaded();
+        }
         else
+        {
             return;
-                
+        }
+
         attachment.OnDetachEvent += Attachment_OnDetachEvent;
     }
 
     private void Attachment_OnDetachEvent(bool despawnDetach)
     {
         attachment.OnDetachEvent -= Attachment_OnDetachEvent;
-            
+
         if (_bolt.GetType() == typeof(Revolver))
+        {
             RevertRevolver(despawnDetach);
+        }
         else if (_bolt.GetType() == typeof(GateLoadedRevolver))
+        {
             RevertGateLoaded(despawnDetach);
+        }
     }
 
     public void ApplyRevolver()
     {
-        if (newCalibers != null && newCalibers.Length > 0)
+        if (newCalibers is not null && newCalibers.Length > 0)
         {
             _originalCalibers = ((Revolver)_firearm.bolt).calibers.ToArray();
             ((Revolver)_firearm.bolt).calibers = newCalibers.ToList();
@@ -75,7 +93,7 @@ public class RevolverCaliberReplacer : MonoBehaviour
 
     public void ApplyGateLoaded()
     {
-        if (newCalibers != null && newCalibers.Length > 0)
+        if (newCalibers is not null && newCalibers.Length > 0)
         {
             _originalCalibers = ((GateLoadedRevolver)_firearm.bolt).calibers.ToArray();
             ((GateLoadedRevolver)_firearm.bolt).calibers = newCalibers;
@@ -91,9 +109,11 @@ public class RevolverCaliberReplacer : MonoBehaviour
     public void RevertRevolver(bool despawn)
     {
         if (despawn)
+        {
             return;
-            
-        if (newCalibers != null && newCalibers.Length > 0)
+        }
+
+        if (newCalibers is not null && newCalibers.Length > 0)
         {
             ((Revolver)_firearm.bolt).calibers = _originalCalibers.ToList();
         }
@@ -107,9 +127,11 @@ public class RevolverCaliberReplacer : MonoBehaviour
     public void RevertGateLoaded(bool despawn)
     {
         if (despawn)
+        {
             return;
-            
-        if (newCalibers != null && newCalibers.Length > 0)
+        }
+
+        if (newCalibers is not null && newCalibers.Length > 0)
         {
             ((GateLoadedRevolver)_firearm.bolt).calibers = _originalCalibers;
         }

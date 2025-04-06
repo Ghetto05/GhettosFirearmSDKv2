@@ -16,12 +16,12 @@ public class Util
     {
         return new Vector3(0, 0, Random.Range(0f, 360f));
     }
-        
+
     public static Vector3 RandomRotation()
     {
         return new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
     }
-        
+
     public static void RandomizeZRotation(Transform target)
     {
         var randomAngle = Random.Range(0f, 360f);
@@ -36,17 +36,19 @@ public class Util
     public static bool AllowLoadCartridge(Cartridge cartridge, IAmmunitionLoadable magazine)
     {
         if (!Settings.doCaliberChecks && !magazine.GetForceCorrectCaliber())
+        {
             return true;
+        }
 
         return AllowLoadCartridge(cartridge.caliber, magazine);
     }
 
     public static bool AllowLoadCartridge(string cartridgeCaliber, IAmmunitionLoadable magazine, bool ignoreSameCaliber = false)
     {
-        var correctCaliber = 
-            CheckCaliberMatch(cartridgeCaliber, magazine.GetCaliber(), magazine.GetForceCorrectCaliber()) || 
+        var correctCaliber =
+            CheckCaliberMatch(cartridgeCaliber, magazine.GetCaliber(), magazine.GetForceCorrectCaliber()) ||
             CheckCaliberMatch(cartridgeCaliber, magazine.GetAlternativeCalibers(), magazine.GetForceCorrectCaliber());
-        var magHasSameCaliber = ignoreSameCaliber || magazine.GetLoadedCartridges() == null || !magazine.GetLoadedCartridges().Any() || (magazine.GetLoadedCartridges().FirstOrDefault()?.caliber.Equals(cartridgeCaliber) ?? true);
+        var magHasSameCaliber = ignoreSameCaliber || magazine.GetLoadedCartridges() is null || !magazine.GetLoadedCartridges().Any() || (magazine.GetLoadedCartridges().FirstOrDefault()?.caliber.Equals(cartridgeCaliber) ?? true);
         return correctCaliber && magHasSameCaliber;
     }
 
@@ -54,16 +56,20 @@ public class Util
     {
         return CheckCaliberMatch(cartridgeCaliber, otherCaliber);
     }
-        
+
     public static bool CheckCaliberMatch(string insertedCaliber, List<string> targetCalibers, bool ignoreCheat = false)
     {
-        if (targetCalibers == null)
+        if (targetCalibers is null)
+        {
             return false;
-            
+        }
+
         foreach (var targetCaliber in targetCalibers)
         {
             if (CheckCaliberMatch(insertedCaliber, targetCaliber, ignoreCheat))
+            {
                 return true;
+            }
         }
 
         return false;
@@ -72,25 +78,38 @@ public class Util
     public static bool CheckCaliberMatch(string insertedCaliber, string targetCaliber, bool ignoreCheat = false)
     {
         if (!Settings.doCaliberChecks && !ignoreCheat)
+        {
             return true;
+        }
         if (insertedCaliber.Equals("DEBUG UNIVERSAL"))
+        {
             return true;
+        }
         return insertedCaliber.Equals(targetCaliber) || CaliberSubstituteData.AllowSubstitution(insertedCaliber, targetCaliber);
     }
 
     public static bool AllowLoadMagazine(Magazine magazine, MagazineWell well)
     {
         if (magazine.currentWell || magazine.item.holder || well.currentMagazine)
+        {
             return false;
+        }
         if (!Settings.doMagazineTypeChecks)
+        {
             return true;
+        }
         if (magazine.magazineType.Equals("DEBUG UNIVERSAL"))
+        {
             return true;
+        }
 
         var sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
         foreach (var t in well.alternateMagazineTypes)
         {
-            if (t.Equals(magazine.magazineType)) sameType = true;
+            if (t.Equals(magazine.magazineType))
+            {
+                sameType = true;
+            }
         }
         var compatibleCaliber = magazine.cartridges.Count == 0 ||
                                 !Settings.doCaliberChecks ||
@@ -113,39 +132,51 @@ public class Util
 
     public static bool CheckForCollisionWithColliders(List<Collider> theseColliders, List<Collider> otherColliders, Collision collision)
     {
-        if (theseColliders != null && otherColliders == null)
+        if (theseColliders is not null && otherColliders is null)
         {
             foreach (var con in collision.contacts)
             {
                 foreach (var c in theseColliders)
                 {
-                    if (c == con.thisCollider) return true;
+                    if (c == con.thisCollider)
+                    {
+                        return true;
+                    }
                 }
             }
         }
-        else if (theseColliders == null && otherColliders != null)
+        else if (theseColliders is null && otherColliders is not null)
         {
             foreach (var con in collision.contacts)
             {
                 foreach (var c in otherColliders)
                 {
-                    if (c == con.otherCollider) return true;
+                    if (c == con.otherCollider)
+                    {
+                        return true;
+                    }
                 }
             }
         }
-        else if (theseColliders != null)
+        else if (theseColliders is not null)
         {
             foreach (var con in collision.contacts)
             {
                 var thisColliderFound = false;
                 foreach (var thisCollider in theseColliders)
                 {
-                    if (thisCollider == con.thisCollider) thisColliderFound = true;
+                    if (thisCollider == con.thisCollider)
+                    {
+                        thisColliderFound = true;
+                    }
                 }
 
                 foreach (var otherCollider in otherColliders)
                 {
-                    if (otherCollider == con.otherCollider && thisColliderFound) return true;
+                    if (otherCollider == con.otherCollider && thisColliderFound)
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -157,7 +188,10 @@ public class Util
     {
         foreach (var con in collision.contacts)
         {
-            if (con.thisCollider == thisCollider) return true;
+            if (con.thisCollider == thisCollider)
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -166,7 +200,10 @@ public class Util
     {
         foreach (var con in collision.contacts)
         {
-            if (con.otherCollider == otherCollider) return true;
+            if (con.otherCollider == otherCollider)
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -175,14 +212,20 @@ public class Util
     {
         foreach (var con in collision.contacts)
         {
-            if (con.thisCollider == thisCollider && con.otherCollider == otherCollider) return true;
+            if (con.thisCollider == thisCollider && con.otherCollider == otherCollider)
+            {
+                return true;
+            }
         }
         return false;
     }
 
     public static void IgnoreCollision(GameObject obj1, GameObject obj2, bool ignore)
     {
-        if (obj1 == null || obj2 == null) return;
+        if (!obj1 || !obj2)
+        {
+            return;
+        }
         try
         {
             foreach (var c1 in obj1.GetComponentsInChildren<Collider>())
@@ -207,13 +250,14 @@ public class Util
     private static IEnumerator DelayIgnoreCollisionCoroutine(GameObject obj1, GameObject obj2, bool ignore, float delay)
     {
         yield return new WaitForSeconds(delay);
+
         IgnoreCollision(obj1, obj2, ignore);
     }
 
     public static AudioSource PlayRandomAudioSource(List<AudioSource> sources)
     {
         var source = GetRandomFromList(sources);
-        if (source != null)
+        if (source)
         {
             source.PlayOneShot(source.clip);
             return source;
@@ -221,18 +265,27 @@ public class Util
         return null;
     }
 
-    public static AudioSource PlayRandomAudioSource(AudioSource[] sources) => PlayRandomAudioSource(sources.ToList());
+    public static AudioSource PlayRandomAudioSource(AudioSource[] sources)
+    {
+        return PlayRandomAudioSource(sources.ToList());
+    }
 
     public static T GetRandomFromList<T>(List<T> list)
     {
-        if (list == null || list.Count == 0) return default;
+        if (list is null || list.Count == 0)
+        {
+            return default;
+        }
         var i = Random.Range(0, list.Count);
         return list[i];
     }
 
     public static T GetRandomFromList<T>(IList<T> array)
     {
-        if (array == null) return default;
+        if (array is null)
+        {
+            return default;
+        }
         return GetRandomFromList(array.ToList());
     }
 
@@ -254,6 +307,7 @@ public class Util
     private static IEnumerator DelayedExecuteIE(float delay, Action action)
     {
         yield return new WaitForSeconds(delay);
+
         action.Invoke();
     }
 
@@ -261,7 +315,10 @@ public class Util
     {
         foreach (var l in locks)
         {
-            if (!l.IsUnlocked()) return false;
+            if (!l.IsUnlocked())
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -271,24 +328,29 @@ public class Util
         foreach (Transform parent1 in parent)
         {
             if (parent1.gameObject.name.Equals(childName))
+            {
                 return parent1;
+            }
             var child = RecursiveFindChild(parent1, childName);
-            if (child != null)
+            if (child)
+            {
                 return child;
+            }
         }
         return null;
     }
-        
+
     public static void UpdateLightVolumeReceiver(LightVolumeReceiver receiverToBeUpdated, LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
     {
         var method = typeof(LightVolumeReceiver).GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
         method?.Invoke(receiverToBeUpdated, new object[] { currentLightProbeVolume, lightProbeVolumes });
     }
-        
+
     /**
      * <summary>
-     * Function to normalize angles to be within [-180, 180]
-     * </summary>>
+     *     Function to normalize angles to be within [-180, 180]
+     * </summary>
+     * >
      */
     public static float NormalizeAngle(float angle)
     {
@@ -315,9 +377,11 @@ public class Util
 
     public static void ApplyAudioConfig(ICollection<AudioSource> sources, bool suppressed = false)
     {
-        if (Player.local == null || Player.local.head == null || Player.local.head.cam == null)
+        if (!Player.local || !Player.local.head || !Player.local.head.cam)
+        {
             return;
-            
+        }
+
         float range = 800;
         foreach (var source in sources)
         {
@@ -335,9 +399,13 @@ public class Util
 
             var distance = Vector3.Distance(source.transform.position, Player.local.head.cam.transform.position);
             if (distance <= 2)
+            {
                 source.volume *= 1;
+            }
             else if (distance >= range)
+            {
                 source.volume *= 0;
+            }
             else
             {
                 var decayFactor = Mathf.Exp(-distance / 50);
@@ -357,7 +425,9 @@ public class Util
                                  Item.Owner owner = Item.Owner.None)
     {
         if (string.IsNullOrWhiteSpace(id))
+        {
             return;
+        }
         Catalog.GetData<ItemData>(GetSubstituteId(id, handler), Settings.debugMode)?.SpawnAsync(callback, position, rotation, parent, pooled, customDataList, owner);
     }
 
@@ -366,13 +436,13 @@ public class Util
 
     public static string GetSubstituteId(string id, string handler, bool hideDebug = false)
     {
-        if (_obsoleteIdData == null && !_triedLoadingObsoleteIds)
+        if (_obsoleteIdData is null && !_triedLoadingObsoleteIds)
         {
             _triedLoadingObsoleteIds = true;
             _obsoleteIdData = Catalog.GetDataList<ObsoleteIdData>().FirstOrDefault();
         }
 
-        if (_obsoleteIdData != null)
+        if (_obsoleteIdData is not null)
         {
             if (_obsoleteIdData.IdMatches.TryGetValue(id, out var substituteId))
             {
@@ -399,7 +469,7 @@ public class Util
     {
         var output = new StringBuilder();
 
-        if (obj == null)
+        if (obj is null)
         {
             Debug.Log("The object is null.");
             return;
@@ -449,22 +519,31 @@ public class Util
         return malfunctionEnabled && !heldByAI && threashold >= random;
     }
 
-    public static void AddInfoToBuilder(string name, object data, StringBuilder builder) => AddInfoToBuilder(name, new[] {data}, builder);
+    public static void AddInfoToBuilder(string name, object data, StringBuilder builder)
+    {
+        AddInfoToBuilder(name, new[] { data }, builder);
+    }
 
     public static void AddInfoToBuilder(string name, IEnumerable<object> data, StringBuilder builder, bool ignoreEmpty = true)
     {
         var dataList = data?.ToList();
         var empty = dataList?.Any() != true;
         if (empty && ignoreEmpty)
+        {
             return;
+        }
         builder.Append(name);
         builder.Append(": ");
         if (empty)
+        {
             return;
+        }
         for (var i = 0; i < dataList.Count; i++)
         {
             if (i != 0)
+            {
                 builder.Append(", ");
+            }
             builder.Append(dataList[i]);
         }
         builder.AppendLine();

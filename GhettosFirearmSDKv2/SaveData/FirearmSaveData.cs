@@ -49,7 +49,7 @@ public class FirearmSaveData : ContentCustomData
         {
             foreach (var v in Values)
             {
-                if (v != null && v.ID.Equals(id))
+                if (v is not null && v.ID.Equals(id))
                 {
                     value = v as T;
                     return true;
@@ -64,7 +64,7 @@ public class FirearmSaveData : ContentCustomData
             SaveNodeValue value = GetOrAddValue(id, newObject, out _);
             return value as T;
         }
-            
+
         public T GetOrAddValue<T>(string id, T newObject, out bool addedNew) where T : SaveNodeValue
         {
             SaveNodeValue value;
@@ -86,12 +86,15 @@ public class FirearmSaveData : ContentCustomData
             SaveNodeValue vtd = null;
             foreach (var v in Values)
             {
-                if (v != null && v.ID.Equals(id))
+                if (v?.ID?.Equals(id) == true)
                 {
                     vtd = v;
                 }
             }
-            if (vtd != null) Values.Remove(vtd);
+            if (vtd is not null)
+            {
+                Values.Remove(vtd);
+            }
         }
     }
 }

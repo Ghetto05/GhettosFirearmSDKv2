@@ -32,6 +32,7 @@ public class TracerModule : MonoBehaviour
     public IEnumerator DelayedDestroy()
     {
         yield return new WaitForSeconds(20f);
+
         Destroy(gameObject);
     }
 }

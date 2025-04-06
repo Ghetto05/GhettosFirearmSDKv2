@@ -11,6 +11,7 @@ public class UIAttachment : MonoBehaviour
 {
     [NonSerialized]
     public AttachmentData Data;
+
     public Image icon;
     public TextMeshProUGUI nameText;
     public Button selectButton;

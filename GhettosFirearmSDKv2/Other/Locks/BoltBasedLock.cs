@@ -16,12 +16,18 @@ public class BoltBasedLock : Lock
     {
         if (filter == Filters.LockAlwaysExcept)
         {
-            if (bolt.state == requiredState) return true;
+            if (bolt.state == requiredState)
+            {
+                return true;
+            }
 
             return false;
         }
 
-        if (bolt.state != requiredState) return true;
+        if (bolt.state != requiredState)
+        {
+            return true;
+        }
 
         return false;
     }

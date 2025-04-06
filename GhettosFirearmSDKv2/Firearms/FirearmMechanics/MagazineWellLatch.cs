@@ -12,7 +12,7 @@ public class MagazineWellLatch : MonoBehaviour
 
     private void Update()
     {
-        var target = magazineWell.currentMagazine == null && (beltFedCover == null || beltFedCover.GetIsUnlocked()) ? magazineRemovedPosition : magazineInsertedPosition;
+        var target = !magazineWell.currentMagazine && (!beltFedCover || beltFedCover.GetIsUnlocked()) ? magazineRemovedPosition : magazineInsertedPosition;
         axis.SetLocalPositionAndRotation(target.localPosition, target.localRotation);
     }
 }

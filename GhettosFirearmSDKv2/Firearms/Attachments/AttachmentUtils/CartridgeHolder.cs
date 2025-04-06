@@ -25,38 +25,42 @@ public class CartridgeHolder : MonoBehaviour
     private void Start()
     {
         if (firearm)
+        {
             ConnectedManager = firearm;
+        }
         if (attachmentManager)
+        {
             ConnectedManager = attachmentManager;
-            
+        }
+
         Invoke(nameof(InvokedStart), Settings.invokeTime);
         Invoke(nameof(UpdateCartridgePositions), Settings.invokeTime * 5);
     }
 
     public void InvokedStart()
     {
-        if (ConnectedManager != null)
+        if (ConnectedManager is not null)
         {
             ConnectedManager.OnCollision += Collision;
             ConnectedManager.Item.OnGrabEvent += Firearm_OnGrabEvent;
         }
-        else if (attachment != null)
+        else if (attachment)
         {
             attachment.attachmentPoint.ConnectedManager.OnCollision += Collision;
             attachment.attachmentPoint.ConnectedManager.Item.OnGrabEvent += Firearm_OnGrabEvent;
         }
 
         SaveNodeValueCartridgeData save = null;
-        if (attachment != null && attachment.Node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value))
+        if (attachment && attachment.Node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value))
         {
             save = value;
         }
-        else if (ConnectedManager != null && ConnectedManager.SaveData.FirearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value2))
+        else if (ConnectedManager is not null && ConnectedManager.SaveData.FirearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value2))
         {
             save = value2;
         }
 
-        if (save != null)
+        if (save is not null)
         {
             Util.SpawnItem(save.Value.ItemId, $"[Cartridge holder - Firearm: {ConnectedManager?.Item?.itemId ?? "--"} Attachment: {attachment?.Data.id ?? "--"} Slot: {slot}]", cartridge =>
             {
@@ -83,14 +87,18 @@ public class CartridgeHolder : MonoBehaviour
     public Cartridge EjectRound()
     {
         var loaded = loadedCartridge;
-        if (loaded != null)
+        if (loaded)
         {
             Util.PlayRandomAudioSource(roundEjectSounds);
             loaded.ToggleCollision(true);
-            if (ConnectedManager != null)
+            if (ConnectedManager is not null)
+            {
                 Util.DelayIgnoreCollision(ConnectedManager.Transform.gameObject, loaded.gameObject, false, 1f, loaded.item);
-            if (attachment != null)
+            }
+            if (attachment)
+            {
                 Util.DelayIgnoreCollision(attachment.gameObject, loaded.gameObject, false, 1f, loaded.item);
+            }
             loaded.loaded = false;
             loaded.GetComponent<Rigidbody>().isKinematic = false;
             loaded.item.DisallowDespawn = false;
@@ -98,10 +106,14 @@ public class CartridgeHolder : MonoBehaviour
             loaded.item.OnGrabEvent -= Item_OnGrabEvent;
             loadedCartridge = null;
 
-            if (attachment != null)
+            if (attachment)
+            {
                 attachment.Node.RemoveValue("CartridgeHolder" + slot);
-            else if (ConnectedManager != null)
+            }
+            else if (ConnectedManager is not null)
+            {
                 ConnectedManager.SaveData.FirearmNode.RemoveValue("CartridgeHolder" + slot);
+            }
         }
         UpdateCartridgePositions();
         return loaded;
@@ -109,18 +121,25 @@ public class CartridgeHolder : MonoBehaviour
 
     public void InsertRound(Cartridge c, bool silent)
     {
-        if (loadedCartridge == null && Util.AllowLoadCartridge(c, caliber) && !c.loaded)
+        if (!loadedCartridge && Util.AllowLoadCartridge(c, caliber) && !c.loaded)
         {
             c.item.DisallowDespawn = true;
             c.loaded = true;
             c.ToggleCollision(false);
             loadedCartridge = c;
             c.UngrabAll();
-            if (ConnectedManager != null)
+            if (ConnectedManager is not null)
+            {
                 Util.IgnoreCollision(c.gameObject, ConnectedManager.Transform.gameObject, true);
-            if (attachment != null)
+            }
+            if (attachment)
+            {
                 Util.IgnoreCollision(c.gameObject, attachment.gameObject, true);
-            if (!silent) Util.PlayRandomAudioSource(roundInsertSounds);
+            }
+            if (!silent)
+            {
+                Util.PlayRandomAudioSource(roundInsertSounds);
+            }
             c.GetComponent<Rigidbody>().isKinematic = true;
             c.transform.parent = transform;
             c.transform.localPosition = Vector3.zero;
@@ -129,12 +148,16 @@ public class CartridgeHolder : MonoBehaviour
             c.item.OnGrabEvent += Item_OnGrabEvent;
 
             FirearmSaveData.AttachmentTreeNode target = null;
-            if (attachment != null)
+            if (attachment)
+            {
                 target = attachment.Node;
-            else if (ConnectedManager != null)
+            }
+            else if (ConnectedManager is not null)
+            {
                 target = ConnectedManager.SaveData.FirearmNode;
-                
-            if (target != null)
+            }
+
+            if (target is not null)
             {
                 target.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(c.item.itemId, c.Fired);
             }
@@ -147,12 +170,14 @@ public class CartridgeHolder : MonoBehaviour
         var c = EjectRound();
         var success = chamberLoader?.TryLoad(c) ?? false;
         if (success && ConnectedManager is FirearmBase { bolt: BoltSemiautomatic { caught: true } bolt })
+        {
             bolt.TryRelease();
+        }
     }
 
     private void UpdateCartridgePositions()
     {
-        if (loadedCartridge != null && loadedCartridge.transform != null)
+        if (loadedCartridge && loadedCartridge.transform)
         {
             loadedCartridge.transform.parent = transform;
             loadedCartridge.transform.localPosition = Vector3.zero;

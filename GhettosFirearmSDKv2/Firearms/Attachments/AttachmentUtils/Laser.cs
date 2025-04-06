@@ -32,9 +32,13 @@ public class Laser : TacticalDevice
             }
 
             if (endPointObject && endPointObject.activeInHierarchy)
+            {
                 endPointObject.SetActive(false);
+            }
             if (distanceDisplay)
+            {
                 distanceDisplay.text = "";
+            }
             return;
         }
 
@@ -49,11 +53,17 @@ public class Laser : TacticalDevice
             }
 
             if (endPointObject && !endPointObject.activeInHierarchy)
+            {
                 endPointObject.SetActive(true);
+            }
             if (endPointObject)
+            {
                 endPointObject.transform.localPosition = LengthPosition(hit.distance);
+            }
             if (distanceDisplay)
+            {
                 distanceDisplay.text = hit.distance.ToString(CultureInfo.InvariantCulture);
+            }
             lastHitDistance = hit.distance;
         }
         else
@@ -65,9 +75,13 @@ public class Laser : TacticalDevice
             }
 
             if (endPointObject && endPointObject.activeInHierarchy)
+            {
                 endPointObject.SetActive(false);
+            }
             if (distanceDisplay)
+            {
                 distanceDisplay.text = "---";
+            }
         }
     }
 
@@ -84,14 +98,18 @@ public class Laser : TacticalDevice
     public void SetActive()
     {
         if (sourceObject)
+        {
             sourceObject.SetActive(true);
+        }
         physicalSwitch = true;
     }
 
     public void SetNotActive()
     {
         if (sourceObject)
+        {
             sourceObject.SetActive(false);
+        }
         physicalSwitch = false;
     }
 }

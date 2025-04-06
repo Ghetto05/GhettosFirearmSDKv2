@@ -14,7 +14,7 @@ public class Scope : MonoBehaviour
     public IAttachmentManager ConnectedManager;
     public Attachment connectedAttachment;
     public AttachmentManager attachmentManager;
-        
+
     public enum LensSizes
     {
         _10mm = 10,
@@ -30,16 +30,21 @@ public class Scope : MonoBehaviour
 
     [Header("Reticle")]
     public Canvas reticleCanvas;
+
     [Header("Lens")]
     public MeshRenderer lens;
+
     [FormerlySerializedAs("additionalLenses")]
     public List<MeshRenderer> lenses;
+
     public int materialIndex;
     public Camera cam;
     public List<Camera> additionalCameras;
     public LensSizes size;
+
     [Header("Zoom")]
     public bool overrideX1CameraFOV;
+
     public float noZoomMagnification;
     public bool hasZoom;
     public Handle controllingHandle;
@@ -55,12 +60,18 @@ public class Scope : MonoBehaviour
     public virtual void Start()
     {
         if (connectedFirearm)
+        {
             ConnectedManager = connectedFirearm;
+        }
         if (attachmentManager)
+        {
             ConnectedManager = attachmentManager;
-            
+        }
+
         if (lens)
+        {
             lenses.Add(lens);
+        }
         Invoke(nameof(InvokedStart), Settings.invokeTime);
     }
 
@@ -71,17 +82,20 @@ public class Scope : MonoBehaviour
         cam.targetTexture = rt;
         cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 
-        if (hasZoom && ConnectedManager != null)
+        if (hasZoom && ConnectedManager is not null)
         {
             ConnectedManager.Item.OnHeldActionEvent += Item_OnHeldActionEvent;
             _zoomIndex = ConnectedManager.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
         }
-        else if (hasZoom && connectedAttachment != null)
+        else if (hasZoom && connectedAttachment)
         {
             connectedAttachment.OnHeldActionEvent += Item_OnHeldActionEvent;
             _zoomIndex = connectedAttachment.Node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
         }
-        else SetFOVFromMagnification(noZoomMagnification);
+        else
+        {
+            SetFOVFromMagnification(noZoomMagnification);
+        }
 
         if (hasZoom)
         {
@@ -95,8 +109,14 @@ public class Scope : MonoBehaviour
     {
         if (handle == controllingHandle)
         {
-            if (action == Interactable.Action.UseStart) Cycle(true);
-            else if (action == Interactable.Action.AlternateUseStart) Cycle(false);
+            if (action == Interactable.Action.UseStart)
+            {
+                Cycle(true);
+            }
+            else if (action == Interactable.Action.AlternateUseStart)
+            {
+                Cycle(false);
+            }
         }
     }
 
@@ -105,13 +125,19 @@ public class Scope : MonoBehaviour
         if (up)
         {
             cycleUpSound.Play();
-            if (currentIndex == magnificationLevels.Count - 1) currentIndex = -1;
+            if (currentIndex == magnificationLevels.Count - 1)
+            {
+                currentIndex = -1;
+            }
             currentIndex++;
         }
         else
         {
             cycleDownSound.Play();
-            if (currentIndex == 0) currentIndex = magnificationLevels.Count;
+            if (currentIndex == 0)
+            {
+                currentIndex = magnificationLevels.Count;
+            }
             currentIndex--;
         }
         _zoomIndex.Value = currentIndex;
@@ -131,7 +157,7 @@ public class Scope : MonoBehaviour
 
     public void UpdatePosition()
     {
-        if (reticles.Count > currentIndex && reticles[currentIndex] != null)
+        if (reticles.Count > currentIndex && reticles[currentIndex])
         {
             foreach (var reticle in reticles)
             {
@@ -139,7 +165,7 @@ public class Scope : MonoBehaviour
             }
             reticles[currentIndex].SetActive(true);
         }
-        if (selector != null && selectorPositions[currentIndex] is { } t)
+        if (selector && selectorPositions[currentIndex] is { } t)
         {
             selector.localPosition = t.localPosition;
             selector.localEulerAngles = t.localEulerAngles;
@@ -150,7 +176,7 @@ public class Scope : MonoBehaviour
     {
         var factor = 2.0f * Mathf.Tan(0.5f * Settings.scopeX1MagnificationFOV * Mathf.Deg2Rad);
         var fov = 2.0f * Mathf.Atan(factor / (2.0f * magnification)) * Mathf.Rad2Deg;
-            
+
         cam.fieldOfView = fov;
         foreach (var c in additionalCameras)
         {
@@ -160,6 +186,7 @@ public class Scope : MonoBehaviour
     }
 
     private static readonly int BaseMap = Shader.PropertyToID("_BaseMap");
+
     public void UpdateRenderers()
     {
         foreach (var l in lenses)

@@ -11,7 +11,10 @@ public class BoltAnimationPlayer : MonoBehaviour
 
     public void FixedUpdate()
     {
-        if (bolt == null || animator == null) return;
+        if (!bolt || !animator)
+        {
+            return;
+        }
 
         animator.SetFloat(timeParameterName, 0.999f * bolt.cyclePercentage);
     }

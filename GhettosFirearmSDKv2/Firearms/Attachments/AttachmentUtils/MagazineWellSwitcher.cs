@@ -22,17 +22,25 @@ public class MagazineWellSwitcher : MonoBehaviour
 
     private void Start()
     {
-        if (attachment.initialized) Attachment_OnDelayedAttachEvent();
-        else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        if (attachment.initialized)
+        {
+            Attachment_OnDelayedAttachEvent();
+        }
+        else
+        {
+            attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        }
     }
 
     private void Attachment_OnDelayedAttachEvent()
     {
         if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
+        {
             return;
+        }
 
         _firearm = f;
-            
+
         attachment.OnDetachEvent += Attachment_OnDetachEvent;
 
         if (!string.IsNullOrWhiteSpace(newType))
@@ -52,10 +60,12 @@ public class MagazineWellSwitcher : MonoBehaviour
             _originalDefaultAmmo = _firearm.GetAmmoItem();
 
             var dataList = new List<ContentCustomData>();
-                
+
             if (overrideMagazineLoad)
+            {
                 dataList.Add(overrideMagazineLoad.ToSaveData());
-                    
+            }
+
             _firearm.SetSavedAmmoItem(newDefaultAmmo, dataList.Any() ? dataList.ToArray() : null);
         }
 
@@ -67,7 +77,9 @@ public class MagazineWellSwitcher : MonoBehaviour
         attachment.OnDetachEvent -= Attachment_OnDetachEvent;
 
         if (despawnDetach || !_firearm)
+        {
             return;
+        }
 
         if (!string.IsNullOrWhiteSpace(newType))
         {

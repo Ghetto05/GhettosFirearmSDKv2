@@ -26,35 +26,44 @@ public class WearableItem : MonoBehaviour
 
     private void ItemOnOnGrabEvent(Handle handle, RagdollHand ragdollhand)
     {
-        if (unequipHandles.Contains(handle) && _currentCreature != null)
+        if (unequipHandles.Contains(handle) && _currentCreature)
+        {
             Unequip();
+        }
     }
 
     private void ItemOnOnHeldActionEvent(RagdollHand ragdollhand, Handle handle, Interactable.Action action)
-    {
-    }
+    { }
 
     public void Equip(Creature target)
     {
-        if (_currentCreature != null)
+        if (_currentCreature)
+        {
             return;
+        }
         _currentCreature = target;
         var bone = _currentCreature.animator.GetBoneTransform(baseBone);
         if (Vector3.Distance(bone.position, transform.position) > 0.3f)
+        {
             return;
+        }
         item.DisallowDespawn = true;
         item.disableSnap = true;
         item.physicBody.rigidBody.isKinematic = true;
         transform.SetParent(bone);
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(0, 0, 90));
         if (baseBone == HumanBodyBones.Head && target.isPlayer)
+        {
             transform.SetParent(Player.local.head.cam.transform);
+        }
     }
 
     public void Unequip()
     {
-        if (_currentCreature == null)
+        if (_currentCreature)
+        {
             return;
+        }
 
         item.physicBody.rigidBody.isKinematic = false;
         item.DisallowDespawn = false;

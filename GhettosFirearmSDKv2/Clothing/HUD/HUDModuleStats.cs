@@ -13,17 +13,25 @@ public class HUDModuleStats : MonoBehaviour
 
     private void Update()
     {
-        if (Player.local.creature == null)
+        if (!Player.local.creature)
+        {
             return;
-        if (health != null)
+        }
+        if (health)
+        {
             health.localScale = Scale(Player.local.creature.currentHealth, Player.local.creature.maxHealth);
+        }
         //ToDo
-        //if (mana != null)
+        //if (mana)
         //mana.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.);
-        if (focus != null)
+        if (focus)
+        {
             focus.localScale = Scale(Player.local.creature.mana.currentFocus, Player.local.creature.mana.MaxFocus);
-        if (timeSlow != null)
+        }
+        if (timeSlow)
+        {
             timeSlow.text = Time.timeScale * 100 + "%";
+        }
     }
 
     private static Vector3 Scale(float current, float max)

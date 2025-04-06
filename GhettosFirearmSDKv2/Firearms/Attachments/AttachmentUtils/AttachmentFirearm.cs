@@ -17,7 +17,10 @@ public class AttachmentFirearm : FirearmBase
 
     public override void InvokedStart()
     {
-        if (!disableMainFireHandle) mainFireHandle = fireHandle;
+        if (!disableMainFireHandle)
+        {
+            mainFireHandle = fireHandle;
+        }
         item = attachment.GetComponentInParent<AttachmentPoint>().ConnectedManager.Item;
         attachment.attachmentPoint.ConnectedManager.OnCollision += OnCollisionEnter;
         attachment.attachmentPoint.ConnectedManager.Item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
@@ -26,7 +29,7 @@ public class AttachmentFirearm : FirearmBase
         item.OnUnSnapEvent += Item_OnUnSnapEvent;
         item.OnGrabEvent += Item_OnGrabEvent;
         CalculateMuzzle();
-            
+
         base.InvokedStart();
     }
 
@@ -42,7 +45,9 @@ public class AttachmentFirearm : FirearmBase
     private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
     {
         if (handle == fireHandle && bolt)
+        {
             bolt.Initialize();
+        }
     }
 
     public override void PlayMuzzleFlash(Cartridge cartridge)
@@ -59,14 +64,19 @@ public class AttachmentFirearm : FirearmBase
         var hs = new List<Handle>();
         hs.AddRange(additionalTriggerHandles);
         if (!fireHandle)
+        {
             return hs;
+        }
         hs.Add(fireHandle);
         return hs;
     }
 
     public override bool IsSuppressed()
     {
-        if (integrallySuppressed) return true;
+        if (integrallySuppressed)
+        {
+            return true;
+        }
         return false;
     }
 
@@ -75,13 +85,13 @@ public class AttachmentFirearm : FirearmBase
         //Transform t = hitscanMuzzle;
         //foreach (Attachment a in attachment.attachmentPoint.parentFirearm.allAttachments)
         //{
-        //    if (a.minimumMuzzlePosition != null && Vector3.Distance(hitscanMuzzle.position, a.minimumMuzzlePosition.position) > Vector3.Distance(hitscanMuzzle.position, t.position)) t = a.minimumMuzzlePosition;
+        //    if (a.minimumMuzzlePosition && Vector3.Distance(hitscanMuzzle.position, a.minimumMuzzlePosition.position) > Vector3.Distance(hitscanMuzzle.position, t.position)) t = a.minimumMuzzlePosition;
         //}
         //actualHitscanMuzzle = t;
         actualHitscanMuzzle = hitscanMuzzle;
         base.CalculateMuzzle();
     }
-        
+
     public override bool HeldByAI()
     {
         return !(attachment.attachmentPoint.ConnectedManager.Item?.handlers?.FirstOrDefault()?.creature.isPlayer ?? true);

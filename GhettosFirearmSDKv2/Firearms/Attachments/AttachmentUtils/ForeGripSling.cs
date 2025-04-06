@@ -22,9 +22,11 @@ public class ForeGripSling : MonoBehaviour
 
     private void InvokedStart()
     {
-        if (attachment != null)
+        if (attachment)
+        {
             item = attachment.attachmentPoint.ConnectedManager.Item;
-            
+        }
+
         item.OnGrabEvent += OnGrab;
         item.OnUngrabEvent += OnUnGrab;
     }
@@ -32,19 +34,25 @@ public class ForeGripSling : MonoBehaviour
     private void OnUnGrab(Handle handle, RagdollHand ragdollHand, bool throwing)
     {
         if (handles.Contains(handle))
+        {
             UnGrab();
+        }
     }
 
     private void OnGrab(Handle handle, RagdollHand ragdollHand)
     {
         if (handles.Contains(handle))
+        {
             Grab();
+        }
     }
 
     private void FixedUpdate()
     {
         if (_following)
+        {
             axis.localEulerAngles = new Vector3(rb.transform.localEulerAngles.x, 0, 0);
+        }
     }
 
     private void Grab()

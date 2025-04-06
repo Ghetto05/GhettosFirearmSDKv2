@@ -15,7 +15,9 @@ public class SplitChargingHandle : MonoBehaviour
     private void FixedUpdate()
     {
         if (!handles.SelectMany(x => x.handlers).Any())
+        {
             return;
+        }
         var chosenHandle = handles.First(x => x.handlers.Any());
         foreach (var t in chargingHandles)
         {

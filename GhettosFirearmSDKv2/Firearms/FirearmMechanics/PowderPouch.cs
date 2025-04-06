@@ -39,34 +39,46 @@ public class PowderPouch : MonoBehaviour
         if (action == Interactable.Action.AlternateUseStart)
         {
             if (opened)
+            {
                 Close();
+            }
             else
+            {
                 Open();
+            }
         }
     }
 
     public void Open()
     {
         if (opened)
+        {
             return;
+        }
         opened = true;
-        if (lid != null)
+        if (lid)
+        {
             lid.SetPositionAndRotation(lidOpenedPosition.position, lidOpenedPosition.rotation);
+        }
     }
 
     public void Close()
     {
         if (!opened)
+        {
             return;
+        }
         opened = false;
-        if (lid != null)
+        if (lid)
+        {
             lid.SetPositionAndRotation(lidClosedPosition.position, lidClosedPosition.rotation);
+        }
     }
 
     public void Tap()
     {
         if (opened)
-        { 
+        {
             Spawn();
             Util.PlayRandomAudioSource(tapSounds);
         }
@@ -79,7 +91,9 @@ public class PowderPouch : MonoBehaviour
             Util.PlayRandomAudioSource(grainSpawnSounds);
             Spawn();
             if (grainFlowSound?.isPlaying != true)
+            {
                 grainFlowSound?.Play();
+            }
         }
         else if (grainFlowSound?.isPlaying == true)
         {

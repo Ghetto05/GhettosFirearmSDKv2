@@ -78,7 +78,10 @@ public class ProjectileData : MonoBehaviour
 
     private void Awake()
     {
-        if (projectileCount <= 1) projectileSpread = 0f;
+        if (projectileCount <= 1)
+        {
+            projectileSpread = 0f;
+        }
     }
 
     public override string ToString()
@@ -111,7 +114,6 @@ public class ProjectileData : MonoBehaviour
                 }
                 else if (projectileCount > 1)
                 {
-                        
                     Util.AddInfoToBuilder("Projectile count", projectileCount, builder);
                     Util.AddInfoToBuilder("Damage per projectile", $"{damagePerProjectile / 50 * 100}%", builder);
                     Util.AddInfoToBuilder("Force per projectile", forcePerProjectile, builder);
@@ -122,18 +124,30 @@ public class ProjectileData : MonoBehaviour
                 }
                 Util.AddInfoToBuilder("Range", projectileRange, builder);
                 Util.AddInfoToBuilder("Penetration level", penetrationPower, builder);
-                if (gameObject.GetComponentInChildren<TracerModule>() != null)
+                if (gameObject.GetComponentInChildren<TracerModule>())
+                {
                     builder.AppendLine("Has tracer charge");
+                }
                 if (forceDestabilize && !knocksOutTemporarily)
+                {
                     builder.AppendLine("Always destabilizes target");
+                }
                 if (forceIncapitate)
+                {
                     builder.AppendLine("Incapacitates permanently");
+                }
                 else if (knocksOutTemporarily)
+                {
                     builder.AppendLine("$Incapacitates {temporaryKnockoutTime}s");
+                }
                 if (isElectrifying)
+                {
                     builder.AppendLine("$Electrifies for {tasingDuration}s, force: {tasingForce}");
+                }
                 if (isExplosive && explosiveData.radius > 0)
+                {
                     builder.AppendLine("$Explodes: {explosiveData.radius}m radius, {explosiveData.force} force, {explosiveData.damage} damage");
+                }
             }
             if (!string.IsNullOrWhiteSpace(additionalInformation))
             {

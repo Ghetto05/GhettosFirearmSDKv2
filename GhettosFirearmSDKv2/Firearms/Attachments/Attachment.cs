@@ -13,7 +13,7 @@ namespace GhettosFirearmSDKv2;
 public class Attachment : MonoBehaviour
 {
     public AsyncOperationHandle<GameObject>? AssetLoadHandle;
-        
+
     public FirearmSaveData.AttachmentTreeNode Node;
     public List<Handle> additionalTriggerHandles;
     public AttachmentPoint attachmentPoint;
@@ -23,12 +23,16 @@ public class Attachment : MonoBehaviour
     public ColliderGroup colliderGroup;
     public List<ColliderGroup> alternateGroups;
     public List<string> alternateGroupsIds;
+
     [Space]
     public bool isSuppressing;
+
     public bool multiplyDamage;
     public float damageMultiplier;
+
     [FormerlySerializedAs("ColliderGroupId")]
     public string colliderGroupId = "PropMetal";
+
     public bool overridesMuzzleFlash;
     public ParticleSystem newFlash;
     public Transform minimumMuzzlePosition;
@@ -38,6 +42,7 @@ public class Attachment : MonoBehaviour
 
     [FormerlySerializedAs("OnAttachEvents")]
     public List<UnityEvent> onAttachEvents;
+
     [FormerlySerializedAs("OnDetachEvents")]
     public List<UnityEvent> onDetachEvents;
 
@@ -49,13 +54,18 @@ public class Attachment : MonoBehaviour
 
     private void Update()
     {
-        if (attachmentPoint != null && attachmentPoint.ConnectedManager != null && attachmentPoint.ConnectedManager.Item != null)
+        if (attachmentPoint && attachmentPoint.ConnectedManager is not null && attachmentPoint.ConnectedManager.Item)
+        {
             Hide(!attachmentPoint.ConnectedManager.Item.renderers[0].enabled);
+        }
     }
 
     public void Hide(bool hidden)
     {
-        if (_renderers == null) return;
+        if (_renderers is null)
+        {
+            return;
+        }
         foreach (var ren in _renderers)
         {
             ren.enabled = !hidden;
@@ -66,22 +76,40 @@ public class Attachment : MonoBehaviour
     {
         Firearm firearm = null;
         if (attachmentPoint.ConnectedManager is Firearm f)
+        {
             firearm = f;
+        }
         addedByInitialSetup = initialSetup;
-        if (thisNode != null) Node = thisNode;
+        if (thisNode is not null)
+        {
+            Node = thisNode;
+        }
         _renderers = new List<Renderer>();
         _decals = new List<RevealDecal>();
         foreach (var ren in gameObject.GetComponentsInChildren<Renderer>(true))
         {
-            if (!_renderers.Contains(ren)) _renderers.Add(ren);
-            if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.ConnectedManager.Item.renderers.Contains(ren)) attachmentPoint.ConnectedManager.Item.renderers.Add(ren);
+            if (!_renderers.Contains(ren))
+            {
+                _renderers.Add(ren);
+            }
+            if (!nonLightVolumeRenderers.Contains(ren) && !attachmentPoint.ConnectedManager.Item.renderers.Contains(ren))
+            {
+                attachmentPoint.ConnectedManager.Item.renderers.Add(ren);
+            }
         }
         foreach (var dec in gameObject.GetComponentsInChildren<RevealDecal>(true))
         {
-            if (!_decals.Contains(dec)) _decals.Add(dec);
-            if (!attachmentPoint.ConnectedManager.Item.revealDecals.Contains(dec)) attachmentPoint.ConnectedManager.Item.revealDecals.Add(dec);
+            if (!_decals.Contains(dec))
+            {
+                _decals.Add(dec);
+            }
+            if (!attachmentPoint.ConnectedManager.Item.revealDecals.Contains(dec))
+            {
+                attachmentPoint.ConnectedManager.Item.revealDecals.Add(dec);
+            }
         }
-        try { attachmentPoint.ConnectedManager.Item.lightVolumeReceiver.SetRenderers(attachmentPoint.ConnectedManager.Item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
+        try { attachmentPoint.ConnectedManager.Item.lightVolumeReceiver.SetRenderers(attachmentPoint.ConnectedManager.Item.renderers); }
+        catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
 
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         foreach (var ap in attachmentPoints.Where(x => x))
@@ -96,17 +124,26 @@ public class Attachment : MonoBehaviour
         {
             foreach (var h in gameObject.GetComponentsInChildren<Handle>())
             {
-                if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on attachment " + gameObject.name + " is not of type GhettoHandle!");
-                if (!handles.Contains(h)) Debug.LogWarning("Handle " + h.gameObject.name + " is not in the handle list of the attachment " + gameObject.name + "!");
+                if (h.GetType() != typeof(GhettoHandle))
+                {
+                    Debug.LogWarning("Handle " + h.gameObject.name + " on attachment " + gameObject.name + " is not of type GhettoHandle!");
+                }
+                if (!handles.Contains(h))
+                {
+                    Debug.LogWarning("Handle " + h.gameObject.name + " is not in the handle list of the attachment " + gameObject.name + "!");
+                }
             }
         }
-        if (thisNode != null) ApplyNode();
+        if (thisNode is not null)
+        {
+            ApplyNode();
+        }
         foreach (var eve in onAttachEvents)
         {
             eve.Invoke();
         }
 
-        if (colliderGroup != null)
+        if (colliderGroup)
         {
             colliderGroup.Load(Catalog.GetData<ColliderGroupData>(colliderGroupId));
             attachmentPoint.ConnectedManager.Item.colliderGroups.Add(colliderGroup);
@@ -131,17 +168,22 @@ public class Attachment : MonoBehaviour
             han.item = attachmentPoint.ConnectedManager.Item;
             han.physicBody.rigidBody = attachmentPoint.ConnectedManager.Item.physicBody.rigidBody;
             attachmentPoint.ConnectedManager.Item.handles.Add(han);
-            if (attachmentPoint.ConnectedManager.Item.holder != null) han.SetTouch(false);
-        } 
+            if (attachmentPoint.ConnectedManager.Item.holder)
+            {
+                han.SetTouch(false);
+            }
+        }
         firearm?.additionalTriggerHandles.AddRange(additionalTriggerHandles.Where(x => x));
-        if (damagers != null)
+        if (damagers is not null)
         {
             foreach (var dmg in damagers)
             {
-                if (dmg != null && !string.IsNullOrWhiteSpace(damagerIds[damagers.IndexOf(dmg)]))
+                if (dmg && !string.IsNullOrWhiteSpace(damagerIds[damagers.IndexOf(dmg)]))
                 {
                     if (damagerIds[damagers.IndexOf(dmg)].Equals("Mace1H"))
+                    {
                         damagerIds[damagers.IndexOf(dmg)] = "Ghetto05.FirearmSDKv2.Damagers.NearlyNoDamage";
+                    }
                     dmg.Load(Catalog.GetData<DamagerData>(damagerIds[damagers.IndexOf(dmg)]), attachmentPoint.ConnectedManager.Item.mainCollisionHandler);
                     attachmentPoint.ConnectedManager.Item.mainCollisionHandler.damagers.Add(dmg);
                 }
@@ -168,17 +210,26 @@ public class Attachment : MonoBehaviour
 
     private void Item_OnDespawnEvent(EventTime eventTime)
     {
-        if (eventTime == EventTime.OnStart) Detach(true);
+        if (eventTime == EventTime.OnStart)
+        {
+            Detach(true);
+        }
     }
 
     private void InvokeHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
     {
-        if (handles.Contains(handle)) OnHeldActionEvent?.Invoke(ragdollHand, handle, action);
+        if (handles.Contains(handle))
+        {
+            OnHeldActionEvent?.Invoke(ragdollHand, handle, action);
+        }
     }
 
     private void FixedUpdate()
     {
-        if (colliderGroup == null || colliderGroup.colliders == null || attachmentPoint == null || attachmentPoint.ConnectedManager == null) return;
+        if (!colliderGroup || colliderGroup.colliders is null || !attachmentPoint || attachmentPoint.ConnectedManager is null)
+        {
+            return;
+        }
         foreach (var c in colliderGroup.colliders)
         {
             c.gameObject.layer = attachmentPoint.ConnectedManager.Item.currentPhysicsLayer;
@@ -187,11 +238,23 @@ public class Attachment : MonoBehaviour
 
     public void Detach(bool despawnDetach = false)
     {
-        if (attachmentPoint != null && attachmentPoint.ConnectedManager != null) attachmentPoint.ConnectedManager.Item.OnHeldActionEvent -= InvokeHeldAction;
+        if (attachmentPoint && attachmentPoint.ConnectedManager is not null)
+        {
+            attachmentPoint.ConnectedManager.Item.OnHeldActionEvent -= InvokeHeldAction;
+        }
         OnDetachEvent?.Invoke(despawnDetach);
-        if (despawnDetach || attachmentPoint.ConnectedManager == null) return;
-        if (attachmentPoint.attachment != null) attachmentPoint.attachment.Node.Childs.Remove(Node);
-        else if (attachmentPoint.ConnectedManager != null) attachmentPoint.ConnectedManager.SaveData.FirearmNode.Childs.Remove(Node);
+        if (despawnDetach || attachmentPoint.ConnectedManager is null)
+        {
+            return;
+        }
+        if (attachmentPoint.attachment)
+        {
+            attachmentPoint.attachment.Node.Childs.Remove(Node);
+        }
+        else if (attachmentPoint.ConnectedManager is not null)
+        {
+            attachmentPoint.ConnectedManager.SaveData.FirearmNode.Childs.Remove(Node);
+        }
         foreach (var eve in onDetachEvents)
         {
             eve.Invoke();
@@ -199,7 +262,9 @@ public class Attachment : MonoBehaviour
         var manager = attachmentPoint.ConnectedManager;
         Firearm firearm = null;
         if (manager is Firearm f)
+        {
             firearm = f;
+        }
         manager.InvokeAttachmentRemoved(this, attachmentPoint);
         if (firearm)
         {
@@ -218,8 +283,10 @@ public class Attachment : MonoBehaviour
         foreach (var han in handles.Where(x => x))
         {
             manager.Item.handles.Remove(han);
-            if (han.touchCollider != null && han.touchCollider.gameObject != null)
+            if (han.touchCollider && han.touchCollider.gameObject)
+            {
                 Destroy(han.touchCollider.gameObject);
+            }
         }
         foreach (var d in damagers.Where(x => x))
         {
@@ -233,49 +300,74 @@ public class Attachment : MonoBehaviour
         }
         foreach (var ren in _renderers.Where(x => x))
         {
-            if (!nonLightVolumeRenderers.Contains(ren)) manager.Item.renderers.Remove(ren);
-            if (!nonLightVolumeRenderers.Contains(ren)) manager.Item.lightVolumeReceiver.renderers.Remove(ren);
+            if (!nonLightVolumeRenderers.Contains(ren))
+            {
+                manager.Item.renderers.Remove(ren);
+            }
+            if (!nonLightVolumeRenderers.Contains(ren))
+            {
+                manager.Item.lightVolumeReceiver.renderers.Remove(ren);
+            }
         }
         foreach (var dec in _decals.Where(x => x))
         {
             manager.Item.revealDecals.Remove(dec);
         }
-        try { manager.Item.lightVolumeReceiver.SetRenderers(manager.Item.renderers); } catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
+        try { manager.Item.lightVolumeReceiver.SetRenderers(manager.Item.renderers); }
+        catch { Debug.Log($"Setting renderers failed on {gameObject.name}"); }
 
-        if (this == null || gameObject == null) return;
+        if (!this || !gameObject)
+        {
+            return;
+        }
 
-        if (AssetLoadHandle != null)
+        if (AssetLoadHandle is not null)
+        {
             Addressables.ReleaseInstance(AssetLoadHandle.Value);
-            
+        }
+
         Destroy(gameObject);
     }
-        
+
     public void MoveOnRail(bool forwards)
     {
         if (!attachmentPoint.usesRail)
+        {
             return;
+        }
 
         if ((forwards && RailPosition + Data.RailLength >= attachmentPoint.railSlots.Count) || (!forwards && RailPosition == 0))
+        {
             return;
+        }
 
         if (forwards)
+        {
             Node.SlotPosition++;
+        }
         else
+        {
             Node.SlotPosition--;
-            
+        }
+
         UpdatePosition();
     }
 
     public int RailPosition
     {
-        get { return Node.SlotPosition; }
+        get
+        {
+            return Node.SlotPosition;
+        }
     }
 
     private void UpdatePosition()
     {
         if (!attachmentPoint.usesRail)
+        {
             return;
-            
+        }
+
         transform.SetParent(attachmentPoint.railSlots[Node.SlotPosition]);
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
     }
@@ -284,17 +376,23 @@ public class Attachment : MonoBehaviour
     {
         foreach (var point in attachmentPoints)
         {
-            if (point.id.Equals(id)) return point;
+            if (point.id.Equals(id))
+            {
+                return point;
+            }
         }
         return null;
     }
 
     public delegate void OnDelayedAttach();
+
     public event OnDelayedAttach OnDelayedAttachEvent;
 
     public delegate void OnDetach(bool despawnDetach);
+
     public event OnDetach OnDetachEvent;
 
     public delegate void OnHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action);
+
     public event OnHeldAction OnHeldActionEvent;
 }

@@ -7,20 +7,7 @@ namespace GhettosFirearmSDKv2;
 
 public class WireCutterCuttable : MonoBehaviour
 {
-    private static List<WireCutterCuttable> _all;
-    public static List<WireCutterCuttable> All
-    {
-        get
-        {
-            if (_all == null)
-                _all = new List<WireCutterCuttable>();
-            return _all;
-        }
-        set
-        {
-            _all = value;
-        }
-    }
+    public static List<WireCutterCuttable> all = [];
 
     public UnityEvent onCut;
     public Collider[] cuttableColliders;
@@ -28,19 +15,19 @@ public class WireCutterCuttable : MonoBehaviour
 
     private void Start()
     {
-        All.Add(this);
+        all.Add(this);
     }
 
     private void OnDestroy()
     {
-        All.Remove(this);
+        all.Remove(this);
     }
 
     public static void CutFound(Vector3 root, float range)
     {
         var states = new Dictionary<Collider, bool>();
-            
-        foreach (var cuttable in All)
+
+        foreach (var cuttable in all)
         {
             foreach (var collider in cuttable.cuttableColliders)
             {
@@ -58,8 +45,10 @@ public class WireCutterCuttable : MonoBehaviour
 
         var results = Physics.OverlapSphere(root, range);
         if (Settings.debugMode)
-            Debug.Log("Cuttables - " + _all.Count + " " + results.Length);
-            
+        {
+            Debug.Log("Cuttables - " + all.Count + " " + results.Length);
+        }
+
         var found = new List<WireCutterCuttable>();
         foreach (var c in results)
         {
@@ -69,10 +58,12 @@ public class WireCutterCuttable : MonoBehaviour
                 wcc._cut = true;
                 wcc.onCut.Invoke();
                 if (Settings.debugMode)
+                {
                     Debug.Log("Cut a cuttable");
+                }
             }
         }
-            
+
         foreach (var pair in states)
         {
             pair.Key.enabled = pair.Value;

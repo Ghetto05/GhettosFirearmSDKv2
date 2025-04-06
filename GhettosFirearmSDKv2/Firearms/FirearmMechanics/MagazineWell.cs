@@ -41,22 +41,34 @@ public class MagazineWell : MonoBehaviour
         firearm.OnCollisionEvent += TryMount;
         firearm.OnColliderToggleEvent += Firearm_OnColliderToggleEvent;
         firearm.item.OnDespawnEvent += Item_OnDespawnEvent;
-        if (spawnMagazineOnAwake) Load();
+        if (spawnMagazineOnAwake)
+        {
+            Load();
+        }
         else
         {
-            if (currentMagazine != null && mountCurrentMagazine) currentMagazine.OnLoadFinished += Mag_onLoadFinished;
-            else allowLoad = true;
+            if (currentMagazine && mountCurrentMagazine)
+            {
+                currentMagazine.OnLoadFinished += Mag_onLoadFinished;
+            }
+            else
+            {
+                allowLoad = true;
+            }
         }
     }
 
     private void Item_OnDespawnEvent(EventTime eventTime)
     {
-        if (currentMagazine != null && !currentMagazine.overrideItem && !currentMagazine.overrideAttachment) currentMagazine.item.Despawn();
+        if (currentMagazine && !currentMagazine.overrideItem && !currentMagazine.overrideAttachment)
+        {
+            currentMagazine.item.Despawn();
+        }
     }
 
     private void Update()
     {
-        if (currentMagazine != null)
+        if (currentMagazine)
         {
             if (!currentMagazine.overrideItem && !currentMagazine.overrideAttachment)
             {
@@ -64,12 +76,18 @@ public class MagazineWell : MonoBehaviour
             }
             roundCounterMessage = currentMagazine.cartridges.Count.ToString();
         }
-        else roundCounterMessage = "N/A";
+        else
+        {
+            roundCounterMessage = "N/A";
+        }
     }
 
     private void Firearm_OnColliderToggleEvent(bool active)
     {
-        if (currentMagazine != null) currentMagazine.ToggleCollision(active);
+        if (currentMagazine)
+        {
+            currentMagazine.ToggleCollision(active);
+        }
     }
 
     public virtual void Load()
@@ -78,7 +96,7 @@ public class MagazineWell : MonoBehaviour
         {
             var cdata = new List<ContentCustomData>();
             cdata.Add(data.Value.CloneJson());
-            if (data.Value == null || data.Value.ItemID == null || data.Value.ItemID.IsNullOrEmptyOrWhitespace())
+            if (data.Value is null || data.Value.ItemID is null || data.Value.ItemID.IsNullOrEmptyOrWhitespace())
             {
                 allowLoad = true;
                 return;
@@ -89,7 +107,10 @@ public class MagazineWell : MonoBehaviour
                 mag.OnLoadFinished += Mag_onLoadFinished;
             }, mountPoint.position + Vector3.up * 3, null, null, true, cdata);
         }
-        else allowLoad = true;
+        else
+        {
+            allowLoad = true;
+        }
     }
 
     private void Mag_onLoadFinished(Magazine mag)
@@ -105,50 +126,70 @@ public class MagazineWell : MonoBehaviour
             if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this) && mag.loadable)
             {
                 mag.Mount(this, firearm.item.physicBody.rigidBody);
-                if (tryReleasingBoltIfMagazineIsInserted && firearm.bolt != null) firearm.bolt.TryRelease(true);
+                if (tryReleasingBoltIfMagazineIsInserted && firearm.bolt)
+                {
+                    firearm.bolt.TryRelease(true);
+                }
             }
         }
     }
 
     public virtual Cartridge ConsumeRound()
     {
-        if (currentMagazine == null)
+        if (!currentMagazine)
         {
             return null;
         }
         var success = currentMagazine.ConsumeRound();
-        if (success == null && ejectOnEmpty) Eject(true);
+        if (!success && ejectOnEmpty)
+        {
+            Eject(true);
+        }
         return success;
     }
 
     public virtual bool IsEmpty()
     {
-        if (currentMagazine == null) return true;
+        if (!currentMagazine)
+        {
+            return true;
+        }
         return currentMagazine.cartridges.Count < 1;
     }
 
-    private bool BoltExistsAndIsPulled() => !onlyAllowEjectionWhenBoltIsPulled || firearm.bolt == null || firearm.bolt.state == BoltBase.BoltState.Back || firearm.bolt.state == BoltBase.BoltState.LockedBack;
+    private bool BoltExistsAndIsPulled()
+    {
+        return !onlyAllowEjectionWhenBoltIsPulled || !firearm.bolt || firearm.bolt.state == BoltBase.BoltState.Back || firearm.bolt.state == BoltBase.BoltState.LockedBack;
+    }
 
     public virtual void Eject(bool forced = false)
     {
-        if (!currentMagazine || currentMagazine.overrideItem || currentMagazine.overrideAttachment || (!forced && !BoltExistsAndIsPulled()) || !(canEject | forced) && currentMagazine.CanGrab)
+        if (!currentMagazine || currentMagazine.overrideItem || currentMagazine.overrideAttachment || (!forced && !BoltExistsAndIsPulled()) || (!(canEject | forced) && currentMagazine.CanGrab))
+        {
             return;
+        }
         var mag = currentMagazine;
         currentMagazine.Eject();
-        if (ejectDir != null)
+        if (ejectDir)
+        {
             StartCoroutine(DelayedApplyForce(mag));
+        }
     }
 
     private IEnumerator DelayedApplyForce(Magazine mag)
     {
         yield return new WaitForSeconds(0.03f);
+
         mag.item.physicBody.velocity = Vector3.zero;
         mag.item.physicBody.AddForce(ejectDir.forward * ejectForce, ForceMode.Impulse);
     }
 
     public virtual bool IsEmptyAndHasMagazine()
     {
-        if (currentMagazine == null) return false;
+        if (!currentMagazine)
+        {
+            return false;
+        }
         return currentMagazine.cartridges.Count < 1;
     }
 

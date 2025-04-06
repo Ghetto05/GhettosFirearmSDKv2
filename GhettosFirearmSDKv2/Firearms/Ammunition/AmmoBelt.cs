@@ -38,7 +38,7 @@ public class AmmoBelt : MonoBehaviour
 
     private void MagazineOnOnConsumeEvent(Cartridge c)
     {
-        if (c != null && magazine.currentWell.beltLinkEjectDir != null)
+        if (c && magazine.currentWell.beltLinkEjectDir)
         {
             if (Catalog.GetData<ItemData>(linkItem, false) is { } data)
             {
@@ -55,6 +55,7 @@ public class AmmoBelt : MonoBehaviour
     private IEnumerator LinkEject(Item item)
     {
         yield return new WaitForSeconds(0.01f);
+
         var f = Settings.cartridgeEjectionForceRandomizationDivision;
         item.physicBody.AddForce(magazine.currentWell.beltLinkEjectDir.forward * (beltLinkEjectForce + Random.Range(-(beltLinkEjectForce / f), beltLinkEjectForce / f)), ForceMode.Impulse);
         f = Settings.cartridgeEjectionTorque;
@@ -70,9 +71,11 @@ public class AmmoBelt : MonoBehaviour
     public void Insert()
     {
         if (_inserted)
+        {
             return;
+        }
         _inserted = true;
-            
+
         magazine.cartridgePositions = _allPositions;
         magazine.UpdateCartridgePositions();
         for (var i = 0; i < hideCount; i++)
@@ -84,9 +87,11 @@ public class AmmoBelt : MonoBehaviour
     public void Remove(bool initial = false)
     {
         if (!_inserted && !initial)
+        {
             return;
+        }
         _inserted = false;
-            
+
         magazine.cartridgePositions = _cappedPositions;
         magazine.UpdateCartridgePositions();
         for (var i = 0; i < hideCount; i++)
@@ -99,7 +104,9 @@ public class AmmoBelt : MonoBehaviour
     {
         var linkCount = magazine.cartridges.Count;
         if (!_inserted)
+        {
             linkCount += hideCount;
+        }
         for (var i = 0; i < beltLinks.Length; i++)
         {
             beltLinks[i].SetActive(linkCount > i && (_inserted || i >= hideCount));

@@ -30,7 +30,7 @@ public class PrebuiltPouch : MonoBehaviour
 
     private void Update()
     {
-        if (!_spawning && holder.items.Count > 0 && (holder.items[0] == null || holder.items[0].holder == null))
+        if (!_spawning && holder.items.Count > 0 && !holder.items[0]?.holder)
         {
             holder.items.Clear();
             holder.currentQuantity = 0;
@@ -58,7 +58,11 @@ public class PrebuiltPouch : MonoBehaviour
     private IEnumerator DelayedSnap(Item item)
     {
         yield return new WaitForSeconds(Settings.invokeTime + 0.06f);
-        if (item != null) holder.Snap(item);
+
+        if (item)
+        {
+            holder.Snap(item);
+        }
         _spawning = false;
     }
 }

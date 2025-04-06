@@ -62,6 +62,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
     [Space]
     [Header("AUTO ROTATE")]
     public bool autoRotateCylinder;
+
     public bool limitCylinderRotation;
     private bool _autoTurnOnNextTriggerRelease;
     private bool _autoTurning;
@@ -138,7 +139,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         {
             for (var i = 0; i < _data.Contents.Length; i++)
             {
-                if (_data.Contents[i] != null)
+                if (_data.Contents[i] is not null)
                 {
                     var index = i;
                     Util.SpawnItem(_data.Contents[index]?.ItemId, "Bolt Chamber", ci =>
@@ -166,7 +167,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
     private void FirearmOnOnTriggerChangeEvent(bool ispulled)
     {
         if (!ispulled && _autoTurnOnNextTriggerRelease)
-        { 
+        {
             _autoTurning = true;
             _autoRotateStartTime = Time.time;
             _autoTurnOnNextTriggerRelease = false;
@@ -183,7 +184,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
     private void Firearm_OnCollisionEventTR(CollisionInstance collisionInstance)
     {
-        if (cockCollider != null && collisionInstance.sourceCollider == cockCollider && collisionInstance.targetCollider.GetComponentInParent<Player>() != null)
+        if (cockCollider && collisionInstance.sourceCollider == cockCollider && collisionInstance.targetCollider.GetComponentInParent<Player>())
         {
             ApplyNextChamber(false);
             Cock();
@@ -192,10 +193,12 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
     private void Firearm_OnCockActionEvent()
     {
-        if (hammerAxis != null)
+        if (hammerAxis)
         {
             if (cocked)
+            {
                 Uncock();
+            }
             else
             {
                 _afterCockAction = true;
@@ -225,7 +228,9 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         if (!_loadedCartridges[index] && Util.AllowLoadCartridge(cartridge, calibers[index]))
         {
             if (overrideSave)
+            {
                 Util.PlayRandomAudioSource(loadSounds);
+            }
             _loadedCartridges[index] = cartridge;
             cartridge.item.DisallowDespawn = true;
             cartridge.loaded = true;
@@ -237,7 +242,10 @@ public class Revolver : BoltBase, IAmmunitionLoadable
             cartridge.transform.parent = mountPoints[index];
             cartridge.transform.localPosition = Vector3.zero;
             cartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            if (overrideSave) SaveCartridges();
+            if (overrideSave)
+            {
+                SaveCartridges();
+            }
         }
 
         UpdateChamberedRounds();
@@ -252,25 +260,36 @@ public class Revolver : BoltBase, IAmmunitionLoadable
             {
                 var hand = firearm.item.mainHandleRight.handlers[0].playerHand.controlHand;
                 if (hand.alternateUsePressed)
+                {
                     triggerPull = 0f;
+                }
                 else
+                {
                     triggerPull = Mathf.Clamp01(hand.useAxis / (triggerPullMax - Settings.revolverTriggerDeadzone));
+                }
             }
-            else triggerPull = 0;
+            else
+            {
+                triggerPull = 0;
+            }
 
             if (Mathf.Approximately(triggerPull, 0f))
             {
                 if (!autoRotateCylinder && rotateWhenReleasingTrigger && !returnedTriggerSinceHammer)
+                {
                     ApplyNextChamber(true);
+                }
                 returnedTriggerSinceHammer = true;
-                if (triggerAxis != null && _shotsSinceTriggerReset > 0)
+                if (triggerAxis && _shotsSinceTriggerReset > 0)
+                {
                     Util.PlayRandomAudioSource(triggerResetSound);
+                }
                 _shotsSinceTriggerReset = 0;
             }
 
             if (firearm.setUpForHandPose)
             {
-                foreach (var h in firearm.AllTriggerHandles().Where(h => h != null))
+                foreach (var h in firearm.AllTriggerHandles().Where(h => h))
                 {
                     if (h.handlers.Count > 0)
                     {
@@ -281,9 +300,13 @@ public class Revolver : BoltBase, IAmmunitionLoadable
                             _lastTriggerPull = Time.time;
                         }
                         else if (Time.time - _lastTriggerPull <= Settings.triggerDisciplineTime)
+                        {
                             weight = onTriggerWeight;
+                        }
                         else
+                        {
                             weight = 0f;
+                        }
 
                         h.handlers[0].poser.SetTargetWeight(weight);
                     }
@@ -291,7 +314,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
             }
 
             //Hammer
-            if (hammerAxis != null && !singleActionOnly)
+            if (hammerAxis && !singleActionOnly)
             {
                 if (!cocked && triggerPull >= 1f && returnedTriggerSinceHammer && !singleActionOnly)
                 {
@@ -307,16 +330,20 @@ public class Revolver : BoltBase, IAmmunitionLoadable
             }
 
             //Cylinder
-            if (!autoRotateCylinder && (!cocked || hammerAxis == null) && !rotateWhenReleasingTrigger && !singleActionOnly && returnedTriggerSinceHammer && _closed && firearm.fireMode != FirearmBase.FireModes.Safe)
+            if (!autoRotateCylinder && (!cocked || !hammerAxis) && !rotateWhenReleasingTrigger && !singleActionOnly && returnedTriggerSinceHammer && _closed && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
                 if (_shotsSinceTriggerReset == 0 && !cocked)
+                {
                     rotateAxis.localEulerAngles = Vector3.Lerp(new Vector3(0, 0, chamberRotations[_currentChamber]), GetNextTargetRotation(), triggerPull);
+                }
             }
 
-            if (!autoRotateCylinder && (!cocked || hammerAxis == null) && rotateWhenReleasingTrigger && !singleActionOnly && !returnedTriggerSinceHammer && _closed && firearm.fireMode != FirearmBase.FireModes.Safe)
+            if (!autoRotateCylinder && (!cocked || !hammerAxis) && rotateWhenReleasingTrigger && !singleActionOnly && !returnedTriggerSinceHammer && _closed && firearm.fireMode != FirearmBase.FireModes.Safe)
             {
                 if (_shotsSinceTriggerReset == 1 && !cocked)
+                {
                     rotateAxis.localEulerAngles = Vector3.Lerp(new Vector3(0, 0, chamberRotations[_currentChamber]), GetNextTargetRotation(), 1 - triggerPull);
+                }
             }
 
             if (autoRotateCylinder && _autoTurning)
@@ -335,11 +362,13 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
             //Trigger
             triggerAxis.localEulerAngles = new Vector3(Mathf.Lerp(triggerIdlePosition.localEulerAngles.x, triggerPulledPosition.localEulerAngles.x, triggerPull), 0, 0);
-            if ((cocked || hammerAxis == null) && triggerPull >= triggerPullForTrigger && !_afterCockAction)
+            if ((cocked || !hammerAxis) && triggerPull >= triggerPullForTrigger && !_afterCockAction)
             {
                 TryFire();
-                if (hammerAxis != null && returnedTriggerSinceHammer)
+                if (hammerAxis && returnedTriggerSinceHammer)
+                {
                     Util.PlayRandomAudioSource(triggerPullSound);
+                }
             }
         }
 
@@ -361,7 +390,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
             EjectCasings();
         }
 
-        if (ejectorRoot != null)
+        if (ejectorRoot)
         {
             if (_closed)
             {
@@ -388,8 +417,10 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
     public void EjectCasings(bool silent = false, bool despawn = false)
     {
-        if (_closed || _loadedCartridges == null)
+        if (_closed || _loadedCartridges is null)
+        {
             return;
+        }
 
         for (var i = 0; i < _loadedCartridges.Length; i++)
         {
@@ -402,10 +433,12 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         if (_loadedCartridges[i])
         {
             if (!silent)
+            {
                 Util.PlayRandomAudioSource(ejectSounds);
+            }
             var c = _loadedCartridges[i];
             _loadedCartridges[i] = null;
-            //if (ejectPoints.Count > i && ejectPoints[i] != null)
+            //if (ejectPoints.Count > i && !ejectPoints[i])
             //{
             //    c.transform.position = ejectPoints[i].position;
             //    c.transform.rotation = ejectPoints[i].rotation;
@@ -420,21 +453,30 @@ public class Revolver : BoltBase, IAmmunitionLoadable
             rb.isKinematic = false;
             rb.WakeUp();
             if (ejectDir)
+            {
                 AddForceToCartridge(c, ejectDir, ejectForce);
+            }
             c.ToggleHandles(true);
             InvokeEjectRound(c);
             SaveCartridges();
             if (despawn)
+            {
                 c.item.Despawn();
+            }
         }
     }
 
-    public int GetNextChamberIndex() => _currentChamber + 1 == chamberRotations.Count ? 0 : _currentChamber + 1;
+    public int GetNextChamberIndex()
+    {
+        return _currentChamber + 1 == chamberRotations.Count ? 0 : _currentChamber + 1;
+    }
 
     public void Cock()
     {
         if (!hammerAxis || cocked)
+        {
             return;
+        }
 
         hammerAxis.localEulerAngles = hammerCockedPosition.localEulerAngles;
         cocked = true;
@@ -444,7 +486,9 @@ public class Revolver : BoltBase, IAmmunitionLoadable
     public void Uncock()
     {
         if (!hammerAxis || !cocked)
+        {
             return;
+        }
 
         _autoTurning = false;
         hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
@@ -457,7 +501,9 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         _currentChamber = first ? 0 : GetNextChamberIndex();
         rotateAxis.localEulerAngles = new Vector3(0, 0, chamberRotations[_currentChamber]);
         if (playSound)
+        {
             Util.PlayRandomAudioSource(chamberClickSounds);
+        }
     }
 
     public override void TryFire()
@@ -469,14 +515,16 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         }
 
         returnedTriggerSinceHammer = false;
-        if (hammerAxis != null)
+        if (hammerAxis)
         {
             hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
             cocked = false;
             Util.PlayRandomAudioSource(hammerHitSounds);
         }
         else if (!rotateWhenReleasingTrigger && !autoRotateCylinder)
+        {
             ApplyNextChamber(true);
+        }
 
         if (_shotsSinceTriggerReset == 0 && (!limitCylinderRotation || _currentChamber != chamberRotations.Count - 1))
         {
@@ -493,7 +541,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         }
 
         var loadedCartridge = _loadedCartridges[ca];
-        if (loadedCartridge == null || loadedCartridge.Fired)
+        if (!loadedCartridge || loadedCartridge.Fired)
         {
             InvokeFireLogicFinishedEvent();
             return;
@@ -501,8 +549,10 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
         foreach (var hand in firearm.item.handlers)
         {
-            if (hand.playerHand != null || hand.playerHand.controlHand != null)
+            if (hand.playerHand || hand.playerHand.controlHand is not null)
+            {
                 hand.playerHand.controlHand.HapticShort(50f);
+            }
         }
 
         IncrementBreachSmokeTime();
@@ -526,7 +576,9 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         for (var i = _loadedCartridges.Length - 1; i >= 0; i--)
         {
             if (Vector3.Distance(chamberPicker.position, chamberLocators[i].position) <= 0.01f)
+            {
                 car = i;
+            }
         }
 
         return car;
@@ -540,7 +592,10 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
     public void Lock(bool initial = false)
     {
-        if (_closed) return;
+        if (_closed)
+        {
+            return;
+        }
 
         _ejectedSinceLastOpen = false;
         _closed = true;
@@ -553,9 +608,11 @@ public class Revolver : BoltBase, IAmmunitionLoadable
                 _currentChamber = i;
             }
         }
-            
+
         if (limitCylinderRotation)
+        {
             ApplyNextChamber(false, true);
+        }
 
         if (!initial)
         {
@@ -575,15 +632,21 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
         state = BoltState.Locked;
         if (!initial)
+        {
             Util.PlayRandomAudioSource(lockSounds);
+        }
         InitializeFoldJoint(true);
         InitializeRotateJoint(true);
 
-        if (latchAxis != null)
+        if (latchAxis)
+        {
             latchAxis.SetLocalPositionAndRotation(latchClosedPosition.localPosition, latchClosedPosition.localRotation);
+        }
 
-        if (hammerAxis != null && pullHammerWhenOpened && !cocked)
+        if (hammerAxis && pullHammerWhenOpened && !cocked)
+        {
             hammerAxis.SetLocalPositionAndRotation(hammerIdlePosition.localPosition, hammerIdlePosition.localRotation);
+        }
 
         OnClose?.Invoke();
     }
@@ -595,7 +658,10 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
     public void Unlock()
     {
-        if (!_closed) return;
+        if (!_closed)
+        {
+            return;
+        }
 
         _closed = false;
         state = BoltState.Moving;
@@ -623,12 +689,15 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         InitializeFoldJoint(false);
         InitializeRotateJoint(false);
 
-        if (latchAxis != null)
+        if (latchAxis)
+        {
             latchAxis.SetLocalPositionAndRotation(latchOpenedPosition.localPosition, latchOpenedPosition.localRotation);
+        }
 
-
-        if (hammerAxis != null && pullHammerWhenOpened)
+        if (hammerAxis && pullHammerWhenOpened)
+        {
             hammerAxis.SetLocalPositionAndRotation(hammerCockedPosition.localPosition, hammerCockedPosition.localRotation);
+        }
 
         OnOpen?.Invoke();
     }
@@ -654,7 +723,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
             foldAxis.localEulerAngles = Vector3.zero;
         }
 
-        if (_foldJoint == null)
+        if (!_foldJoint)
         {
             _foldJoint = firearm.item.gameObject.AddComponent<HingeJoint>();
             _foldJoint.connectedBody = foldBody;
@@ -692,7 +761,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
             rotateAxis.localEulerAngles = Vector3.zero;
         }
 
-        if (_rotateJoint == null)
+        if (!_rotateJoint)
         {
             _rotateJoint = foldBody.gameObject.AddComponent<HingeJoint>();
             _rotateJoint.connectedBody = rotateBody;
@@ -712,7 +781,9 @@ public class Revolver : BoltBase, IAmmunitionLoadable
     public override void TryRelease(bool forced = false)
     {
         if (state == BoltState.Locked)
+        {
             Unlock();
+        }
     }
 
     public void SaveCartridges()
@@ -729,7 +800,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         base.UpdateChamberedRounds();
         for (var i = 0; i < mountPoints.Count; i++)
         {
-            if (_loadedCartridges[i] != null)
+            if (_loadedCartridges[i])
             {
                 _loadedCartridges[i].GetComponent<Rigidbody>().isKinematic = true;
                 _loadedCartridges[i].transform.parent = mountPoints[i];
@@ -740,10 +811,13 @@ public class Revolver : BoltBase, IAmmunitionLoadable
     }
 
     public delegate void OnCloseDelegate();
+
     public event OnCloseDelegate OnClose;
+
     public delegate void OnOpenDelegate();
+
     public event OnOpenDelegate OnOpen;
-        
+
     public string GetCaliber()
     {
         return calibers[_currentChamber];
@@ -769,7 +843,9 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         for (var i = 0; i < mountPoints.Count; i++)
         {
             if (!_loadedCartridges[i])
+            {
                 return i;
+            }
         }
         return -1;
     }
@@ -778,7 +854,9 @@ public class Revolver : BoltBase, IAmmunitionLoadable
     {
         var i = FirstFreeIndex();
         if (i == -1)
+        {
             return;
+        }
 
         LoadChamber(i, cartridge);
     }

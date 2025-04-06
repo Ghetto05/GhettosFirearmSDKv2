@@ -9,7 +9,10 @@ public class LockInverter : Lock
 
     public override bool GetIsUnlocked()
     {
-        if (lockToBeInverted == null) return true;
+        if (!lockToBeInverted)
+        {
+            return true;
+        }
         return !lockToBeInverted.IsUnlocked();
     }
 }

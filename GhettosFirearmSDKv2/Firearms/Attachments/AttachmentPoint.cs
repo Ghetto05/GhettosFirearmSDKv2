@@ -14,7 +14,7 @@ public class AttachmentPoint : MonoBehaviour
     public AttachmentManager attachmentManager;
     public IAttachmentManager ConnectedManager;
     public Attachment attachment;
-        
+
     public string type;
     public List<string> alternateTypes;
     public string id;
@@ -26,6 +26,7 @@ public class AttachmentPoint : MonoBehaviour
 
     [Space]
     public bool usesRail;
+
     public string railType;
     public List<Transform> railSlots;
     public bool requiredToFire;
@@ -35,19 +36,27 @@ public class AttachmentPoint : MonoBehaviour
     private void Start()
     {
         if (parentFirearm)
+        {
             ConnectedManager = parentFirearm;
+        }
         if (attachmentManager)
+        {
             ConnectedManager = attachmentManager;
-            
+        }
+
         if (Settings.debugMode)
+        {
             StartCoroutine(Alert());
+        }
         Invoke(nameof(InvokedStart), Settings.invokeTime + 0.01f);
     }
 
     private void InvokedStart()
     {
-        if (ConnectedManager != null)
+        if (ConnectedManager is not null)
+        {
             ConnectedManager.OnCollision += OnCollision;
+        }
     }
 
     private void OnCollision(Collision collision)
@@ -63,7 +72,7 @@ public class AttachmentPoint : MonoBehaviour
                 {
                     s.transform.SetParent(transform);
                     StartCoroutine(Explosive.DelayedDestroy(s.gameObject, s.clip.length + 1f));
-                } 
+                }
                 ati.item.handles.ForEach(h => h.Release());
                 ati.item.Despawn();
             }
@@ -74,7 +83,9 @@ public class AttachmentPoint : MonoBehaviour
     {
         var list = new List<Attachment>();
         if (!currentAttachments.Any())
+        {
             return list;
+        }
         foreach (var point in currentAttachments.SelectMany(x => x.attachmentPoints))
         {
             list.AddRange(point.GetAllChildAttachments());
@@ -86,20 +97,30 @@ public class AttachmentPoint : MonoBehaviour
     private IEnumerator Alert()
     {
         yield return new WaitForSeconds(1f);
-            
+
         string parentFound;
         if (GetComponentInParent<Attachment>() is { } a)
+        {
             parentFound = "Attachment name: " + a.gameObject.name;
+        }
         else if (GetComponentInParent<IAttachmentManager>() is { } f)
+        {
             parentFound = "Firearm name: " + f.Transform.name;
+        }
         else
+        {
             parentFound = "No parent firearm or attachment found!";
-            
-        if (ConnectedManager == null)
+        }
+
+        if (ConnectedManager is null)
+        {
             Debug.Log("Not initialized! Name: " + name + "\n" + parentFound);
+        }
 
         if (gameObject.name.Equals("mod_muzzle") && !attachColliders.Any())
+        {
             Debug.Log($"Muzzle on {parentFound} does not have any attach colliders!");
+        }
     }
 
     public void SpawnDefaultAttachment()
@@ -115,20 +136,33 @@ public class AttachmentPoint : MonoBehaviour
         if (disableOnAttach)
         {
             if (!currentAttachments.Any() && !disableOnAttach.activeInHierarchy)
+            {
                 disableOnAttach.SetActive(true);
+            }
             else if (currentAttachments.Any() && disableOnAttach.activeInHierarchy)
+            {
                 disableOnAttach.SetActive(false);
+            }
         }
         if (enableOnAttach)
         {
             if (currentAttachments.Any() && !enableOnAttach.activeInHierarchy)
+            {
                 enableOnAttach.SetActive(true);
+            }
             else if (!currentAttachments.Any() && enableOnAttach.activeInHierarchy)
+            {
                 enableOnAttach.SetActive(false);
+            }
         }
     }
 
-    public void InvokeAttachmentAdded(Attachment addedAttachment) => OnAttachmentAddedEvent?.Invoke(addedAttachment);
+    public void InvokeAttachmentAdded(Attachment addedAttachment)
+    {
+        OnAttachmentAddedEvent?.Invoke(addedAttachment);
+    }
+
     public delegate void OnAttachmentAdded(Attachment attachment);
+
     public event OnAttachmentAdded OnAttachmentAddedEvent;
 }

@@ -26,10 +26,11 @@ public class Cartridge : MonoBehaviour
     public List<Collider> colliders;
     public Transform cartridgeFirePoint;
     public UnityEvent onFireEvent;
-        
+
     public CartridgeSaveData SaveData;
 
     private bool _fired;
+
     public bool Fired
     {
         get
@@ -39,8 +40,10 @@ public class Cartridge : MonoBehaviour
         set
         {
             _fired = value;
-            if (SaveData != null)
+            if (SaveData is not null)
+            {
                 SaveData.IsFired = value;
+            }
         }
     }
 
@@ -48,19 +51,25 @@ public class Cartridge : MonoBehaviour
     {
         item = GetComponent<Item>();
     }
-        
+
     private void Start()
     {
         if (unfiredOnlyObject && !Fired)
+        {
             unfiredOnlyObject.SetActive(true);
+        }
         Invoke(nameof(InvokedStart), Settings.invokeTime);
         if (data.isInert)
+        {
             Fired = true;
+        }
         if (Settings.disableCartridgeImpactSounds)
+        {
             foreach (var c in colliders)
             {
                 c.material = null;
             }
+        }
     }
 
     private void InvokedStart()
@@ -79,7 +88,9 @@ public class Cartridge : MonoBehaviour
         if (item.TryGetCustomData(out SaveData))
         {
             if (SaveData.IsFired && !Fired)
+            {
                 SetFired();
+            }
         }
         else
         {
@@ -93,21 +104,29 @@ public class Cartridge : MonoBehaviour
         if (loaded)
         {
             if (keepRotationAtZero && transform.localEulerAngles != Vector3.zero)
+            {
                 transform.localEulerAngles = Vector3.zero;
+            }
             if (forceRotation && transform.localEulerAngles.z % forceRotationIncrement > 0.001f)
+            {
                 SnapToNearestRotation();
+            }
         }
-            
+
         if (!disallowDespawn && !loaded && Fired && !Mathf.Approximately(Settings.cartridgeDespawnTime, 0f))
+        {
             StartCoroutine(Despawn());
+        }
     }
-        
+
     public void SnapToNearestRotation()
     {
         var currentZ = transform.eulerAngles.z;
         currentZ = currentZ % 360;
         if (currentZ < 0)
+        {
             currentZ += 360;
+        }
         var nearestSnap = Mathf.Round(currentZ / forceRotationIncrement) * forceRotationIncrement;
         transform.localEulerAngles = new Vector3(0, 0, nearestSnap);
     }
@@ -130,14 +149,18 @@ public class Cartridge : MonoBehaviour
     public void Fire(List<Vector3> hits, List<Vector3> directions, Transform muzzle, List<Creature> hitCreatures, List<Creature> killedCreatures, bool fire)
     {
         DisableCartridge(fire);
-        if (firedOnlyObject != null)
+        if (firedOnlyObject)
+        {
             firedOnlyObject.SetActive(true);
-        if (unfiredOnlyObject != null)
+        }
+        if (unfiredOnlyObject)
+        {
             unfiredOnlyObject.SetActive(false);
+        }
         onFireEvent?.Invoke();
         OnFiredWithHitPointsAndMuzzle?.Invoke(hits, directions, muzzle);
         OnFiredWithHitPointsAndMuzzleAndCreatures?.Invoke(hits, directions, hitCreatures, muzzle, killedCreatures);
-        if (additionalMuzzleFlash != null)
+        if (additionalMuzzleFlash)
         {
             var additionalMuzzleFlashInstance = Instantiate(additionalMuzzleFlash.gameObject, muzzle, true);
             additionalMuzzleFlashInstance.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -146,28 +169,40 @@ public class Cartridge : MonoBehaviour
             StartCoroutine(Explosive.DelayedDestroy(additionalMuzzleFlashInstance, main.duration + main.startLifetime.constantMax * 4));
         }
         if (destroyOnFire && fire)
+        {
             item.Despawn();
+        }
     }
 
     public void SetFired()
     {
         Fired = true;
-        if (firedOnlyObject != null)
+        if (firedOnlyObject)
+        {
             firedOnlyObject.SetActive(true);
-        if (unfiredOnlyObject != null)
+        }
+        if (unfiredOnlyObject)
+        {
             unfiredOnlyObject.SetActive(false);
+        }
         ToggleTk(false);
         if (destroyOnFire)
+        {
             item.Despawn();
+        }
     }
 
     public void Detonate()
     {
         FireMethods.Fire(item, cartridgeFirePoint, data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, 1f, false);
-        if (detonationParticle != null)
+        if (detonationParticle)
+        {
             detonationParticle.Play();
-        if (item != null)
+        }
+        if (item)
+        {
             FireMethods.ApplyRecoil(transform, item, data.recoil / 4, 0f, 1f, null);
+        }
         Util.PlayRandomAudioSource(detonationSounds);
         Fire(hits, trajectories, cartridgeFirePoint, hitCreatures, killedCreatures, true);
     }
@@ -175,8 +210,14 @@ public class Cartridge : MonoBehaviour
     public void Reset()
     {
         Fired = false;
-        if (firedOnlyObject != null) firedOnlyObject.SetActive(false);
-        if (unfiredOnlyObject != null) unfiredOnlyObject.SetActive(true);
+        if (firedOnlyObject)
+        {
+            firedOnlyObject.SetActive(false);
+        }
+        if (unfiredOnlyObject)
+        {
+            unfiredOnlyObject.SetActive(true);
+        }
     }
 
     public void UngrabAll()
@@ -219,8 +260,10 @@ public class Cartridge : MonoBehaviour
     }
 
     public delegate void OnFired(List<Vector3> hitPoints, List<Vector3> trajectories, Transform muzzle);
+
     public event OnFired OnFiredWithHitPointsAndMuzzle;
 
     public delegate void OnFiredWithCreatures(List<Vector3> hitPoints, List<Vector3> trajectories, List<Creature> hitCreatures, Transform muzzle, List<Creature> killedCreatures);
+
     public event OnFiredWithCreatures OnFiredWithHitPointsAndMuzzleAndCreatures;
 }

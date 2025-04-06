@@ -58,7 +58,7 @@
 //            firearm.OnAttachmentAddedEvent += Firearm_OnAttachmentAddedEvent;
 //            firearm.OnAttachmentRemovedEvent += Firearm_OnAttachmentRemovedEvent;
 //            ChamberSaved();
-//            if (loadedCartridge != null) Invoke("DelayedReparent", 0.03f);
+//            if (loadedCartridge) Invoke("DelayedReparent", 0.03f);
 //            ready = true;
 //        }
 
@@ -93,7 +93,7 @@
 
 //            foreach (Handle h in boltHandles)
 //            {
-//                h.customRigidBody = lockJoint == null ? rb : null;
+//                h.customRigidBody = !lockJoint ? rb : null;
 //            }
 //        }
 
@@ -103,8 +103,8 @@
 //            {
 //                RefreshBoltHandles();
 //            }
-//            //SetStateOnAllHandlers(lockJoint != null);
-//            if (loadedCartridge != null && roundReparent != null && currentRoundRemounted)
+//            //SetStateOnAllHandlers(lockJoint);
+//            if (loadedCartridge && roundReparent && currentRoundRemounted)
 //            {
 //                loadedCartridge.transform.SetParent(roundReparent);
 //            }
@@ -112,9 +112,9 @@
 
 //        public override void UpdateChamberedRounds()
 //        {
-//            if (loadedCartridge == null) return;
+//            if (!loadedCartridge) return;
 //            loadedCartridge.GetComponent<Rigidbody>().isKinematic = true;
-//            loadedCartridge.transform.parent = currentRoundRemounted && roundReparent != null ? roundReparent : roundMount;
+//            loadedCartridge.transform.parent = currentRoundRemounted && roundReparent ? roundReparent : roundMount;
 //            loadedCartridge.transform.localPosition = Vector3.zero;
 //            loadedCartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
 //        }
@@ -139,18 +139,18 @@
 
 //        public override void TryFire()
 //        {
-//            if (loadedCartridge == null || loadedCartridge.fired)
+//            if (!loadedCartridge || loadedCartridge.fired)
 //            {
 //                Lock(false);
 //                return;
 //            }
 //            foreach (RagdollHand hand in firearm.item.handlers)
 //            {
-//                if (hand.playerHand == null || hand.playerHand.controlHand == null) return;
+//                if (!hand.playerHand || hand.playerHand.controlHand is null) return;
 //                hand.playerHand.controlHand.HapticShort(50f);
 //            }
 //            shotsSinceTriggerReset++;
-//            if (loadedCartridge.additionalMuzzleFlash != null)
+//            if (loadedCartridge.additionalMuzzleFlash)
 //            {
 //                loadedCartridge.additionalMuzzleFlash.transform.position = firearm.hitscanMuzzle.position;
 //                loadedCartridge.additionalMuzzleFlash.transform.rotation = firearm.hitscanMuzzle.rotation;
@@ -161,7 +161,7 @@
 //            firearm.PlayMuzzleFlash(loadedCartridge);
 //            FireMethods.ApplyRecoil(firearm.transform, firearm.item.physicBody.rigidBody, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.recoilModifiers);
 //            FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out List<Vector3> hits, out List<Vector3> trajectories, firearm.CalculateDamageMultiplier());
-//            if (!FirearmsSettings.infiniteAmmo || (FirearmsSettings.infiniteAmmo && firearm.magazineWell != null))
+//            if (!FirearmsSettings.infiniteAmmo || (FirearmsSettings.infiniteAmmo && firearm.magazineWell))
 //            {
 //                loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle);
 //                Lock(false);
@@ -175,7 +175,7 @@
 //            {
 //                bolt.localPosition = startPoint.localPosition;
 //                //rb.transform.localPosition = startPoint.localPosition;
-//                if (lockJoint == null) lockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
+//                if (!lockJoint) lockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
 //                lockJoint.connectedBody = rb;
 //                //lockJoint.connectedMassScale = 100f;
 //                closedSinceLastEject = true;
@@ -187,7 +187,7 @@
 //                Destroy(joint);
 //                SetStateOnAllHandlers(true);
 //            }
-//            else if (lockJoint != null)
+//            else if (lockJoint)
 //            {
 //                foreach (Handle h in boltHandles)
 //                {
@@ -221,14 +221,14 @@
 //            //state check
 //            if (isHeld)
 //            {
-//                if (nonHeldLockJoint != null) Destroy(nonHeldLockJoint);
+//                if (nonHeldLockJoint) Destroy(nonHeldLockJoint);
 
-//                if (lockJoint == null) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
+//                if (!lockJoint) bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rb.transform.localPosition.z);
 //                if (Util.AbsDist(bolt.position, startPoint.position) < FirearmsSettings.boltPointTreshold && state == BoltState.Moving)
 //                {
 //                    laststate = BoltState.Moving;
 //                    state = BoltState.Locked;
-//                    if (loadedCartridge != null && roundReparent != null)
+//                    if (loadedCartridge && roundReparent)
 //                    {
 //                        currentRoundRemounted = true;
 //                        loadedCartridge.transform.SetParent(roundReparent);
@@ -255,17 +255,17 @@
 //                //loading
 //                if (state == BoltState.Moving && (laststate == BoltState.Back || laststate == BoltState.LockedBack))
 //                {
-//                    if (roundLoadPoint != null && behindLoadPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition))
+//                    if (roundLoadPoint && behindLoadPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) < Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition))
 //                    {
-//                        if (loadedCartridge == null) TryLoadRound();
+//                        if (!loadedCartridge) TryLoadRound();
 //                        behindLoadPoint = false;
 //                    }
-//                    else if (roundLoadPoint != null && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) behindLoadPoint = true;
+//                    else if (roundLoadPoint && Util.AbsDist(startPoint.localPosition, bolt.localPosition) > Util.AbsDist(roundLoadPoint.localPosition, startPoint.localPosition)) behindLoadPoint = true;
 //                }
 //            }
 //            else
 //            {
-//                if (nonHeldLockJoint == null)
+//                if (!nonHeldLockJoint)
 //                {
 //                    nonHeldLockJoint = firearm.item.gameObject.AddComponent<FixedJoint>();
 //                    nonHeldLockJoint.connectedBody = rb;
@@ -282,11 +282,11 @@
 
 //        public override void EjectRound()
 //        {
-//            if (loadedCartridge == null) return;
+//            if (!loadedCartridge) return;
 //            currentRoundRemounted = false;
 //            Cartridge c = loadedCartridge;
 //            loadedCartridge = null;
-//            if (roundEjectPoint != null)
+//            if (roundEjectPoint)
 //            {
 //                c.transform.position = roundEjectPoint.position;
 //                c.transform.rotation = roundEjectPoint.rotation;
@@ -300,19 +300,19 @@
 //            c.loaded = false;
 //            rb.isKinematic = false;
 //            rb.WakeUp();
-//            if (roundEjectDir != null)
+//            if (roundEjectDir)
 //            {
 //                AddTorqueToCartridge(c);
 //                AddForceToCartridge(c, roundEjectDir, roundEjectForce);
 //            }
 //            c.ToggleHandles(true);
-//            if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired) firearm.magazineWell.Eject();
+//            if (firearm.magazineWell && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired) firearm.magazineWell.Eject();
 //            InvokeEjectRound(c);
 //        }
 
 //        public override void TryLoadRound()
 //        {
-//            if (loadedCartridge == null && firearm.magazineWell != null && firearm.magazineWell.ConsumeRound() is Cartridge c)
+//            if (!loadedCartridge && firearm.magazineWell && firearm.magazineWell.ConsumeRound() is Cartridge c)
 //            {
 //                loadedCartridge = c;
 //                c.GetComponent<Rigidbody>().isKinematic = true;
@@ -345,7 +345,7 @@
 
 //        public override bool LoadChamber(Cartridge c, bool forced)
 //        {
-//            if (loadedCartridge == null && (state != BoltState.Locked || forced) && !c.loaded)
+//            if (!loadedCartridge && (state != BoltState.Locked || forced) && !c.loaded)
 //            {
 //                loadedCartridge = c;
 //                c.item.DisallowDespawn = true;
@@ -373,7 +373,7 @@
 
 //        public override void TryRelease(bool forced = false)
 //        {
-//            if (lockJoint != null) Lock(false);
+//            if (lockJoint) Lock(false);
 //        }
 //    }
 //}

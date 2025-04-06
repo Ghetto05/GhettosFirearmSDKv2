@@ -13,7 +13,7 @@ public class StockToggler : MonoBehaviour
     public Firearm connectedFirearm;
     public AttachmentManager attachmentManager;
     public Attachment connectedAttachment;
-        
+
     public AudioSource toggleSound;
     public Handle toggleHandle;
     public Transform pivot;
@@ -26,26 +26,34 @@ public class StockToggler : MonoBehaviour
     {
         Invoke(nameof(InvokedStart), Settings.invokeTime);
         if (connectedFirearm)
+        {
             ConnectedManager = connectedFirearm;
+        }
         if (attachmentManager)
+        {
             ConnectedManager = attachmentManager;
+        }
     }
 
     public void InvokedStart()
     {
-        if (ConnectedManager != null)
+        if (ConnectedManager is not null)
         {
             ConnectedManager.Item.OnHeldActionEvent += OnAction;
             _stockPosition = ConnectedManager.SaveData.FirearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
             currentIndex = _stockPosition.Value;
             ApplyPosition(_stockPosition.Value, false);
         }
-        else if (connectedAttachment != null)
+        else if (connectedAttachment)
         {
             if (!connectedAttachment.initialized)
+            {
                 connectedAttachment.OnDelayedAttachEvent += ConnectedAttachment_OnDelayedAttachEvent;
+            }
             else
+            {
                 ConnectedAttachment_OnDelayedAttachEvent();
+            }
         }
     }
 
@@ -62,17 +70,25 @@ public class StockToggler : MonoBehaviour
         if (handle == toggleHandle && action == Interactable.Action.UseStart)
         {
             if (currentIndex + 1 == positions.Length)
+            {
                 currentIndex = 0;
+            }
             else
+            {
                 currentIndex++;
+            }
             ApplyPosition(currentIndex);
         }
         else if (handle == toggleHandle && action == Interactable.Action.AlternateUseStart)
         {
             if (currentIndex - 1 == -1)
+            {
                 currentIndex = positions.Length - 1;
+            }
             else
+            {
                 currentIndex--;
+            }
             ApplyPosition(currentIndex);
         }
         _stockPosition.Value = currentIndex;
@@ -82,8 +98,10 @@ public class StockToggler : MonoBehaviour
     {
         try
         {
-            if (toggleSound != null && playSound)
+            if (toggleSound && playSound)
+            {
                 toggleSound.Play();
+            }
             if (!useAsSeparateObjects)
             {
                 pivot.localPosition = positions[index].localPosition;
@@ -101,7 +119,7 @@ public class StockToggler : MonoBehaviour
 
             if (toggleHandle.handlers.Any())
             {
-                IEnumerable<Tuple<RagdollHand,HandlePose,float>> handlers = toggleHandle.handlers.Select(h => new Tuple<RagdollHand, HandlePose, float>(h, h.gripInfo.orientation, h.gripInfo.axisPosition)).ToList();
+                IEnumerable<Tuple<RagdollHand, HandlePose, float>> handlers = toggleHandle.handlers.Select(h => new Tuple<RagdollHand, HandlePose, float>(h, h.gripInfo.orientation, h.gripInfo.axisPosition)).ToList();
                 toggleHandle.Release();
                 foreach (var pair in handlers)
                 {
@@ -111,13 +129,18 @@ public class StockToggler : MonoBehaviour
         }
         catch (Exception)
         {
-            if (connectedAttachment != null)
+            if (connectedAttachment)
+            {
                 Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.ConnectedManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
-            else if (ConnectedManager != null)
+            }
+            else if (ConnectedManager is not null)
+            {
                 Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {ConnectedManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
+            }
         }
     }
 
     public delegate void OnToggle(int newIndex, bool playSound);
+
     public event OnToggle OnToggleEvent;
 }

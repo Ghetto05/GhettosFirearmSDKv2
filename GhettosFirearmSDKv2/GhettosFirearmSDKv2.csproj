@@ -1,570 +1,571 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DB937D9F-9B57-4E2A-9BD0-B919E007DA80}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GhettosFirearmSDKv2</RootNamespace>
-    <AssemblyName>GhettosFirearmSDKv2</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <LangVersion>12</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="Attachments\AttachmentManager.cs" />
-    <Compile Include="Attachments\IAttachmentManager.cs" />
-    <Compile Include="Attachments\SharedAttachmentManagerFunctions.cs" />
-    <Compile Include="Chemicals\DartBehavoirs.cs" />
-    <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs" />
-    <Compile Include="Clothing\HUD\HUD.cs" />
-    <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs" />
-    <Compile Include="Clothing\GasMask.cs" />
-    <Compile Include="Clothing\HUD\HUDModuleStats.cs" />
-    <Compile Include="Clothing\HUD\HUDToggle.cs" />
-    <Compile Include="Clothing\NVGAdjuster.cs" />
-    <Compile Include="Clothing\WearableItem.cs" />
-    <Compile Include="Clothing\Wearables\Wearable.cs" />
-    <Compile Include="Firearms\Ammunition\AmmoBelt.cs" />
-    <Compile Include="Firearms\Ammunition\CustomCartridgeDeathSound.cs" />
-    <Compile Include="Firearms\Ammunition\IAmmunitionLoadable.cs" />
-    <Compile Include="Firearms\Ammunition\ICaliberGettable.cs" />
-    <Compile Include="Firearms\Ammunition\MagazinePositionSet.cs" />
-    <Compile Include="Firearms\Ammunition\PowderGrain.cs" />
-    <Compile Include="Firearms\Ammunition\Projectile.cs" />
-    <Compile Include="Firearms\Ammunition\StripperClip.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearmModeManager.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFireModeSeletor.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\BipodAxis.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\BoltAttacher.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\FireModeReplacer.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\ForeGripSling.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\TacticalSwitch.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\RevolverCaliberReplacer.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\ScopeReticleReplacer.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\TriggerBasedTacSwitch.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\Xm157.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BoltFailureData.cs" />
-    <Compile Include="Firearms\BoltAssemblies\FlintLock.cs" />
-    <Compile Include="Firearms\BoltAssemblies\LeverAction.cs" />
-    <Compile Include="Firearms\BoltAssemblies\PumpAutomaticAdapter.cs" />
-    <Compile Include="Firearms\BoltAssemblies\RecoilSpring.cs" />
-    <Compile Include="Firearms\BoltAssemblies\SplitChargingHandle.cs" />
-    <Compile Include="Firearms\FirearmMechanics\AdditionalFireModeSelectorAxis.cs" />
-    <Compile Include="Firearms\FirearmMechanics\AmmoCounter.cs" />
-    <Compile Include="Firearms\FirearmMechanics\BeltFedCover.cs" />
-    <Compile Include="Firearms\FirearmMechanics\BeltFedCoverAxis.cs" />
-    <Compile Include="Firearms\FirearmMechanics\LeverActionSnapFeeder.cs" />
-    <Compile Include="Firearms\FirearmMechanics\MagazineWellLatch.cs" />
-    <Compile Include="Firearms\FirearmMechanics\PowderPouch.cs" />
-    <Compile Include="Firearms\FirearmMechanics\PowderReceiver.cs" />
-    <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs" />
-    <Compile Include="Firearms\FirearmMechanics\RotationLimitedFollower.cs" />
-    <Compile Include="Firearms\FirearmMechanics\StripperClipWell.cs" />
-    <Compile Include="Other\LockSpell\LockedItemModule.cs" />
-    <Compile Include="Other\LockSpell\LockSpell.cs" />
-    <Compile Include="Other\Pouches\ImprovedLazyPouch.cs" />
-    <Compile Include="Other\VariationRandomizer.cs" />
-    <Compile Include="SaveData\CartridgeSaveData.cs" />
-    <Compile Include="SaveData\ItemSaveData.cs" />
-    <Compile Include="SaveData\SaveNodeValueArray.cs" />
-    <Compile Include="SaveData\SaveNodeValueCartridgeData.cs" />
-    <Compile Include="SaveData\SaveNodeValueItem.cs" />
-    <Compile Include="StaticScripts\FirearmCleaner.cs" />
-    <Compile Include="StaticScripts\FirearmsSettingsValues.cs" />
-    <Compile Include="StaticScripts\HomeAdjustments.cs" />
-    <Compile Include="StaticScripts\Initialization.cs" />
-    <Compile Include="StaticScripts\Score.cs" />
-    <Compile Include="StaticScripts\UpdateChecker.cs" />
-    <Compile Include="Other\ChemLight.cs" />
-    <Compile Include="Other\CollapsibleBaton.cs" />
-    <Compile Include="Other\Data\CaliberSortingData.cs" />
-    <Compile Include="Other\Data\CaliberSubstituteData.cs" />
-    <Compile Include="Other\Data\ItemMetaData.cs" />
-    <Compile Include="Other\Data\ObsoleteIdData.cs" />
-    <Compile Include="Other\FirearmClicker.cs" />
-    <Compile Include="Other\GunCaseSaveData.cs" />
-    <Compile Include="Other\GunCase.cs" />
-    <Compile Include="Other\Handcuffs.cs" />
-    <Compile Include="Other\HolderItemSpawner.cs" />
-    <Compile Include="Other\Holster.cs" />
-    <Compile Include="Other\HolsterLid.cs" />
-    <Compile Include="Other\Locks\LockInverter.cs" />
-    <Compile Include="Other\Pouches\LazyPouch.cs" />
-    <Compile Include="Firearms\Ammunition\Projectilifier.cs" />
-    <Compile Include="Firearms\Ammunition\Speedloader.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachableItem.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\BipodManager.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\CartridgeHolder.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachableItemDetacher.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\TacticalDevice.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\PressureSwitch.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellColliderReplacer.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BoltAnimationPlayer.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BoltSemiautomatic.cs" />
-    <Compile Include="Firearms\BoltAssemblies\GateLoadedRevolver.cs" />
-    <Compile Include="Firearms\BoltAssemblies\MultiChamberMuzzleLoadedBolt.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BreakAction.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BreakActionMuzzleOverride.cs" />
-    <Compile Include="Firearms\BoltAssemblies\PumpActionOriginalBackup.cs" />
-    <Compile Include="Firearms\BoltAssemblies\PumpActionNew.cs" />
-    <Compile Include="Firearms\BoltAssemblies\Revolver.cs" />
-    <Compile Include="Firearms\BoltAssemblies\SelfLoadingBolt.cs" />
-    <Compile Include="Firearms\FirearmMechanics\GravtiyEjector.cs" />
-    <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs" />
-    <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs" />
-    <Compile Include="Other\Pouches\AmmunitionPouch.cs" />
-    <Compile Include="Firearms\Ammunition\Tracer.cs" />
-    <Compile Include="Firearms\Ammunition\TracerModule.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentJointConnector.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\Bipod.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellSwitcher.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\MainHandleReplacer.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BoltActionHandle.cs" />
-    <Compile Include="Firearms\BoltAssemblies\HandleFolder.cs" />
-    <Compile Include="Firearms\FirearmMechanics\Hammer.cs" />
-    <Compile Include="Firearms\FirearmMechanics\RevolverEjectorRod.cs" />
-    <Compile Include="Imaging\NVGOnlyRenderer.cs" />
-    <Compile Include="Imaging\NVGOnlyRendererMeshModule.cs" />
-    <Compile Include="Other\GhettoHandle.cs" />
-    <Compile Include="Other\CollisionRelay.cs" />
-    <Compile Include="Other\Locks\GateLock.cs" />
-    <Compile Include="Other\Pouches\PrebuiltPouch.cs" />
-    <Compile Include="Other\Switches\FireModeBasedSwitch.cs" />
-    <Compile Include="Other\WireCutter.cs" />
-    <Compile Include="Other\WireCutterCuttable.cs" />
-    <Compile Include="SaveData\HolsterSaveData.cs" />
-    <Compile Include="SaveData\SaveNodeValueFloat.cs" />
-    <Compile Include="SaveData\SaveNodeValueMagazineContents.cs" />
-    <Compile Include="SaveData\SaveNodeValueBool.cs" />
-    <Compile Include="SaveData\SaveNodeValueString.cs" />
-    <Compile Include="SaveData\SaveNodeValueInt.cs" />
-    <Compile Include="SaveData\SaveNodeValue.cs" />
-    <Compile Include="SaveData\FirearmSaveData.cs" />
-    <Compile Include="Other\Switches\SwitchRelation.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BoltBase.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearm.cs" />
-    <Compile Include="Explosives\GrenadeMechanics\StickyBomb.cs" />
-    <Compile Include="Explosives\Detonators\TimedDetonator.cs" />
-    <Compile Include="Explosives\GrenadeJumpCharge.cs" />
-    <Compile Include="Firearms\FirearmMechanics\AkMagazineSlap.cs" />
-    <Compile Include="Firearms\FirearmMechanics\StockTogglerAdditional.cs" />
-    <Compile Include="SaveData\PouchSaveData.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\TacLight.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\TriggerRelay.cs" />
-    <Compile Include="Firearms\FirearmBase.cs" />
-    <Compile Include="Other\Locks\BoltBasedLock.cs" />
-    <Compile Include="Firearms\BoltAssemblies\BoltChildPositionLimiter.cs" />
-    <Compile Include="Firearms\FirearmMechanics\BoltReleaseButton.cs" />
-    <Compile Include="Firearms\Ammunition\Cartridge.cs" />
-    <Compile Include="Firearms\FirearmMechanics\ChamberLoader.cs" />
-    <Compile Include="Chemicals\NPCChemicalsModule.cs" />
-    <Compile Include="Chemicals\PlayerEffectsAndChemicalsModule.cs" />
-    <Compile Include="Firearms\Attachments\Attachment.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentData.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentPoint.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineSizeIncreaser.cs" />
-    <Compile Include="Other\Switches\OnActionSwitch.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\ReticleSwitcher.cs" />
-    <Compile Include="Other\Shootable.cs" />
-    <Compile Include="Explosives\Drone\Drone40.cs" />
-    <Compile Include="Explosives\Drone\Drone40ControlPanel.cs" />
-    <Compile Include="Firearms\BoltAssemblies\MuzzleLoadedBolt.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\Laser.cs" />
-    <Compile Include="Other\Switches\SafetyBasedSwitch.cs" />
-    <Compile Include="Other\StateTogglerWithAnimation.cs" />
-    <Compile Include="Imaging\ThermalBody.cs" />
-    <Compile Include="UI\AmmoBox\AmmoSpawnerUI.cs" />
-    <Compile Include="UI\AmmoBox\AmmoModule.cs" />
-    <Compile Include="UI\GunLocker\PrebuiltLoader.cs" />
-    <Compile Include="UI\GunLocker\GunLockerSaveData.cs" />
-    <Compile Include="UI\GunLocker\GunLockerUI.cs" />
-    <Compile Include="UI\GunLocker\GunLockerUICategory.cs" />
-    <Compile Include="UI\GunLocker\GunLockerUISave.cs" />
-    <Compile Include="UI\GunViceV2\UIAttachment.cs" />
-    <Compile Include="UI\GunViceV2\UIAttachmentCategory.cs" />
-    <Compile Include="UI\GunViceV2\UIRailAttachment.cs" />
-    <Compile Include="UI\GunViceV2\UISlot.cs" />
-    <Compile Include="UI\GunViceV2\ViceUI.cs" />
-    <Compile Include="Util\AdditionalFireSoundManager.cs" />
-    <Compile Include="Other\BetterAudioLoader.cs" />
-    <Compile Include="Util\AttachmentValidator.cs" />
-    <Compile Include="Util\CollisionDisabler.cs" />
-    <Compile Include="Explosives\GrenadeMechanics\GreanadePin.cs" />
-    <Compile Include="Explosives\GrenadeMechanics\GrenadeSpoon.cs" />
-    <Compile Include="Firearms\Ammunition\RequiredPenetrationPowerData.cs" />
-    <Compile Include="Explosives\PoisonGas.cs" />
-    <Compile Include="Explosives\Flashbang.cs" />
-    <Compile Include="Explosives\Explosive.cs" />
-    <Compile Include="Explosives\CSgas.cs" />
-    <Compile Include="Explosives\Smoke.cs" />
-    <Compile Include="Firearms\Attachments\AttachmentUtils\Scope.cs" />
-    <Compile Include="Explosives\SimpleExplosive.cs" />
-    <Compile Include="Explosives\Detonators\ImpactDetonator.cs" />
-    <Compile Include="Other\Locks\Lock.cs" />
-    <Compile Include="Firearms\BoltAssemblies\Minigun.cs" />
-    <Compile Include="SaveData\MagazineSaveData.cs" />
-    <Compile Include="Firearms\Firearm.cs" />
-    <Compile Include="Firearms\FirearmMechanics\FiremodeSelector.cs" />
-    <Compile Include="Firearms\FirearmMechanics\MagazineWell.cs" />
-    <Compile Include="Firearms\Ammunition\MagazineLoad.cs" />
-    <Compile Include="Firearms\FirearmMechanics\StockToggler.cs" />
-    <Compile Include="UI\CanvasCamAssigner.cs" />
-    <Compile Include="Firearms\BoltAssemblies\PumpAction.cs" />
-    <Compile Include="Firearms\FirearmMechanics\Trigger.cs" />
-    <Compile Include="Util\EnumDescription.cs" />
-    <Compile Include="Util\Extensions.cs" />
-    <Compile Include="Util\LineAttacher.cs" />
-    <Compile Include="Util\ModderTool.cs" />
-    <Compile Include="Util\Util.cs" />
-    <Compile Include="Firearms\Ammunition\Magazine.cs" />
-    <Compile Include="Firearms\Ammunition\ProjectileData.cs" />
-    <Compile Include="Explosives\ExplosiveData.cs" />
-    <Compile Include="StaticScripts\Settings.cs" />
-    <Compile Include="FireMethods.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WTFInator.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="BaSAssemblies\Assembly-CSharp-firstpass.dll" />
-    <Content Include="BaSAssemblies\Assembly-CSharp.dll" />
-    <Content Include="BaSAssemblies\Autodesk.Fbx.dll" />
-    <Content Include="BaSAssemblies\BetterStreamingAssets.dll" />
-    <Content Include="BaSAssemblies\Bhaptics.SDK2.dll" />
-    <Content Include="BaSAssemblies\Cinemachine.dll" />
-    <Content Include="BaSAssemblies\CW.Common.dll" />
-    <Content Include="BaSAssemblies\EasyButtons.dll" />
-    <Content Include="BaSAssemblies\FbxBuildTestAssets.dll" />
-    <Content Include="BaSAssemblies\IngameDebugConsole.Runtime.dll" />
-    <Content Include="BaSAssemblies\Ionic.Zip.Unity.dll" />
-    <Content Include="BaSAssemblies\LIV.dll" />
-    <Content Include="BaSAssemblies\modio.UI.dll" />
-    <Content Include="BaSAssemblies\modio.UnityPlugin.dll" />
-    <Content Include="BaSAssemblies\Mono.Security.dll" />
-    <Content Include="BaSAssemblies\mscorlib.dll" />
-    <Content Include="BaSAssemblies\NavMeshComponents.dll" />
-    <Content Include="BaSAssemblies\netstandard.dll" />
-    <Content Include="BaSAssemblies\Newtonsoft.Json.dll" />
-    <Content Include="BaSAssemblies\Newtonsoft.Json.UnityConverters.Addressables.dll" />
-    <Content Include="BaSAssemblies\Newtonsoft.Json.UnityConverters.dll" />
-    <Content Include="BaSAssemblies\Oculus.AudioManager.dll" />
-    <Content Include="BaSAssemblies\Oculus.LipSync.dll" />
-    <Content Include="BaSAssemblies\Oculus.Platform.dll" />
-    <Content Include="BaSAssemblies\Oculus.Spatializer.dll" />
-    <Content Include="BaSAssemblies\Oculus.VR.dll" />
-    <Content Include="BaSAssemblies\PerfectCulling.dll" />
-    <Content Include="BaSAssemblies\PICO.Platform.dll" />
-    <Content Include="BaSAssemblies\RainyReignGames.Collections.dll" />
-    <Content Include="BaSAssemblies\RainyReignGames.Dismemberment.dll" />
-    <Content Include="BaSAssemblies\RainyReignGames.Expresssions.dll" />
-    <Content Include="BaSAssemblies\RainyReignGames.MeshUtilities.dll" />
-    <Content Include="BaSAssemblies\RemoteInspectorRuntime.dll" />
-    <Content Include="BaSAssemblies\RootMotion.dll" />
-    <Content Include="BaSAssemblies\Sirenix.OdinInspector.Attributes.dll" />
-    <Content Include="BaSAssemblies\Sirenix.OdinInspector.CompatibilityLayer.dll" />
-    <Content Include="BaSAssemblies\Sirenix.Serialization.Config.dll" />
-    <Content Include="BaSAssemblies\Sirenix.Serialization.dll" />
-    <Content Include="BaSAssemblies\Sirenix.Utilities.dll" />
-    <Content Include="BaSAssemblies\SteamVR.dll" />
-    <Content Include="BaSAssemblies\SteamVR_Actions.dll" />
-    <Content Include="BaSAssemblies\Steamworks.NET.dll" />
-    <Content Include="BaSAssemblies\System.ComponentModel.Composition.dll" />
-    <Content Include="BaSAssemblies\System.Configuration.dll" />
-    <Content Include="BaSAssemblies\System.Core.dll" />
-    <Content Include="BaSAssemblies\System.Data.DataSetExtensions.dll" />
-    <Content Include="BaSAssemblies\System.Data.dll" />
-    <Content Include="BaSAssemblies\System.dll" />
-    <Content Include="BaSAssemblies\System.Drawing.dll" />
-    <Content Include="BaSAssemblies\System.EnterpriseServices.dll" />
-    <Content Include="BaSAssemblies\System.IO.Compression.dll" />
-    <Content Include="BaSAssemblies\System.IO.Compression.FileSystem.dll" />
-    <Content Include="BaSAssemblies\System.Net.Http.dll" />
-    <Content Include="BaSAssemblies\System.Numerics.dll" />
-    <Content Include="BaSAssemblies\System.Runtime.dll" />
-    <Content Include="BaSAssemblies\System.Runtime.Serialization.dll" />
-    <Content Include="BaSAssemblies\System.Security.dll" />
-    <Content Include="BaSAssemblies\System.ServiceModel.Internals.dll" />
-    <Content Include="BaSAssemblies\System.Transactions.dll" />
-    <Content Include="BaSAssemblies\System.Xml.dll" />
-    <Content Include="BaSAssemblies\System.Xml.Linq.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.Environment.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.EventLinker.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.Manikin.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.MaterialInstance.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.pdb" />
-    <Content Include="BaSAssemblies\ThunderRoad.PointCache.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.Reflection.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.Reveal.dll" />
-    <Content Include="BaSAssemblies\ThunderRoad.Utilities.dll" />
-    <Content Include="BaSAssemblies\TRVRKBSharedData.dll" />
-    <Content Include="BaSAssemblies\Unity.Addressables.dll" />
-    <Content Include="BaSAssemblies\Unity.Animation.Rigging.dll" />
-    <Content Include="BaSAssemblies\Unity.Burst.dll" />
-    <Content Include="BaSAssemblies\Unity.Burst.Unsafe.dll" />
-    <Content Include="BaSAssemblies\Unity.Collections.dll" />
-    <Content Include="BaSAssemblies\Unity.Collections.LowLevel.ILSupport.dll" />
-    <Content Include="BaSAssemblies\Unity.Formats.Fbx.Runtime.dll" />
-    <Content Include="BaSAssemblies\Unity.InputSystem.dll" />
-    <Content Include="BaSAssemblies\Unity.InternalAPIEngineBridge.011.dll" />
-    <Content Include="BaSAssemblies\Unity.Jobs.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.ARKitFaceCapture.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.CompanionApp.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.Ltc.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.Mocap.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.Networking.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.Ntp.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.Rendering.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.TransformCapture.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.VideoStreaming.Server.dll" />
-    <Content Include="BaSAssemblies\Unity.LiveCapture.VirtualCamera.dll" />
-    <Content Include="BaSAssemblies\Unity.Mathematics.dll" />
-    <Content Include="BaSAssemblies\Unity.MemoryProfiler.dll" />
-    <Content Include="BaSAssemblies\Unity.Polybrush.dll" />
-    <Content Include="BaSAssemblies\Unity.Recorder.Base.dll" />
-    <Content Include="BaSAssemblies\Unity.Recorder.dll" />
-    <Content Include="BaSAssemblies\Unity.RenderPipeline.Universal.ShaderLibrary.dll" />
-    <Content Include="BaSAssemblies\Unity.RenderPipelines.Core.Runtime.dll" />
-    <Content Include="BaSAssemblies\Unity.RenderPipelines.Core.ShaderLibrary.dll" />
-    <Content Include="BaSAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll" />
-    <Content Include="BaSAssemblies\Unity.RenderPipelines.Universal.Runtime.dll" />
-    <Content Include="BaSAssemblies\Unity.RenderPipelines.Universal.Shaders.dll" />
-    <Content Include="BaSAssemblies\Unity.ResourceManager.dll" />
-    <Content Include="BaSAssemblies\Unity.ScriptableBuildPipeline.dll" />
-    <Content Include="BaSAssemblies\Unity.Splines.dll" />
-    <Content Include="BaSAssemblies\Unity.TextMeshPro.dll" />
-    <Content Include="BaSAssemblies\Unity.Timeline.dll" />
-    <Content Include="BaSAssemblies\Unity.VisualEffectGraph.Runtime.dll" />
-    <Content Include="BaSAssemblies\Unity.XR.CoreUtils.dll" />
-    <Content Include="BaSAssemblies\Unity.XR.Interaction.Toolkit.dll" />
-    <Content Include="BaSAssemblies\Unity.XR.Management.dll" />
-    <Content Include="BaSAssemblies\Unity.XR.MockHMD.dll" />
-    <Content Include="BaSAssemblies\Unity.XR.Oculus.dll" />
-    <Content Include="BaSAssemblies\Unity.XR.OpenVR.dll" />
-    <Content Include="BaSAssemblies\Unity.XR.PICO.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.AccessibilityModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.AIModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.AndroidJNIModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.AnimationModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.ARModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.AssetBundleModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.AudioModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.ClothModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.ClusterInputModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.ClusterRendererModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.CoreModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.CrashReportingModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.DirectorModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.DSPGraphModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.GameCenterModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.GIModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.GridModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.HotReloadModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.ImageConversionModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.IMGUIModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.InputLegacyModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.InputModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.JSONSerializeModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.LocalizationModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.NVIDIAModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.ParticleSystemModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.PerformanceReportingModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.Physics2DModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.PhysicsModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.ProfilerModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.ScreenCaptureModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.SharedInternalsModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.SpatialTracking.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.SpriteMaskModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.SpriteShapeModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.StreamingModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.SubstanceModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.SubsystemsModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.TerrainModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.TerrainPhysicsModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.TextCoreFontEngineModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.TextCoreTextEngineModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.TextRenderingModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.TilemapModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.TLSModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UI.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UIElementsModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UIElementsNativeModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UIModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UmbraModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UNETModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityAnalyticsCommonModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityAnalyticsModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityConnectModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityCurlModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityTestProtocolModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestAssetBundleModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestAudioModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestTextureModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestWWWModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.VehiclesModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.VFXModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.VideoModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.VirtualTexturingModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.VRModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.WindModule.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.XR.LegacyInputHelpers.dll" />
-    <Content Include="BaSAssemblies\UnityEngine.XRModule.dll" />
-    <Content Include="BaSAssemblies\Valve.Newtonsoft.Json.dll" />
-    <Content Include="BaSAssemblies\Viveport.dll" />
-    <Content Include="BaSAssemblies\VLB.dll" />
-    <Content Include="BaSAssemblies\VolumetricAudio.dll" />
-    <Content Include="BaSAssemblies\VRKB.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="EasyButtons">
-      <HintPath>BaSAssemblies\EasyButtons.dll</HintPath>
-    </Reference>
-    <Reference Include="IngameDebugConsole.Runtime">
-      <HintPath>BaSAssemblies\IngameDebugConsole.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>BaSAssemblies\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json.UnityConverters">
-      <HintPath>BaSAssemblies\Newtonsoft.Json.UnityConverters.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json.UnityConverters.Addressables">
-      <HintPath>BaSAssemblies\Newtonsoft.Json.UnityConverters.Addressables.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json.UnityConverters.Mathematics">
-      <HintPath>BaSAssemblies\Newtonsoft.Json.UnityConverters.Mathematics.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>BaSAssemblies\System.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad">
-      <HintPath>BaSAssemblies\ThunderRoad.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad.Environment">
-      <HintPath>BaSAssemblies\ThunderRoad.Environment.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad.EventLinker">
-      <HintPath>BaSAssemblies\ThunderRoad.EventLinker.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad.Manikin">
-      <HintPath>BaSAssemblies\ThunderRoad.Manikin.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad.MaterialInstance">
-      <HintPath>BaSAssemblies\ThunderRoad.MaterialInstance.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad.PointCache">
-      <HintPath>BaSAssemblies\ThunderRoad.PointCache.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad.Reflection">
-      <HintPath>BaSAssemblies\ThunderRoad.Reflection.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad.Reveal">
-      <HintPath>BaSAssemblies\ThunderRoad.Reveal.dll</HintPath>
-    </Reference>
-    <Reference Include="ThunderRoad.Utilities">
-      <HintPath>BaSAssemblies\ThunderRoad.Utilities.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Addressables">
-      <HintPath>BaSAssemblies\Unity.Addressables.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Mathematics">
-      <HintPath>BaSAssemblies\Unity.Mathematics.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Core.Runtime">
-      <HintPath>BaSAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
-      <HintPath>BaSAssemblies\Unity.RenderPipelines.Core.ShaderLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
-      <HintPath>BaSAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Universal.Runtime">
-      <HintPath>BaSAssemblies\Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Universal.Shaders">
-      <HintPath>BaSAssemblies\Unity.RenderPipelines.Universal.Shaders.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.ResourceManager">
-      <HintPath>BaSAssemblies\Unity.ResourceManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>BaSAssemblies\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>BaSAssemblies\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AIModule">
-      <HintPath>BaSAssemblies\UnityEngine.AIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>BaSAssemblies\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>BaSAssemblies\UnityEngine.AssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AudioModule">
-      <HintPath>BaSAssemblies\UnityEngine.AudioModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ClothModule">
-      <HintPath>BaSAssemblies\UnityEngine.ClothModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>BaSAssemblies\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>BaSAssemblies\UnityEngine.ParticleSystemModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>BaSAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>BaSAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>BaSAssemblies\UnityEngine.UIElementsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIElementsNativeModule">
-      <HintPath>BaSAssemblies\UnityEngine.UIElementsNativeModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>BaSAssemblies\UnityEngine.UIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.VideoModule">
-      <HintPath>BaSAssemblies\UnityEngine.VideoModule.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).pdb" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\!$(TargetName)\$(TargetName).pdb"
-copy /Y "$(TargetPath)" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\!$(TargetName)\$(TargetFileName)"</PostBuildEvent>
-  </PropertyGroup>
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{DB937D9F-9B57-4E2A-9BD0-B919E007DA80}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>GhettosFirearmSDKv2</RootNamespace>
+        <AssemblyName>GhettosFirearmSDKv2</AssemblyName>
+        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+        <Deterministic>true</Deterministic>
+        <LangVersion>12</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>portable</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="Attachments\AttachmentManager.cs"/>
+        <Compile Include="Attachments\IAttachmentManager.cs"/>
+        <Compile Include="Attachments\SharedAttachmentManagerFunctions.cs"/>
+        <Compile Include="Chemicals\DartBehavoirs.cs"/>
+        <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs"/>
+        <Compile Include="Clothing\HUD\HUD.cs"/>
+        <Compile Include="Clothing\HUD\HUDModuleHeldWeapon.cs"/>
+        <Compile Include="Clothing\GasMask.cs"/>
+        <Compile Include="Clothing\HUD\HUDModuleStats.cs"/>
+        <Compile Include="Clothing\HUD\HUDToggle.cs"/>
+        <Compile Include="Clothing\NVGAdjuster.cs"/>
+        <Compile Include="Clothing\WearableItem.cs"/>
+        <Compile Include="Clothing\Wearables\Wearable.cs"/>
+        <Compile Include="Firearms\Ammunition\AmmoBelt.cs"/>
+        <Compile Include="Firearms\Ammunition\CustomCartridgeDeathSound.cs"/>
+        <Compile Include="Firearms\Ammunition\IAmmunitionLoadable.cs"/>
+        <Compile Include="Firearms\Ammunition\ICaliberGettable.cs"/>
+        <Compile Include="Firearms\Ammunition\MagazinePositionSet.cs"/>
+        <Compile Include="Firearms\Ammunition\PowderGrain.cs"/>
+        <Compile Include="Firearms\Ammunition\Projectile.cs"/>
+        <Compile Include="Firearms\Ammunition\StripperClip.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearmModeManager.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFireModeSeletor.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\BipodAxis.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\BoltAttacher.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\FireModeReplacer.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\ForeGripSling.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\TacticalSwitch.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\RevolverCaliberReplacer.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\ScopeReticleReplacer.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\TriggerBasedTacSwitch.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\Xm157.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BoltFailureData.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\FlintLock.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\LeverAction.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\PumpAutomaticAdapter.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\RecoilSpring.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\SplitChargingHandle.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\AdditionalFireModeSelectorAxis.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\AmmoCounter.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\BeltFedCover.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\BeltFedCoverAxis.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\LeverActionSnapFeeder.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\MagazineWellLatch.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\PowderPouch.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\PowderReceiver.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\RotationLimitedFollower.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\StripperClipWell.cs"/>
+        <Compile Include="Other\LockSpell\LockedItemModule.cs"/>
+        <Compile Include="Other\LockSpell\LockSpell.cs"/>
+        <Compile Include="Other\Pouches\ImprovedLazyPouch.cs"/>
+        <Compile Include="Other\VariationRandomizer.cs"/>
+        <Compile Include="SaveData\CartridgeSaveData.cs"/>
+        <Compile Include="SaveData\ItemSaveData.cs"/>
+        <Compile Include="SaveData\SaveNodeValueArray.cs"/>
+        <Compile Include="SaveData\SaveNodeValueCartridgeData.cs"/>
+        <Compile Include="SaveData\SaveNodeValueItem.cs"/>
+        <Compile Include="StaticScripts\FirearmCleaner.cs"/>
+        <Compile Include="StaticScripts\FirearmsSettingsValues.cs"/>
+        <Compile Include="StaticScripts\HomeAdjustments.cs"/>
+        <Compile Include="StaticScripts\Initialization.cs"/>
+        <Compile Include="StaticScripts\Score.cs"/>
+        <Compile Include="StaticScripts\UpdateChecker.cs"/>
+        <Compile Include="Other\ChemLight.cs"/>
+        <Compile Include="Other\CollapsibleBaton.cs"/>
+        <Compile Include="Other\Data\CaliberSortingData.cs"/>
+        <Compile Include="Other\Data\CaliberSubstituteData.cs"/>
+        <Compile Include="Other\Data\ItemMetaData.cs"/>
+        <Compile Include="Other\Data\ObsoleteIdData.cs"/>
+        <Compile Include="Other\FirearmClicker.cs"/>
+        <Compile Include="Other\GunCaseSaveData.cs"/>
+        <Compile Include="Other\GunCase.cs"/>
+        <Compile Include="Other\Handcuffs.cs"/>
+        <Compile Include="Other\HolderItemSpawner.cs"/>
+        <Compile Include="Other\Holster.cs"/>
+        <Compile Include="Other\HolsterLid.cs"/>
+        <Compile Include="Other\Locks\LockInverter.cs"/>
+        <Compile Include="Other\Pouches\LazyPouch.cs"/>
+        <Compile Include="Firearms\Ammunition\Projectilifier.cs"/>
+        <Compile Include="Firearms\Ammunition\Speedloader.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\AttachableItem.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\BipodManager.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\CartridgeHolder.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\AttachableItemDetacher.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\TacticalDevice.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\PressureSwitch.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellColliderReplacer.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BarrelLocker.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BoltAnimationPlayer.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BoltNondominantHandle.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BoltSemiautomatic.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\GateLoadedRevolver.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\MultiChamberMuzzleLoadedBolt.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BreakAction.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BreakActionMuzzleOverride.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\PumpActionOriginalBackup.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\PumpActionNew.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\Revolver.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\SelfLoadingBolt.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\GravtiyEjector.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\ReciprocatingBarrel.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\PistolHandleSwitcher.cs"/>
+        <Compile Include="Other\Pouches\AmmunitionPouch.cs"/>
+        <Compile Include="Firearms\Ammunition\Tracer.cs"/>
+        <Compile Include="Firearms\Ammunition\TracerModule.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentJointConnector.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\Bipod.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineWellSwitcher.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\MainHandleReplacer.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BoltActionHandle.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\HandleFolder.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\Hammer.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\RevolverEjectorRod.cs"/>
+        <Compile Include="Imaging\NVGOnlyRenderer.cs"/>
+        <Compile Include="Imaging\NVGOnlyRendererMeshModule.cs"/>
+        <Compile Include="Other\GhettoHandle.cs"/>
+        <Compile Include="Other\CollisionRelay.cs"/>
+        <Compile Include="Other\Locks\GateLock.cs"/>
+        <Compile Include="Other\Pouches\PrebuiltPouch.cs"/>
+        <Compile Include="Other\Switches\FireModeBasedSwitch.cs"/>
+        <Compile Include="Other\WireCutter.cs"/>
+        <Compile Include="Other\WireCutterCuttable.cs"/>
+        <Compile Include="SaveData\HolsterSaveData.cs"/>
+        <Compile Include="SaveData\SaveNodeValueFloat.cs"/>
+        <Compile Include="SaveData\SaveNodeValueMagazineContents.cs"/>
+        <Compile Include="SaveData\SaveNodeValueBool.cs"/>
+        <Compile Include="SaveData\SaveNodeValueString.cs"/>
+        <Compile Include="SaveData\SaveNodeValueInt.cs"/>
+        <Compile Include="SaveData\SaveNodeValue.cs"/>
+        <Compile Include="SaveData\FirearmSaveData.cs"/>
+        <Compile Include="Other\Switches\SwitchRelation.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BoltBase.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\AttachmentFirearm.cs"/>
+        <Compile Include="Explosives\GrenadeMechanics\StickyBomb.cs"/>
+        <Compile Include="Explosives\Detonators\TimedDetonator.cs"/>
+        <Compile Include="Explosives\GrenadeJumpCharge.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\AkMagazineSlap.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\StockTogglerAdditional.cs"/>
+        <Compile Include="SaveData\PouchSaveData.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\TacLight.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\TriggerRelay.cs"/>
+        <Compile Include="Firearms\FirearmBase.cs"/>
+        <Compile Include="Other\Locks\BoltBasedLock.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\BoltChildPositionLimiter.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\BoltReleaseButton.cs"/>
+        <Compile Include="Firearms\Ammunition\Cartridge.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\ChamberLoader.cs"/>
+        <Compile Include="Chemicals\NPCChemicalsModule.cs"/>
+        <Compile Include="Chemicals\PlayerEffectsAndChemicalsModule.cs"/>
+        <Compile Include="Firearms\Attachments\Attachment.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentData.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentPoint.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\MagazineSizeIncreaser.cs"/>
+        <Compile Include="Other\Switches\OnActionSwitch.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\ReticleSwitcher.cs"/>
+        <Compile Include="Other\Shootable.cs"/>
+        <Compile Include="Explosives\Drone\Drone40.cs"/>
+        <Compile Include="Explosives\Drone\Drone40ControlPanel.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\MuzzleLoadedBolt.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\Laser.cs"/>
+        <Compile Include="Other\Switches\SafetyBasedSwitch.cs"/>
+        <Compile Include="Other\StateTogglerWithAnimation.cs"/>
+        <Compile Include="Imaging\ThermalBody.cs"/>
+        <Compile Include="UI\AmmoBox\AmmoSpawnerUI.cs"/>
+        <Compile Include="UI\AmmoBox\AmmoModule.cs"/>
+        <Compile Include="UI\GunLocker\PrebuiltLoader.cs"/>
+        <Compile Include="UI\GunLocker\GunLockerSaveData.cs"/>
+        <Compile Include="UI\GunLocker\GunLockerUI.cs"/>
+        <Compile Include="UI\GunLocker\GunLockerUICategory.cs"/>
+        <Compile Include="UI\GunLocker\GunLockerUISave.cs"/>
+        <Compile Include="UI\GunViceV2\UIAttachment.cs"/>
+        <Compile Include="UI\GunViceV2\UIAttachmentCategory.cs"/>
+        <Compile Include="UI\GunViceV2\UIRailAttachment.cs"/>
+        <Compile Include="UI\GunViceV2\UISlot.cs"/>
+        <Compile Include="UI\GunViceV2\ViceUI.cs"/>
+        <Compile Include="Util\AdditionalFireSoundManager.cs"/>
+        <Compile Include="Other\BetterAudioLoader.cs"/>
+        <Compile Include="Util\AttachmentValidator.cs"/>
+        <Compile Include="Util\CollisionDisabler.cs"/>
+        <Compile Include="Explosives\GrenadeMechanics\GreanadePin.cs"/>
+        <Compile Include="Explosives\GrenadeMechanics\GrenadeSpoon.cs"/>
+        <Compile Include="Firearms\Ammunition\RequiredPenetrationPowerData.cs"/>
+        <Compile Include="Explosives\PoisonGas.cs"/>
+        <Compile Include="Explosives\Flashbang.cs"/>
+        <Compile Include="Explosives\Explosive.cs"/>
+        <Compile Include="Explosives\CSgas.cs"/>
+        <Compile Include="Explosives\Smoke.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\Scope.cs"/>
+        <Compile Include="Explosives\SimpleExplosive.cs"/>
+        <Compile Include="Explosives\Detonators\ImpactDetonator.cs"/>
+        <Compile Include="Other\Locks\Lock.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\Minigun.cs"/>
+        <Compile Include="SaveData\MagazineSaveData.cs"/>
+        <Compile Include="Firearms\Firearm.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\FiremodeSelector.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\MagazineWell.cs"/>
+        <Compile Include="Firearms\Ammunition\MagazineLoad.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\StockToggler.cs"/>
+        <Compile Include="UI\CanvasCamAssigner.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\PumpAction.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\Trigger.cs"/>
+        <Compile Include="Util\EnumDescription.cs"/>
+        <Compile Include="Util\Extensions.cs"/>
+        <Compile Include="Util\LineAttacher.cs"/>
+        <Compile Include="Util\ModderTool.cs"/>
+        <Compile Include="Util\Util.cs"/>
+        <Compile Include="Firearms\Ammunition\Magazine.cs"/>
+        <Compile Include="Firearms\Ammunition\ProjectileData.cs"/>
+        <Compile Include="Explosives\ExplosiveData.cs"/>
+        <Compile Include="StaticScripts\Settings.cs"/>
+        <Compile Include="FireMethods.cs"/>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="WTFInator.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="BaSAssemblies\Assembly-CSharp-firstpass.dll"/>
+        <Content Include="BaSAssemblies\Assembly-CSharp.dll"/>
+        <Content Include="BaSAssemblies\Autodesk.Fbx.dll"/>
+        <Content Include="BaSAssemblies\BetterStreamingAssets.dll"/>
+        <Content Include="BaSAssemblies\Bhaptics.SDK2.dll"/>
+        <Content Include="BaSAssemblies\Cinemachine.dll"/>
+        <Content Include="BaSAssemblies\CW.Common.dll"/>
+        <Content Include="BaSAssemblies\EasyButtons.dll"/>
+        <Content Include="BaSAssemblies\FbxBuildTestAssets.dll"/>
+        <Content Include="BaSAssemblies\IngameDebugConsole.Runtime.dll"/>
+        <Content Include="BaSAssemblies\Ionic.Zip.Unity.dll"/>
+        <Content Include="BaSAssemblies\LIV.dll"/>
+        <Content Include="BaSAssemblies\modio.UI.dll"/>
+        <Content Include="BaSAssemblies\modio.UnityPlugin.dll"/>
+        <Content Include="BaSAssemblies\Mono.Security.dll"/>
+        <Content Include="BaSAssemblies\mscorlib.dll"/>
+        <Content Include="BaSAssemblies\NavMeshComponents.dll"/>
+        <Content Include="BaSAssemblies\netstandard.dll"/>
+        <Content Include="BaSAssemblies\Newtonsoft.Json.dll"/>
+        <Content Include="BaSAssemblies\Newtonsoft.Json.UnityConverters.Addressables.dll"/>
+        <Content Include="BaSAssemblies\Newtonsoft.Json.UnityConverters.dll"/>
+        <Content Include="BaSAssemblies\Oculus.AudioManager.dll"/>
+        <Content Include="BaSAssemblies\Oculus.LipSync.dll"/>
+        <Content Include="BaSAssemblies\Oculus.Platform.dll"/>
+        <Content Include="BaSAssemblies\Oculus.Spatializer.dll"/>
+        <Content Include="BaSAssemblies\Oculus.VR.dll"/>
+        <Content Include="BaSAssemblies\PerfectCulling.dll"/>
+        <Content Include="BaSAssemblies\PICO.Platform.dll"/>
+        <Content Include="BaSAssemblies\RainyReignGames.Collections.dll"/>
+        <Content Include="BaSAssemblies\RainyReignGames.Dismemberment.dll"/>
+        <Content Include="BaSAssemblies\RainyReignGames.Expresssions.dll"/>
+        <Content Include="BaSAssemblies\RainyReignGames.MeshUtilities.dll"/>
+        <Content Include="BaSAssemblies\RemoteInspectorRuntime.dll"/>
+        <Content Include="BaSAssemblies\RootMotion.dll"/>
+        <Content Include="BaSAssemblies\Sirenix.OdinInspector.Attributes.dll"/>
+        <Content Include="BaSAssemblies\Sirenix.OdinInspector.CompatibilityLayer.dll"/>
+        <Content Include="BaSAssemblies\Sirenix.Serialization.Config.dll"/>
+        <Content Include="BaSAssemblies\Sirenix.Serialization.dll"/>
+        <Content Include="BaSAssemblies\Sirenix.Utilities.dll"/>
+        <Content Include="BaSAssemblies\SteamVR.dll"/>
+        <Content Include="BaSAssemblies\SteamVR_Actions.dll"/>
+        <Content Include="BaSAssemblies\Steamworks.NET.dll"/>
+        <Content Include="BaSAssemblies\System.ComponentModel.Composition.dll"/>
+        <Content Include="BaSAssemblies\System.Configuration.dll"/>
+        <Content Include="BaSAssemblies\System.Core.dll"/>
+        <Content Include="BaSAssemblies\System.Data.DataSetExtensions.dll"/>
+        <Content Include="BaSAssemblies\System.Data.dll"/>
+        <Content Include="BaSAssemblies\System.dll"/>
+        <Content Include="BaSAssemblies\System.Drawing.dll"/>
+        <Content Include="BaSAssemblies\System.EnterpriseServices.dll"/>
+        <Content Include="BaSAssemblies\System.IO.Compression.dll"/>
+        <Content Include="BaSAssemblies\System.IO.Compression.FileSystem.dll"/>
+        <Content Include="BaSAssemblies\System.Net.Http.dll"/>
+        <Content Include="BaSAssemblies\System.Numerics.dll"/>
+        <Content Include="BaSAssemblies\System.Runtime.dll"/>
+        <Content Include="BaSAssemblies\System.Runtime.Serialization.dll"/>
+        <Content Include="BaSAssemblies\System.Security.dll"/>
+        <Content Include="BaSAssemblies\System.ServiceModel.Internals.dll"/>
+        <Content Include="BaSAssemblies\System.Transactions.dll"/>
+        <Content Include="BaSAssemblies\System.Xml.dll"/>
+        <Content Include="BaSAssemblies\System.Xml.Linq.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.Environment.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.EventLinker.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.Manikin.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.MaterialInstance.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.pdb"/>
+        <Content Include="BaSAssemblies\ThunderRoad.PointCache.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.Reflection.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.Reveal.dll"/>
+        <Content Include="BaSAssemblies\ThunderRoad.Utilities.dll"/>
+        <Content Include="BaSAssemblies\TRVRKBSharedData.dll"/>
+        <Content Include="BaSAssemblies\Unity.Addressables.dll"/>
+        <Content Include="BaSAssemblies\Unity.Animation.Rigging.dll"/>
+        <Content Include="BaSAssemblies\Unity.Burst.dll"/>
+        <Content Include="BaSAssemblies\Unity.Burst.Unsafe.dll"/>
+        <Content Include="BaSAssemblies\Unity.Collections.dll"/>
+        <Content Include="BaSAssemblies\Unity.Collections.LowLevel.ILSupport.dll"/>
+        <Content Include="BaSAssemblies\Unity.Formats.Fbx.Runtime.dll"/>
+        <Content Include="BaSAssemblies\Unity.InputSystem.dll"/>
+        <Content Include="BaSAssemblies\Unity.InternalAPIEngineBridge.011.dll"/>
+        <Content Include="BaSAssemblies\Unity.Jobs.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.ARKitFaceCapture.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.CompanionApp.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.Ltc.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.Mocap.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.Networking.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.Ntp.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.Rendering.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.TransformCapture.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.VideoStreaming.Server.dll"/>
+        <Content Include="BaSAssemblies\Unity.LiveCapture.VirtualCamera.dll"/>
+        <Content Include="BaSAssemblies\Unity.Mathematics.dll"/>
+        <Content Include="BaSAssemblies\Unity.MemoryProfiler.dll"/>
+        <Content Include="BaSAssemblies\Unity.Polybrush.dll"/>
+        <Content Include="BaSAssemblies\Unity.Recorder.Base.dll"/>
+        <Content Include="BaSAssemblies\Unity.Recorder.dll"/>
+        <Content Include="BaSAssemblies\Unity.RenderPipeline.Universal.ShaderLibrary.dll"/>
+        <Content Include="BaSAssemblies\Unity.RenderPipelines.Core.Runtime.dll"/>
+        <Content Include="BaSAssemblies\Unity.RenderPipelines.Core.ShaderLibrary.dll"/>
+        <Content Include="BaSAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll"/>
+        <Content Include="BaSAssemblies\Unity.RenderPipelines.Universal.Runtime.dll"/>
+        <Content Include="BaSAssemblies\Unity.RenderPipelines.Universal.Shaders.dll"/>
+        <Content Include="BaSAssemblies\Unity.ResourceManager.dll"/>
+        <Content Include="BaSAssemblies\Unity.ScriptableBuildPipeline.dll"/>
+        <Content Include="BaSAssemblies\Unity.Splines.dll"/>
+        <Content Include="BaSAssemblies\Unity.TextMeshPro.dll"/>
+        <Content Include="BaSAssemblies\Unity.Timeline.dll"/>
+        <Content Include="BaSAssemblies\Unity.VisualEffectGraph.Runtime.dll"/>
+        <Content Include="BaSAssemblies\Unity.XR.CoreUtils.dll"/>
+        <Content Include="BaSAssemblies\Unity.XR.Interaction.Toolkit.dll"/>
+        <Content Include="BaSAssemblies\Unity.XR.Management.dll"/>
+        <Content Include="BaSAssemblies\Unity.XR.MockHMD.dll"/>
+        <Content Include="BaSAssemblies\Unity.XR.Oculus.dll"/>
+        <Content Include="BaSAssemblies\Unity.XR.OpenVR.dll"/>
+        <Content Include="BaSAssemblies\Unity.XR.PICO.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.AccessibilityModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.AIModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.AndroidJNIModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.AnimationModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.ARModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.AssetBundleModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.AudioModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.ClothModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.ClusterInputModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.ClusterRendererModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.CoreModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.CrashReportingModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.DirectorModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.DSPGraphModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.GameCenterModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.GIModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.GridModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.HotReloadModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.ImageConversionModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.IMGUIModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.InputLegacyModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.InputModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.JSONSerializeModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.LocalizationModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.NVIDIAModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.ParticleSystemModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.PerformanceReportingModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.Physics2DModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.PhysicsModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.ProfilerModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.ScreenCaptureModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.SharedInternalsModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.SpatialTracking.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.SpriteMaskModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.SpriteShapeModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.StreamingModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.SubstanceModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.SubsystemsModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.TerrainModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.TerrainPhysicsModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.TextCoreFontEngineModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.TextCoreTextEngineModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.TextRenderingModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.TilemapModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.TLSModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UI.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UIElementsModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UIElementsNativeModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UIModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UmbraModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UNETModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityAnalyticsCommonModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityAnalyticsModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityConnectModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityCurlModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityTestProtocolModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestAssetBundleModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestAudioModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestTextureModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.UnityWebRequestWWWModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.VehiclesModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.VFXModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.VideoModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.VirtualTexturingModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.VRModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.WindModule.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.XR.LegacyInputHelpers.dll"/>
+        <Content Include="BaSAssemblies\UnityEngine.XRModule.dll"/>
+        <Content Include="BaSAssemblies\Valve.Newtonsoft.Json.dll"/>
+        <Content Include="BaSAssemblies\Viveport.dll"/>
+        <Content Include="BaSAssemblies\VLB.dll"/>
+        <Content Include="BaSAssemblies\VolumetricAudio.dll"/>
+        <Content Include="BaSAssemblies\VRKB.dll"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="EasyButtons">
+            <HintPath>BaSAssemblies\EasyButtons.dll</HintPath>
+        </Reference>
+        <Reference Include="IngameDebugConsole.Runtime">
+            <HintPath>BaSAssemblies\IngameDebugConsole.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>BaSAssemblies\Newtonsoft.Json.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json.UnityConverters">
+            <HintPath>BaSAssemblies\Newtonsoft.Json.UnityConverters.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json.UnityConverters.Addressables">
+            <HintPath>BaSAssemblies\Newtonsoft.Json.UnityConverters.Addressables.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json.UnityConverters.Mathematics">
+            <HintPath>BaSAssemblies\Newtonsoft.Json.UnityConverters.Mathematics.dll</HintPath>
+        </Reference>
+        <Reference Include="System">
+            <HintPath>BaSAssemblies\System.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad">
+            <HintPath>BaSAssemblies\ThunderRoad.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad.Environment">
+            <HintPath>BaSAssemblies\ThunderRoad.Environment.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad.EventLinker">
+            <HintPath>BaSAssemblies\ThunderRoad.EventLinker.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad.Manikin">
+            <HintPath>BaSAssemblies\ThunderRoad.Manikin.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad.MaterialInstance">
+            <HintPath>BaSAssemblies\ThunderRoad.MaterialInstance.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad.PointCache">
+            <HintPath>BaSAssemblies\ThunderRoad.PointCache.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad.Reflection">
+            <HintPath>BaSAssemblies\ThunderRoad.Reflection.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad.Reveal">
+            <HintPath>BaSAssemblies\ThunderRoad.Reveal.dll</HintPath>
+        </Reference>
+        <Reference Include="ThunderRoad.Utilities">
+            <HintPath>BaSAssemblies\ThunderRoad.Utilities.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.Addressables">
+            <HintPath>BaSAssemblies\Unity.Addressables.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.Mathematics">
+            <HintPath>BaSAssemblies\Unity.Mathematics.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.RenderPipelines.Core.Runtime">
+            <HintPath>BaSAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
+            <HintPath>BaSAssemblies\Unity.RenderPipelines.Core.ShaderLibrary.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
+            <HintPath>BaSAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.RenderPipelines.Universal.Runtime">
+            <HintPath>BaSAssemblies\Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.RenderPipelines.Universal.Shaders">
+            <HintPath>BaSAssemblies\Unity.RenderPipelines.Universal.Shaders.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.ResourceManager">
+            <HintPath>BaSAssemblies\Unity.ResourceManager.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>BaSAssemblies\Unity.TextMeshPro.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>BaSAssemblies\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AIModule">
+            <HintPath>BaSAssemblies\UnityEngine.AIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AnimationModule">
+            <HintPath>BaSAssemblies\UnityEngine.AnimationModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule">
+            <HintPath>BaSAssemblies\UnityEngine.AssetBundleModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AudioModule">
+            <HintPath>BaSAssemblies\UnityEngine.AudioModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ClothModule">
+            <HintPath>BaSAssemblies\UnityEngine.ClothModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>BaSAssemblies\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ParticleSystemModule">
+            <HintPath>BaSAssemblies\UnityEngine.ParticleSystemModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.PhysicsModule">
+            <HintPath>BaSAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>BaSAssemblies\UnityEngine.UI.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UIElementsModule">
+            <HintPath>BaSAssemblies\UnityEngine.UIElementsModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UIElementsNativeModule">
+            <HintPath>BaSAssemblies\UnityEngine.UIElementsNativeModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>BaSAssemblies\UnityEngine.UIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.VideoModule">
+            <HintPath>BaSAssemblies\UnityEngine.VideoModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <PropertyGroup>
+        <PostBuildEvent>copy /Y "$(TargetDir)$(TargetName).pdb" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\!$(TargetName)\$(TargetName).pdb"
+            copy /Y "$(TargetPath)" "F:\SteamLibrary\steamapps\common\Blade &amp; Sorcery\BladeAndSorcery_Data\StreamingAssets\Mods\!$(TargetName)\$(TargetFileName)"
+        </PostBuildEvent>
+    </PropertyGroup>
 </Project>

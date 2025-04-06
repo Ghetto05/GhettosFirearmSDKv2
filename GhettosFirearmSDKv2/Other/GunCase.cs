@@ -11,20 +11,28 @@ public class GunCase : MonoBehaviour
 {
     public bool isStatic;
     public List<GameObject> nonStaticObjects;
+
     [Space]
     public Item item;
+
     public Holder holder;
+
     [Space]
     public Animator animator;
+
     public string openingAnimationName;
     public string closingAnimationName;
+
     [Space]
     public UnityEvent openingEvent;
+
     public UnityEvent closingEvent;
     public UnityEvent openingStartedEvent;
     public UnityEvent closingFinishedEvent;
+
     [Space]
     public List<Handle> freezeHandles;
+
     public List<Handle> toggleHandles;
 
     private bool _closed = true;
@@ -59,7 +67,9 @@ public class GunCase : MonoBehaviour
         if (item.TryGetCustomData(out _data))
         {
             if (string.IsNullOrWhiteSpace(_data.Firearm))
+            {
                 return;
+            }
 
             Util.SpawnItem(_data.Firearm, $"[Gun case - Save {_data.Firearm}]", f =>
             {
@@ -78,13 +88,16 @@ public class GunCase : MonoBehaviour
     private IEnumerator DelayedSnap(Item f)
     {
         yield return new WaitForSeconds(0.5f);
+
         holder.Snap(f);
     }
 
     private void Holder_UnSnapped(Item f)
     {
         if (f.despawning)
+        {
             return;
+        }
         f.Hide(false);
         if (!f.isCulled)
         {
@@ -111,8 +124,14 @@ public class GunCase : MonoBehaviour
             }
             if (toggleHandles.Contains(handle))
             {
-                if (_open) Close();
-                else Open();
+                if (_open)
+                {
+                    Close();
+                }
+                else
+                {
+                    Open();
+                }
             }
         }
     }
@@ -125,13 +144,19 @@ public class GunCase : MonoBehaviour
 
     public void Open()
     {
-        if (_open || _moving) return;
+        if (_open || _moving)
+        {
+            return;
+        }
         StartCoroutine(OpenIE());
     }
 
     public void Close()
     {
-        if (_closed || _moving) return;
+        if (_closed || _moving)
+        {
+            return;
+        }
         StartCoroutine(CloseIE());
     }
 
@@ -145,6 +170,7 @@ public class GunCase : MonoBehaviour
         animator.Play(openingAnimationName);
         openingStartedEvent.Invoke();
         yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
         openingEvent.Invoke();
         _open = true;
         _closed = false;
@@ -159,6 +185,7 @@ public class GunCase : MonoBehaviour
         closingEvent.Invoke();
         animator.Play(closingAnimationName);
         yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
         closingFinishedEvent.Invoke();
         _open = false;
         _closed = true;

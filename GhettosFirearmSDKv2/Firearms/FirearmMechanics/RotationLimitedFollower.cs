@@ -11,9 +11,13 @@ public class RotationLimitedFollower : MonoBehaviour
     private void Update()
     {
         if (Util.NormalizeAngle(hammer.localEulerAngles.x) < Util.NormalizeAngle(cockedPosition.localEulerAngles.x))
+        {
             hammer.localEulerAngles = cockedPosition.localEulerAngles;
+        }
 
         if (Util.NormalizeAngle(hammer.localEulerAngles.x) > Util.NormalizeAngle(lever.localEulerAngles.x))
+        {
             hammer.localEulerAngles = lever.localEulerAngles;
+        }
     }
 }

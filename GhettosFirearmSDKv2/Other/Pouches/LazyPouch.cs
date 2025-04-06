@@ -44,8 +44,10 @@ public class LazyPouch : MonoBehaviour
 
     private void Update()
     {
-        if (!_setup || Player.local == null || Player.local.creature == null || Player.local.creature.ragdoll == null)
+        if (!_setup || !Player.local?.creature?.ragdoll)
+        {
             return;
+        }
 
         foreach (var i in holder.items.ToArray())
         {
@@ -55,10 +57,10 @@ public class LazyPouch : MonoBehaviour
                 holder.UnSnap(i, true);
             }
         }
-            
+
         GetHeldFirearm();
-            
-        if (_lastFirearm != null)
+
+        if (_lastFirearm)
         {
             if (!containedItems.Contains(_lastFirearm.defaultAmmoItem) && !_lastFirearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace())
             {
@@ -81,12 +83,12 @@ public class LazyPouch : MonoBehaviour
     private void GetHeldFirearm()
     {
         var h = Player.local.GetHand(Handle.dominantHand).ragdollHand.grabbedHandle;
-        if (h != null && h.item is { } item)
+        if (h && h.item is { } item)
         {
             FirearmBase firearm;
             if (lastHeldHandle != h)
             {
-                if (h.GetComponentInParent<AttachmentFirearm>() != null)
+                if (h.GetComponentInParent<AttachmentFirearm>())
                 {
                     firearm = h.GetComponentInParent<AttachmentFirearm>();
                 }
@@ -95,12 +97,14 @@ public class LazyPouch : MonoBehaviour
                     firearm = item.GetComponent<Firearm>();
                 }
 
-                if (firearm != null && firearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is { } ff)
+                if (firearm && firearm.defaultAmmoItem.IsNullOrEmptyOrWhitespace() && item.GetComponentInChildren<AttachmentFirearm>() is { } ff)
+                {
                     firearm = ff;
+                }
 
                 _lastFirearm = firearm;
             }
-                
+
             lastHeldHandle = h;
         }
     }
@@ -128,11 +132,17 @@ public class LazyPouch : MonoBehaviour
             _nextUnsnapIsCleaning = false;
             return;
         }
-        if (!_setup) return;
+        if (!_setup)
+        {
+            return;
+        }
         item.DisallowDespawn = false;
         Util.IgnoreCollision(gameObject, item.gameObject, false);
         spawnedItems.Remove(item);
-        if (item.TryGetComponent(out Firearm _)) return;
+        if (item.TryGetComponent(out Firearm _))
+        {
+            return;
+        }
         _spawning = true;
         Util.SpawnItem(item.data.id, $"[Lazy Pouch - Default ammo on {_lastFirearm?.item?.itemId}]", newItem =>
         {
@@ -145,13 +155,17 @@ public class LazyPouch : MonoBehaviour
     private void Holder_Snapped(Item item)
     {
         item.Hide(true);
-        if (!_setup) return;
+        if (!_setup)
+        {
+            return;
+        }
         Util.IgnoreCollision(gameObject, item.gameObject, true);
     }
 
     private IEnumerator DelayedSnap(Item item)
     {
         yield return new WaitForSeconds(0.05f);
+
         holder.Snap(item, true);
         _spawning = false;
     }

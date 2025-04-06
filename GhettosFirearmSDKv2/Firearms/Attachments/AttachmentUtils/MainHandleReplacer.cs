@@ -12,16 +12,24 @@ public class MainHandleReplacer : MonoBehaviour
 
     private void Awake()
     {
-        if (attachment.initialized) Attachment_OnDelayedAttachEvent();
-        else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        if (attachment.initialized)
+        {
+            Attachment_OnDelayedAttachEvent();
+        }
+        else
+        {
+            attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        }
         attachment.OnDetachEvent += Attachment_OnDetachEvent;
     }
 
     private void Attachment_OnDetachEvent(bool despawnDetach)
     {
         if (GetComponentInParent<AttachmentValidator>())
+        {
             return;
-            
+        }
+
         oldMainHandle.SetTouch(true);
         oldMainHandle.SetTelekinesis(true);
         oldMainHandle.enabled = true;
@@ -37,7 +45,9 @@ public class MainHandleReplacer : MonoBehaviour
     public void Apply()
     {
         if (_applied && GetComponentInParent<AttachmentValidator>())
+        {
             return;
+        }
 
         _applied = true;
         var handlers = oldMainHandle.handlers.ToArray();
@@ -46,7 +56,7 @@ public class MainHandleReplacer : MonoBehaviour
         oldMainHandle.SetTelekinesis(false);
         oldMainHandle.enabled = false;
         oldMainHandle.gameObject.SetActive(false);
-            
+
         newMainHandle.SetTouch(true);
         newMainHandle.SetTelekinesis(true);
         newMainHandle.enabled = true;
@@ -54,7 +64,7 @@ public class MainHandleReplacer : MonoBehaviour
 
         attachment.attachmentPoint.ConnectedManager.Item.mainHandleLeft = newMainHandle;
         attachment.attachmentPoint.ConnectedManager.Item.mainHandleRight = newMainHandle;
-            
+
         foreach (var h in handlers)
         {
             h.Grab(newMainHandle);
@@ -69,6 +79,5 @@ public class MainHandleReplacer : MonoBehaviour
     }
 
     private void OnAttachmentChanged(Attachment changedAttachment, AttachmentPoint attachmentPoint)
-    {
-    }
+    { }
 }

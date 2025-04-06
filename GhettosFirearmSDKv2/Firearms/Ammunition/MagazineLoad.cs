@@ -20,7 +20,7 @@ public class MagazineLoad : MonoBehaviour
             mag.loadable = true;
             mag.InvokeLoadFinished();
             return;
-        } 
+        }
         Util.SpawnItem(ids[index], $"[Magazine load [{index}] on {mag.item?.itemId}]", item =>
         {
             mag.InsertRound(item.GetComponent<Cartridge>(), true, true);

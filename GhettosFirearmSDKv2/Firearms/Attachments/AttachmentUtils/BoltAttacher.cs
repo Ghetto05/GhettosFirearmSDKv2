@@ -21,7 +21,9 @@ public class BoltAttacher : MonoBehaviour
     private void InvokedStart()
     {
         if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
+        {
             return;
+        }
         firearm = f;
         attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
         if (GetParent() is { } p)
@@ -38,7 +40,9 @@ public class BoltAttacher : MonoBehaviour
     private void AttachmentOnOnDetachEvent(bool despawnDetach)
     {
         if (disableDefaultBoltHandles)
+        {
             ResetHandles();
+        }
         try
         {
             Destroy(boltChild?.gameObject);
@@ -53,14 +57,20 @@ public class BoltAttacher : MonoBehaviour
     private Transform GetParent()
     {
         var bolt = firearm.bolt;
-        if (bolt == null)
+        if (!bolt)
+        {
             return null;
+        }
 
         var type = bolt.GetType();
         if (type == typeof(BoltSemiautomatic))
+        {
             return ((BoltSemiautomatic)bolt).bolt;
+        }
         if (type == typeof(PumpAction))
+        {
             return ((PumpAction)bolt).bolt;
+        }
 
         return null;
     }
@@ -68,14 +78,20 @@ public class BoltAttacher : MonoBehaviour
     private Transform GetParentRb()
     {
         var bolt = firearm.bolt;
-        if (bolt == null)
+        if (!bolt)
+        {
             return null;
+        }
 
         var type = bolt.GetType();
         if (type == typeof(BoltSemiautomatic))
+        {
             return ((BoltSemiautomatic)bolt).rigidBody.transform;
+        }
         if (type == typeof(PumpAction))
+        {
             return ((PumpAction)bolt).rb.transform;
+        }
 
         return null;
     }
@@ -83,27 +99,39 @@ public class BoltAttacher : MonoBehaviour
     private void SetHandles()
     {
         var bolt = firearm.bolt;
-        if (bolt == null)
+        if (!bolt)
+        {
             return;
+        }
 
         var type = bolt.GetType();
         if (type == typeof(BoltSemiautomatic))
+        {
             SetAutomaticHandles((BoltSemiautomatic)bolt);
+        }
         if (type == typeof(PumpAction))
+        {
             SetPumpHandles((PumpAction)bolt);
+        }
     }
 
     private void ResetHandles()
     {
         var bolt = firearm.bolt;
-        if (bolt == null)
+        if (!bolt)
+        {
             return;
+        }
 
         var type = bolt.GetType();
         if (type == typeof(BoltSemiautomatic))
+        {
             ResetAutomaticHandles((BoltSemiautomatic)bolt);
+        }
         if (type == typeof(PumpAction))
+        {
             ResetPumpHandles((PumpAction)bolt);
+        }
     }
 
     private void SetAutomaticHandles(BoltSemiautomatic bolt)
@@ -114,14 +142,16 @@ public class BoltAttacher : MonoBehaviour
             h.type = GhettoHandle.HandleType.Bolt;
         }
         bolt.UpdateBoltHandles();
-            
+
         if (disableDefaultBoltHandles)
+        {
             foreach (var handle in bolt.boltHandles)
             {
                 handle.SetTouch(false);
             }
+        }
     }
-        
+
     private void ResetAutomaticHandles(BoltSemiautomatic bolt)
     {
         foreach (var handle in bolt.boltHandles)
@@ -138,14 +168,16 @@ public class BoltAttacher : MonoBehaviour
             h.type = GhettoHandle.HandleType.Bolt;
         }
         bolt.RefreshBoltHandles();
-            
+
         if (disableDefaultBoltHandles)
+        {
             foreach (var handle in bolt.boltHandles)
             {
                 handle.SetTouch(false);
             }
+        }
     }
-        
+
     private void ResetPumpHandles(PumpAction bolt)
     {
         foreach (var handle in bolt.boltHandles)

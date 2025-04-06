@@ -14,10 +14,17 @@ public class UIAttachmentCategory : MonoBehaviour
     public RectTransform headerContent;
     public TextMeshProUGUI headerText;
     private bool _collapsed;
+
     [NonSerialized]
     public readonly List<UIAttachment> Attachments = new();
 
-    private RectTransform T => GetComponent<RectTransform>();
+    private RectTransform T
+    {
+        get
+        {
+            return GetComponent<RectTransform>();
+        }
+    }
 
     public void Setup(string title, ViceUI vice)
     {
@@ -35,7 +42,7 @@ public class UIAttachmentCategory : MonoBehaviour
             var cellHeight = 300f;
             var cellCount = Attachments.Count / 7 + (Attachments.Count % 7 == 0 ? 0 : 1);
             var space = headerContent.rect.size.y + cellCount * spacing + cellCount * cellHeight;
-                
+
             T.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, space);
         }
         else

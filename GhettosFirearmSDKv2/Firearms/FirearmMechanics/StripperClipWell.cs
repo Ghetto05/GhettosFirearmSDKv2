@@ -16,7 +16,7 @@ public class StripperClipWell : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!alwaysAllow && currentClip != null && bolt.state != allowedState)
+        if (!alwaysAllow && currentClip && bolt.state != allowedState)
         {
             currentClip.RemoveFromGun();
         }

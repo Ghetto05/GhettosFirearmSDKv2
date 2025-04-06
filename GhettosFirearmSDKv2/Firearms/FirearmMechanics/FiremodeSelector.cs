@@ -29,7 +29,9 @@ public class FiremodeSelector : MonoBehaviour
     {
         firearm.OnAltActionEvent -= Firearm_OnAltActionEvent;
         if (attachment)
+        {
             attachment.OnDetachEvent -= AttachmentOnOnDetachEvent;
+        }
     }
 
     private void Start()
@@ -45,9 +47,11 @@ public class FiremodeSelector : MonoBehaviour
             attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
             _preAttachFireMode = firearm.fireMode;
         }
-            
+
         if (!firearm)
+        {
             return;
+        }
 
         firearm.OnAltActionEvent += Firearm_OnAltActionEvent;
         firearm.fireMode = firemodes[currentIndex];
@@ -67,7 +71,7 @@ public class FiremodeSelector : MonoBehaviour
 
     private void Firearm_OnAltActionEvent(bool longPress)
     {
-        if (longPress && (allowSwitchingModeIfHammerIsUncocked || (hammer != null && hammer.cocked) && (!onlyAllowSwitchingIfBoltHasState || firearm.bolt == null || firearm.bolt.state == switchAllowedState)))
+        if (longPress && (allowSwitchingModeIfHammerIsUncocked || (hammer && hammer.cocked && (!onlyAllowSwitchingIfBoltHasState || !firearm.bolt || firearm.bolt.state == switchAllowedState))))
         {
             CycleFiremode();
         }
@@ -75,49 +79,63 @@ public class FiremodeSelector : MonoBehaviour
 
     public void CycleFiremode()
     {
-        if (currentIndex + 1 < firemodes.Length) currentIndex++;
-        else currentIndex = 0;
-        firearm.SetFiremode(firemodes[currentIndex]);
-        if (fireRates != null && fireRates.Length > currentIndex)
-            firearm.roundsPerMinute = fireRates[currentIndex];
-        if (switchSound != null)
-            switchSound.Play();
-        if (irregularPositions != null && irregularPositions.Length > currentIndex)
-            safetySwitch.SetPositionAndRotation(irregularPositions[currentIndex].position, irregularPositions[currentIndex].rotation);
+        if (currentIndex + 1 < firemodes.Length)
+        {
+            currentIndex++;
+        }
         else
+        {
+            currentIndex = 0;
+        }
+        firearm.SetFiremode(firemodes[currentIndex]);
+        if (fireRates is not null && fireRates.Length > currentIndex)
+        {
+            firearm.roundsPerMinute = fireRates[currentIndex];
+        }
+        if (switchSound)
+        {
+            switchSound.Play();
+        }
+        if (irregularPositions is not null && irregularPositions.Length > currentIndex)
+        {
+            safetySwitch.SetPositionAndRotation(irregularPositions[currentIndex].position, irregularPositions[currentIndex].rotation);
+        }
+        else
+        {
             UpdatePosition();
+        }
         _fireModeIndex.Value = currentIndex;
         OnFiremodeChanged?.Invoke(firearm.fireMode);
     }
 
     private void UpdatePosition()
     {
-        if (safetySwitch == null)
+        if (!safetySwitch)
         {
             return;
         }
         var mode = firearm.fireMode;
-        if (mode == FirearmBase.FireModes.Safe && safePosition != null)
+        if (mode == FirearmBase.FireModes.Safe && safePosition)
         {
             safetySwitch.position = safePosition.position;
             safetySwitch.rotation = safePosition.rotation;
         }
-        else if (mode == FirearmBase.FireModes.Semi && semiPosition != null)
+        else if (mode == FirearmBase.FireModes.Semi && semiPosition)
         {
             safetySwitch.position = semiPosition.position;
             safetySwitch.rotation = semiPosition.rotation;
         }
-        else if (mode == FirearmBase.FireModes.Burst && burstPosition != null)
+        else if (mode == FirearmBase.FireModes.Burst && burstPosition)
         {
             safetySwitch.position = burstPosition.position;
             safetySwitch.rotation = burstPosition.rotation;
         }
-        else if (mode == FirearmBase.FireModes.Auto && autoPosition != null)
+        else if (mode == FirearmBase.FireModes.Auto && autoPosition)
         {
             safetySwitch.position = autoPosition.position;
             safetySwitch.rotation = autoPosition.rotation;
         }
-        else if (mode == FirearmBase.FireModes.AttachmentFirearm && attachmentFirearmPosition != null)
+        else if (mode == FirearmBase.FireModes.AttachmentFirearm && attachmentFirearmPosition)
         {
             safetySwitch.position = attachmentFirearmPosition.position;
             safetySwitch.rotation = attachmentFirearmPosition.rotation;
@@ -125,5 +143,6 @@ public class FiremodeSelector : MonoBehaviour
     }
 
     public delegate void OnModeChangedDelegate(FirearmBase.FireModes newMode);
+
     public event OnModeChangedDelegate OnFiremodeChanged;
 }

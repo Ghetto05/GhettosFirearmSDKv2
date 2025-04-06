@@ -14,42 +14,74 @@ public class GasMask : MonoBehaviour
 
     private void Awake()
     {
-        if (breathingLoop == null && Settings.debugMode)
+        if (!breathingLoop && Settings.debugMode)
+        {
             Debug.Log($"GAS MASK BREATHING LOOP MISSING: {string.Join("/", gameObject.GetComponentsInParent<Transform>().Reverse().Select(t => t.name).ToArray())}");
+        }
     }
 
     private void Update()
     {
-        if (breathingLoop != null)
+        if (breathingLoop)
         {
-            if (Settings.playGasMaskSound && !breathingLoop.isPlaying) breathingLoop.Play();
-            else if (!Settings.playGasMaskSound && breathingLoop.isPlaying) breathingLoop.Stop();
+            if (Settings.playGasMaskSound && !breathingLoop.isPlaying)
+            {
+                breathingLoop.Play();
+            }
+            else if (!Settings.playGasMaskSound && breathingLoop.isPlaying)
+            {
+                breathingLoop.Stop();
+            }
         }
 
-        if (_creature == null)
+        if (!_creature)
         {
             _creature = GetComponentInParent<Creature>();
-            if (!_creature.brain.instance.id.Equals("Player")) _npcModule = _creature.GetComponent<NpcChemicalsModule>();
+            if (!_creature.brain.instance.id.Equals("Player"))
+            {
+                _npcModule = _creature.GetComponent<NpcChemicalsModule>();
+            }
         }
-        if (!_ready && _creature != null)
+        if (!_ready && _creature)
         {
             _ready = true;
-            if (enabled) OnEnable();
+            if (enabled)
+            {
+                OnEnable();
+            }
         }
     }
 
     private void OnEnable()
     {
-        if (!_ready || _creature == null) return;
-        if (_creature.isPlayer) AddMaskPlayer();
-        else AddMask();
+        if (!_ready || !_creature)
+        {
+            return;
+        }
+        if (_creature.isPlayer)
+        {
+            AddMaskPlayer();
+        }
+        else
+        {
+            AddMask();
+        }
     }
 
     private void OnDisable()
     {
-        if (!_ready || _creature == null) return;
-        if (_creature.isPlayer) RemoveMaskPlayer();
-        else RemoveMask();
+        if (!_ready || !_creature)
+        {
+            return;
+        }
+        if (_creature.isPlayer)
+        {
+            RemoveMaskPlayer();
+        }
+        else
+        {
+            RemoveMask();
+        }
     }
 
     private void AddMaskPlayer()
@@ -78,7 +110,10 @@ public class GasMask : MonoBehaviour
 
     private void RemoveMask()
     {
-        if (_npcModule == null) return;
+        if (!_npcModule)
+        {
+            return;
+        }
         if (_npcModule.gasMasks.Contains(gameObject))
         {
             _npcModule.gasMasks.Remove(gameObject);

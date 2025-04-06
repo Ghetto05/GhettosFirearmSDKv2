@@ -36,7 +36,10 @@ public class ReciprocatingBarrel : MonoBehaviour
 
     public bool AllowBoltReturn()
     {
-        if (lockBoltBack) return _state == States.Front;
+        if (lockBoltBack)
+        {
+            return _state == States.Front;
+        }
 
         return true;
     }
@@ -49,6 +52,7 @@ public class ReciprocatingBarrel : MonoBehaviour
     }
 
     private float _pauseElapsed;
+
     private void FixedUpdate()
     {
         if (_state == States.Back)
@@ -59,7 +63,10 @@ public class ReciprocatingBarrel : MonoBehaviour
                 _pauseElapsed += Time.fixedDeltaTime;
                 proceed = _pauseElapsed >= pauseTime;
             }
-            else proceed = true;
+            else
+            {
+                proceed = true;
+            }
             if (proceed)
             {
                 _moveStartTime = Time.time;

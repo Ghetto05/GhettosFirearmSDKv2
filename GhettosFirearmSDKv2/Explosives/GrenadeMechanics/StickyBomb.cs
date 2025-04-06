@@ -38,7 +38,9 @@ public class StickyBomb : MonoBehaviour
     public void StickTo(Rigidbody rb)
     {
         if (_stuck)
+        {
             return;
+        }
         _stuck = true;
         item.DisallowDespawn = true;
         var joint = item.gameObject.AddComponent<FixedJoint>();

@@ -13,7 +13,7 @@ public class Initialization : ThunderScript
     {
         SendStartupMessage();
         ExecuteHandposeValidation();
-            
+
         foreach (var glsd in Catalog.GetDataList<GunLockerSaveData>())
         {
             glsd.GenerateItem();
@@ -41,15 +41,19 @@ public class Initialization : ThunderScript
     private static void OnItemSpawn(Item item)
     {
         if (!item.spawnPoint)
+        {
             item.spawnPoint = item.transform;
+        }
     }
 
     private static void OnCreatureSpawn(Creature creature)
     {
         //Chemicals (NPC)
         if (creature.isPlayer)
+        {
             return;
-            
+        }
+
         creature.gameObject.AddComponent<NpcChemicalsModule>();
 
         var id = creature.data.prefabAddress switch
@@ -83,7 +87,9 @@ public class Initialization : ThunderScript
 
         //Gun locker
         if (Level.current.data.id.Equals("Home"))
+        {
             HomeAdjustments.local.SpawnHomeItems();
+        }
 
         //First person only renderer
         var ren = Player.local.head.cam.gameObject.AddComponent<NvgOnlyRenderer>();
@@ -118,11 +124,15 @@ public class Initialization : ThunderScript
             foreach (var pose in incompleteData)
             {
                 if (!pose.poses.Any(x => x.creatureName.Equals("HumanMale")))
+                {
                     dataMessage += $"\n   ID: {pose.id} - HumanMale";
+                }
                 if (!pose.poses.Any(x => x.creatureName.Equals("HumanFemale")))
+                {
                     dataMessage += $"\n   ID: {pose.id} - HumanFemale";
+                }
             }
-                
+
             Debug.LogWarning(dataMessage);
         }
     }

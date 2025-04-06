@@ -7,10 +7,12 @@ namespace GhettosFirearmSDKv2;
 public class BoltBase : MonoBehaviour
 {
     public const string ChamberSaveDataId = "BoltChamberSaveData";
-        
+
     public FirearmBase firearm;
+
     [HideInInspector]
     public BoltState state = BoltState.Locked;
+
     public BoltState laststate = BoltState.Locked;
     public bool caught;
     public bool isHeld;
@@ -73,7 +75,7 @@ public class BoltBase : MonoBehaviour
     public static void AddForceToCartridge(Cartridge c, Transform direction, float force)
     {
         var f = Settings.cartridgeEjectionForceRandomizationDivision;
-        c.item.physicBody.AddForce(direction.forward * (force + Random.Range(-(force / f), (force / f))), ForceMode.Impulse);
+        c.item.physicBody.AddForce(direction.forward * (force + Random.Range(-(force / f), force / f)), ForceMode.Impulse);
     }
 
     public virtual bool CanPlayBreachSmoke()
@@ -86,14 +88,20 @@ public class BoltBase : MonoBehaviour
         foreach (var par in breachSmokeEffects)
         {
             if (CanPlayBreachSmoke() && _breachSmokeTime > 0 && !par.isPlaying)
+            {
                 par.Play();
+            }
             if ((!CanPlayBreachSmoke() || _breachSmokeTime <= 0) && par.isPlaying)
+            {
                 par.Stop();
+            }
         }
 
         _breachSmokeTime -= Time.deltaTime;
         if (_breachSmokeTime < 0)
+        {
             _breachSmokeTime = 0;
+        }
     }
 
     public void IncrementBreachSmokeTime()
@@ -102,14 +110,18 @@ public class BoltBase : MonoBehaviour
         var breachSmokeIncrement = 2.2f;
 
         if (_breachSmokeTime < breachSmokeBaseTime)
+        {
             _breachSmokeTime = breachSmokeBaseTime;
+        }
         else
+        {
             _breachSmokeTime += breachSmokeIncrement;
+        }
     }
 
     public void ChamberSaved()
     {
-        if (FirearmSaveData.GetNode(firearm) != null && FirearmSaveData.GetNode(firearm).TryGetValue(ChamberSaveDataId, out SaveNodeValueCartridgeData chamber))
+        if (FirearmSaveData.GetNode(firearm) is not null && FirearmSaveData.GetNode(firearm).TryGetValue(ChamberSaveDataId, out SaveNodeValueCartridgeData chamber))
         {
             Util.SpawnItem(chamber.Value.ItemId, "Bolt Chamber", carItem =>
             {
@@ -129,14 +141,16 @@ public class BoltBase : MonoBehaviour
     {
         var succ = LoadChamber(c, true);
         if (!succ)
+        {
             c.item.Despawn();
+        }
     }
 
     public void SaveChamber(string id, bool fired)
     {
         var node = FirearmSaveData.GetNode(firearm);
 
-        if (node != null)
+        if (node is not null)
         {
             node.GetOrAddValue(ChamberSaveDataId, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(id, fired);
         }
@@ -159,15 +173,30 @@ public class BoltBase : MonoBehaviour
         LockedBack
     }
 
-    public void InvokeFireEvent() => OnFireEvent?.Invoke();
+    public void InvokeFireEvent()
+    {
+        OnFireEvent?.Invoke();
+    }
+
     public delegate void OnFire();
+
     public event OnFire OnFireEvent;
 
-    public void InvokeFireLogicFinishedEvent() => OnFireLogicFinishedEvent?.Invoke();
+    public void InvokeFireLogicFinishedEvent()
+    {
+        OnFireLogicFinishedEvent?.Invoke();
+    }
+
     public delegate void OnFireLogicFinished();
+
     public event OnFire OnFireLogicFinishedEvent;
 
-    public void InvokeEjectRound(Cartridge cartridge) => OnRoundEjectEvent?.Invoke(cartridge);
+    public void InvokeEjectRound(Cartridge cartridge)
+    {
+        OnRoundEjectEvent?.Invoke(cartridge);
+    }
+
     public delegate void OnEject(Cartridge cartridge);
+
     public event OnEject OnRoundEjectEvent;
 }

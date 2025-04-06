@@ -28,13 +28,18 @@ public class ChemLight : MonoBehaviour
         item.OnHeldActionEvent += (_, _, action) =>
         {
             if (action == Interactable.Action.UseStart)
+            {
                 Trigger();
+            }
         };
     }
 
     public void Trigger()
     {
-        if (_triggered) return;
+        if (_triggered)
+        {
+            return;
+        }
         _triggered = true;
         _triggerTime = Time.time;
         item.DisallowDespawn = true;
@@ -44,8 +49,10 @@ public class ChemLight : MonoBehaviour
     private void Update()
     {
         if (_burntOut || !_triggered)
+        {
             return;
-            
+        }
+
         var timePassed = Time.time - _triggerTime;
         var timeRemaining = _triggerTime + burnTime - Time.time;
 
@@ -57,9 +64,13 @@ public class ChemLight : MonoBehaviour
         }
 
         if (timePassed <= lightUpTime)
+        {
             ApplyLightLevel(timePassed / lightUpTime);
+        }
         else if (timeRemaining <= lightDownTime)
+        {
             ApplyLightLevel(timeRemaining / lightDownTime);
+        }
         else if (!_appliedConstant)
         {
             _appliedConstant = true;

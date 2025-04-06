@@ -10,7 +10,9 @@ public class PowderGrain : MonoBehaviour
         {
             var receiver = other.collider.GetComponentInParent<PowderReceiver>();
             if (receiver.currentAmount < receiver.grainCapacity && !receiver.blocked && other.collider == receiver.loadCollider)
+            {
                 receiver.currentAmount += 2;
+            }
             Destroy(gameObject);
         }
     }

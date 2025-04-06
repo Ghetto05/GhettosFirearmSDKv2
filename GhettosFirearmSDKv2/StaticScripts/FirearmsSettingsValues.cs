@@ -110,7 +110,7 @@ public class FirearmsSettingsValues
         new("+42.5mm", 0.0425f),
         new("+45mm", 0.045f),
         new("+47.5mm", 0.0475f),
-        new("+50mm", 0.05f),
+        new("+50mm", 0.05f)
     };
 
     public static ModOptionFloat[] waterSplashRange =
@@ -138,7 +138,7 @@ public class FirearmsSettingsValues
         new("10cm", 0.1f),
         new("5cm", 0.05f),
         new("2cm", 0.02f),
-        new("1cm", 0.01f),
+        new("1cm", 0.01f)
     };
 
     public static ModOptionFloat[] malfunctionModes =
@@ -148,6 +148,6 @@ public class FirearmsSettingsValues
         new("Arcade", 10f),
         new("Gruesome", 33f),
         new("Nightmare", 100f),
-        new("Defective", 10000f),
+        new("Defective", 10000f)
     };
 }

@@ -20,13 +20,19 @@ public class TacticalDevice : MonoBehaviour
     protected virtual void InvokedStart()
     {
         if (item)
+        {
             ActualItem = item;
+        }
         else if (attachment)
         {
             if (attachment.initialized)
+            {
                 Attachment_OnDelayedAttachEvent();
+            }
             else
+            {
                 attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            }
         }
     }
 

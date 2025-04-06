@@ -9,16 +9,22 @@ public class Drone40ControlPanel : MonoBehaviour
 {
     public Drone40 currentDrone;
     public Item item;
+
     [Header("Selection")]
     public GameObject selectionCanvas;
+
     public List<GameObject> buttons;
     public RectTransform contentTransform;
     public GameObject buttonPrefab;
+
     [Header("Control")]
     public GameObject controlCanvas;
+
     public GameObject grenadeSubControlPanel;
+
     [Header("Camera control")]
     public GameObject cameraSubControlPanel;
+
     public RawImage camFeed;
     public RawImage lightBulb;
     public Color lightActiveColor;
@@ -28,7 +34,7 @@ public class Drone40ControlPanel : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_controlMode && currentDrone != null && controlCanvas.activeInHierarchy)
+        if (_controlMode && currentDrone && controlCanvas.activeInHierarchy)
         {
             currentDrone.Move(PlayerControl.handLeft.JoystickAxis.y, PlayerControl.handRight.JoystickAxis.x, PlayerControl.handLeft.JoystickAxis.x, PlayerControl.handRight.JoystickAxis.y);
         }
@@ -77,8 +83,11 @@ public class Drone40ControlPanel : MonoBehaviour
         currentDrone = null;
         controlCanvas.SetActive(false);
         selectionCanvas.SetActive(true);
-        if (Drone40.all == null) return;
-        if (buttons != null)
+        if (Drone40.all is null)
+        {
+            return;
+        }
+        if (buttons is not null)
         {
             foreach (var obj in buttons)
             {
@@ -92,12 +101,12 @@ public class Drone40ControlPanel : MonoBehaviour
             var button = Instantiate(buttonPrefab, contentTransform);
             button.SetActive(true);
             buttons.Add(button);
-            button.transform.localPosition = new Vector3(20, -20 - (buttons.IndexOf(button) * 70), 0);
+            button.transform.localPosition = new Vector3(20, -20 - buttons.IndexOf(button) * 70, 0);
             button.transform.localEulerAngles = Vector3.zero;
             button.transform.GetChild(0).gameObject.GetComponent<Text>().text = drone.droneId;
             button.GetComponent<Button>().onClick.AddListener(delegate { GoToDroneControl(button); });
         }
-        contentTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 20 + (buttons.Count * 70));
+        contentTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 20 + buttons.Count * 70);
     }
 
     public void GoToDroneControl(GameObject button)
@@ -118,7 +127,7 @@ public class Drone40ControlPanel : MonoBehaviour
 
     public void MoveCameraUp()
     {
-        if (currentDrone != null && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
+        if (currentDrone && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
         {
             currentDrone.MoveCamera(Drone40.CameraDirections.Up);
         }
@@ -126,7 +135,7 @@ public class Drone40ControlPanel : MonoBehaviour
 
     public void MoveCameraDown()
     {
-        if (currentDrone != null && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
+        if (currentDrone && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
         {
             currentDrone.MoveCamera(Drone40.CameraDirections.Down);
         }
@@ -134,7 +143,7 @@ public class Drone40ControlPanel : MonoBehaviour
 
     public void MoveCameraLeft()
     {
-        if (currentDrone != null && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
+        if (currentDrone && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
         {
             currentDrone.MoveCamera(Drone40.CameraDirections.Left);
         }
@@ -142,7 +151,7 @@ public class Drone40ControlPanel : MonoBehaviour
 
     public void MoveCameraRight()
     {
-        if (currentDrone != null && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
+        if (currentDrone && currentDrone.active && currentDrone.type == Drone40.DroneType.Camera)
         {
             currentDrone.MoveCamera(Drone40.CameraDirections.Right);
         }
@@ -156,8 +165,14 @@ public class Drone40ControlPanel : MonoBehaviour
     public void ToggleLight()
     {
         lightActive = !lightActive;
-        if (lightActive) lightBulb.color = lightActiveColor;
-        else lightBulb.color = lightDisabledColor;
+        if (lightActive)
+        {
+            lightBulb.color = lightActiveColor;
+        }
+        else
+        {
+            lightBulb.color = lightDisabledColor;
+        }
         currentDrone.ToggleLight(lightActive);
     }
 
@@ -173,5 +188,6 @@ public class Drone40ControlPanel : MonoBehaviour
     }
 
     public delegate void UpdateListDelegate();
+
     public static event UpdateListDelegate OnUpdateList;
 }

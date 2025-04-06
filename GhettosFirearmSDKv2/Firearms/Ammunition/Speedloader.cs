@@ -36,7 +36,7 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
             for (var i = 0; i < loadedCartridges.Length; i++)
             {
                 var i2 = i;
-                if (_data.Contents[i2] != null)
+                if (_data.Contents[i2] is not null)
                 {
                     var i1 = i;
                     Util.SpawnItem(_data.Contents[i]?.ItemId, $"[Saved speedloader rounds - Index {i2} on {item?.itemId}]", ci =>
@@ -54,14 +54,20 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
             item.TryGetCustomData(out _data);
         }
         _allowInsert = true;
-        if (item != null && item.holder != null) Item_OnSnapEvent(item.holder);
+        if (item && item.holder)
+        {
+            Item_OnSnapEvent(item.holder);
+        }
     }
 
     private void Item_OnUnSnapEvent(Holder holder)
     {
         foreach (var c in loadedCartridges)
         {
-            if (c != null) c.ToggleCollision(true);
+            if (c)
+            {
+                c.ToggleCollision(true);
+            }
         }
     }
 
@@ -69,7 +75,10 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
     {
         foreach (var c in loadedCartridges)
         {
-            if (c != null) c.ToggleCollision(false);
+            if (c)
+            {
+                c.ToggleCollision(false);
+            }
         }
     }
 
@@ -81,7 +90,10 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!_allowInsert) return;
+        if (!_allowInsert)
+        {
+            return;
+        }
         if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded && !car.item.physicBody.isKinematic)
         {
             foreach (var insertCollider in loadColliders)
@@ -97,9 +109,12 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
 
     public void LoadSlot(int index, Cartridge cartridge, bool overrideSave = true)
     {
-        if (loadedCartridges[index] == null && Util.AllowLoadCartridge(cartridge, calibers[index]))
+        if (!loadedCartridges[index] && Util.AllowLoadCartridge(cartridge, calibers[index]))
         {
-            if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
+            if (overrideSave)
+            {
+                Util.PlayRandomAudioSource(insertSounds);
+            }
             loadedCartridges[index] = cartridge;
             cartridge.item.DisallowDespawn = true;
             cartridge.ToggleHandles(false);
@@ -110,7 +125,10 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
             cartridge.transform.parent = mountPoints[index];
             cartridge.transform.localPosition = Vector3.zero;
             cartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            if (overrideSave) SaveCartridges();
+            if (overrideSave)
+            {
+                SaveCartridges();
+            }
         }
         UpdateCartridges();
     }
@@ -119,7 +137,7 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
     {
         for (var i = 0; i < mountPoints.Count; i++)
         {
-            if (loadedCartridges[i] != null)
+            if (loadedCartridges[i])
             {
                 loadedCartridges[i].item.physicBody.isKinematic = true;
                 loadedCartridges[i].transform.parent = mountPoints[i];
@@ -135,18 +153,24 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
         {
             foreach (var c in loadedCartridges)
             {
-                if (c != null && !c.loaded)
-                    c.ToggleCollision(item.holder == null);
+                if (c && !c.loaded)
+                {
+                    c.ToggleCollision(!item.holder);
+                }
             }
 
-            if (loadedCartridges[i] != null && loadedCartridges[i].transform.parent == null)
+            if (loadedCartridges[i] && !loadedCartridges[i].transform.parent)
+            {
                 UpdateCartridges();
+            }
 
-            if (_startRemoving && loadedCartridges[i] != null && loadedCartridges[i].loaded)
+            if (_startRemoving && loadedCartridges[i] && loadedCartridges[i].loaded)
             {
                 loadedCartridges[i] = null;
                 if (Empty() && deleteIfEmpty)
+                {
                     item.Despawn();
+                }
             }
         }
     }
@@ -155,7 +179,10 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
     {
         for (var i = 0; i < loadedCartridges.Length; i++)
         {
-            if (loadedCartridges[i] != null) return false;
+            if (loadedCartridges[i])
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -187,7 +214,9 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
     public void LoadRound(Cartridge cartridge)
     {
         if (FirstFreeSlot(out var free))
+        {
             LoadSlot(free, cartridge);
+        }
     }
 
     private bool FirstFreeSlot(out int firstFree)
@@ -196,7 +225,9 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
         {
             firstFree = i;
             if (!loadedCartridges[i])
-                return true; 
+            {
+                return true;
+            }
         }
 
         firstFree = 0;
@@ -211,7 +242,7 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
         }
 
         loadedCartridges = new Cartridge[mountPoints.Count];
-            
+
         SaveCartridges();
     }
 

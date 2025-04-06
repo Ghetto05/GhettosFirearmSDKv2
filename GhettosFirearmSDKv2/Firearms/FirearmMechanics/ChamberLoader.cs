@@ -18,7 +18,7 @@ public class ChamberLoader : MonoBehaviour, ICaliberGettable
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.collider.GetComponentInParent<Cartridge>() is { } c )
+        if (Util.CheckForCollisionWithThisCollider(collision, loadCollider) && collision.collider.GetComponentInParent<Cartridge>() is { } c)
         {
             TryLoad(c);
         }

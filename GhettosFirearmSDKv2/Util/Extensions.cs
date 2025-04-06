@@ -12,21 +12,25 @@ public static class Extensions
     {
         AlignRotationWith(transform, target, child, Vector3.zero);
     }
-                
+
     public static void AlignRotationWith(this Transform transform, Transform target, Transform child, Vector3 ignoredAxes)
     {
-        if (target == null || child == null || ignoredAxes == Vector3.one)
+        if (!target || !child || ignoredAxes == Vector3.one)
+        {
             return;
+        }
 
         var targetRotation = target.rotation;
         var quaternion = targetRotation * Quaternion.Inverse(child.rotation);
         transform.rotation = quaternion * transform.transform.rotation;
     }
-        
+
     public static void AlignRotationWithB(this Transform transform, Transform target, Transform child, Vector3 ignoredAxes)
     {
-        if (target == null || child == null || ignoredAxes == Vector3.one)
+        if (!target || !child || ignoredAxes == Vector3.one)
+        {
             return;
+        }
 
         var relativeRotation = target.rotation * Quaternion.Inverse(child.rotation);
         relativeRotation.eulerAngles = new Vector3(
@@ -47,7 +51,9 @@ public static class Extensions
         var index = values.IndexOf(value);
         index++;
         if (index >= values.Count)
+        {
             index = 0;
+        }
         return values[index];
     }
 
@@ -57,7 +63,9 @@ public static class Extensions
         var index = values.IndexOf(value);
         index--;
         if (index <= 0)
+        {
             index = values.Count - 1;
+        }
         return values[index];
     }
 
@@ -66,11 +74,11 @@ public static class Extensions
         try
         {
             var enumType = typeof(T);
-            var memberInfos = 
+            var memberInfos =
                 enumType.GetMember(value.ToString());
-            var enumValueMemberInfo = memberInfos.FirstOrDefault(m => 
+            var enumValueMemberInfo = memberInfos.FirstOrDefault(m =>
                 m.DeclaringType == enumType);
-            var valueAttributes = 
+            var valueAttributes =
                 enumValueMemberInfo?.GetCustomAttributes(typeof(EnumDescriptionAttribute), false);
             return ((EnumDescriptionAttribute)valueAttributes?[0])?.Name ?? value.ToString();
         }

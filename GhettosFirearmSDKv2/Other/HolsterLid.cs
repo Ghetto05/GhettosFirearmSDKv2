@@ -15,7 +15,9 @@ public class HolsterLid : MonoBehaviour
         holder.Snapped += HolderOnSnapped;
         holder.UnSnapped += HolderOnUnSnapped;
         if (holder.items.Count == 0)
+        {
             HolderOnUnSnapped(null);
+        }
     }
 
     private void HolderOnUnSnapped(Item item)

@@ -9,7 +9,7 @@ namespace GhettosFirearmSDKv2;
 
 public class ThermalBody : MonoBehaviour
 {
-    public static List<ThermalBody> all = new();
+    public static List<ThermalBody> all = [];
 
     public Transform rig;
     public List<Transform> bones;
@@ -46,7 +46,10 @@ public class ThermalBody : MonoBehaviour
                 {
                     Destroy(t?.gameObject);
                 }
-                if (gameObject != null) Destroy(gameObject);
+                if (gameObject)
+                {
+                    Destroy(gameObject);
+                }
             }
         }
         catch (Exception)
@@ -99,14 +102,16 @@ public class ThermalBody : MonoBehaviour
         _rhInst = new Material(redHotMaterial);
         _bhInst = new Material(blackHotMaterial);
         _whInst = new Material(whiteHotMaterial);
-            
-        if (all == null) all = new List<ThermalBody>();
+
         all.Add(this);
     }
 
     public void SetColor(NvgOnlyRenderer.ThermalTypes t)
     {
-        if (_smInst == null || renderers.Count == 0 || renderers[0] == null) return;
+        if (!_smInst || renderers.Count == 0 || !renderers[0])
+        {
+            return;
+        }
         Material m = null;
         if (t == NvgOnlyRenderer.ThermalTypes.Standard)
         {
@@ -144,13 +149,16 @@ public class ThermalBody : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-            
+
         Destroy(rig?.gameObject);
         foreach (var t in bones)
         {
             Destroy(t?.gameObject);
         }
-        if (gameObject != null) Destroy(gameObject);
+        if (gameObject)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void SetAllMaterialTemperatures(float temperature)

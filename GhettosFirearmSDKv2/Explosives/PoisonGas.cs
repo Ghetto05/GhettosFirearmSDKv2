@@ -17,7 +17,7 @@ public class PoisonGas : Explosive
 
     private void Awake()
     {
-        if (item != null)
+        if (item)
         {
             item.DisallowDespawn = true;
         }
@@ -39,14 +39,20 @@ public class PoisonGas : Explosive
         loop.Play();
         particle.Play();
         timestamp = Time.time;
-        if (gameObject.GetComponentInParent<Rigidbody>() is { } rb) rb.velocity = Vector3.zero;
+        if (gameObject.GetComponentInParent<Rigidbody>() is { } rb)
+        {
+            rb.velocity = Vector3.zero;
+        }
         _ready = true;
         base.ActualDetonate();
     }
 
     private void Update()
     {
-        if (!detonated || !_ready) return;
+        if (!detonated || !_ready)
+        {
+            return;
+        }
 
         if (Time.time >= timestamp + emissionDuration && loop.isPlaying)
         {
@@ -54,17 +60,23 @@ public class PoisonGas : Explosive
             _zone.gameObject.transform.SetParent(null);
         }
 
-        if (!_active) return;
+        if (!_active)
+        {
+            return;
+        }
 
         if (Time.time >= timestamp + duration)
         {
             _active = false;
             Destroy(_zone.gameObject);
-            if (item != null)
+            if (item)
             {
                 item.DisallowDespawn = false;
             }
-            else Destroy(gameObject);
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

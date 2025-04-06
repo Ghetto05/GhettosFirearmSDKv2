@@ -13,16 +13,17 @@ namespace GhettosFirearmSDKv2;
 public class AttachmentValidator : MonoBehaviour
 {
     public Item item;
-        
+
     public Light errorLight;
     public Light successLight;
-        
+
     public AttachmentPoint slot;
 
     public AudioSource[] clickSounds;
 
     private List<string> _attachmentIds;
-    private static List<string> _attachmentIdBanList =
+
+    private static readonly List<string> AttachmentIdBanList =
     [
         "Ghetto05.Firearms.M2.TopGrip",
         "Ghetto05.Firearms.M870.Stocks.AG870",
@@ -78,7 +79,7 @@ public class AttachmentValidator : MonoBehaviour
         var counter = 0;
         foreach (var id in _attachmentIds)
         {
-            if (_attachmentIdBanList.Contains(id))
+            if (AttachmentIdBanList.Contains(id))
             {
                 Debug.LogWarning($"Skipping blacklisted attachment {id}...({counter + 1} of {_attachmentIds.Count} - {Math.Round((double)counter / _attachmentIds.Count, 2) * 100}% done)");
                 continue;
@@ -177,6 +178,6 @@ public class AttachmentValidator : MonoBehaviour
 
     public static void AddAttachmentToBanList(string id)
     {
-        _attachmentIdBanList.Add(id);
+        AttachmentIdBanList.Add(id);
     }
 }

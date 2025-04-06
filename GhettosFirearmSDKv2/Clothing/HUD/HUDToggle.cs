@@ -13,11 +13,14 @@ public class HUDToggle : MonoBehaviour
 
     private void Update()
     {
-        if (Player.local.creature != null)
+        if (Player.local.creature)
         {
             if (CheckInteraction(Side.Left) || CheckInteraction(Side.Right))
             {
-                if (!_lastFramePressed) Toggle();
+                if (!_lastFramePressed)
+                {
+                    Toggle();
+                }
                 _lastFramePressed = true;
             }
             else
@@ -29,7 +32,10 @@ public class HUDToggle : MonoBehaviour
 
     private bool CheckInteraction(Side side)
     {
-        if (!Player.local.GetHand(side).controlHand.usePressed) return false;
+        if (!Player.local.GetHand(side).controlHand.usePressed)
+        {
+            return false;
+        }
         foreach (var c in toggleColliders)
         {
             if (c.bounds.Contains(Player.local.GetHand(side).ragdollHand.touchCollider.transform.position))

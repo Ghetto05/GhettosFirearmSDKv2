@@ -7,14 +7,16 @@ namespace GhettosFirearmSDKv2;
 
 public class CaliberSubstituteData : CustomData
 {
-    private static List<Tuple<string,string>> _allSubstitutes;
+    private static List<Tuple<string, string>> _allSubstitutes;
 
-    public static List<Tuple<string,string>> AllSubstitutes
+    public static List<Tuple<string, string>> AllSubstitutes
     {
         get
         {
-            if (_allSubstitutes == null)
+            if (_allSubstitutes is null)
+            {
                 _allSubstitutes = Catalog.GetData<CaliberSubstituteData>("GhettosFirearmSDKv2CaliberSubstituteData").Substitutes.ToList();
+            }
             return _allSubstitutes.ToList();
         }
     }

@@ -23,7 +23,9 @@ public class WireCutter : MonoBehaviour
     private void OnDespawnEvent(EventTime eventTime)
     {
         if (eventTime != EventTime.OnStart)
+        {
             return;
+        }
 
         item.OnHeldActionEvent -= OnHeldActionEvent;
         item.OnDespawnEvent -= OnDespawnEvent;
@@ -32,18 +34,22 @@ public class WireCutter : MonoBehaviour
     private void OnHeldActionEvent(RagdollHand ragdollhand, Handle handle, Interactable.Action action)
     {
         if (action == Interactable.Action.UseStart)
+        {
             Clip();
+        }
     }
 
     private void Clip()
     {
         if (Time.time - _lastClipTime < clipAnimationLength)
+        {
             return;
+        }
         _lastClipTime = Time.time;
-            
+
         Util.PlayRandomAudioSource(clipSounds);
         animator.Play(clipAnimation);
-            
+
         WireCutterCuttable.CutFound(clipRoot.position, clipRange);
     }
 }

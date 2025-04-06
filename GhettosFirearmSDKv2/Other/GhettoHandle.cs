@@ -27,14 +27,19 @@ public class GhettoHandle : Handle
     protected override void Awake()
     {
         if (axisLength > 0)
+        {
             slideBehavior = SlideBehavior.CanSlide;
-            
+        }
+
         base.Awake();
     }
 
     public override void RefreshJointDrive()
     {
-        if (!IsHanded()) return;
+        if (!IsHanded())
+        {
+            return;
+        }
 
         if (handlers.Count == 1)
         {
@@ -56,13 +61,17 @@ public class GhettoHandle : Handle
                             SetOtherDominant();
                         }
 
-
                         else if (type == HandleType.Foregrip && otherHandle.type == HandleType.Foregrip)
                         {
-                            if (handlers.First().side == dominantHand) SetThisDominant();
-                            else SetOtherDominant();
+                            if (handlers.First().side == dominantHand)
+                            {
+                                SetThisDominant();
+                            }
+                            else
+                            {
+                                SetOtherDominant();
+                            }
                         }
-
 
                         else if (type == HandleType.Foregrip && otherHandle.type == HandleType.PumpAction)
                         {
@@ -72,7 +81,6 @@ public class GhettoHandle : Handle
                         {
                             SetOtherDominant();
                         }
-
 
                         else if (type == HandleType.Bolt)
                         {
@@ -85,17 +93,29 @@ public class GhettoHandle : Handle
                     }
                     else
                     {
-                        if (data.dominantWhenTwoHanded && handlers.First().otherHand.grabbedHandle.data.dominantWhenTwoHanded) SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, handlers.First().side == dominantHand ? dominantRotation : Vector2.zero, data.rotationDrive);
-                        else SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, data.dominantWhenTwoHanded ? dominantRotation : Vector2.zero, data.rotationDrive);
+                        if (data.dominantWhenTwoHanded && handlers.First().otherHand.grabbedHandle.data.dominantWhenTwoHanded)
+                        {
+                            SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, handlers.First().side == dominantHand ? dominantRotation : Vector2.zero, data.rotationDrive);
+                        }
+                        else
+                        {
+                            SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, data.dominantWhenTwoHanded ? dominantRotation : Vector2.zero, data.rotationDrive);
+                        }
                     }
                 }
 
                 //case: item two handed by different creatures
-                else SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, data.dominantWhenTwoHanded ? dominantRotation : Vector2.zero, data.rotationDrive);
+                else
+                {
+                    SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, data.dominantWhenTwoHanded ? dominantRotation : Vector2.zero, data.rotationDrive);
+                }
             }
 
             //case: item onehanded
-            else SetJointConfig(handlers.First(), Vector2.one, Vector2.one, data.rotationDrive);
+            else
+            {
+                SetJointConfig(handlers.First(), Vector2.one, Vector2.one, data.rotationDrive);
+            }
         }
 
         //original
@@ -119,6 +139,7 @@ public class GhettoHandle : Handle
                                 }
                                 SetJointToTwoHanded(ragdollHand2.side);
                                 break;
+
                             case TwoHandedMode.AutoRear:
                                 if (GetNearestAxisPosition(ragdollHand1.gripInfo.transform.position) > (double)GetNearestAxisPosition(ragdollHand2.gripInfo.transform.position))
                                 {
@@ -127,6 +148,7 @@ public class GhettoHandle : Handle
                                 }
                                 SetJointToTwoHanded(ragdollHand1.side);
                                 break;
+
                             default:
                                 SetJointToTwoHanded(dominantHand);
                                 break;
@@ -144,6 +166,7 @@ public class GhettoHandle : Handle
                                 }
                                 SetJointToTwoHanded(ragdollHand2.side);
                                 break;
+
                             case TwoHandedMode.AutoRear:
                                 if (GetNearestAxisPosition(ragdollHand1.gripInfo.transform.position) < (double)GetNearestAxisPosition(ragdollHand2.gripInfo.transform.position))
                                 {
@@ -152,6 +175,7 @@ public class GhettoHandle : Handle
                                 }
                                 SetJointToTwoHanded(ragdollHand1.side);
                                 break;
+
                             default:
                                 SetJointToTwoHanded(dominantHand);
                                 break;
@@ -159,24 +183,40 @@ public class GhettoHandle : Handle
                     }
                 }
                 else
+                {
                     SetJointToTwoHanded(dominantHand, 0.1f);
+                }
             }
             else
+            {
                 SetJointToTwoHanded(dominantHand, 0.1f);
+            }
         }
     }
 
     public void SetThisDominant()
     {
         var dominantRotation = new Vector2(handlers.First().creature.data.forceRotationSpringDamper2HMult.x * data.rotationSpring2hMultiplier, handlers.First().creature.data.forceRotationSpringDamper2HMult.y * data.rotationDamper2hMultiplier);
-        if (type != HandleType.PumpAction) SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
-        else SetJointConfigV2(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
+        if (type != HandleType.PumpAction)
+        {
+            SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
+        }
+        else
+        {
+            SetJointConfigV2(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, dominantRotation, data.rotationDrive);
+        }
     }
 
     public void SetOtherDominant()
     {
-        if (type != HandleType.PumpAction) SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, Vector2.zero, data.rotationDrive);
-        else SetJointConfigV2(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, Vector2.zero, data.rotationDrive);
+        if (type != HandleType.PumpAction)
+        {
+            SetJointConfig(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, Vector2.zero, data.rotationDrive);
+        }
+        else
+        {
+            SetJointConfigV2(handlers.First(), handlers.First().creature.data.forcePositionSpringDamper2HMult, Vector2.zero, data.rotationDrive);
+        }
     }
 
     public bool IsOtherHandleGhetto(Handle handle, out GhettoHandle ghettoHandle)
@@ -198,12 +238,18 @@ public class GhettoHandle : Handle
         HandleData.RotationDrive rotationDrive)
     {
         if (!handler.creature.player)
+        {
             return;
+        }
         if (handler.gripInfo.joint)
+        {
             SetJointConfig(handler.gripInfo.joint, handler, positionMultiplier, rotationMultiplier, handler.creature.data.forceMaxPosition, handler.creature.data.forceMaxRotation, rotationDrive);
+        }
         if (handler.gripInfo.playerJoint)
             //Destroy(handler.gripInfo.playerJoint);
+        {
             SetJointConfig(handler.gripInfo.playerJoint, handler, Vector2.zero, Vector2.zero, 0.0f, 0.0f, rotationDrive);
+        }
         playerJointActive = false;
     }
 }

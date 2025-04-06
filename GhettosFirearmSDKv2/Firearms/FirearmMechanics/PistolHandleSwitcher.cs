@@ -21,7 +21,9 @@ public class PistolHandleSwitcher : MonoBehaviour
             }
 
             if (attachment.attachmentPoint?.ConnectedManager is Firearm f)
+            {
                 firearm = f;
+            }
         }
 
         mainHandle.SetTouch(mainHandle.handlers.Count == 0);
@@ -36,9 +38,13 @@ public class PistolHandleSwitcher : MonoBehaviour
 
         var dualHeld = mainHandle.handlers.Count > 0 && secondaryHandle.handlers.Count > 0;
         if (!_lastFrameDualHeld && dualHeld)
+        {
             firearm.AddRecoilModifier(0.3f, 1f, this);
+        }
         else if (_lastFrameDualHeld && !dualHeld)
+        {
             firearm.RemoveRecoilModifier(this);
+        }
         _lastFrameDualHeld = dualHeld;
     }
 }

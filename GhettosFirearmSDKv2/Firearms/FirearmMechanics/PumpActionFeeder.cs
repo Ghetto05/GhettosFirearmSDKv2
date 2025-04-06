@@ -52,7 +52,10 @@ public class PumpActionFeeder : MonoBehaviour
 
     public bool CartridgesInTrigger()
     {
-        if (openingEditorOverride) return true;
+        if (openingEditorOverride)
+        {
+            return true;
+        }
         var bounds = triggerCollider.bounds;
         var triggerCenter = bounds.center;
         var triggerSize = bounds.size;
@@ -60,7 +63,7 @@ public class PumpActionFeeder : MonoBehaviour
         foreach (var collider in colliders)
         {
             var cartridgeScript = collider.GetComponentInParent<Cartridge>();
-            if (cartridgeScript != null)
+            if (cartridgeScript)
             {
                 return true;
             }

@@ -14,26 +14,41 @@ public class ReticleSwitcher : MonoBehaviour
 
     private void Start()
     {
-        if (defaultReticle == null && reticles != null && reticles.Count > 0) defaultReticle = reticles[0];
+        if (!defaultReticle && reticles is not null && reticles.Count > 0)
+        {
+            defaultReticle = reticles[0];
+        }
         foreach (var reti in reticles!)
         {
             reti.SetActive(false);
         }
-        if (defaultReticle != null) defaultReticle.SetActive(true);
+        if (defaultReticle)
+        {
+            defaultReticle.SetActive(true);
+        }
         toggleHandle.OnHeldActionEvent += ToggleHandle_OnHeldActionEvent;
     }
 
     private void ToggleHandle_OnHeldActionEvent(RagdollHand hand, Interactable.Action action)
-    {   
-        if (action == Interactable.Action.UseStart) Switch();
+    {
+        if (action == Interactable.Action.UseStart)
+        {
+            Switch();
+        }
     }
 
     public void Switch()
     {
-        if (defaultReticle == null) return;
-        if (reticles != null && reticles.Count > 1)
+        if (!defaultReticle)
         {
-            if (switchSound != null) switchSound.Play();
+            return;
+        }
+        if (reticles is not null && reticles.Count > 1)
+        {
+            if (switchSound)
+            {
+                switchSound.Play();
+            }
             if (reticles.IndexOf(defaultReticle) + 1 < reticles.Count)
             {
                 defaultReticle = reticles[reticles.IndexOf(defaultReticle) + 1];
@@ -47,7 +62,10 @@ public class ReticleSwitcher : MonoBehaviour
             {
                 reti.SetActive(false);
             }
-            if (defaultReticle != null) defaultReticle.SetActive(true);
+            if (defaultReticle)
+            {
+                defaultReticle.SetActive(true);
+            }
         }
     }
 }

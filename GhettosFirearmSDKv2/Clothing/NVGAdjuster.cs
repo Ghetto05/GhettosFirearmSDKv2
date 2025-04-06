@@ -6,12 +6,15 @@ namespace GhettosFirearmSDKv2;
 public class NvgAdjuster : MonoBehaviour
 {
     private static List<NvgAdjuster> _all;
+
     public static List<NvgAdjuster> All
     {
         get
         {
-            if (_all == null)
+            if (_all is null)
+            {
                 _all = new List<NvgAdjuster>();
+            }
             return _all;
         }
         set
@@ -44,16 +47,32 @@ public class NvgAdjuster : MonoBehaviour
 
     public void UpdateOffsets()
     {
-        if (upwardAxis != null) upwardAxis.localPosition = Offset(Settings.NvgUpwardOffset);
-        if (forwardAxis != null) forwardAxis.localPosition = Offset(Settings.NvgForwardOffset);
-        if (sidewaysAxisLeft != null) sidewaysAxisLeft.localPosition = Offset(Settings.NvgSidewaysOffset);
-        if (sidewaysAxisRight != null) sidewaysAxisRight.localPosition = Offset(Settings.NvgSidewaysOffset);
-        if (foldAxis != null)
+        if (upwardAxis)
+        {
+            upwardAxis.localPosition = Offset(Settings.NvgUpwardOffset);
+        }
+        if (forwardAxis)
+        {
+            forwardAxis.localPosition = Offset(Settings.NvgForwardOffset);
+        }
+        if (sidewaysAxisLeft)
+        {
+            sidewaysAxisLeft.localPosition = Offset(Settings.NvgSidewaysOffset);
+        }
+        if (sidewaysAxisRight)
+        {
+            sidewaysAxisRight.localPosition = Offset(Settings.NvgSidewaysOffset);
+        }
+        if (foldAxis)
         {
             if (Settings.FoldNVGs)
+            {
                 foldAxis.SetLocalPositionAndRotation(foldedPosition.localPosition, foldedPosition.localRotation);
+            }
             else
+            {
                 foldAxis.SetLocalPositionAndRotation(idlePosition.localPosition, idlePosition.localRotation);
+            }
         }
     }
 

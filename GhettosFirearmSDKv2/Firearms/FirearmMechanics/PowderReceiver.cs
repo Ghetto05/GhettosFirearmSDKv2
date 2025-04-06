@@ -26,9 +26,13 @@ public class PowderReceiver : MonoBehaviour
 
     public void UpdatePositions()
     {
-        if (fillRoot != null)
+        if (fillRoot)
+        {
             fillRoot.localScale = new Vector3(1, 1, currentAmount / (float)minimum);
-        if (fillPosition != null)
+        }
+        if (fillPosition)
+        {
             fillPosition.position = Vector3.LerpUnclamped(emptyPosition.position, filledPosition.position, currentAmount / (float)minimum);
+        }
     }
 }

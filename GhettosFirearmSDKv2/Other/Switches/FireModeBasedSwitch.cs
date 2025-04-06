@@ -21,8 +21,14 @@ public class FireModeBasedSwitch : MonoBehaviour
     {
         if (!firearm && attachment)
         {
-            if (attachment.initialized) Attachment_OnDelayedAttachEvent();
-            else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            if (attachment.initialized)
+            {
+                Attachment_OnDelayedAttachEvent();
+            }
+            else
+            {
+                attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+            }
         }
 
         if (firearm)
@@ -36,7 +42,9 @@ public class FireModeBasedSwitch : MonoBehaviour
     private void Attachment_OnDelayedAttachEvent()
     {
         if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
+        {
             return;
+        }
         firearm = f;
         firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
         Util.DelayedExecute(1f, Firearm_OnFiremodeChangedEvent, this);

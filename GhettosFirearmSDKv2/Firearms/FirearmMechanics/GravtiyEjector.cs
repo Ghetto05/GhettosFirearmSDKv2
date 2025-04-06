@@ -13,7 +13,7 @@ public class GravtiyEjector : MonoBehaviour
 
     public void FixedUpdate()
     {
-        if (Util.AllLocksUnlocked(locks) && CheckEjectionGravity(direction) && bolt.GetChamber() != null)
+        if (Util.AllLocksUnlocked(locks) && CheckEjectionGravity(direction) && bolt.GetChamber())
         {
             bolt.EjectRound();
         }

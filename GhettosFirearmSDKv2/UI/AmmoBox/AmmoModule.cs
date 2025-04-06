@@ -20,7 +20,10 @@ public class AmmoModule : ItemModule
             if (data.HasModule<AmmoModule>())
             {
                 var module = data.GetModule<AmmoModule>();
-                if (!list.Contains(module.Category)) list.Add(module.Category);
+                if (!list.Contains(module.Category))
+                {
+                    list.Add(module.Category);
+                }
             }
         }
         return list;
@@ -34,7 +37,10 @@ public class AmmoModule : ItemModule
             if (data.HasModule<AmmoModule>())
             {
                 var module = data.GetModule<AmmoModule>();
-                if (module.Category.Equals(wantedCategory) && !list.Contains(module.Caliber)) list.Add(module.Caliber);
+                if (module.Category.Equals(wantedCategory) && !list.Contains(module.Caliber))
+                {
+                    list.Add(module.Caliber);
+                }
             }
         }
         return list;
@@ -48,8 +54,14 @@ public class AmmoModule : ItemModule
             if (data.HasModule<AmmoModule>())
             {
                 var module = data.GetModule<AmmoModule>();
-                if (!module.Hidden && module.Caliber.Equals(wantedCaliber) && !list.Contains(module.Variant)) list.Add(module.Variant);
-                else if (module.Caliber.Equals(wantedCaliber)) Debug.Log($"Duplicate cartridge variant found! Category: {module.Category}, Caliber: {module.Caliber}, Variant: {module.Variant}");
+                if (!module.Hidden && module.Caliber.Equals(wantedCaliber) && !list.Contains(module.Variant))
+                {
+                    list.Add(module.Variant);
+                }
+                else if (module.Caliber.Equals(wantedCaliber))
+                {
+                    Debug.Log($"Duplicate cartridge variant found! Category: {module.Category}, Caliber: {module.Caliber}, Variant: {module.Variant}");
+                }
             }
         }
         return list;
@@ -62,7 +74,10 @@ public class AmmoModule : ItemModule
             if (data.HasModule<AmmoModule>())
             {
                 var module = data.GetModule<AmmoModule>();
-                if (module.Category.Equals(wantedCategory) && module.Caliber.Equals(wantedCaliber) && module.Variant.Remove(0, 5).Equals(wantedVariant)) return data.id;
+                if (module.Category.Equals(wantedCategory) && module.Caliber.Equals(wantedCaliber) && module.Variant.Remove(0, 5).Equals(wantedVariant))
+                {
+                    return data.id;
+                }
             }
         }
         return string.Empty;
@@ -75,7 +90,10 @@ public class AmmoModule : ItemModule
             if (data.HasModule<AmmoModule>())
             {
                 var module = data.GetModule<AmmoModule>();
-                if (module.Caliber.Equals(wantedCaliber)) return module.Category;
+                if (module.Caliber.Equals(wantedCaliber))
+                {
+                    return module.Category;
+                }
             }
         }
         return string.Empty;

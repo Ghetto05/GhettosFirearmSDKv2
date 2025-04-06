@@ -11,7 +11,7 @@ public static class SharedAttachmentManagerFunctions
         manager.CurrentAttachments = [];
         AddAttachments(manager, manager.AttachmentPoints);
     }
-    
+
     private static void AddAttachments(IAttachmentManager manager, List<AttachmentPoint> points)
     {
         foreach (var point in points.Where(x => x && x.currentAttachments.Any()))
@@ -20,7 +20,7 @@ public static class SharedAttachmentManagerFunctions
             AddAttachments(manager, point.currentAttachments.SelectMany(x => x.attachmentPoints).ToList());
         }
     }
-    
+
     public static AttachmentPoint GetSlotFromId(IAttachmentManager manager, string id)
     {
         return manager.AttachmentPoints.FirstOrDefault(x => x.id.Equals(id));
@@ -31,16 +31,16 @@ public static class SharedAttachmentManagerFunctions
         if (!manager.Item.TryGetCustomData(out FirearmSaveData data))
         {
             manager.SaveData = new FirearmSaveData
-            {
-                FirearmNode = new FirearmSaveData.AttachmentTreeNode()
-            };
+                               {
+                                   FirearmNode = new FirearmSaveData.AttachmentTreeNode()
+                               };
             manager.Item.AddCustomData(manager.SaveData);
         }
         else
         {
             manager.SaveData = data;
         }
-        
+
         foreach (var ap in manager.AttachmentPoints)
         {
             ap.ConnectedManager = manager;

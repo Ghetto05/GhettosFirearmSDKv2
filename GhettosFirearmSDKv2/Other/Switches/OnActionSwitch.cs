@@ -34,8 +34,14 @@ public class OnActionSwitch : MonoBehaviour
 
     public void InvokedStart()
     {
-        if (parentItem) parentItem.OnHeldActionEvent += OnHeldActionEvent;
-        else if (parentAttachment) parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
+        if (parentItem)
+        {
+            parentItem.OnHeldActionEvent += OnHeldActionEvent;
+        }
+        else if (parentAttachment)
+        {
+            parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
+        }
 
         if (parentAttachment && parentAttachment.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
         {
@@ -53,7 +59,10 @@ public class OnActionSwitch : MonoBehaviour
         events[_current]?.Invoke();
         foreach (var swi in switches)
         {
-            if (swi != null) AlignSwitch(swi, _current);
+            if (swi)
+            {
+                AlignSwitch(swi, _current);
+            }
         }
     }
 
@@ -71,7 +80,10 @@ public class OnActionSwitch : MonoBehaviour
 
     public void Switch()
     {
-        if (switchSound != null) switchSound.Play();
+        if (switchSound)
+        {
+            switchSound.Play();
+        }
         if (_current + 1 < events.Count)
         {
             _current++;
@@ -80,20 +92,32 @@ public class OnActionSwitch : MonoBehaviour
         {
             _current = 0;
         }
-        if (switchSound != null) switchSound.Play();
+        if (switchSound)
+        {
+            switchSound.Play();
+        }
         events[_current]?.Invoke();
         foreach (var swi in switches)
         {
-            if (swi != null) AlignSwitch(swi, _current);
+            if (swi)
+            {
+                AlignSwitch(swi, _current);
+            }
         }
 
-        if (parentAttachment != null) parentAttachment.Node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
-        else if (parentItem != null && parentItem.TryGetComponent(out IAttachmentManager manager)) manager.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
+        if (parentAttachment)
+        {
+            parentAttachment.Node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
+        }
+        else if (parentItem && parentItem.TryGetComponent(out IAttachmentManager manager))
+        {
+            manager.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
+        }
     }
 
     public void AlignSwitch(SwitchRelation swi, int index)
     {
-        if (!swi.usePositionsAsDifferentObjects && swi.switchObject != null && swi.modePositions.Count > index && swi.modePositions[index] != null)
+        if (!swi.usePositionsAsDifferentObjects && swi.switchObject && swi.modePositions.Count > index && swi.modePositions[index])
         {
             swi.switchObject.localPosition = swi.modePositions[index].localPosition;
             swi.switchObject.localEulerAngles = swi.modePositions[index].localEulerAngles;

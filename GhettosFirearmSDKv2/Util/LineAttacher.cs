@@ -10,6 +10,6 @@ public class LineAttacher : MonoBehaviour
     private void Update()
     {
         line.SetPosition(0, transform.position);
-        line.SetPosition(1, target.position);    
+        line.SetPosition(1, target.position);
     }
 }

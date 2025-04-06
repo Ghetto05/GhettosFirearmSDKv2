@@ -38,14 +38,18 @@ public class SelfLoadingBolt : BoltBase
         _lastFireTime = Time.time;
         foreach (var hand in firearm.item.handlers)
         {
-            if (hand.playerHand != null && hand.playerHand.controlHand != null)
+            if (hand.playerHand?.controlHand is not null)
+            {
                 hand.playerHand.controlHand.HapticShort(50f);
+            }
         }
         _loadedCartridge = firearm.magazineWell.ConsumeRound();
         IncrementBreachSmokeTime();
         firearm.PlayFireSound(_loadedCartridge);
         if (_loadedCartridge.data.playFirearmDefaultMuzzleFlash)
+        {
             firearm.PlayMuzzleFlash(_loadedCartridge);
+        }
         FireMethods.ApplyRecoil(firearm.transform, firearm.item, _loadedCartridge.data.recoil, _loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
         FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, _loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), firearm.HeldByAI());
         _loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, true);
@@ -63,9 +67,18 @@ public class SelfLoadingBolt : BoltBase
     {
         if (fireOnTriggerPress && isPulled && firearm.fireMode != FirearmBase.FireModes.Safe)
         {
-            if (firearm.fireMode == FirearmBase.FireModes.Semi && _shotsSinceTriggerReset == 0 && ReadyToFire()) TryFire();
-            else if (firearm.fireMode == FirearmBase.FireModes.Burst && _shotsSinceTriggerReset < firearm.burstSize && ReadyToFire()) TryFire();
-            else if (firearm.fireMode == FirearmBase.FireModes.Auto) TryFire();
+            if (firearm.fireMode == FirearmBase.FireModes.Semi && _shotsSinceTriggerReset == 0 && ReadyToFire())
+            {
+                TryFire();
+            }
+            else if (firearm.fireMode == FirearmBase.FireModes.Burst && _shotsSinceTriggerReset < firearm.burstSize && ReadyToFire())
+            {
+                TryFire();
+            }
+            else if (firearm.fireMode == FirearmBase.FireModes.Auto)
+            {
+                TryFire();
+            }
         }
         if (!isPulled)
         {
@@ -86,11 +99,13 @@ public class SelfLoadingBolt : BoltBase
 
     public override void EjectRound()
     {
-        if (_loadedCartridge == null)
+        if (!_loadedCartridge)
+        {
             return;
+        }
         Util.PlayRandomAudioSource(ejectSounds);
         SaveChamber(null, false);
-        if (roundEjectPoint != null)
+        if (roundEjectPoint)
         {
             _loadedCartridge.transform.position = roundEjectPoint.position;
             _loadedCartridge.transform.rotation = roundEjectPoint.rotation;
@@ -104,11 +119,15 @@ public class SelfLoadingBolt : BoltBase
         rb.isKinematic = false;
         _loadedCartridge.loaded = false;
         rb.WakeUp();
-        if (roundEjectDir != null)
+        if (roundEjectDir)
+        {
             rb.AddForce(roundEjectDir.forward * roundEjectForce, ForceMode.Impulse);
+        }
         _loadedCartridge.ToggleHandles(true);
-        if (firearm.magazineWell != null && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired)
+        if (firearm.magazineWell && firearm.magazineWell.IsEmptyAndHasMagazine() && firearm.magazineWell.currentMagazine.ejectOnLastRoundFired)
+        {
             firearm.magazineWell.Eject();
+        }
     }
 
     private void Update()

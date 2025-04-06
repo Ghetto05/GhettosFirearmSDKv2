@@ -19,9 +19,11 @@ public class CartridgeSaveData : ContentCustomData
     public void Apply(Cartridge cartridge)
     {
         if (IsFired)
+        {
             cartridge.SetFired();
+        }
     }
-    
+
     public static implicit operator CartridgeSaveData(string item)
     {
         return new CartridgeSaveData(item, false);

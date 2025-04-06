@@ -36,7 +36,7 @@ public class GunLockerUI : MonoBehaviour
     private string _typingName = "";
     public bool shift = true;
     public bool caps = true;
-    private float _lastCursorShift; 
+    private float _lastCursorShift;
 
     private void Awake()
     {
@@ -53,15 +53,31 @@ public class GunLockerUI : MonoBehaviour
     }
 
     #region Typing
+
     public void Type(string key)
     {
         if (_typing)
         {
-            if (_typingName.EndsWith("|")) _typingName = _typingName.Remove(_typingName.Length - 1, 1);
-            if (_typingName.Equals("Type here...")) _typingName = "";
-            if (key.Equals("BACKSPACE") && _typingName.Length > 0) _typingName = _typingName.Remove(_typingName.Length - 1);
-            else if (key.Equals("SHIFT")) shift = !shift;
-            else if (key.Equals("CAPS")) caps = !caps;
+            if (_typingName.EndsWith("|"))
+            {
+                _typingName = _typingName.Remove(_typingName.Length - 1, 1);
+            }
+            if (_typingName.Equals("Type here..."))
+            {
+                _typingName = "";
+            }
+            if (key.Equals("BACKSPACE") && _typingName.Length > 0)
+            {
+                _typingName = _typingName.Remove(_typingName.Length - 1);
+            }
+            else if (key.Equals("SHIFT"))
+            {
+                shift = !shift;
+            }
+            else if (key.Equals("CAPS"))
+            {
+                caps = !caps;
+            }
             else
             {
                 _typingName += key;
@@ -97,7 +113,7 @@ public class GunLockerUI : MonoBehaviour
         }
         foreach (var nonCapsKey in keysNonCaps)
         {
-            nonCapsKey.gameObject.SetActive(!shift && ! caps);
+            nonCapsKey.gameObject.SetActive(!shift && !caps);
         }
     }
 
@@ -119,25 +135,36 @@ public class GunLockerUI : MonoBehaviour
         typingPanel.SetActive(false);
         _typing = false;
     }
+
     #endregion
 
     #region Saving
+
     public void SaveWeapon()
     {
-        if (holder.items.Count == 0 || _typing) return;
+        if (holder.items.Count == 0 || _typing)
+        {
+            return;
+        }
         OpenTypingPanel();
     }
 
     public void SaveWeaponWithName(string weaponName)
     {
-        if (!_typing) return;
+        if (!_typing)
+        {
+            return;
+        }
         if (holder.items.Count == 0)
         {
             Cancel();
             return;
         }
 
-        if (weaponName.EndsWith("|")) weaponName = weaponName.Remove(weaponName.Length - 1, 1);
+        if (weaponName.EndsWith("|"))
+        {
+            weaponName = weaponName.Remove(weaponName.Length - 1, 1);
+        }
         var idString = weaponName.Replace(" ", "");
         idString = idString.Replace(",", "");
         idString = idString.Replace(".", "");
@@ -150,7 +177,7 @@ public class GunLockerUI : MonoBehaviour
         var preb = Settings.saveAsPrebuilt;
 
         DeleteSave(idString);
-            
+
         var newData = new GunLockerSaveData
                       {
                           id = preb ? "PREBUILT_" + idString : "SAVE_" + idString,
@@ -168,6 +195,7 @@ public class GunLockerUI : MonoBehaviour
         SetCategory(_currentCategory);
         Cancel();
     }
+
     #endregion
 
     #region Locker Actions
@@ -178,7 +206,7 @@ public class GunLockerUI : MonoBehaviour
         categories.Sort();
         categories.Insert(0, "Prebuilts");
 
-        if (_categoryButtons != null)
+        if (_categoryButtons is not null)
         {
             foreach (var obj in _categoryButtons)
             {
@@ -186,7 +214,10 @@ public class GunLockerUI : MonoBehaviour
             }
             _categoryButtons.Clear();
         }
-        else _categoryButtons = new List<GameObject>();
+        else
+        {
+            _categoryButtons = new List<GameObject>();
+        }
 
         foreach (var cat in categories)
         {
@@ -198,7 +229,7 @@ public class GunLockerUI : MonoBehaviour
             categoryComp.button.onClick.AddListener(delegate { SetCategory(cat); });
             categoryComp.textName.text = cat;
             _categoryButtons.Add(buttonObj);
-            if (_currentCategory != null && _currentCategory.Equals(cat))
+            if (_currentCategory is not null && _currentCategory.Equals(cat))
             {
                 categoryComp.selectionOutline.SetActive(true);
             }
@@ -208,7 +239,7 @@ public class GunLockerUI : MonoBehaviour
     private void SetCategory(string category)
     {
         _currentCategory = category;
-        if (_saveButtons != null)
+        if (_saveButtons is not null)
         {
             foreach (var obj in _saveButtons)
             {
@@ -216,7 +247,10 @@ public class GunLockerUI : MonoBehaviour
             }
             _saveButtons.Clear();
         }
-        else _saveButtons = new List<GameObject>();
+        else
+        {
+            _saveButtons = new List<GameObject>();
+        }
 
         foreach (var data in Catalog.GetDataList<GunLockerSaveData>().Where(i => i.Category.Equals(_currentCategory)))
         {
@@ -225,7 +259,10 @@ public class GunLockerUI : MonoBehaviour
             buttonObj.transform.localPosition = Vector3.zero;
             buttonObj.transform.localEulerAngles = Vector3.zero;
             var saveComp = buttonObj.GetComponent<GunLockerUISave>();
-            if (data.Category.Equals("Prebuilts")) saveComp.deleteButton.gameObject.SetActive(false);
+            if (data.Category.Equals("Prebuilts"))
+            {
+                saveComp.deleteButton.gameObject.SetActive(false);
+            }
             saveComp.button.onClick.AddListener(delegate { SpawnSave(data.id); });
             saveComp.deleteButton.onClick.AddListener(delegate { DeleteSave(data.id); });
             saveComp.textName.text = data.DisplayName;
@@ -236,9 +273,12 @@ public class GunLockerUI : MonoBehaviour
 
     private void SpawnSave(string saveId)
     {
-        if (holder.items.Count > 0 && holder.UnSnapOne() is { } i) i.Despawn();
+        if (holder.items.Count > 0 && holder.UnSnapOne() is { } i)
+        {
+            i.Despawn();
+        }
         var data = Catalog.GetData<GunLockerSaveData>(saveId);
-        Util.SpawnItem(data.ItemId, $"[Gun Locker - Save {saveId}]", gun => 
+        Util.SpawnItem(data.ItemId, $"[Gun Locker - Save {saveId}]", gun =>
         {
             holder.Snap(gun);
             gun.SetOwner(Item.Owner.Player);
@@ -249,13 +289,19 @@ public class GunLockerUI : MonoBehaviour
     private void DeleteSave(string saveId)
     {
         var data = Catalog.GetData<GunLockerSaveData>(saveId);
-        if (data == null) return;
+        if (data is null)
+        {
+            return;
+        }
         var path = Settings.GetSaveFolderPath() + "\\Saves\\" + data.id + ".json";
         if (File.Exists(path))
+        {
             File.Delete(path);
+        }
         var category = Catalog.GetCategoryData(Catalog.GetCategory(data.GetType()));
         category.catalogDatas.Remove(data);
         SetCategory(_currentCategory);
     }
+
     #endregion
 }

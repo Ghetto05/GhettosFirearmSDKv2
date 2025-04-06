@@ -14,7 +14,10 @@ public class Explosive : MonoBehaviour
 
     public void Detonate(float delay)
     {
-        if (detonated) return;
+        if (detonated)
+        {
+            return;
+        }
         if (delay > 0f)
         {
             StartCoroutine(Delay(delay));
@@ -27,26 +30,33 @@ public class Explosive : MonoBehaviour
 
     public void Detonate()
     {
-        if (detonated) return;
+        if (detonated)
+        {
+            return;
+        }
         ActualDetonate();
     }
 
     public virtual void ActualDetonate()
     {
         detonated = true;
-        if (followUpExplosive != null)
+        if (followUpExplosive)
+        {
             followUpExplosive.Detonate(followUpDelay);
+        }
     }
 
     public static IEnumerator DelayedDestroy(GameObject obj, float delay)
     {
         yield return new WaitForSeconds(delay);
+
         Destroy(obj);
     }
 
     public IEnumerator Delay(float delay)
     {
         yield return new WaitForSeconds(delay);
+
         Detonate();
     }
 }

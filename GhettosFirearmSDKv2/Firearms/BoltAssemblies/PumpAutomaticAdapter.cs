@@ -39,7 +39,9 @@ public class PumpAutomaticAdapter : MonoBehaviour
         automaticBolt.firearm.OnAltActionEvent += FirearmOnOnAltActionEvent;
         _hasBoltCatch = automaticBolt.hasBoltcatch;
         if (pumpActionEngaged)
+        {
             Toggle(true);
+        }
     }
 
     private void ItemOnOnDespawnEvent(EventTime eventTime)
@@ -55,31 +57,45 @@ public class PumpAutomaticAdapter : MonoBehaviour
     private void FirearmOnOnAltActionEvent(bool longPress)
     {
         if (switchType == SwitchType.BoltRelease && !longPress)
+        {
             Toggle();
+        }
         if (switchType == SwitchType.FireModeSwitch && longPress)
+        {
             Toggle();
+        }
     }
 
     private void ItemOnOnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
     {
         var pumpHandle = pumpAction.boltHandles.Contains(handle);
         var autoHandle = automaticBolt.boltHandles.Contains(handle);
-            
+
         if (switchType == SwitchType.AutoBoltTrigger && autoHandle && action == Interactable.Action.UseStart)
+        {
             Toggle();
+        }
         if (switchType == SwitchType.AutoBoltAlternate && autoHandle && action == Interactable.Action.AlternateUseStart)
+        {
             Toggle();
+        }
         if (switchType == SwitchType.PumpTrigger && pumpHandle && action == Interactable.Action.UseStart)
+        {
             Toggle();
+        }
         if (switchType == SwitchType.PumpAlternate && pumpHandle && action == Interactable.Action.AlternateUseStart)
+        {
             Toggle();
+        }
     }
 
     public void Toggle(bool silent = false)
     {
         if (pumpAction.state != BoltBase.BoltState.Locked)
+        {
             return;
-            
+        }
+
         pumpActionEngaged = !pumpActionEngaged;
         pumpAction.fireOnTriggerPress = pumpActionEngaged;
 
@@ -93,10 +109,12 @@ public class PumpAutomaticAdapter : MonoBehaviour
         automaticBolt.hasBoltcatch = _hasBoltCatch && !pumpActionEngaged;
         automaticBolt.overrideHeldState = pumpActionEngaged;
         automaticBolt.heldState = true;
-            
+
         if (!silent)
+        {
             Util.PlayRandomAudioSource(switchSounds);
-        if (switchRoot != null)
+        }
+        if (switchRoot)
         {
             var t = pumpActionEngaged ? pumpPosition : automaticPosition;
             switchRoot.SetPositionAndRotation(t.position, t.rotation);
@@ -106,8 +124,10 @@ public class PumpAutomaticAdapter : MonoBehaviour
     private void FixedUpdate()
     {
         if (!pumpActionEngaged)
+        {
             return;
-            
+        }
+
         if (pumpActionEngaged && pumpAction.state == BoltBase.BoltState.Locked)
         {
             automaticBolt.bolt.localPosition = automaticBolt.startPoint.localPosition;

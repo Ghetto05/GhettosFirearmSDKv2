@@ -20,7 +20,10 @@ public class GunLockerSaveData : CustomData
         var list = new List<string>();
         foreach (var data in Catalog.GetDataList<GunLockerSaveData>())
         {
-            if (!list.Contains(data.Category) && !data.Category.Equals("Prebuilts")) list.Add(data.Category);
+            if (!list.Contains(data.Category) && !data.Category.Equals("Prebuilts"))
+            {
+                list.Add(data.Category);
+            }
         }
         return list;
     }

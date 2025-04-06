@@ -18,7 +18,7 @@ public class Flashbang : Explosive
     {
         try
         {
-            if (effect != null)
+            if (effect)
             {
                 effect.gameObject.transform.SetParent(null);
                 Player.local.StartCoroutine(DelayedDestroy(effect.gameObject, effect.main.duration + 1f));
@@ -27,7 +27,10 @@ public class Flashbang : Explosive
 
             item.physicBody.rigidBody.AddForce(Random.insideUnitSphere * 500);
 
-            if (!string.IsNullOrWhiteSpace(effectId)) Catalog.GetData<EffectData>(effectId).Spawn(transform).Play();
+            if (!string.IsNullOrWhiteSpace(effectId))
+            {
+                Catalog.GetData<EffectData>(effectId).Spawn(transform).Play();
+            }
 
             Util.PlayRandomAudioSource(audioEffects);
             Util.AlertAllCreaturesInRange(transform.position, 50);
@@ -37,7 +40,10 @@ public class Flashbang : Explosive
                 Player.local.StartCoroutine(DelayedDestroy(s.gameObject, s.clip.length + 1f));
             }
 
-            if (Vector3.Distance(transform.position, Player.local.head.cam.transform.position) < range && !Raycast(Player.currentCreature)) PlayerEffectsAndChemicalsModule.Flashbang(time);
+            if (Vector3.Distance(transform.position, Player.local.head.cam.transform.position) < range && !Raycast(Player.currentCreature))
+            {
+                PlayerEffectsAndChemicalsModule.Flashbang(time);
+            }
 
             foreach (var cr in Creature.allActive)
             {

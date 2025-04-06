@@ -37,14 +37,19 @@ public class AmmunitionPouch : MonoBehaviour
 
     private void PouchItem_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
     {
-        if (action == Interactable.Action.AlternateUseStart) Reset();
+        if (action == Interactable.Action.AlternateUseStart)
+        {
+            Reset();
+        }
     }
 
     private void Holder_UnSnapped(Item item)
     {
         item.Hide(false);
         if (!nextSnapFromFirearmLoad)
+        {
             SpawnSavedItem();
+        }
         Util.IgnoreCollision(gameObject, item.gameObject, false);
     }
 
@@ -53,7 +58,10 @@ public class AmmunitionPouch : MonoBehaviour
         nextSnapFromFirearmLoad = false;
         item.Hide(true);
         //if (item.GetComponent<Firearm>()) holder.UnSnap(item);
-        if (string.IsNullOrEmpty(SavedData.ItemID)) SaveItem();
+        if (string.IsNullOrEmpty(SavedData.ItemID))
+        {
+            SaveItem();
+        }
         Util.IgnoreCollision(gameObject, item.gameObject, true);
     }
 
@@ -72,14 +80,20 @@ public class AmmunitionPouch : MonoBehaviour
 
     public void SpawnSavedItem()
     {
-        if (SavedData == null || string.IsNullOrEmpty(SavedData.ItemID)) return;
+        if (SavedData is null || string.IsNullOrEmpty(SavedData.ItemID))
+        {
+            return;
+        }
         Util.SpawnItem(SavedData.ItemID, "Ammunition Pouch", newItem =>
         {
             if (newItem.TryGetComponent(out Magazine mag))
             {
                 mag.OnLoadFinished += Mag_onLoadFinished;
             }
-            else holder.Snap(newItem);
+            else
+            {
+                holder.Snap(newItem);
+            }
         }, transform.position, transform.rotation, null, true, SavedData.DataList.CloneJson());
     }
 

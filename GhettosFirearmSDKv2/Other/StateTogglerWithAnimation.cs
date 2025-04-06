@@ -31,7 +31,10 @@ public class StateTogglerWithAnimation : MonoBehaviour
 
     public void TryToggle()
     {
-        if (animationPlayer?.isPlaying ?? false) return;
+        if (animationPlayer?.isPlaying ?? false)
+        {
+            return;
+        }
         if (currentState == 1)
         {
             animationPlayer?.Play(toState2Anim);

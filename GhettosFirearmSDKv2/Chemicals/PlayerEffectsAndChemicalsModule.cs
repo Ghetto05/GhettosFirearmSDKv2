@@ -23,8 +23,8 @@ public class PlayerEffectsAndChemicalsModule : MonoBehaviour
     //---SPEECH---
     private AudioSource _speech;
     private float _nextSpeechTime;
-    private float _delayBetweenSpeechMin = 2f;
-    private float _delayBetweenSpeechMax = 5f;
+    private readonly float _delayBetweenSpeechMin = 2f;
+    private readonly float _delayBetweenSpeechMax = 5f;
 
     //CS gas
     private readonly string _cSgasCoughAudioContainerId = "CoughingAgony_Ghetto05_FirearmSDKv2";
@@ -70,7 +70,10 @@ public class PlayerEffectsAndChemicalsModule : MonoBehaviour
 
         for (var i = 0; i < gasMasks.Count; i++)
         {
-            if (gasMasks[i] == null) gasMasks.RemoveAt(i);
+            if (!gasMasks[i])
+            {
+                gasMasks.RemoveAt(i);
+            }
         }
 
         var hits = Physics.OverlapSphere(Player.local.head.cam.transform.position, 0.1f);
@@ -88,29 +91,53 @@ public class PlayerEffectsAndChemicalsModule : MonoBehaviour
             {
                 foundPoisonGas = true;
                 var d = float.Parse(c.transform.GetChild(0).name);
-                if (d > highestPoisonGasDamage) highestPoisonGasDamage = d;
+                if (d > highestPoisonGasDamage)
+                {
+                    highestPoisonGasDamage = d;
+                }
             }
         }
 
-        if (foundSmoke && !_inSmoke) EnterSmoke();
-        else if (!foundSmoke && _inSmoke) ExitSmoke();
+        if (foundSmoke && !_inSmoke)
+        {
+            EnterSmoke();
+        }
+        else if (!foundSmoke && _inSmoke)
+        {
+            ExitSmoke();
+        }
 
-        if (foundCSgas && !_inCSgas) EnterCSgas();
-        else if (!foundCSgas && _inCSgas) ExitCSgas();
+        if (foundCSgas && !_inCSgas)
+        {
+            EnterCSgas();
+        }
+        else if (!foundCSgas && _inCSgas)
+        {
+            ExitCSgas();
+        }
 
-        if (foundPoisonGas && !_inPoisonGas) EnterPoisonGas();
-        else if (!foundPoisonGas && _inPoisonGas) ExitPoisonGas();
+        if (foundPoisonGas && !_inPoisonGas)
+        {
+            EnterPoisonGas();
+        }
+        else if (!foundPoisonGas && _inPoisonGas)
+        {
+            ExitPoisonGas();
+        }
 
         UpdateCSgas();
         UpdateSmoke();
         UpdatePoisonGas(highestPoisonGasDamage * Time.deltaTime);
 
-        if (Time.time >= _nextSpeechTime) Speak();
+        if (Time.time >= _nextSpeechTime)
+        {
+            Speak();
+        }
     }
 
     private void Speak()
     {
-        if (_inCSgas && _cSgasCoughAudioContainer != null)
+        if (_inCSgas && _cSgasCoughAudioContainer)
         {
             _speech.clip = _cSgasCoughAudioContainer.PickAudioClip();
         }
@@ -120,7 +147,7 @@ public class PlayerEffectsAndChemicalsModule : MonoBehaviour
         }
 
         //---END---
-        if (_speech.clip != null)
+        if (_speech.clip)
         {
             _speech.Play();
             _nextSpeechTime = Time.time + Random.Range(_delayBetweenSpeechMin, _delayBetweenSpeechMax) + _speech.clip.length;
@@ -133,9 +160,7 @@ public class PlayerEffectsAndChemicalsModule : MonoBehaviour
     }
 
     private void UpdateSmoke()
-    {
-            
-    }
+    { }
 
     private void EnterSmoke()
     {
@@ -148,9 +173,7 @@ public class PlayerEffectsAndChemicalsModule : MonoBehaviour
     }
 
     private void UpdateCSgas()
-    {
-            
-    }
+    { }
 
     private void EnterCSgas()
     {
@@ -164,7 +187,10 @@ public class PlayerEffectsAndChemicalsModule : MonoBehaviour
 
     private void UpdatePoisonGas(float damage)
     {
-        if (!_inPoisonGas) return;
+        if (!_inPoisonGas)
+        {
+            return;
+        }
         Player.local.creature.Damage(new CollisionInstance(new DamageStruct(DamageType.Energy, damage)));
     }
 
@@ -193,7 +219,10 @@ public class PlayerEffectsAndChemicalsModule : MonoBehaviour
     {
         local._flashBangRingingSource.Play();
         local._flashBangRingingSource.volume = 1f;
-        if (time > 4f) yield return new WaitForSeconds(time - 4f);
+        if (time > 4f)
+        {
+            yield return new WaitForSeconds(time - 4f);
+        }
         yield return FadeOut(lgg, 4f);
     }
 

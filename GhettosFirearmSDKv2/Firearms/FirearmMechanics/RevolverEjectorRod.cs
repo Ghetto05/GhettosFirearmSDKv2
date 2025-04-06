@@ -36,8 +36,10 @@ public class RevolverEjectorRod : MonoBehaviour
     private void OnDespawn(EventTime eventTime)
     {
         if (eventTime != EventTime.OnStart)
+        {
             return;
-            
+        }
+
         if (_firearm)
         {
             _firearm.OnAttachmentAdded -= Firearm_OnAttachmentAddedEvent;
@@ -56,7 +58,7 @@ public class RevolverEjectorRod : MonoBehaviour
     private void Revolver_onOpen()
     {
         var vec = BoltBase.GrandparentLocalPosition(ejectPoint, revolver.rotateBody.transform);
-        _joint.anchor = new Vector3(vec.x, vec.y, vec.z + ((root.localPosition.z - ejectPoint.localPosition.z) / 2));
+        _joint.anchor = new Vector3(vec.x, vec.y, vec.z + (root.localPosition.z - ejectPoint.localPosition.z) / 2);
         var limit = new SoftJointLimit();
         limit.limit = Vector3.Distance(ejectPoint.position, root.position) / 2;
         _joint.linearLimit = limit;
@@ -83,7 +85,7 @@ public class RevolverEjectorRod : MonoBehaviour
 
     public void InitializeJoint()
     {
-        if (_joint == null)
+        if (!_joint)
         {
             _joint = revolver.rotateBody.gameObject.AddComponent<ConfigurableJoint>();
             rigidBody.transform.SetLocalPositionAndRotation(root.localPosition, root.localRotation);

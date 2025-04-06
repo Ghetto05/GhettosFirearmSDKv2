@@ -14,6 +14,7 @@ public class UISlot : MonoBehaviour
     public Image icon;
     public Button selectButton;
     public Image attachmentIcon;
+
     [NonSerialized]
     public AttachmentPoint AttachmentPoint;
 
@@ -30,7 +31,9 @@ public class UISlot : MonoBehaviour
         selectButton.onClick.AddListener(delegate { vice.PlaySound(ViceUI.SoundTypes.Select); });
 
         if (AttachmentPoint.currentAttachments.FirstOrDefault() is { } attachment)
+        {
             SetAttachment(attachment);
+        }
 
         Invoke(nameof(RetrySettingIcon), 1f);
     }
@@ -38,7 +41,9 @@ public class UISlot : MonoBehaviour
     private void RetrySettingIcon()
     {
         if (!icon.sprite)
+        {
             return;
+        }
 
         Catalog.LoadAssetAsync<Sprite>(_iconAddress, t => { icon.sprite = t; }, "UI Slot icon retry load");
     }
@@ -52,8 +57,10 @@ public class UISlot : MonoBehaviour
         attachmentIcon.transform.parent.gameObject.SetActive(attachment);
 
         if (!attachment)
+        {
             return;
-            
+        }
+
         Catalog.LoadAssetAsync<Sprite>(attachment.Data.IconAddress, t => { attachmentIcon.sprite = t; }, "UI Slot attachment icon Load");
     }
 

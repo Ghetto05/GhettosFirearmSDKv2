@@ -21,13 +21,17 @@ public class ModderTool : MonoBehaviour
     private void ItemOnOnHeldActionEvent(RagdollHand ragdollhand, Handle handle, Interactable.Action action)
     {
         if (action == Interactable.Action.AlternateUseStart)
+        {
             text.text = positionReference.position.ToString();
+        }
     }
 
     private void OnCollisionStart(CollisionInstance collisioninstance)
     {
         if (collisioninstance.sourceCollider == tip)
+        {
             text.text = LayerMask.LayerToName(collisioninstance.targetCollider.gameObject.layer);
+        }
     }
 
     private void OnDespawn(EventTime eventtime)

@@ -31,13 +31,16 @@ public class NpcChemicalsModule : MonoBehaviour
 
     private void Update()
     {
-        if (PlayerEffectsAndChemicalsModule.local == null) return;
+        if (!PlayerEffectsAndChemicalsModule.local)
+        {
+            return;
+        }
 
         var foundCSgas = false;
         var foundSmoke = false;
         var foundPoisonGas = false;
         var highestPoisonGasDamage = 0f;
-        var position = _creature.animator.GetBoneTransform(HumanBodyBones.Head) != null ? _creature.animator.GetBoneTransform(HumanBodyBones.Head).position : _creature.brain.transform.position;
+        var position = _creature.animator.GetBoneTransform(HumanBodyBones.Head) ? _creature.animator.GetBoneTransform(HumanBodyBones.Head).position : _creature.brain.transform.position;
 
         var hits = Physics.OverlapSphere(position, 0.1f);
         foreach (var c in hits)
@@ -54,18 +57,39 @@ public class NpcChemicalsModule : MonoBehaviour
             {
                 foundPoisonGas = true;
                 var d = float.Parse(c.transform.GetChild(0).name);
-                if (d > highestPoisonGasDamage) highestPoisonGasDamage = d;
+                if (d > highestPoisonGasDamage)
+                {
+                    highestPoisonGasDamage = d;
+                }
             }
         }
 
-        if (foundSmoke && !_inSmoke) EnterSmoke();
-        else if (!foundSmoke && _inSmoke) ExitSmoke();
+        if (foundSmoke && !_inSmoke)
+        {
+            EnterSmoke();
+        }
+        else if (!foundSmoke && _inSmoke)
+        {
+            ExitSmoke();
+        }
 
-        if (foundCSgas && !_inCSgas) EnterCSgas();
-        else if (!foundCSgas && _inCSgas) ExitCSgas();
+        if (foundCSgas && !_inCSgas)
+        {
+            EnterCSgas();
+        }
+        else if (!foundCSgas && _inCSgas)
+        {
+            ExitCSgas();
+        }
 
-        if (foundPoisonGas && !_inPoisonGas) EnterPoisonGas();
-        else if (!foundPoisonGas && _inPoisonGas) ExitPoisonGas();
+        if (foundPoisonGas && !_inPoisonGas)
+        {
+            EnterPoisonGas();
+        }
+        else if (!foundPoisonGas && _inPoisonGas)
+        {
+            ExitPoisonGas();
+        }
 
         UpdateCSgas();
         UpdateSmoke();
@@ -74,9 +98,12 @@ public class NpcChemicalsModule : MonoBehaviour
 
     private void UpdateSmoke()
     {
-        if (!_inSmoke) return;
+        if (!_inSmoke)
+        {
+            return;
+        }
 
-        if (_det != null)
+        if (_det is not null)
         {
             _det.sightDetectionHorizontalFov = 0f;
             _det.sightDetectionVerticalFov = 0f;
@@ -93,7 +120,7 @@ public class NpcChemicalsModule : MonoBehaviour
     private void ExitSmoke()
     {
         _inSmoke = false;
-        if (_det != null)
+        if (_det is not null)
         {
             _det.sightDetectionHorizontalFov = _horFov;
             _det.sightDetectionVerticalFov = _verFov;
@@ -102,9 +129,12 @@ public class NpcChemicalsModule : MonoBehaviour
 
     private void UpdateCSgas()
     {
-        if (!_inCSgas) return;
+        if (!_inCSgas)
+        {
+            return;
+        }
 
-        if (_det != null)
+        if (_det is not null)
         {
             _det.sightDetectionHorizontalFov = 0f;
             _det.sightDetectionVerticalFov = 0f;
@@ -123,7 +153,7 @@ public class NpcChemicalsModule : MonoBehaviour
     private void ExitCSgas()
     {
         _inCSgas = false;
-        if (_det != null)
+        if (_det is not null)
         {
             _det.sightDetectionHorizontalFov = _horFov;
             _det.sightDetectionVerticalFov = _verFov;
@@ -133,7 +163,10 @@ public class NpcChemicalsModule : MonoBehaviour
 
     private void UpdatePoisonGas(float damage)
     {
-        if (!_inPoisonGas) return;
+        if (!_inPoisonGas)
+        {
+            return;
+        }
         _creature.Damage(new CollisionInstance(new DamageStruct(DamageType.Energy, damage)));
     }
 

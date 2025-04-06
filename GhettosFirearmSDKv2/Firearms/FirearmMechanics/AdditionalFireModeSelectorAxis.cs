@@ -29,32 +29,40 @@ public class AdditionalFireModeSelectorAxis : MonoBehaviour
     private void SelectorOnFireModeChanged(FirearmBase.FireModes newMode)
     {
         Transform pos = null;
-            
+
         if (positions.Any())
+        {
             pos = positions[selector.currentIndex];
-            
+        }
+
         switch (newMode)
         {
             case FirearmBase.FireModes.Safe:
                 pos = safePosition ?? pos;
                 break;
+
             case FirearmBase.FireModes.Semi:
                 pos = semiPosition ?? pos;
                 break;
+
             case FirearmBase.FireModes.Burst:
                 pos = burstPosition ?? pos;
                 break;
+
             case FirearmBase.FireModes.Auto:
                 pos = autoPosition ?? pos;
                 break;
+
             case FirearmBase.FireModes.AttachmentFirearm:
                 pos = attachmentFirearmPosition ?? pos;
                 break;
         }
 
         if (!pos)
+        {
             return;
-            
+        }
+
         axis.SetPositionAndRotation(pos.position, pos.rotation);
     }
 }

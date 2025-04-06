@@ -13,8 +13,12 @@ public class BeltFedCoverAxis : MonoBehaviour
     private void FixedUpdate()
     {
         if ((!foldOnFullyOpened && beltFed.state != BoltBase.BoltState.Locked) || beltFed.state == BoltBase.BoltState.Back)
+        {
             axis.SetLocalPositionAndRotation(foldedPosition.localPosition, foldedPosition.localRotation);
+        }
         else
+        {
             axis.SetLocalPositionAndRotation(idlePosition.localPosition, idlePosition.localRotation);
+        }
     }
 }

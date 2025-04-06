@@ -9,7 +9,7 @@ namespace GhettosFirearmSDKv2;
 public class Magazine : MonoBehaviour, IAmmunitionLoadable
 {
     public static List<Magazine> all = new();
-        
+
     public bool ejectOnLastRoundFired;
     public bool infinite;
     public string magazineType;
@@ -74,12 +74,19 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         }
 
         foreach (var obj in feederObjects)
+        {
             obj.SetActive(false);
+        }
         if (feederObjects.Count > cartridges.Count && feederObjects[cartridges.Count])
+        {
             feederObjects[cartridges.Count].SetActive(true);
+        }
     }
 
-    public void InvokeLoadFinished() => OnLoadFinished?.Invoke(this);
+    public void InvokeLoadFinished()
+    {
+        OnLoadFinished?.Invoke(this);
+    }
 
     private void Start()
     {
@@ -90,13 +97,21 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
     {
         cartridges = new List<Cartridge>();
         if (!overrideItem)
+        {
             item = GetComponent<Item>();
+        }
         else if (overrideItem)
+        {
             item = overrideItem;
+        }
         if (!item && !overrideAttachment)
+        {
             return;
+        }
         if (!overrideItem && !overrideAttachment)
+        {
             item.SetPhysicBodyAndMainCollisionHandler();
+        }
         if (!overrideAttachment)
         {
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
@@ -124,7 +139,10 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
                 }
                 _firearmSave.Value.ApplyToMagazine(this);
             }
-            else InvokeLoadFinished();
+            else
+            {
+                InvokeLoadFinished();
+            }
         }
         else if (overrideAttachment)
         {
@@ -136,7 +154,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
                 return;
             }
             _firearmSave.Value.ApplyToMagazine(this);
-                
+
             item = GetComponentInParent<Item>();
             item.OnUnSnapEvent += Item_OnUnSnapEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
@@ -154,8 +172,10 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             {
                 _saveData = new MagazineSaveData();
                 item.AddCustomData(_saveData);
-                if (defaultLoad != null)
+                if (defaultLoad)
+                {
                     defaultLoad.Load(this);
+                }
                 else
                 {
                     InvokeLoadFinished();
@@ -169,7 +189,9 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         {
             var renderers = feederObject.GetComponentsInChildren<MeshRenderer>(true);
             if (renderers.Any())
+            {
                 renderersToBeAdded.AddRange(renderers);
+            }
         }
         if (renderersToBeAdded.Any())
         {
@@ -178,7 +200,9 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         }
 
         if (!overrideItem && !overrideAttachment)
+        {
             all.Add(this);
+        }
     }
 
     private void ItemOnOnSetColliderLayerEvent(Item item1, int layer)
@@ -191,15 +215,20 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
 
     private void HandleOnGrabbed(RagdollHand ragdollhand, Handle handle, EventTime eventTime)
     {
-        if (CanGrab && eventTime == EventTime.OnStart) Eject();
+        if (CanGrab && eventTime == EventTime.OnStart)
+        {
+            Eject();
+        }
     }
 
     private void OnOnLoadFinished(Magazine mag)
     {
         OnLoadFinished -= OnOnLoadFinished;
-            
+
         if (item.isHidden)
+        {
             cartridges.ForEach(c => c.item.Hide(true));
+        }
     }
 
     private void Item_OnUnSnapEvent(Holder holder)
@@ -213,13 +242,18 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
     private void Item_OnDespawnEvent(EventTime eventTime)
     {
         if (eventTime == EventTime.OnEnd)
+        {
             return;
-            
+        }
+
         foreach (var c in cartridges)
         {
-            if (c!=null) c.item.Despawn();
+            if (c)
+            {
+                c.item.Despawn();
+            }
         }
-            
+
         item.OnUnSnapEvent -= Item_OnUnSnapEvent;
         item.OnHeldActionEvent -= Item_OnHeldActionEvent;
         item.OnDespawnEvent -= Item_OnDespawnEvent;
@@ -265,24 +299,33 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         return c;
     }
 
-    private bool BoltExistsAndIsPulled() => !onlyAllowLoadWhenBoltIsBack || bolt == null || bolt.state == BoltBase.BoltState.Back || bolt.state == BoltBase.BoltState.LockedBack;
+    private bool BoltExistsAndIsPulled()
+    {
+        return !onlyAllowLoadWhenBoltIsBack || !bolt || bolt.state == BoltBase.BoltState.Back || bolt.state == BoltBase.BoltState.LockedBack;
+    }
 
     public void InsertRound(Cartridge c, bool silent, bool forced, bool save = true, bool atBottom = false)
     {
-        if (!partOfPrebuilt && cartridges.Count < ActualCapacity && !cartridges.Contains(c) && (Util.AllowLoadCartridge(c, this) || forced) && (!c.loaded && BoltExistsAndIsPulled() || forced))
+        if (!partOfPrebuilt && cartridges.Count < ActualCapacity && !cartridges.Contains(c) && (Util.AllowLoadCartridge(c, this) || forced) && ((!c.loaded && BoltExistsAndIsPulled()) || forced))
         {
             c.item.DisallowDespawn = true;
             c.loaded = true;
             c.ToggleHandles(false);
             c.ToggleCollision(false);
             if (!atBottom)
+            {
                 cartridges.Insert(0, c);
+            }
             else
+            {
                 cartridges.Add(c);
+            }
             c.UngrabAll();
             Util.IgnoreCollision(c.gameObject, gameObject, true);
             if (!silent)
+            {
                 Util.PlayRandomAudioSource(roundInsertSounds);
+            }
             c.GetComponent<Rigidbody>().isKinematic = true;
             c.transform.parent = nullCartridgePosition;
             c.transform.localPosition = Vector3.zero;
@@ -290,7 +333,9 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         }
         UpdateCartridgePositions();
         if (save)
+        {
             SaveCustomData();
+        }
     }
 
     public Cartridge ConsumeRound()
@@ -304,7 +349,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             cartridges.RemoveAt(0);
             if (infinite || Settings.infiniteAmmo)
             {
-                Util.SpawnItem(c.item.itemId, "[Loaded round in magazine]",car =>
+                Util.SpawnItem(c.item.itemId, "[Loaded round in magazine]", car =>
                 {
                     var newC = car.GetComponent<Cartridge>();
                     InsertRound(newC, true, true, true, true);
@@ -319,18 +364,25 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
     public IEnumerator DelayedMount(MagazineWell well, Rigidbody rb, float delay)
     {
         yield return new WaitForSeconds(delay);
+
         Mount(well, rb);
     }
 
     public void Mount(MagazineWell well, Rigidbody rb, bool silent = false)
     {
-        if (!overrideItem && !overrideAttachment) item.DisallowDespawn = true;
+        if (!overrideItem && !overrideAttachment)
+        {
+            item.DisallowDespawn = true;
+        }
 
         #region Fix dungeon lighting
 
         if (!overrideItem && !overrideAttachment)
         {
-            if (_originalRenderers == null) _originalRenderers = item.renderers.ToList();
+            if (_originalRenderers is null)
+            {
+                _originalRenderers = item.renderers.ToList();
+            }
             foreach (var ren in _originalRenderers)
             {
                 well.firearm.item.renderers.Add(ren);
@@ -358,14 +410,19 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         {
             Util.IgnoreCollision(c.gameObject, currentWell.firearm.gameObject, true);
         }
-        if (!silent) Util.PlayRandomAudioSource(magazineInsertSounds);
+        if (!silent)
+        {
+            Util.PlayRandomAudioSource(magazineInsertSounds);
+        }
         Util.IgnoreCollision(gameObject, currentWell.firearm.gameObject, true);
 
         #region Parent to firearm
 
         if (!overrideItem && !overrideAttachment)
+        {
             item.physicBody.isKinematic = true;
-            
+        }
+
         transform.SetParent(well.mountPoint);
         transform.position = well.mountPoint.position;
         transform.rotation = well.mountPoint.rotation;
@@ -374,7 +431,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
 
         #region Collider fix
 
-        if (overrideAttachment == null && overrideItem == null)
+        if (!overrideAttachment && !overrideItem)
         {
             _colliderGroups = item.colliderGroups.ToList();
             foreach (var group in _colliderGroups)
@@ -387,7 +444,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         }
 
         #endregion
-            
+
         foreach (var handle in handles)
         {
             if (!CanGrab)
@@ -397,7 +454,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
 
             handle.SetTelekinesis(false);
         }
-            
+
         // save mag to firearm
         if (!overrideItem && !overrideAttachment)
         {
@@ -415,18 +472,23 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
 
     private void ResetRagdollCollision()
     {
-        if (currentWell != null)
+        if (currentWell)
+        {
             currentWell.firearm.item.RefreshCollision();
+        }
     }
 
     public void Eject()
     {
-        if (currentWell != null)
+        if (currentWell)
         {
             var lastWell = currentWell;
             OnEjectEvent?.Invoke(lastWell);
-                
-            if (!overrideItem && !overrideAttachment) item.DisallowDespawn = false;
+
+            if (!overrideItem && !overrideAttachment)
+            {
+                item.DisallowDespawn = false;
+            }
 
             //Revert dungeon lighting fix
             foreach (var ren in _originalRenderers)
@@ -436,7 +498,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             }
             lastWell.firearm.item.lightVolumeReceiver.SetRenderers(lastWell.firearm.item.renderers);
             item.lightVolumeReceiver.SetRenderers(item.renderers);
-                
+
             //// Collider fix attempt
             lastWell.firearm.item.colliderGroups.RemoveAll(x => _colliderGroups.Contains(x));
             item.colliderGroups.AddRange(_colliderGroups);
@@ -449,15 +511,17 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             Util.DelayIgnoreCollision(gameObject, lastWell.firearm.gameObject, false, 0.5f, item);
             foreach (var c in cartridges)
             {
-                if (c != null && lastWell != null && lastWell.firearm != null)
+                if (c && lastWell && lastWell.firearm)
+                {
                     Util.DelayIgnoreCollision(c.gameObject, lastWell.firearm.gameObject, false, 0.5f, item);
+                }
             }
             _firearmSave.Value.Clear();
             lastWell.currentMagazine = null;
             currentWell = null;
             foreach (var handle in handles)
             {
-                handle.SetTouch(true); 
+                handle.SetTouch(true);
                 handle.SetTelekinesis(true);
             }
             //Destroy(joint);
@@ -469,7 +533,9 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
                 item.physicBody.velocity = lastWell.firearm.item.physicBody.velocity * 0.7f;
             }
             if (destroyOnEject && !overrideItem && !overrideAttachment)
+            {
                 item.Despawn();
+            }
             //if (FirearmsSettings.magazinesHaveNoCollision) ToggleCollision(true);
         }
         UpdateCartridgePositions();
@@ -492,9 +558,11 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             {
                 var positions = positionSets.FirstOrDefault(x => x.caliber.Equals(c.caliber))?.positions ?? cartridgePositions;
                 var oddPositions = positionSets.FirstOrDefault(x => x.caliber.Equals(c.caliber))?.oddCountPositions ?? oddCountCartridgePositions;
-                if (oddPositions != null && oddPositions.Any() && cartridges.Count % 2 != 0)
+                if (oddPositions?.Any() == true && cartridges.Count % 2 != 0)
+                {
                     positions = oddPositions;
-                    
+                }
+
                 if (positions.Length - 1 < cartridges.IndexOf(c) || !positions[cartridges.IndexOf(c)])
                 {
                     c.transform.parent = nullCartridgePosition;
@@ -516,10 +584,14 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         var feeders = feederObjects;
 
         if (cartridges.Any() && positionSets.FirstOrDefault(x => x.caliber.Equals(cartridges[0].caliber)) is { } set)
+        {
             feeders = set.feeders;
-            
+        }
+
         if (feeders.Count > cartridges.Count && feeders[cartridges.Count])
+        {
             feeders[cartridges.Count].SetActive(true);
+        }
     }
 
     public void ToggleCollision(bool active)
@@ -537,7 +609,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             _saveData.ItemID = item.itemId;
             _saveData.GetContentsFromMagazine(this);
 
-            if (_firearmSave != null)
+            if (_firearmSave is not null)
             {
                 _saveData.CloneTo(_firearmSave.Value);
             }
@@ -565,16 +637,21 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
     }
 
     public delegate void LoadFinished(Magazine mag);
+
     public event LoadFinished OnLoadFinished;
-        
+
     public delegate void OnConsume(Cartridge c);
+
     public event OnConsume OnConsumeEvent;
-        
+
     public delegate void OnEject(MagazineWell well);
+
     public event OnEject OnEjectEvent;
-        
+
     public delegate void OnInsert(MagazineWell well);
+
     public event OnInsert OnInsertEvent;
+
     public string GetCaliber()
     {
         return caliber;
@@ -600,9 +677,9 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         foreach (var car in cartridges)
         {
             car.item.Despawn(0.05f);
-        } 
+        }
         cartridges.Clear();
-            
+
         SaveCustomData();
     }
 

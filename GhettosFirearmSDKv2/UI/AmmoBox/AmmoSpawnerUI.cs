@@ -42,12 +42,12 @@ public class AmmoSpawnerUI : MonoBehaviour
 
     public bool locked;
 
-    public List<Transform> categories;
-    public List<Transform> calibers;
-    public List<Transform> variants;
+    public List<Transform> categories = [];
+    public List<Transform> calibers = [];
+    public List<Transform> variants = [];
 
     #endregion
-        
+
     private void Start()
     {
         description.text = "";
@@ -61,11 +61,13 @@ public class AmmoSpawnerUI : MonoBehaviour
         {
             locked = false;
             if (item)
+            {
                 item.DisallowDespawn = true;
+            }
         }
 
         SortingData = Catalog.GetDataList<CaliberSortingData>().FirstOrDefault();
-            
+
         SetupCategories();
     }
 
@@ -75,7 +77,9 @@ public class AmmoSpawnerUI : MonoBehaviour
         {
             locked = !locked;
             if (item)
+            {
                 item.DisallowDespawn = locked;
+            }
         }
     }
 
@@ -102,10 +106,14 @@ public class AmmoSpawnerUI : MonoBehaviour
     private List<T> GetHeldFromHandle<T>(Handle handle) where T : class, ICaliberGettable
     {
         if (!handle)
+        {
             return [];
-            
+        }
+
         if (handle.item && handle.item.GetComponent<T>() is { } held)
+        {
             return [held];
+        }
 
         var attachmentFirearm = handle.GetComponentInParent<AttachmentFirearm>();
         var firearm = handle.item.GetComponent<Firearm>();
@@ -114,9 +122,13 @@ public class AmmoSpawnerUI : MonoBehaviour
         {
             var fRes = new List<T>();
             if (f.bolt is T bolt)
+            {
                 fRes.Add(bolt);
+            }
             if (f.magazineWell.currentMagazine is T magazine)
+            {
                 fRes.Add(magazine);
+            }
             fRes.AddRange(f.GetComponentsInParent<T>().Where(x => x.GetTransform().GetComponentInParent<FirearmBase>() == f && !fRes.Contains(x)));
             return fRes;
         }
@@ -128,7 +140,9 @@ public class AmmoSpawnerUI : MonoBehaviour
     {
         var gettables = GetHeld<ICaliberGettable>();
         if (!gettables.Any())
+        {
             return;
+        }
 
         currentCaliber = gettables.First().GetCaliber();
         currentCategory = AmmoModule.GetCaliberCategory(currentCaliber);
@@ -145,8 +159,10 @@ public class AmmoSpawnerUI : MonoBehaviour
     public void ClearMagazine()
     {
         var loadable = GetHeld<IAmmunitionLoadable>();
-        if (loadable != null)
+        if (loadable is not null)
+        {
             loadable.ForEach(x => x.ClearRounds());
+        }
     }
 
     public void FillMagazine()
@@ -154,9 +170,11 @@ public class AmmoSpawnerUI : MonoBehaviour
         var loadables = GetHeld<IAmmunitionLoadable>();
         foreach (var loadable in loadables)
         {
-            if (loadable == null || !Util.AllowLoadCartridge(currentCaliber, loadable, true))
+            if (loadable is null || !Util.AllowLoadCartridge(currentCaliber, loadable, true))
+            {
                 continue;
-            
+            }
+
             loadable.ClearRounds();
             SpawnAndInsertCarRecursive(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
         }
@@ -167,8 +185,10 @@ public class AmmoSpawnerUI : MonoBehaviour
         var loadables = GetHeld<IAmmunitionLoadable>();
         foreach (var loadable in loadables)
         {
-            if (loadable == null || !Util.AllowLoadCartridge(currentCaliber, loadable))
+            if (loadable is null || !Util.AllowLoadCartridge(currentCaliber, loadable))
+            {
                 continue;
+            }
 
             SpawnAndInsertCarRecursive(loadable, AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant));
         }
@@ -176,10 +196,12 @@ public class AmmoSpawnerUI : MonoBehaviour
 
     private void SpawnAndInsertCarRecursive(IAmmunitionLoadable loadable, string carId)
     {
-        if (loadable == null || loadable.GetLoadedCartridges().Count(x => x) >= loadable.GetCapacity() || string.IsNullOrWhiteSpace(carId))
+        if (loadable is null || loadable.GetLoadedCartridges().Count(x => x) >= loadable.GetCapacity() || string.IsNullOrWhiteSpace(carId))
+        {
             return;
-            
-        Util.SpawnItem(carId, "Ammo Spawner", cartridge => 
+        }
+
+        Util.SpawnItem(carId, "Ammo Spawner", cartridge =>
         {
             loadable.LoadRound(cartridge.GetComponent<Cartridge>());
             SpawnAndInsertCarRecursive(loadable, carId);
@@ -190,16 +212,17 @@ public class AmmoSpawnerUI : MonoBehaviour
     {
         if (!string.IsNullOrWhiteSpace(currentItemId))
         {
-            Util.SpawnItem(currentItemId, "Ammo Spawner", _ => {}, spawnPosition.position, spawnPosition.rotation);
+            Util.SpawnItem(currentItemId, "Ammo Spawner", _ => { }, spawnPosition.position, spawnPosition.rotation);
         }
     }
-        
+
     #endregion
 
     #region Setups
+
     public void SetupCategories()
     {
-        if (categories != null)
+        if (categories is not null)
         {
             foreach (var button in categories)
             {
@@ -207,7 +230,7 @@ public class AmmoSpawnerUI : MonoBehaviour
             }
             categories.Clear();
         }
-        if (calibers != null)
+        if (calibers is not null)
         {
             foreach (var button in calibers)
             {
@@ -215,7 +238,7 @@ public class AmmoSpawnerUI : MonoBehaviour
             }
             calibers.Clear();
         }
-        if (variants != null)
+        if (variants is not null)
         {
             foreach (var button in variants)
             {
@@ -233,7 +256,7 @@ public class AmmoSpawnerUI : MonoBehaviour
 
     public void SetupCaliberList(string category)
     {
-        if (calibers != null)
+        if (calibers is not null)
         {
             foreach (var button in calibers)
             {
@@ -241,7 +264,7 @@ public class AmmoSpawnerUI : MonoBehaviour
             }
             calibers.Clear();
         }
-        if (variants != null)
+        if (variants is not null)
         {
             foreach (var button in variants)
             {
@@ -259,7 +282,7 @@ public class AmmoSpawnerUI : MonoBehaviour
 
     public void SetupVariantList(string caliber)
     {
-        if (variants != null)
+        if (variants is not null)
         {
             foreach (var button in variants)
             {
@@ -278,7 +301,6 @@ public class AmmoSpawnerUI : MonoBehaviour
 
     public void AddCategory(string category)
     {
-        if (categories == null) categories = new List<Transform>();
         if (!ContainsName(category, categories))
         {
             var obj = Instantiate(categoryPref, categoriesContent, true);
@@ -289,14 +311,16 @@ public class AmmoSpawnerUI : MonoBehaviour
             obj.SetActive(true);
             obj.GetComponent<Button>().onClick.AddListener(delegate { SetCategory(obj.name); });
             obj.GetComponentInChildren<TextMeshProUGUI>().text = category;
-            if (category.Equals(currentCategory)) obj.transform.GetChild(0).gameObject.SetActive(true);
+            if (category.Equals(currentCategory))
+            {
+                obj.transform.GetChild(0).gameObject.SetActive(true);
+            }
             categories.Add(obj.transform);
         }
     }
 
     public void AddCaliber(string caliber)
     {
-        if (calibers == null) calibers = new List<Transform>();
         if (!ContainsName(caliber, calibers))
         {
             var obj = Instantiate(caliberPref, calibersContent, true);
@@ -306,7 +330,10 @@ public class AmmoSpawnerUI : MonoBehaviour
             obj.transform.localPosition = Vector3.zero;
             obj.SetActive(true);
             obj.GetComponent<Button>().onClick.AddListener(delegate { SetCaliber(obj.name); });
-            if (caliber.Equals(currentCaliber)) obj.transform.GetChild(0).gameObject.SetActive(true);
+            if (caliber.Equals(currentCaliber))
+            {
+                obj.transform.GetChild(0).gameObject.SetActive(true);
+            }
             calibers.Add(obj.transform);
             obj.GetComponentInChildren<TextMeshProUGUI>().text = caliber;
         }
@@ -314,7 +341,6 @@ public class AmmoSpawnerUI : MonoBehaviour
 
     public void AddVariant(string variant)
     {
-        if (variants == null) variants = new List<Transform>();
         if (!ContainsName(variant, variants))
         {
             var obj = Instantiate(variantPref, variantContent, true);
@@ -324,7 +350,10 @@ public class AmmoSpawnerUI : MonoBehaviour
             obj.transform.localPosition = Vector3.zero;
             obj.SetActive(true);
             obj.GetComponent<Button>().onClick.AddListener(delegate { SetVariant(obj.name); });
-            if (variant.Equals(currentVariant)) obj.transform.GetChild(0).gameObject.SetActive(true);
+            if (variant.Equals(currentVariant))
+            {
+                obj.transform.GetChild(0).gameObject.SetActive(true);
+            }
             variants.Add(obj.transform);
             obj.GetComponentInChildren<TextMeshProUGUI>().text = variant;
         }
@@ -334,13 +363,18 @@ public class AmmoSpawnerUI : MonoBehaviour
     {
         foreach (var t in transforms)
         {
-            if (t.name.Equals(requiredName)) return true;
+            if (t.name.Equals(requiredName))
+            {
+                return true;
+            }
         }
         return false;
     }
+
     #endregion Setups
 
     #region Updates
+
     public void SetCategory(string category)
     {
         currentCategory = category;
@@ -350,12 +384,18 @@ public class AmmoSpawnerUI : MonoBehaviour
         //SetupCategories();
         SetupCaliberList(category);
 
-        if (categories != null)
+        if (categories is not null)
         {
             foreach (var button in categories)
             {
-                if (button.gameObject.name.Equals(currentCategory)) button.GetChild(0).gameObject.SetActive(true);
-                else button.GetChild(0).gameObject.SetActive(false);
+                if (button.gameObject.name.Equals(currentCategory))
+                {
+                    button.GetChild(0).gameObject.SetActive(true);
+                }
+                else
+                {
+                    button.GetChild(0).gameObject.SetActive(false);
+                }
             }
         }
         DestroyAllOfList(variants);
@@ -369,19 +409,28 @@ public class AmmoSpawnerUI : MonoBehaviour
         //SetupCaliberList(currentCategory);
         SetupVariantList(caliber);
 
-        if (calibers != null)
+        if (calibers is not null)
         {
             foreach (var button in calibers)
             {
-                if (button.gameObject.name.Equals(currentCaliber)) button.GetChild(0).gameObject.SetActive(true);
-                else button.GetChild(0).gameObject.SetActive(false);
+                if (button.gameObject.name.Equals(currentCaliber))
+                {
+                    button.GetChild(0).gameObject.SetActive(true);
+                }
+                else
+                {
+                    button.GetChild(0).gameObject.SetActive(false);
+                }
             }
         }
     }
 
     public static void DestroyAllOfList(List<Transform> list)
     {
-        if (list == null) return;
+        if (list is null)
+        {
+            return;
+        }
         foreach (var t in list.ToArray())
         {
             Destroy(t.gameObject);
@@ -395,17 +444,24 @@ public class AmmoSpawnerUI : MonoBehaviour
         currentItemId = AmmoModule.GetCartridgeItemId(currentCategory, currentCaliber, currentVariant);
         //SetupVariantList(currentCaliber);
 
-        if (variants != null)
+        if (variants is not null)
         {
             foreach (var button in variants)
             {
-                if (button.gameObject.name.Equals(currentVariant)) button.GetChild(0).gameObject.SetActive(true);
-                else button.GetChild(0).gameObject.SetActive(false);
+                if (button.gameObject.name.Equals(currentVariant))
+                {
+                    button.GetChild(0).gameObject.SetActive(true);
+                }
+                else
+                {
+                    button.GetChild(0).gameObject.SetActive(false);
+                }
             }
         }
 
         description.text = Catalog.GetData<ItemData>(currentItemId)?.description;
     }
+
     #endregion Updates
 
     public class FirstFourNumbersCompare : IComparer<string>
@@ -421,8 +477,14 @@ public class AmmoSpawnerUI : MonoBehaviour
                 Debug.Log("Duplicate position found! " + x + ", " + y);
                 result = 0;
             }
-            else if (intX < intY) result = -1;
-            else result = 1;
+            else if (intX < intY)
+            {
+                result = -1;
+            }
+            else
+            {
+                result = 1;
+            }
 
             return result;
         }

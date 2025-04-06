@@ -10,18 +10,45 @@ namespace GhettosFirearmSDKv2;
 
 public class Firearm : FirearmBase, IAttachmentManager
 {
-    public Item Item => item ?? GetComponent<Item>();
-    public Transform Transform => transform;
+    public Item Item
+    {
+        get
+        {
+            return item ?? GetComponent<Item>();
+        }
+    }
+
+    public Transform Transform
+    {
+        get
+        {
+            return transform;
+        }
+    }
 
     public List<AttachmentPoint> AttachmentPoints
     {
-        get => attachmentPoints;
-        set => attachmentPoints = value;
+        get
+        {
+            return attachmentPoints;
+        }
+        set
+        {
+            attachmentPoints = value;
+        }
     }
 
-    public List<Attachment> CurrentAttachments { get; set; }
+    public List<Attachment> CurrentAttachments
+    {
+        get;
+        set;
+    }
 
-    public FirearmSaveData SaveData { get; set; }
+    public FirearmSaveData SaveData
+    {
+        get;
+        set;
+    }
 
     public List<AttachmentPoint> attachmentPoints;
     public List<Handle> preSnapActiveHandles;
@@ -42,16 +69,18 @@ public class Firearm : FirearmBase, IAttachmentManager
     {
         get
         {
-            if (_preferredForegripReference != null)
+            if (_preferredForegripReference is not null)
+            {
                 return _preferredForegripReference;
-                
-            _preferredForegripReference = new CustomReference()
+            }
+
+            _preferredForegripReference = new CustomReference
                                           {
-                                              name = "FirearmSecondaryHandle", 
+                                              name = "FirearmSecondaryHandle",
                                               transform = GetPreferredForegrip()
                                           };
             item.customReferences.Add(_preferredForegripReference);
-                
+
             return _preferredForegripReference;
         }
     }
@@ -65,7 +94,9 @@ public class Firearm : FirearmBase, IAttachmentManager
         var hs = new List<Handle>();
         hs.AddRange(additionalTriggerHandles);
         if (disableMainFireHandle || !item || !item.mainHandleLeft)
+        {
             return hs;
+        }
 
         hs.Add(item.mainHandleLeft);
         return hs;
@@ -87,7 +118,9 @@ public class Firearm : FirearmBase, IAttachmentManager
         base.Start();
 
         if (!item)
+        {
             item = GetComponent<Item>();
+        }
         Invoke(nameof(InvokedStart), Settings.invokeTime);
 
         var aiModule = new ItemModuleAI
@@ -128,7 +161,10 @@ public class Firearm : FirearmBase, IAttachmentManager
     public override void InvokedStart()
     {
         all.Add(this);
-        if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
+        if (!disableMainFireHandle)
+        {
+            mainFireHandle = item.mainHandleLeft;
+        }
         item.OnHeldActionEvent += HeldAction;
         item.OnSnapEvent += Item_OnSnapEvent;
         item.OnUnSnapEvent += Item_OnUnSnapEvent;
@@ -141,7 +177,7 @@ public class Firearm : FirearmBase, IAttachmentManager
         fireEvent.AddListener(AIFire);
 
         SharedAttachmentManagerFunctions.LoadAndApplyData(this);
-            
+
         CalculateMuzzle();
 
         #region handle type validation
@@ -150,12 +186,15 @@ public class Firearm : FirearmBase, IAttachmentManager
         {
             foreach (var h in gameObject.GetComponentsInChildren<Handle>())
             {
-                if (h.GetType() != typeof(GhettoHandle)) Debug.LogWarning("Handle " + h.gameObject.name + " on firearm " + gameObject.name + " is not of type GhettoHandle!");
+                if (h.GetType() != typeof(GhettoHandle))
+                {
+                    Debug.LogWarning("Handle " + h.gameObject.name + " on firearm " + gameObject.name + " is not of type GhettoHandle!");
+                }
             }
         }
 
         #endregion handle type validation
-            
+
         Invoke(nameof(DelayedLoad), 2.3f);
 
         base.InvokedStart();
@@ -169,14 +208,18 @@ public class Firearm : FirearmBase, IAttachmentManager
             var e = new IAttachmentManager.HeldActionData(ragdollHand, handle, action);
             OnHeldAction?.Invoke(e);
             if (!e.Handled)
+            {
                 OnUnhandledHeldAction?.Invoke(e);
+            }
         }
     }
 
     private void OnDespawn(EventTime eventTime)
     {
         if (eventTime != EventTime.OnStart)
+        {
             return;
+        }
         item.OnHeldActionEvent -= HeldAction;
         item.OnSnapEvent -= Item_OnSnapEvent;
         item.OnUnSnapEvent -= Item_OnUnSnapEvent;
@@ -192,8 +235,8 @@ public class Firearm : FirearmBase, IAttachmentManager
     {
         base.Update();
         RefreshRecoilModifiers();
-            
-        item.data.moduleAI.primaryClass = (HeldByAI() || item.holder) ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
+
+        item.data.moduleAI.primaryClass = HeldByAI() || item.holder ? ItemModuleAI.WeaponClass.Firearm : ItemModuleAI.WeaponClass.Melee;
         item.data.moduleAI.weaponHandling = IsTwoHanded && (HeldByAI() || item.holder) ? ItemModuleAI.WeaponHandling.TwoHanded : ItemModuleAI.WeaponHandling.OneHanded;
         item.data.moduleAI.secondaryHandling = IsTwoHanded && (HeldByAI() || item.holder) ? ItemModuleAI.WeaponHandling.TwoHanded : ItemModuleAI.WeaponHandling.OneHanded;
         item.data.moduleAI.rangedWeaponData.weaponHoldAngleOffset = IsTwoHanded ? new Vector3(0, -45, 0) : Vector2.zero;
@@ -243,10 +286,14 @@ public class Firearm : FirearmBase, IAttachmentManager
     public void DelayedLoad()
     {
         if (!item.holder)
+        {
             return;
+        }
         var h = item.holder;
         if (h.GetComponentInParent<AmmunitionPouch>() is { } pouch)
+        {
             pouch.nextSnapFromFirearmLoad = true;
+        }
         item.holder.UnSnap(item, true);
         h.Snap(item, true);
     }
@@ -262,17 +309,23 @@ public class Firearm : FirearmBase, IAttachmentManager
         foreach (var at in CurrentAttachments)
         {
             if (at.overridesMuzzleFlash && !at.attachmentPoint.dummyMuzzleSlot)
+            {
                 overridden = true;
+            }
             if (!at.overridesMuzzleFlash || at.attachmentPoint.dummyMuzzleSlot ||
                 !NoMuzzleFlashOverridingAttachmentChildren(at) || !at.newFlash)
+            {
                 continue;
+            }
             at.newFlash.Play();
             StartCoroutine(PlayMuzzleFlashLight(cartridge));
         }
 
         //default
         if (overridden || defaultMuzzleFlash is not { } mf)
+        {
             return;
+        }
         mf.Play();
         StartCoroutine(PlayMuzzleFlashLight(cartridge));
     }
@@ -285,17 +338,23 @@ public class Firearm : FirearmBase, IAttachmentManager
     public override void CalculateMuzzle()
     {
         if (!hitscanMuzzle)
+        {
             return;
+        }
         actualHitscanMuzzle = CurrentAttachments.Where(at => at.minimumMuzzlePosition && !at.attachmentPoint.dummyMuzzleSlot).OrderByDescending(at => Vector3.Distance(transform.position, at.minimumMuzzlePosition.position)).FirstOrDefault()?.minimumMuzzlePosition;
         if (!actualHitscanMuzzle)
+        {
             actualHitscanMuzzle = hitscanMuzzle;
+        }
         base.CalculateMuzzle();
     }
 
     public void AIFire()
     {
         if (fireMode == FireModes.Safe && GetComponentsInChildren<FiremodeSelector>().FirstOrDefault(x => x.firearm == this) is { } fs)
+        {
             fs.CycleFiremode();
+        }
         StartCoroutine(AIFireCoroutine());
     }
 
@@ -303,11 +362,17 @@ public class Firearm : FirearmBase, IAttachmentManager
     {
         OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStart);
         if (fireMode == FireModes.Semi)
+        {
             yield return new WaitForSeconds(0.2f);
+        }
         if (fireMode == FireModes.Burst)
+        {
             yield return new WaitForSeconds(0.4f);
+        }
         if (fireMode == FireModes.Auto)
+        {
             yield return new WaitForSeconds(Random.Range(0.2f, 1.3f));
+        }
         OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStop);
     }
 
@@ -331,7 +396,13 @@ public class Firearm : FirearmBase, IAttachmentManager
                    .FirstOrDefault();
     }
 
-    private bool IsTwoHanded => GetPreferredForegrip();
+    private bool IsTwoHanded
+    {
+        get
+        {
+            return GetPreferredForegrip();
+        }
+    }
 
     private float PreferredEngagementDistance()
     {

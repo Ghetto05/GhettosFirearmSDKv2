@@ -16,7 +16,9 @@ public class AttachableItemDetacher : MonoBehaviour
     private void Start()
     {
         if (!attachment)
+        {
             Debug.LogError($"Attachment for AttachableItemDetacher on {GetComponentInParent<Attachment>()?.name} is not assigned!");
+        }
         attachment.OnHeldActionEvent += Attachment_OnHeldActionEvent;
     }
 
@@ -26,7 +28,7 @@ public class AttachableItemDetacher : MonoBehaviour
         {
             var oldItem = attachment.attachmentPoint.ConnectedManager.Item;
             var node = attachment.Node.CloneJson();
-            Util.SpawnItem(itemId, "Attachable Item Detach",item =>
+            Util.SpawnItem(itemId, "Attachable Item Detach", item =>
             {
                 Util.IgnoreCollision(item.gameObject, oldItem.gameObject, true);
                 Util.DelayIgnoreCollision(item.gameObject, oldItem.gameObject, false, 1f, item);
@@ -43,7 +45,7 @@ public class AttachableItemDetacher : MonoBehaviour
             }, ragdollHand.grip.position, ragdollHand.grip.rotation);
 
             var s = Util.PlayRandomAudioSource(detachSounds);
-            if (s != null)
+            if (s)
             {
                 s.transform.SetParent(ragdollHand.transform);
                 ragdollHand.StartCoroutine(Explosive.DelayedDestroy(s.gameObject, s.clip.length + 1f));

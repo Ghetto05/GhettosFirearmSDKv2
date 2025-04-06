@@ -21,7 +21,7 @@ public class GreanadePin : Lock
 
     private void ParentItem_OnUngrabEvent(Handle handle2, RagdollHand ragdollHand, bool throwing)
     {
-        if (handle2 == handle && joint != null)
+        if (handle2 == handle && joint)
         {
             joint.breakForce = Mathf.Infinity;
         }
@@ -29,7 +29,7 @@ public class GreanadePin : Lock
 
     private void ParentItem_OnGrabEvent(Handle handle2, RagdollHand ragdollHand)
     {
-        if (handle2 == handle && joint != null)
+        if (handle2 == handle && joint)
         {
             joint.breakForce = breakForce;
         }

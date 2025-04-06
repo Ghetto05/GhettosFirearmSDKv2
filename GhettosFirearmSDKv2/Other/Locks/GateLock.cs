@@ -31,15 +31,21 @@ public class GateLock : Lock
         if (item)
         {
             if (useFireHandle && item.GetComponent<Firearm>() is { } firearm)
+            {
                 firearm.OnAltActionEvent += FirearmOnOnAltActionEvent;
+            }
             else
+            {
                 item.OnHeldActionEvent += OnHeldActionEvent;
+            }
         }
         else if (attachment)
         {
             attachment.OnHeldActionEvent += OnHeldActionEvent;
             if (useFireHandle && attachment.GetComponent<AttachmentFirearm>() is { } firearm)
+            {
                 firearm.OnAltActionEvent += FirearmOnOnAltActionEvent;
+            }
         }
         Toggle(true);
     }
@@ -47,22 +53,30 @@ public class GateLock : Lock
     private void FirearmOnOnAltActionEvent(bool longpress)
     {
         if (!longpress)
+        {
             Toggle();
+        }
     }
 
     private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
     {
         if (handles.Contains(handle) && action == Interactable.Action.AlternateUseStart)
+        {
             Toggle();
+        }
     }
 
     public void Toggle(bool initial = false)
     {
         if (!initial)
+        {
             _isLocked = !_isLocked;
+        }
         var t = _isLocked ? locked : unlocked;
         gate.SetLocalPositionAndRotation(t.localPosition, t.localRotation);
         if (!initial)
+        {
             Util.PlayRandomAudioSource(_isLocked ? openSounds : closeSounds);
+        }
     }
 }

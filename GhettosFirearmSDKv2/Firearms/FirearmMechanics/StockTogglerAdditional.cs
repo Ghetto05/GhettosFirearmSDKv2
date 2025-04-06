@@ -17,8 +17,10 @@ public class StockTogglerAdditional : MonoBehaviour
 
     public void ApplyPosition(int index, bool playSound = true)
     {
-        if (toggleSound != null && playSound)
+        if (toggleSound && playSound)
+        {
             toggleSound.Play();
+        }
         if (!useAsSeparateObjects)
         {
             pivot.localPosition = positions[index].localPosition;

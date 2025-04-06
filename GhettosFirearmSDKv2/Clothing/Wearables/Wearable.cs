@@ -52,30 +52,30 @@ public class Wearable : MonoBehaviour
     #region Wrappers
 
     public void Apply(Creature creature)
+    {
+        _creature = creature;
+
+        if (_creature.data.gender == CreatureData.Gender.Male)
         {
-            _creature = creature;
-            
-            if (_creature.data.gender == CreatureData.Gender.Male)
-            {
-                Apply(femaleRoot, maleBones);
-            }
-            else if (_creature.data.gender == CreatureData.Gender.Female)
-            {
-                Apply(maleRoot, femaleBones);
-            }
+            Apply(femaleRoot, maleBones);
         }
-    
-        public void Remove()
+        else if (_creature.data.gender == CreatureData.Gender.Female)
         {
-            if (_creature.data.gender == CreatureData.Gender.Male)
-            {
-                Remove(femaleRoot, maleBones);
-            }
-            else if (_creature.data.gender == CreatureData.Gender.Female)
-            {
-                Remove(maleRoot, femaleBones);
-            }
+            Apply(maleRoot, femaleBones);
         }
+    }
+
+    public void Remove()
+    {
+        if (_creature.data.gender == CreatureData.Gender.Male)
+        {
+            Remove(femaleRoot, maleBones);
+        }
+        else if (_creature.data.gender == CreatureData.Gender.Female)
+        {
+            Remove(maleRoot, femaleBones);
+        }
+    }
 
     #endregion
 
@@ -84,7 +84,7 @@ public class Wearable : MonoBehaviour
         Destroy(objectToDelete);
 
         var meshBones = _creature.ragdoll.bones.Select(x => x.mesh).ToList();
-        
+
         foreach (var bone in bones)
         {
             var target = meshBones.FirstOrDefault(cb => cb.name.Equals(bone.name + "_Mesh"));
@@ -101,7 +101,7 @@ public class Wearable : MonoBehaviour
             Destroy(bone.gameObject);
         }
         Destroy(root);
-        
+
         Destroy(gameObject);
     }
 }

@@ -8,7 +8,7 @@ public class Lock : MonoBehaviour
 
     public bool IsUnlocked()
     {
-        return !inverted? GetIsUnlocked() : !GetIsUnlocked();
+        return !inverted ? GetIsUnlocked() : !GetIsUnlocked();
     }
 
     public virtual bool GetIsUnlocked()
@@ -16,7 +16,12 @@ public class Lock : MonoBehaviour
         return false;
     }
 
-    public void InvokeChange() => ChangedEvent?.Invoke();
+    public void InvokeChange()
+    {
+        ChangedEvent?.Invoke();
+    }
+
     public delegate void OnLockChanged();
+
     public event OnLockChanged ChangedEvent;
 }

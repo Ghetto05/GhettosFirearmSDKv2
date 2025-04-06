@@ -12,13 +12,13 @@ public class SimpleExplosive : Explosive
 
     public override void ActualDetonate()
     {
-        if (effect != null)
+        if (effect)
         {
             effect.gameObject.transform.SetParent(null);
             Player.local.StartCoroutine(DelayedDestroy(effect.gameObject, effect.main.duration + 1f));
             effect.Play();
         }
-            
+
         Util.PlayRandomAudioSource(audioEffects);
         Util.AlertAllCreaturesInRange(transform.position, 50);
         foreach (var s in audioEffects)
@@ -27,7 +27,7 @@ public class SimpleExplosive : Explosive
             Player.local.StartCoroutine(DelayedDestroy(s.gameObject, s.clip.length + 1f));
         }
         FireMethods.HitscanExplosion(transform.position, data, item, out _, out _);
-        if (item != null && destroyItem)
+        if (item && destroyItem)
         {
             item.Despawn();
             item.Despawn(0.2f);

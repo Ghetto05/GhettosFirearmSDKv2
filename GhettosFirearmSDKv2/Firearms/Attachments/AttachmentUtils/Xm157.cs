@@ -33,7 +33,7 @@ public class Xm157 : MonoBehaviour
     public Transform scaleRoot;
     public Handle menuHandle;
     public AudioSource buttonSound;
-        
+
     public int monospaceSize = 100;
     public TextMeshProUGUI ui;
     public Pages currentPage;
@@ -42,7 +42,7 @@ public class Xm157 : MonoBehaviour
     public bool compassEnabled;
     public bool rangeFinderEnabled;
     public UiColors uiColor;
-        
+
     public TextMeshProUGUI rangeFinderDisplay;
     public TextMeshProUGUI compassDisplay;
     public Graphic redDot;
@@ -78,20 +78,30 @@ public class Xm157 : MonoBehaviour
     private void ConnectedAttachmentOnOnHeldActionEvent(RagdollHand hand, Handle handle, Interactable.Action action)
     {
         if (handle != menuHandle)
+        {
             return;
-            
+        }
+
         if (action == Interactable.Action.Ungrab)
+        {
             UnGrab();
+        }
         if (action == Interactable.Action.UseStart)
+        {
             Trigger();
+        }
         if (action == Interactable.Action.AlternateUseStart)
+        {
             AlternateUse();
+        }
     }
 
     private void OnDestroy()
     {
-        if (menuHandle == null)
+        if (!menuHandle)
+        {
             return;
+        }
         scope.connectedAttachment.attachmentPoint.ConnectedManager.Item.OnGrabEvent -= MenuHandleOnGrabbed;
         scope.connectedAttachment.OnHeldActionEvent -= ConnectedAttachmentOnOnHeldActionEvent;
     }
@@ -99,7 +109,9 @@ public class Xm157 : MonoBehaviour
     private void MenuHandleOnGrabbed(Handle handle, RagdollHand hand)
     {
         if (handle == menuHandle)
+        {
             Grab();
+        }
     }
 
     public void Grab()
@@ -118,19 +130,19 @@ public class Xm157 : MonoBehaviour
     public void AlternateUse()
     {
         //cycle through options
-        if (buttonSound != null)
-            buttonSound.Play();
+        buttonSound?.Play();
         currentOption++;
         if (currentOption >= _currentRowCount)
+        {
             currentOption = 0;
+        }
         DrawPage();
     }
 
     public void Trigger()
     {
         //confirm options
-        if (buttonSound != null)
-            buttonSound.Play();
+        buttonSound?.Play();
         ApplyOption();
         DrawPage();
     }
@@ -153,16 +165,18 @@ public class Xm157 : MonoBehaviour
             case Pages.MainMenu:
                 text = "{0} Compass (" + (compassEnabled ? "On" : "Off") + ")<br>" +
                        "{1} Range finder (" + (rangeFinderEnabled ? "On" : "Off") + ")<br>" +
-                       "{2} Visual laser (" + (visualLaser == null ? "[ERROR]" : visualLaser.physicalSwitch ? "On" : "Off") + ")<br>" +
+                       "{2} Visual laser (" + (!visualLaser ? "[ERROR]" : visualLaser.physicalSwitch ? "On" : "Off") + ")<br>" +
                        "{3} HUD color (" + uiColor + ")";
                 rowCount = 4;
                 break;
+
             case Pages.UiColorSelection:
                 text = "{0} Yellow<br>" +
                        "{1} Red<br>" +
                        "{2} Orange";
                 rowCount = 3;
                 break;
+
             default:
                 text = "[ERROR]";
                 rowCount = 0;
@@ -180,18 +194,22 @@ public class Xm157 : MonoBehaviour
                     case 0:
                         ToggleCompass();
                         break;
+
                     case 1:
                         ToggleRangeFinder();
                         break;
+
                     case 2:
                         ToggleVisualLaser();
                         break;
+
                     case 3:
                         currentPage = Pages.UiColorSelection;
                         currentOption = 0;
                         break;
                 }
                 break;
+
             case Pages.UiColorSelection:
                 uiColor = currentOption switch
                 {
@@ -210,7 +228,9 @@ public class Xm157 : MonoBehaviour
     {
         var output = new object[count];
         for (var i = 0; i < output.Length; i++)
+        {
             output[i] = defaultValue;
+        }
         return output;
     }
 
@@ -220,8 +240,10 @@ public class Xm157 : MonoBehaviour
         ToggleNonUiComponents();
         ToggleRedDot();
         UpdateCompass();
-        if (rangeFinder != null)
-            rangeFinderDisplay.SetText(rangeFinder.lastHitDistance.ToString("0.00") + "m"); 
+        if (rangeFinder)
+        {
+            rangeFinderDisplay.SetText(rangeFinder.lastHitDistance.ToString("0.00") + "m");
+        }
     }
 
     #region Options
@@ -240,8 +262,10 @@ public class Xm157 : MonoBehaviour
 
     private void ToggleVisualLaser()
     {
-        if (visualLaser != null)
+        if (visualLaser)
+        {
             visualLaser.physicalSwitch = !visualLaser.physicalSwitch;
+        }
         SaveOptions();
     }
 
@@ -249,7 +273,7 @@ public class Xm157 : MonoBehaviour
     {
         foreach (var element in colorElements)
         {
-            element.color = 
+            element.color =
                 uiColor switch
                 {
                     UiColors.Orange => new Color(1, 0.29f, 0),
@@ -263,7 +287,7 @@ public class Xm157 : MonoBehaviour
 
     private void ToggleNonUiComponents()
     {
-        var a = !_grabbed && (scope == null || scope.currentIndex != 0);
+        var a = !_grabbed && (!scope || scope.currentIndex != 0);
         if (_lastNonUiState != a)
         {
             compassDisplay.enabled = a && compassEnabled;
@@ -274,7 +298,7 @@ public class Xm157 : MonoBehaviour
 
     private void ToggleRedDot()
     {
-        var a = !_grabbed && (scope == null || scope.currentIndex == 0);
+        var a = !_grabbed && (!scope || scope.currentIndex == 0);
         if (_lastRedDotState != a)
         {
             redDot.enabled = a;
@@ -301,7 +325,7 @@ public class Xm157 : MonoBehaviour
             > 67.5f and <= 112.5f => "E ",
             > 112.5f and <= 157.5f => "SE ",
             > 157.5f and <= 202.5f => "S ",
-            > 202.5f and <= 247.5f => "SW" ,
+            > 202.5f and <= 247.5f => "SW",
             > 247.5f and <= 292.5f => "W ",
             > 292.5f and <= 337.5f => "NW ",
             _ => "N "

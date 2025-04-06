@@ -8,12 +8,13 @@ namespace GhettosFirearmSDKv2;
 public class MagazineSaveData : ContentCustomData
 {
     public string ItemID;
+
     [JsonConverter(typeof(CartridgeSaveData.StringArrayToDataArrayConverter))]
     public CartridgeSaveData[] Contents;
 
     public void ApplyToMagazine(Magazine magazine)
     {
-        if (Contents == null || Contents.Length == 0)
+        if (Contents is null || Contents.Length == 0)
         {
             magazine.loadable = true;
             magazine.InvokeLoadFinished();
@@ -21,10 +22,10 @@ public class MagazineSaveData : ContentCustomData
         }
         ApplyToMagazineRecurve(Contents.Length - 1, magazine, Contents.CloneJson());
     }
-        
+
     public void ApplyToMagazine(StripperClip clip)
     {
-        if (Contents == null || Contents.Length == 0)
+        if (Contents is null || Contents.Length == 0)
         {
             clip.loadable = true;
             return;
@@ -42,7 +43,7 @@ public class MagazineSaveData : ContentCustomData
         }
         try
         {
-            Util.SpawnItem(con[index].ItemId, "Magazine save data",cartridge =>
+            Util.SpawnItem(con[index].ItemId, "Magazine save data", cartridge =>
             {
                 var car = cartridge.GetComponent<Cartridge>();
                 mag.InsertRound(car, true, true, false);
@@ -59,7 +60,7 @@ public class MagazineSaveData : ContentCustomData
                            $"Cartridge: {con[index].ItemId}");
         }
     }
-        
+
     private void ApplyToClipRecurve(int index, StripperClip clip, CartridgeSaveData[] con)
     {
         if (index < 0)
@@ -86,22 +87,30 @@ public class MagazineSaveData : ContentCustomData
                            $"Cartridge: {con[index].ItemId}");
         }
     }
-        
+
     public void GetFromUnknown(GameObject obj)
     {
         if (!obj)
+        {
             return;
-            
+        }
+
         if (obj.GetComponent<Magazine>() is { } mag)
+        {
             GetContentsFromMagazine(mag);
+        }
         else if (obj.GetComponent<StripperClip>() is { } clip)
+        {
             GetContentsFromClip(clip);
+        }
     }
 
     public void GetContentsFromMagazine(Magazine magazine)
     {
-        if (magazine == null || magazine.cartridges == null)
+        if (!magazine || magazine.cartridges is null)
+        {
             return;
+        }
         Contents = new CartridgeSaveData[magazine.cartridges.Count];
         for (var i = 0; i < magazine.cartridges.Count; i++)
         {
@@ -112,8 +121,10 @@ public class MagazineSaveData : ContentCustomData
 
     public void GetContentsFromClip(StripperClip clip)
     {
-        if (clip == null || clip.loadedCartridges == null)
+        if (!clip || clip.loadedCartridges is null)
+        {
             return;
+        }
         Contents = new CartridgeSaveData[clip.loadedCartridges.Count];
         for (var i = 0; i < clip.loadedCartridges.Count; i++)
         {

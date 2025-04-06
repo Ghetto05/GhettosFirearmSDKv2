@@ -9,7 +9,7 @@ public class LeverAction : MonoBehaviour
     private const float Threshold = 3f;
 
     public BoltSemiautomatic bolt;
-        
+
     public Rigidbody rb;
     public Transform lever;
     public Transform leverColliders;
@@ -36,7 +36,7 @@ public class LeverAction : MonoBehaviour
         Invoke(nameof(InvokedStart), Settings.invokeTime);
         leverHandle.SetTouch(false);
     }
-        
+
     private void InvokedStart()
     {
         _targetAngle = Quaternion.Angle(start.localRotation, end.localRotation);
@@ -49,9 +49,7 @@ public class LeverAction : MonoBehaviour
     }
 
     private void OnUnGrab(Handle handle, RagdollHand ragdollHand, bool throwing)
-    {
-            
-    }
+    { }
 
     private void OnGrab(Handle handle, RagdollHand ragdollHand)
     {
@@ -64,7 +62,9 @@ public class LeverAction : MonoBehaviour
     private void OnFireLogicFinished()
     {
         if (_state != BoltBase.BoltState.Locked)
+        {
             return;
+        }
         //Unlock();
         Invoke(nameof(Unlock), 0.05f);
     }
@@ -72,7 +72,9 @@ public class LeverAction : MonoBehaviour
     private void OnAltAction(bool longPress)
     {
         if (longPress || _state != BoltBase.BoltState.Locked)
+        {
             return;
+        }
         Unlock();
     }
 
@@ -92,13 +94,13 @@ public class LeverAction : MonoBehaviour
 
         bolt.rigidBody.transform.localPosition = Vector3.Lerp(bolt.startPoint.localPosition, bolt.endPoint.localPosition, Time());
         bolt.bolt.transform.localPosition = Vector3.Lerp(bolt.startPoint.localPosition, bolt.endPoint.localPosition, Time());
-            
+
         if (LimitLeverChanged(out var limit))
         {
             var lockAngle = Util.NormalizeAngle(lever.localEulerAngles.x);
             _joint.limits = new JointLimits { max = limit ? lockAngle + 0.001f : maxAngle, min = limit ? lockAngle : minAngle };
         }
-            
+
         if (Quaternion.Angle(lever.localRotation, start.localRotation) <= Threshold && _state == BoltBase.BoltState.Moving && _reachedEnd)
         {
             Lock();
@@ -131,9 +133,13 @@ public class LeverAction : MonoBehaviour
     public void Lock(bool forced = false)
     {
         if (_state == BoltBase.BoltState.Locked && !forced)
+        {
             return;
-        if (_joint != null)
+        }
+        if (_joint)
+        {
             Destroy(_joint);
+        }
         rb.isKinematic = true;
         _state = BoltBase.BoltState.Locked;
         lever.localRotation = start.localRotation;
@@ -161,7 +167,9 @@ public class LeverAction : MonoBehaviour
     public void Unlock()
     {
         if (_state != BoltBase.BoltState.Locked)
+        {
             return;
+        }
 
         rb.isKinematic = false;
         InitializeJoint();
@@ -180,15 +188,19 @@ public class LeverAction : MonoBehaviour
             //InitializeHandJoint(ragdollHand);
         }
         if (bolt.firearm.triggerState)
+        {
             bolt.firearm.ChangeTrigger(false);
-            
+        }
+
         bolt.firearm.item.disableSnap = true;
     }
 
     private void InitializeJoint()
     {
-        if (_joint == null)
+        if (!_joint)
+        {
             _joint = bolt.firearm.gameObject.AddComponent<HingeJoint>();
+        }
         _joint.axis = Vector3.left;
         rb.transform.position = start.position;
         rb.transform.rotation = start.rotation;

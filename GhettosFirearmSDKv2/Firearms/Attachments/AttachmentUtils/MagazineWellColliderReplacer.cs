@@ -8,8 +8,10 @@ public class MagazineWellColliderReplacer : MonoBehaviour
     public Attachment attachment;
     public Collider newCollider;
     public Transform newMount;
+
     [HideInInspector]
     public Collider oldCollider;
+
     [HideInInspector]
     public Transform oldMount;
 
@@ -17,22 +19,32 @@ public class MagazineWellColliderReplacer : MonoBehaviour
 
     private void Awake()
     {
-        if (attachment.initialized) Attachment_OnDelayedAttachEvent();
-        else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        if (attachment.initialized)
+        {
+            Attachment_OnDelayedAttachEvent();
+        }
+        else
+        {
+            attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
+        }
         attachment.OnDetachEvent += Attachment_OnDetachEvent;
     }
 
     private void Attachment_OnDetachEvent(bool despawnDetach)
     {
         if (despawnDetach)
-            return;
-        if (newCollider != null)
         {
-            if (oldCollider != null)
+            return;
+        }
+        if (newCollider)
+        {
+            if (oldCollider)
+            {
                 oldCollider.enabled = true;
+            }
             _firearm.magazineWell.loadingCollider = oldCollider;
         }
-        if (newMount != null)
+        if (newMount)
         {
             _firearm.magazineWell.mountPoint = oldMount;
         }
@@ -41,17 +53,21 @@ public class MagazineWellColliderReplacer : MonoBehaviour
     private void Attachment_OnDelayedAttachEvent()
     {
         if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
+        {
             return;
+        }
         _firearm = f;
-            
-        if (newCollider != null)
+
+        if (newCollider)
         {
             oldCollider = _firearm.magazineWell.loadingCollider;
-            if (oldCollider != null)
+            if (oldCollider)
+            {
                 oldCollider.enabled = false;
+            }
             _firearm.magazineWell.loadingCollider = newCollider;
         }
-        if (newMount != null)
+        if (newMount)
         {
             oldMount = _firearm.magazineWell.mountPoint;
             _firearm.magazineWell.mountPoint = newMount;

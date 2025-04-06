@@ -14,7 +14,10 @@ public class TimedDetonator : MonoBehaviour
 
     private void Awake()
     {
-        if (startAtAwake) Arm();
+        if (startAtAwake)
+        {
+            Arm();
+        }
     }
 
     public void Arm()

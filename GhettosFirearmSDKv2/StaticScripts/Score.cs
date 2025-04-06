@@ -9,7 +9,7 @@ public class Score : ThunderScript
     public float ShotsFired;
     public float ShotsHit;
     public float Headshots;
-        
+
     public override void ScriptEnable()
     {
         local = this;
@@ -19,16 +19,44 @@ public class Score : ThunderScript
     {
         ShotsFired += 1;
         if (hit)
+        {
             ShotsHit += 1;
+        }
         if (headshot)
+        {
             Headshots += 1;
+        }
     }
 
-    public float Accuracy => ShotsHit / ShotsFired;
+    public float Accuracy
+    {
+        get
+        {
+            return ShotsHit / ShotsFired;
+        }
+    }
 
-    public float HeadshotAccuracy => Headshots / ShotsFired;
+    public float HeadshotAccuracy
+    {
+        get
+        {
+            return Headshots / ShotsFired;
+        }
+    }
 
-    public string AccuracyString => $"{Accuracy * 100}%";
+    public string AccuracyString
+    {
+        get
+        {
+            return $"{Accuracy * 100}%";
+        }
+    }
 
-    public string HeadshotAccuracyString => $"{HeadshotAccuracy * 100}%";
+    public string HeadshotAccuracyString
+    {
+        get
+        {
+            return $"{HeadshotAccuracy * 100}%";
+        }
+    }
 }

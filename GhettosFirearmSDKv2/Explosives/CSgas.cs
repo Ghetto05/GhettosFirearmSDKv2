@@ -19,7 +19,7 @@ public class CSgas : Explosive
 
     private void Awake()
     {
-        if (item != null)
+        if (item)
         {
             item.DisallowDespawn = true;
         }
@@ -38,21 +38,30 @@ public class CSgas : Explosive
         loop?.Play();
         particle?.Play();
         timestamp = Time.time;
-        if (gameObject.GetComponentInParent<Rigidbody>() is { } rb) rb.velocity = Vector3.zero;
+        if (gameObject.GetComponentInParent<Rigidbody>() is { } rb)
+        {
+            rb.velocity = Vector3.zero;
+        }
         _ready = true;
         base.ActualDetonate();
     }
 
     private void Update()
     {
-        if (!detonated || !_ready) return;
+        if (!detonated || !_ready)
+        {
+            return;
+        }
 
         if (Time.time >= timestamp + emissionDuration && loop.isPlaying)
         {
             loop?.Stop();
         }
 
-        if (!_active) return;
+        if (!_active)
+        {
+            return;
+        }
         volume?.SetActive(!PlayerEffectsAndChemicalsModule.local.WearingGasMask());
 
         if (Time.time >= timestamp + duration)
@@ -60,11 +69,14 @@ public class CSgas : Explosive
             _active = false;
             Destroy(_zoneObj);
             volume?.SetActive(false);
-            if (item != null)
+            if (item)
             {
                 item.DisallowDespawn = false;
             }
-            else Destroy(gameObject);
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

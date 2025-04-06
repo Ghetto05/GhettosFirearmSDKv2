@@ -10,7 +10,7 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
     public string caliber;
     public string clipType;
     public int capacity;
-        
+
     public Item item;
     public Transform[] cartridgePositions;
     public GameObject insertColliderRoot;
@@ -27,7 +27,7 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
     public AudioSource[] removeSounds;
 
     public MagazineLoad defaultLoad;
-        
+
     public List<Cartridge> loadedCartridges;
 
     public bool loadable;
@@ -50,7 +50,7 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
 
         if (!item.TryGetCustomData(out _data))
         {
-            _data = defaultLoad != null ? defaultLoad.ToSaveData() : new MagazineSaveData();
+            _data = defaultLoad ? defaultLoad.ToSaveData() : new MagazineSaveData();
             item.AddCustomData(_data);
         }
         _data.ApplyToMagazine(this);
@@ -58,14 +58,18 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
 
     private void ItemOnOnGrabEvent(Handle handle, RagdollHand ragdollHand)
     {
-        if (_currentWell != null) 
+        if (_currentWell)
+        {
             RemoveFromGun();
+        }
     }
 
     private void ItemOnOnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
     {
         if (action == Interactable.Action.AlternateUseStart)
+        {
             EjectRound();
+        }
     }
 
     private void FixedUpdate()
@@ -75,11 +79,13 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (_currentWell == null && collision.contacts[0].otherCollider.GetComponentInParent<StripperClipWell>() != null)
+        if (!_currentWell && collision.contacts[0].otherCollider.GetComponentInParent<StripperClipWell>())
         {
             var well = collision.contacts[0].otherCollider.GetComponentInParent<StripperClipWell>();
             if ((well.clipType.Equals(clipType) || !Settings.doMagazineTypeChecks) && Util.CheckForCollisionWithBothColliders(collision, mountCollider, well.mountCollider))
+            {
                 MountToGun(well);
+            }
         }
         if (collision.collider.GetComponentInParent<Cartridge>() is { } c && Util.CheckForCollisionWithThisCollider(collision, roundLoadCollider) && Time.time - _lastEjectTime > 1f)
         {
@@ -99,7 +105,7 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
             return;
         }
 
-        var cn = loadedCartridges.Where(c => c == null).ToArray();
+        var cn = loadedCartridges.Where(c => !c).ToArray();
         foreach (var c in cn)
         {
             loadedCartridges.Remove(c);
@@ -114,9 +120,13 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
             var rot = c.transform.localRotation;
             c.transform.SetParent(cartridgePositions[loadedCartridges.IndexOf(c)]);
             if (!rotate)
+            {
                 c.transform.SetLocalPositionAndRotation(Vector3.zero, rot);
+            }
             else
+            {
                 c.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(Util.RandomCartridgeRotation()));
+            }
         }
     }
 
@@ -125,7 +135,9 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
         if ((loadable || forced) && loadedCartridges.Count < capacity && !c.loaded && (c.caliber.Equals(caliber) || !Settings.doCaliberChecks || forced))
         {
             if (!silent)
+            {
                 Util.PlayRandomAudioSource(loadSounds);
+            }
             c.UngrabAll();
             c.ToggleCollision(false);
             c.ToggleHandles(false);
@@ -134,11 +146,17 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
             c.item.transform.SetParent(cartridgePositions[0]);
             c.item.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(Util.RandomCartridgeRotation()));
             if (insertFromBottom)
+            {
                 loadedCartridges.Insert(0, c);
+            }
             else
+            {
                 loadedCartridges.Add(c);
+            }
             if (save)
+            {
                 SaveContent();
+            }
         }
         UpdatePositions(true);
     }
@@ -165,8 +183,10 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
     public void PushRoundToMagazine()
     {
         if (Time.time - _lastPushTime < 0.02f)
+        {
             return;
-        if (_currentWell != null && loadedCartridges.Count > 0 && _currentWell.magazineWell.firearm.magazineWell != null && _currentWell.magazineWell.firearm.magazineWell.currentMagazine != null)
+        }
+        if (_currentWell && loadedCartridges.Count > 0 && _currentWell.magazineWell.firearm.magazineWell && _currentWell.magazineWell.firearm.magazineWell.currentMagazine)
         {
             var mag = _currentWell.magazineWell.firearm.magazineWell.currentMagazine;
             if (mag.cartridges.Count < mag.ActualCapacity)
@@ -183,9 +203,9 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
 
     public void MountToGun(StripperClipWell well)
     {
-        if (_currentWell != null ||
+        if (_currentWell ||
             Time.time - _lastRemoveTime < 0.5f ||
-            well.currentClip != null ||
+            well.currentClip ||
             (well.bolt.state != well.allowedState && !well.alwaysAllow) ||
             (!well.clipType.Equals(clipType) && Settings.doMagazineTypeChecks) ||
             well.blockingAttachmentPoints.Any(at => at.currentAttachments.Any()))
@@ -209,8 +229,10 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
 
     public void RemoveFromGun()
     {
-        if (_currentWell == null)
+        if (!_currentWell)
+        {
             return;
+        }
 
         _lastRemoveTime = Time.time;
         item.DisallowDespawn = false;

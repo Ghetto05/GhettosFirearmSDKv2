@@ -20,23 +20,29 @@ public class Bipod : MonoBehaviour
 
     private void Start()
     {
-        if (item != null)
+        if (item)
+        {
             item.OnHeldActionEvent += OnHeldActionEvent;
-        else if (attachment != null)
+        }
+        else if (attachment)
+        {
             attachment.OnHeldActionEvent += OnHeldActionEvent;
+        }
         ApplyPosition(false);
     }
 
     private void FixedUpdate()
     {
-        if (toggleHandle.item.holder != null)
+        if (toggleHandle.item.holder)
+        {
             return;
-            
+        }
+
         if (requiredBipods.Any())
         {
             toggleHandle.SetTouch(requiredBipods.All(b => b.index != 0));
         }
-            
+
         if (requiredInactiveBipods.Any())
         {
             toggleHandle.SetTouch(!requiredInactiveBipods.Any(b => b.index == 1));
@@ -46,38 +52,53 @@ public class Bipod : MonoBehaviour
     private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
     {
         if (handle == toggleHandle && action == Interactable.Action.UseStart)
+        {
             ToggleUp();
+        }
         else if (handle == toggleHandle && action == Interactable.Action.AlternateUseStart)
+        {
             ToggleDown();
+        }
     }
 
     public void ToggleUp()
     {
         if (index + 1 == positions.Count)
+        {
             index = 0;
+        }
         else
+        {
             index++;
+        }
         ApplyPosition();
     }
 
     public void ToggleDown()
     {
         if (index - 1 == -1)
+        {
             index = positions.Count - 1;
+        }
         else
+        {
             index--;
+        }
         ApplyPosition();
     }
 
     public void ApplyPosition(bool playSound = true)
     {
         if (playSound)
+        {
             toggleSound?.Play();
+        }
         axis.localPosition = positions[index].localPosition;
         axis.localEulerAngles = positions[index].localEulerAngles;
         ApplyPositionEvent?.Invoke();
     }
 
     public delegate void OnApplyPosition();
+
     public event OnApplyPosition ApplyPositionEvent;
 }

@@ -49,7 +49,7 @@ public class GrenadeSpoon : MonoBehaviour
 
     private void Update()
     {
-        if (_moving && body != null && !_triggered)
+        if (_moving && body && !_triggered)
         {
             body.localRotation = Quaternion.Lerp(startPosition.localRotation, endPosition.localRotation, (Time.time - _startTime) / deployTime);
         }
@@ -70,17 +70,22 @@ public class GrenadeSpoon : MonoBehaviour
     private IEnumerator DelayedAddForce(Rigidbody targetRb)
     {
         yield return new WaitForSeconds(0.01f);
+
         targetRb.AddForce(forceDir.forward * deployForce * 10);
     }
 
     private void GrenadeItem_OnUngrabEvent(Handle handle, RagdollHand ragdollHand, bool throwing)
     {
-        if (handle == grenadeItem.mainHandleLeft) StartCoroutine(DelayedCheck());
+        if (handle == grenadeItem.mainHandleLeft)
+        {
+            StartCoroutine(DelayedCheck());
+        }
     }
 
     private IEnumerator DelayedCheck()
     {
         yield return new WaitForSeconds(0.01f);
+
         if (grenadeItem.mainHandleRight.handlers.Count < 1)
         {
             Release();
@@ -89,7 +94,10 @@ public class GrenadeSpoon : MonoBehaviour
 
     public void Release(bool forced = false)
     {
-        if (_moving) return;
+        if (_moving)
+        {
+            return;
+        }
         if (forced || AllLocksReleased())
         {
             _startTime = Time.time;
@@ -102,7 +110,10 @@ public class GrenadeSpoon : MonoBehaviour
     {
         foreach (var l in locks)
         {
-            if (!l.IsUnlocked()) return false;
+            if (!l.IsUnlocked())
+            {
+                return false;
+            }
         }
         return true;
     }

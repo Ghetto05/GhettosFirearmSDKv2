@@ -10,5 +10,6 @@ public class CollisionRelay : MonoBehaviour
     }
 
     public delegate void OnCollisionEnterDelegate(Collision collision);
+
     public event OnCollisionEnterDelegate OnCollisionEnterEvent;
 }

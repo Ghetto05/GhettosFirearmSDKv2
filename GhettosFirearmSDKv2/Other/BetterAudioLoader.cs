@@ -11,6 +11,7 @@ public class BetterAudioLoader : MonoBehaviour
 {
     public string audioClipAddress;
     public AudioMixerName audioMixer;
+
     [NonSerialized]
     public AudioSource AudioSource;
 
@@ -24,13 +25,15 @@ public class BetterAudioLoader : MonoBehaviour
     protected void OnDungeonGenerated(EventTime eventTime)
     {
         if (eventTime != EventTime.OnEnd || !gameObject.activeInHierarchy || !enabled)
+        {
             return;
+        }
         OnEnable();
     }
 
     protected void OnEnable()
     {
-        Addressables.LoadAssetAsync<AudioClip>(audioClipAddress).Completed += (handle =>
+        Addressables.LoadAssetAsync<AudioClip>(audioClipAddress).Completed += handle =>
         {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
@@ -43,10 +46,12 @@ public class BetterAudioLoader : MonoBehaviour
                     AudioSource.clip = handle.Result;
                 }
             }
-            else Debug.LogError("Could not find audio at address: " + audioClipAddress);
-        });
+            else
+            {
+                Debug.LogError("Could not find audio at address: " + audioClipAddress);
+            }
+        };
     }
-
 
     public void PlayAndDestroy()
     {
@@ -57,7 +62,10 @@ public class BetterAudioLoader : MonoBehaviour
 
     protected void OnDisable()
     {
-        if (AudioSource.clip != null) Addressables.Release(AudioSource.clip);
+        if (AudioSource.clip)
+        {
+            Addressables.Release(AudioSource.clip);
+        }
         AudioSource.clip = null;
     }
 }

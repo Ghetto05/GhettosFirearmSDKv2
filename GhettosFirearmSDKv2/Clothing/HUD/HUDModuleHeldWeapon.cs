@@ -20,45 +20,59 @@ public class HUDModuleHeldWeapon : MonoBehaviour
 
     private void Update()
     {
-        if (icon != null)
+        if (icon)
+        {
             SetIcon();
+        }
         UpdateRoundCounter();
     }
 
     public void UpdateRoundCounter()
     {
         currentFirearm = GetHeldFirearm();
-        if (currentFirearm != null && currentFirearm.magazineWell != null && currentFirearm.magazineWell.currentMagazine != null)
+        if (currentFirearm && currentFirearm.magazineWell && currentFirearm.magazineWell.currentMagazine)
         {
             var count = currentFirearm.magazineWell.currentMagazine.cartridges.Count;
-            if (currentFirearm.bolt.GetChamber() != null)
+            if (currentFirearm.bolt.GetChamber())
             {
                 count++;
             }
-            if (roundCounter != null)
+            if (roundCounter)
+            {
                 roundCounter.text = count.ToString();
-            if (capacityDisplay != null)
+            }
+            if (capacityDisplay)
+            {
                 capacityDisplay.text = currentFirearm.magazineWell.currentMagazine.ActualCapacity.ToString();
+            }
         }
-        else if (currentFirearm != null && currentFirearm.bolt.GetChamber() != null)
+        else if (currentFirearm && currentFirearm.bolt.GetChamber())
         {
-            if (roundCounter != null)
+            if (roundCounter)
+            {
                 roundCounter.text = 1.ToString();
-            if (capacityDisplay != null)
+            }
+            if (capacityDisplay)
+            {
                 capacityDisplay.text = 0.ToString();
+            }
         }
         else
         {
-            if (roundCounter != null)
+            if (roundCounter)
+            {
                 roundCounter.text = 0.ToString();
-            if (capacityDisplay != null)
+            }
+            if (capacityDisplay)
+            {
                 capacityDisplay.text = 0.ToString();
+            }
         }
     }
 
     public void SetIcon()
     {
-        if (GetHeldFirearm() is { } firearm && icon.sprite == null)
+        if (GetHeldFirearm() is { } firearm && !icon.sprite)
         {
             ToggleHUD(true);
             currentFirearm = firearm;
@@ -74,7 +88,7 @@ public class HUDModuleHeldWeapon : MonoBehaviour
                 }, "HUD Module Held Weapon");
             }
         }
-        else if (GetHeldFirearm() == null)
+        else if (!GetHeldFirearm())
         {
             icon.sprite = null;
             currentFirearm = null;
@@ -85,8 +99,14 @@ public class HUDModuleHeldWeapon : MonoBehaviour
     private void ToggleHUD(bool hudEnabled)
     {
         icon.enabled = hudEnabled;
-        if (roundCounter != null) roundCounter.enabled = hudEnabled;
-        if (capacityDisplay != null) capacityDisplay.enabled = hudEnabled;
+        if (roundCounter)
+        {
+            roundCounter.enabled = hudEnabled;
+        }
+        if (capacityDisplay)
+        {
+            capacityDisplay.enabled = hudEnabled;
+        }
         for (var i = 0; i < additionalDisableObjects.Count; i++)
         {
             additionalDisableObjects[i].SetActive(hudEnabled);
@@ -96,13 +116,15 @@ public class HUDModuleHeldWeapon : MonoBehaviour
     public Firearm GetHeldFirearm()
     {
         Firearm f = null;
-        if (Player.local == null || Player.local.creature == null)
+        if (!Player.local || !Player.local.creature)
+        {
             return null;
-        if (Player.local.GetHand(Side.Right).ragdollHand.grabbedHandle is { } h && h.item is { } i && i.GetComponent<Firearm>() != null)
+        }
+        if (Player.local.GetHand(Side.Right).ragdollHand.grabbedHandle is { } h && h.item is { } i && i.GetComponent<Firearm>())
         {
             f = Player.local.GetHand(Side.Right).ragdollHand.grabbedHandle.item.GetComponent<Firearm>();
         }
-        else if (Player.local.GetHand(Side.Left).ragdollHand.grabbedHandle is { } h2 && h2.item is { } i2 && i2.GetComponent<Firearm>() != null)
+        else if (Player.local.GetHand(Side.Left).ragdollHand.grabbedHandle is { } h2 && h2.item is { } i2 && i2.GetComponent<Firearm>())
         {
             f = Player.local.GetHand(Side.Left).ragdollHand.grabbedHandle.item.GetComponent<Firearm>();
         }

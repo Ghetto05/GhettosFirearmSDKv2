@@ -56,10 +56,10 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
     public Dictionary<int, List<int>> ChamberSets = new();
     public List<Trigger> triggers;
     public List<string> targetHandPoses;
+
     // ReSharper disable once CollectionNeverUpdated.Local - assigned in Unity
-    private List<HandPoseData> _targetHandPoseData = new();
+    private readonly List<HandPoseData> _targetHandPoseData = new();
     public List<string> defaultAmmoItems;
-        
 
     private SaveNodeValueArray<CartridgeSaveData> _data;
     private SaveNodeValueArray<ItemSaveData> _savedItems;
@@ -71,7 +71,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
     {
         X,
         Y,
-        Z,
+        Z
     }
 
     private void Start()
@@ -107,17 +107,19 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         rb.gameObject.AddComponent<CollisionRelay>().OnCollisionEnterEvent += OnCollisionEvent;
         firearm.OnMuzzleCalculatedEvent += Firearm_OnMuzzleCalculatedEvent;
         firearm.SavedAmmoItemChangedEvent += FirearmOnSavedAmmoItemChangedEvent;
-            
+
         _savedItems = firearm.SaveNode.GetOrAddValue("DoubleBarrelSavedItem", new SaveNodeValueArray<ItemSaveData>(), out var addedNewSaves);
         if (addedNewSaves)
         {
-            _savedItems.Value = defaultAmmoItems.Select(x => string.IsNullOrWhiteSpace(x) ? null : new ItemSaveData() { ItemID = x }).ToArray();
+            _savedItems.Value = defaultAmmoItems.Select(x => string.IsNullOrWhiteSpace(x) ? null : new ItemSaveData { ItemID = x }).ToArray();
         }
-            
+
         if (ChamberSets.Any())
         {
-            if (chamberSetSelector != null)
+            if (chamberSetSelector)
+            {
                 chamberSetSelector.OnFiremodeChanged += ChamberSetSelectorOnFireModeChanged;
+            }
             SetChamberSet(0);
 
             if (triggers.Any() && triggers.Count > _currentChamberSet)
@@ -136,7 +138,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         {
             for (var i = 0; i < _data.Value.Length; i++)
             {
-                if (_data.Value[i] != null)
+                if (_data.Value[i] is not null)
                 {
                     var index = i;
                     Util.SpawnItem(_data.Value[index]?.ItemId, "Bolt Chamber", ci =>
@@ -181,18 +183,22 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         }
 
         if (triggers.Count > set)
+        {
             triggers[set].triggerEnabled = true;
+        }
 
         if (_targetHandPoseData.Any())
         {
-            foreach (var h in firearm.AllTriggerHandles().Where(h => h != null).SelectMany(h => h.orientations))
+            foreach (var h in firearm.AllTriggerHandles().Where(h => h).SelectMany(h => h.orientations))
             {
                 h.targetHandPoseData = _targetHandPoseData[set];
             }
         }
 
         if (_savedItems.Value.Length > set)
+        {
             firearm.SetOverideAmmoItem(_savedItems.Value[set], this);
+        }
     }
 
     private void Firearm_OnMuzzleCalculatedEvent()
@@ -213,7 +219,10 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
 
     private void OnCollisionEvent(Collision collision)
     {
-        if (!_allowInsert) return;
+        if (!_allowInsert)
+        {
+            return;
+        }
         if (collision.collider.GetComponentInParent<Cartridge>() is { } car && !car.loaded)
         {
             foreach (var insertCollider in loadColliders)
@@ -229,9 +238,12 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
 
     public void LoadChamber(int index, Cartridge cartridge, bool overrideSave = true)
     {
-        if (_loadedCartridges[index] == null && Util.AllowLoadCartridge(cartridge, calibers[index]))
+        if (!_loadedCartridges[index] && Util.AllowLoadCartridge(cartridge, calibers[index]))
         {
-            if (overrideSave) Util.PlayRandomAudioSource(insertSounds);
+            if (overrideSave)
+            {
+                Util.PlayRandomAudioSource(insertSounds);
+            }
             _loadedCartridges[index] = cartridge;
             cartridge.item.DisallowDespawn = true;
             cartridge.loaded = true;
@@ -243,7 +255,10 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
             cartridge.transform.parent = mountPoints[index];
             cartridge.transform.localPosition = Vector3.zero;
             cartridge.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            if (overrideSave) SaveCartridges();
+            if (overrideSave)
+            {
+                SaveCartridges();
+            }
         }
         UpdateChamberedRounds();
     }
@@ -258,17 +273,23 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
 
     public void TryEjectSingle(int i, bool ignoreFiredState = false, bool silent = false)
     {
-        if (_loadedCartridges[i] != null)
+        if (_loadedCartridges[i])
         {
             var c = _loadedCartridges[i];
             if (Settings.breakActionsEjectOnlyFired && !c.Fired && !ignoreFiredState)
+            {
                 return;
+            }
             if (ChamberSets.Any() && !ChamberSets[_currentChamberSet].Contains(i))
+            {
                 return;
+            }
             if (!silent)
+            {
                 Util.PlayRandomAudioSource(ejectSounds);
+            }
             _loadedCartridges[i] = null;
-            if (ejectPoints.Count > i && ejectPoints[i] != null)
+            if (ejectPoints.Count > i && ejectPoints[i])
             {
                 c.transform.position = ejectPoints[i].position;
                 c.transform.rotation = ejectPoints[i].rotation;
@@ -282,7 +303,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
             c.loaded = false;
             itemRb.isKinematic = false;
             itemRb.WakeUp();
-            if (ejectDirections[i] != null)
+            if (ejectDirections[i])
             {
                 AddForceToCartridge(c, ejectDirections[i], ejectForces[i]);
                 //AddTorqueToCartridge(c);
@@ -312,10 +333,19 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         {
             if (CompareEulers(rb.transform, openedPosition) && !_ejectedSinceOpen)
             {
-                if (ejector) EjectRound();
-                else _ejectedSinceOpen = true;
+                if (ejector)
+                {
+                    EjectRound();
+                }
+                else
+                {
+                    _ejectedSinceOpen = true;
+                }
             }
-            if (CompareEulers(rb.transform, closedPosition) && _ejectedSinceOpen) Lock();
+            if (CompareEulers(rb.transform, closedPosition) && _ejectedSinceOpen)
+            {
+                Lock();
+            }
 
             if (!ejector)
             {
@@ -328,17 +358,29 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
                 }
             }
         }
-                
+
         CalculateCyclePercentage();
         UpdateEjector();
 
         if (firearm.triggerState)
         {
-            if (firearm.fireMode == FirearmBase.FireModes.Semi && _shotsSinceTriggerReset == 0) TryFire();
-            else if (firearm.fireMode == FirearmBase.FireModes.Burst && _shotsSinceTriggerReset < firearm.burstSize) TryFire();
-            else if (firearm.fireMode == FirearmBase.FireModes.Auto) for (var i = 0; i < mountPoints.Count; i++) { TryFire(); }
+            if (firearm.fireMode == FirearmBase.FireModes.Semi && _shotsSinceTriggerReset == 0)
+            {
+                TryFire();
+            }
+            else if (firearm.fireMode == FirearmBase.FireModes.Burst && _shotsSinceTriggerReset < firearm.burstSize)
+            {
+                TryFire();
+            }
+            else if (firearm.fireMode == FirearmBase.FireModes.Auto)
+            {
+                for (var i = 0; i < mountPoints.Count; i++) { TryFire(); }
+            }
         }
-        else _shotsSinceTriggerReset = 0;
+        else
+        {
+            _shotsSinceTriggerReset = 0;
+        }
     }
 
     private void Update()
@@ -370,7 +412,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
             a = ta.localEulerAngles.z;
             b = tb.localEulerAngles.z;
         }
-        var angle = Mathf.Abs(a-b);
+        var angle = Mathf.Abs(a - b);
         return angle <= 2f;
     }
 
@@ -378,19 +420,23 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
     {
         if (state == BoltState.Locked)
         {
-            var hammerCocked = hammers.Count - 1 < _currentChamber || hammers[_currentChamber] == null || hammers[_currentChamber].cocked;
-            var cartridge = _loadedCartridges[_currentChamber] != null && !_loadedCartridges[_currentChamber].Fired;
-                
+            var hammerCocked = hammers.Count - 1 < _currentChamber || !hammers[_currentChamber] || hammers[_currentChamber].cocked;
+            var cartridge = _loadedCartridges[_currentChamber] && !_loadedCartridges[_currentChamber].Fired;
+
             _shotsSinceTriggerReset++;
-            if (hammers.Count > _currentChamber && hammers[_currentChamber] != null)
+            if (hammers.Count > _currentChamber && hammers[_currentChamber])
+            {
                 hammers[_currentChamber].Fire();
+            }
 
             if (hammerCocked && cartridge)
             {
                 foreach (var hand in firearm.item.handlers)
                 {
-                    if (hand.playerHand != null || hand.playerHand.controlHand != null)
+                    if (hand.playerHand || hand.playerHand.controlHand is not null)
+                    {
                         hand.playerHand.controlHand.HapticShort(50f);
+                    }
                 }
                 var muzzle = muzzles.Count < 2 ? firearm.actualHitscanMuzzle : actualMuzzles[_currentChamber];
                 var loadedCartridge = _loadedCartridges[_currentChamber];
@@ -398,8 +444,14 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
                 firearm.PlayFireSound(loadedCartridge);
                 if (loadedCartridge.data.playFirearmDefaultMuzzleFlash)
                 {
-                    if (actualMuzzleFlashes != null && actualMuzzleFlashes.Count > _currentChamber && actualMuzzleFlashes[_currentChamber] != null && muzzles.Count > 1) actualMuzzleFlashes[_currentChamber].Play();
-                    else firearm.PlayMuzzleFlash(loadedCartridge);
+                    if (actualMuzzleFlashes is not null && actualMuzzleFlashes.Count > _currentChamber && actualMuzzleFlashes[_currentChamber] && muzzles.Count > 1)
+                    {
+                        actualMuzzleFlashes[_currentChamber].Play();
+                    }
+                    else
+                    {
+                        firearm.PlayMuzzleFlash(loadedCartridge);
+                    }
                 }
                 FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
                 FireMethods.Fire(firearm.item, muzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), firearm.HeldByAI());
@@ -413,13 +465,17 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         {
             _currentChamber++;
             if (_currentChamber >= mountPoints.Count)
+            {
                 _currentChamber = 0;
+            }
         }
         else
         {
             _currentChamber++;
             if (_currentChamber >= ChamberSets[_currentChamberSet].Count)
+            {
                 _currentChamber = ChamberSets[_currentChamberSet].First();
+            }
         }
 
         InvokeFireLogicFinishedEvent();
@@ -427,10 +483,12 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
 
     public void UpdateEjector()
     {
-        if (state == BoltState.Locked || ejectorAxis == null || cyclePercentage < ejectorMoveStartPercentage)
+        if (state == BoltState.Locked || !ejectorAxis || cyclePercentage < ejectorMoveStartPercentage)
         {
-            if (ejectorAxis != null)
+            if (ejectorAxis)
+            {
                 ejectorAxis.SetPositionAndRotation(ejectorClosedPosition.position, ejectorClosedPosition.rotation);
+            }
             return;
         }
 
@@ -442,12 +500,16 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
     public override void TryRelease(bool forced = false)
     {
         if (state == BoltState.Locked)
+        {
             Unlock();
+        }
         else if (Settings.breakActionsEjectOnlyFired)
+        {
             for (var i = 0; i < _loadedCartridges.Length; i++)
             {
                 TryEjectSingle(i, true);
             }
+        }
     }
 
     public override void Initialize()
@@ -459,7 +521,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
     public void Lock()
     {
         state = BoltState.Locked;
-        if (lockAxis != null)
+        if (lockAxis)
         {
             lockAxis.localPosition = lockLockedPosition.localPosition;
             lockAxis.localEulerAngles = lockLockedPosition.localEulerAngles;
@@ -475,11 +537,15 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
     public void Unlock()
     {
         if (!ChamberSets.Any())
+        {
             _currentChamber = 0;
+        }
         else
+        {
             _currentChamber = ChamberSets[_currentChamberSet].First();
+        }
         state = BoltState.Moving;
-        if (lockAxis != null)
+        if (lockAxis)
         {
             lockAxis.localPosition = lockUnlockedPosition.localPosition;
             lockAxis.localEulerAngles = lockUnlockedPosition.localEulerAngles;
@@ -519,7 +585,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
             barrel.localEulerAngles = closedPosition.localEulerAngles;
         }
 
-        if (_joint == null)
+        if (!_joint)
         {
             _joint = firearm.item.gameObject.AddComponent<HingeJoint>();
             _joint.connectedBody = rb;
@@ -547,7 +613,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         base.UpdateChamberedRounds();
         for (var i = 0; i < mountPoints.Count; i++)
         {
-            if (_loadedCartridges[i] != null)
+            if (_loadedCartridges[i])
             {
                 _loadedCartridges[i].GetComponent<Rigidbody>().isKinematic = true;
                 _loadedCartridges[i].transform.parent = mountPoints[i];
@@ -570,15 +636,19 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         var availableChambers = new List<int>();
         for (var i = _loadedCartridges.Length - 1; i >= 0; i--)
         {
-            if (_loadedCartridges[i] == null)
+            if (!_loadedCartridges[i])
+            {
                 availableChambers.Add(i);
+            }
         }
 
         availableChambers = availableChambers.Where(x => ChamberSets[_currentChamberSet].Contains(x)).ToList();
 
         if (availableChambers.Count == 0)
+        {
             return 0;
-            
+        }
+
         return availableChambers.First();
     }
 
@@ -605,11 +675,13 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
     public void ClearRounds()
     {
         foreach (var car in _loadedCartridges)
-        { 
-            if (car != null)
+        {
+            if (car)
+            {
                 car.item.Despawn(0.05f);
+            }
         }
-            
+
         for (var i = 0; i < _loadedCartridges.Length; i++)
         {
             TryEjectSingle(i, true, true);

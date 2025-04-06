@@ -32,7 +32,7 @@ public class NvgOnlyRenderer : MonoBehaviour
 
     private void Start()
     {
-        if (directModules == null || !directModules.Any())
+        if (directModules is null || !directModules.Any())
         {
             RenderPipelineManager.beginCameraRendering += RegularMode_BeginRender;
             RenderPipelineManager.endCameraRendering += RegularMode_EndRender;
@@ -83,15 +83,17 @@ public class NvgOnlyRenderer : MonoBehaviour
     }
 
     #endregion
-        
+
     #region Regular Mode
 
     private void RegularMode_EndRender(ScriptableRenderContext context, Camera cam)
     {
         if (cam == renderCamera)
         {
-            if (NvgOnlyRendererMeshModule.all == null)
+            if (NvgOnlyRendererMeshModule.all is null)
+            {
                 return;
+            }
 
             foreach (var module in NvgOnlyRendererMeshModule.all)
             {
@@ -108,8 +110,6 @@ public class NvgOnlyRenderer : MonoBehaviour
 
     private void UpdateThermal()
     {
-        if (ThermalBody.all == null) return;
-
         foreach (var t in ThermalBody.all)
         {
             t.SetColor(thermalType);
@@ -120,8 +120,6 @@ public class NvgOnlyRenderer : MonoBehaviour
     {
         if (cam == renderCamera)
         {
-            if (NvgOnlyRendererMeshModule.all == null) return;
-
             foreach (var module in NvgOnlyRendererMeshModule.all)
             {
                 if (module.renderType.Equals(renderType))
@@ -129,7 +127,10 @@ public class NvgOnlyRenderer : MonoBehaviour
                     foreach (var obj in module.objects)
                     {
                         obj.SetActive(true);
-                        if (renderType == Types.Thermal) UpdateThermal();
+                        if (renderType == Types.Thermal)
+                        {
+                            UpdateThermal();
+                        }
                         foreach (var r in obj.GetComponentsInChildren<Renderer>())
                         {
                             r.enabled = true;

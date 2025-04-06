@@ -22,7 +22,10 @@ public class AttachmentData : CustomData
 
     public string GetID()
     {
-        if (string.IsNullOrWhiteSpace(CategoryName)) return "Default";
+        if (string.IsNullOrWhiteSpace(CategoryName))
+        {
+            return "Default";
+        }
 
         return CategoryName;
     }
@@ -30,7 +33,7 @@ public class AttachmentData : CustomData
     public static List<AttachmentData> AllOfType(string requestedType, ICollection<string> alternateTypes)
     {
         return Catalog.GetDataList<AttachmentData>()
-                      .Where(d => 
+                      .Where(d =>
                           d.Type?.Equals(requestedType) == true ||
                           d.Types?.Contains(requestedType) == true ||
                           alternateTypes?.Contains(d.Type) == true ||
@@ -47,22 +50,20 @@ public class AttachmentData : CustomData
 
     public void SpawnAndAttach(AttachmentPoint point, Action<Attachment> callback, int? railPosition = null, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
     {
-        if (point == null)
+        if (!point)
         {
             if (Settings.debugMode)
+            {
                 Debug.LogError("Tried to attach attachment to no point!");
+            }
             return;
         }
-            
-        var target = !point.usesRail || RailLength == -1 ?
-            point.transform :
-            point.railSlots != null ?
-                thisNode != null ?
-                    point.railSlots[thisNode.SlotPosition] :
-                    railPosition != null ?
-                        point.railSlots[railPosition.Value] :
-                        point.railSlots[0] :
-                point.transform;
+
+        var target = !point.usesRail || RailLength == -1 ? point.transform :
+            point.railSlots is not null ? thisNode is not null ? point.railSlots[thisNode.SlotPosition] :
+            railPosition is not null ? point.railSlots[railPosition.Value] :
+            point.railSlots[0] :
+            point.transform;
 
         if (point.usesRail && RailLength == -1)
         {
@@ -72,10 +73,12 @@ public class AttachmentData : CustomData
             }
         }
 
-        if (point.usesRail && target == point.transform && thisNode != null)
+        if (point.usesRail && target == point.transform && thisNode is not null)
+        {
             Debug.LogError($"Couldn't use rail points on point '{point.name}' on attachment '{id}'!");
-            
-        Addressables.InstantiateAsync(PrefabAddress, target.position, target.rotation, target, false).Completed += (handle =>
+        }
+
+        Addressables.InstantiateAsync(PrefabAddress, target.position, target.rotation, target, false).Completed += handle =>
         {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
@@ -84,7 +87,7 @@ public class AttachmentData : CustomData
                 point.currentAttachments.Add(attachment);
                 attachment.Data = this;
                 attachment.attachmentPoint = point;
-                if (thisNode == null)
+                if (thisNode is null)
                 {
                     attachment.Node = new FirearmSaveData.AttachmentTreeNode();
                     attachment.Node.AttachmentId = id;
@@ -92,11 +95,17 @@ public class AttachmentData : CustomData
                     attachment.Node.SlotPosition = point.usesRail ? point.railSlots.IndexOf(target) : 0;
                 }
                 else
+                {
                     attachment.Node = thisNode;
+                }
                 if (point.attachment && !point.attachment.Node.Childs.Contains(thisNode))
+                {
                     point.attachment.Node.Childs.Add(attachment.Node);
-                else if (thisNode == null)
+                }
+                else if (thisNode is null)
+                {
                     point.ConnectedManager.SaveData.FirearmNode.Childs.Add(attachment.Node);
+                }
                 attachment.Initialize(callback, thisNode, initialSetup);
                 point.InvokeAttachmentAdded(attachment);
             }
@@ -105,6 +114,6 @@ public class AttachmentData : CustomData
                 Debug.LogWarning("Unable to instantiate attachment " + id + " from address " + PrefabAddress);
                 Addressables.ReleaseInstance(handle);
             }
-        });
+        };
     }
 }

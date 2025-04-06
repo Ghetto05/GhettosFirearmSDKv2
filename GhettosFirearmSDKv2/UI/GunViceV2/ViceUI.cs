@@ -27,7 +27,7 @@ public class ViceUI : MonoBehaviour
     public RectTransform railAttachmentTemplate;
     public Holder holder;
     public Handle[] freezeHandles;
-        
+
     private IAttachmentManager _currentManager;
     private UISlot _currentSlot;
     private UIRailAttachment _currentRailAttachment;
@@ -58,18 +58,20 @@ public class ViceUI : MonoBehaviour
         moveAttachmentForwardButton.onClick.AddListener(delegate { MoveAttachment(true); });
         moveAttachmentRearwardButton.onClick.AddListener(delegate { MoveAttachment(false); });
         saveAmmoItemButton.onClick.AddListener(delegate { SaveAmmoItem(); });
-            
+
         removeAttachmentButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
         moveAttachmentForwardButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
         moveAttachmentRearwardButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
         saveAmmoItemButton.onClick.AddListener(delegate { PlaySound(SoundTypes.Interact); });
-            
+
         holder.Snapped += HolderOnSnapped;
         holder.UnSnapped += HolderOnUnSnapped;
 
         _item = GetComponentInParent<Item>();
         if (_item)
+        {
             _item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
+        }
     }
 
     private void OnDestroy()
@@ -97,14 +99,18 @@ public class ViceUI : MonoBehaviour
         }
 
         if (_item && !_item.holder && freezeHandles.Any())
+        {
             _item.physicBody.isKinematic = _frozen && !_item.handlers.Any();
+        }
     }
 
     private void HolderOnSnapped(Item item)
     {
         if (item.GetComponent<IAttachmentManager>() is not { } manager)
+        {
             return;
-            
+        }
+
         screenCollider.enabled = true;
         GetComponent<Canvas>().enabled = true;
         SetupForManager(manager);
@@ -119,13 +125,29 @@ public class ViceUI : MonoBehaviour
 
     private void Cleanup()
     {
-        foreach (var x in _slots.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+        foreach (var x in _slots.ToArray())
+        {
+            x.selectButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _slots.Clear();
-        foreach (var x in _attachmentCategories.ToArray()) { x.foldoutButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+        foreach (var x in _attachmentCategories.ToArray())
+        {
+            x.foldoutButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _attachmentCategories.Clear();
-        foreach (var x in _attachments.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+        foreach (var x in _attachments.ToArray())
+        {
+            x.selectButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _attachments.Clear();
-        foreach (var x in _railAttachments.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+        foreach (var x in _railAttachments.ToArray())
+        {
+            x.selectButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _railAttachments.Clear();
 
         _currentManager = null;
@@ -136,12 +158,16 @@ public class ViceUI : MonoBehaviour
     private void RemoveAttachment()
     {
         if (!_currentSlot)
+        {
             return;
+        }
 
         if (_currentSlot.AttachmentPoint.usesRail && _currentRailAttachment && !_currentRailAttachment.IsNewButton)
         {
             if (_currentRailAttachment.CurrentAttachment.Data.RailLength == -1)
+            {
                 AddRailAttachment(null);
+            }
             //UpdateSlots(_currentRailAttachment.CurrentAttachment, true);
             _currentRailAttachment.CurrentAttachment.Detach();
             _railAttachments.Remove(_currentRailAttachment);
@@ -150,19 +176,24 @@ public class ViceUI : MonoBehaviour
         }
         else if (_currentSlot.AttachmentPoint.currentAttachments.Any())
         {
-            if (_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault() is not { } attachment) return;
+            if (_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault() is not { } attachment)
+            {
+                return;
+            }
             //_currentSlot.SetAttachment(null);
             //UpdateSlots(attachment, true);
             attachment.Detach();
         }
         _attachments.ForEach(x => x.selectionOutline.SetActive(false));
-        UpdateSlots(/*null, true*/);
+        UpdateSlots( /*null, true*/);
     }
 
     private void MoveAttachment(bool forward)
     {
         if (_currentRailAttachment?.CurrentAttachment is not { } attachment || attachment.Data.RailLength < 0)
+        {
             return;
+        }
         _currentRailAttachment?.CurrentAttachment?.MoveOnRail(forward);
         UpdateSlotCounter();
     }
@@ -191,12 +222,16 @@ public class ViceUI : MonoBehaviour
         _currentManager = manager;
         SetupSlots();
     }
-        
+
     private void SetupSlots()
     {
-        foreach (var x in _slots.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+        foreach (var x in _slots.ToArray())
+        {
+            x.selectButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _slots.Clear();
-            
+
         foreach (var point in _currentManager.AttachmentPoints)
         {
             AddSlot(point, _currentManager.Item.data.iconAddress);
@@ -208,7 +243,7 @@ public class ViceUI : MonoBehaviour
     // {
     //     if (!attachment)
     //         return;
-    //     
+    //
     //     if (remove)
     //     {
     //         List<Attachment> attachments = new() { attachment };
@@ -235,10 +270,14 @@ public class ViceUI : MonoBehaviour
     private void UpdateSlots()
     {
         var currentSlot = _currentSlot.AttachmentPoint;
-            
-        foreach (var x in _slots.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+
+        foreach (var x in _slots.ToArray())
+        {
+            x.selectButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _slots.Clear();
-            
+
         foreach (var point in _currentManager.AttachmentPoints.Where(x => x.gameObject.activeInHierarchy))
         {
             AddSlot(point, _currentManager.Item.data.iconAddress);
@@ -246,17 +285,19 @@ public class ViceUI : MonoBehaviour
         }
 
         SelectSlot(_slots.FirstOrDefault(x => x.AttachmentPoint == currentSlot), true);
-            
+
         UpdateSaveAmmoButton();
     }
 
     private void AddSlotsFromAttachment(Attachment attachment, int? startIndex = null)
     {
-        if (attachment == null)
+        if (!attachment)
+        {
             return;
-            
+        }
+
         var address = attachment.Data.IconAddress;
-            
+
         foreach (var point in attachment.attachmentPoints)
         {
             AddSlot(point, address, startIndex);
@@ -267,21 +308,27 @@ public class ViceUI : MonoBehaviour
     private void AddSlot(AttachmentPoint attachmentPoint, string iconAddress, int? setIndex = null)
     {
         if (!attachmentPoint.gameObject.activeInHierarchy || !attachmentPoint.gameObject.activeSelf)
+        {
             return;
+        }
         var slot = Instantiate(slotTemplate, slotContent).GetComponent<UISlot>();
         slot.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         slot.Setup(attachmentPoint, iconAddress, this);
         slot.gameObject.SetActive(true);
-        if (setIndex != null)
+        if (setIndex is not null)
+        {
             slot.transform.SetSiblingIndex(setIndex.Value);
+        }
         _slots.Add(slot);
     }
 
     public void SelectSlot(UISlot slot, bool fromUpdate)
     {
         if (!_allowSwitchingSlots)
+        {
             return;
-            
+        }
+
         _currentSlot = slot;
         if (!fromUpdate)
         {
@@ -289,7 +336,7 @@ public class ViceUI : MonoBehaviour
             SetupAttachmentList(slot);
             SetButtonVisibility(slot.AttachmentPoint.usesRail);
         }
-            
+
         UpdateSaveAmmoButton();
     }
 
@@ -328,11 +375,13 @@ public class ViceUI : MonoBehaviour
                         PostAttachmentSpawnCallback();
                     });
                     if (attachment.Data.RailLength != -1)
+                    {
                         AddRailAttachment(null);
+                    }
                 }
                 else
                 {
-                    UpdateSlots(/*_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault(), true*/);
+                    UpdateSlots( /*_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault(), true*/);
 
                     var railPos = _currentRailAttachment.CurrentAttachment.RailPosition;
                     _currentRailAttachment.CurrentAttachment.Detach();
@@ -345,7 +394,7 @@ public class ViceUI : MonoBehaviour
             }
             else
             {
-                UpdateSlots(/*_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault(), true*/);
+                UpdateSlots( /*_currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault(), true*/);
 
                 _currentSlot.AttachmentPoint.currentAttachments.FirstOrDefault()?.Detach();
                 attachment.Data.SpawnAndAttach(_currentSlot.AttachmentPoint, _ => { PostAttachmentSpawnCallback(); });
@@ -362,39 +411,47 @@ public class ViceUI : MonoBehaviour
     {
         _allowSwitchingSlots = true;
         //_currentSlot.SetAttachment(attachment);
-        UpdateSlots(/*attachment, false*/);
+        UpdateSlots( /*attachment, false*/);
         UpdateSlotCounter();
     }
 
     public void SelectRailAttachment(UIRailAttachment attachment)
     {
         if (!_allowSwitchingSlots)
+        {
             return;
-            
+        }
+
         _currentRailAttachment = attachment;
         UpdateSlotCounter();
-            
+
         _attachments.ForEach(x => x.selectionOutline.SetActive(false));
         _attachments.FirstOrDefault(x => x.Data.id == _currentRailAttachment?.CurrentAttachment?.Data.id)?.selectionOutline.SetActive(true);
-            
+
         var attachments = _railAttachments.ToList();
         attachments.Remove(attachment);
         attachments.ForEach(x => x.selectionOutline.gameObject.SetActive(false));
         attachment.selectionOutline.gameObject.SetActive(true);
-            
+
         UpdateSaveAmmoButton();
     }
 
     private void SetupAttachmentList(UISlot slot)
     {
-        foreach (var x in _attachmentCategories.ToArray()) { x.foldoutButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+        foreach (var x in _attachmentCategories.ToArray())
+        {
+            x.foldoutButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _attachmentCategories.Clear();
-        foreach (var x in _attachments.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+        foreach (var x in _attachments.ToArray())
+        {
+            x.selectButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _attachments.Clear();
 
-        var data = slot.AttachmentPoint.usesRail ?
-            AttachmentData.AllOfType(slot.AttachmentPoint.railType, slot.AttachmentPoint.alternateTypes).Where(x => x.RailLength <= slot.AttachmentPoint.railSlots.Count).ToList() :
-            AttachmentData.AllOfType(slot.AttachmentPoint.type, slot.AttachmentPoint.alternateTypes).ToList();
+        var data = slot.AttachmentPoint.usesRail ? AttachmentData.AllOfType(slot.AttachmentPoint.railType, slot.AttachmentPoint.alternateTypes).Where(x => x.RailLength <= slot.AttachmentPoint.railSlots.Count).ToList() : AttachmentData.AllOfType(slot.AttachmentPoint.type, slot.AttachmentPoint.alternateTypes).ToList();
         data.ForEach(AddAttachment);
 
         if (_attachmentCategories.FirstOrDefault(x => x.headerText.text.Equals("Default")) is { } category)
@@ -408,22 +465,32 @@ public class ViceUI : MonoBehaviour
 
     private void SetupRailAttachmentList(UISlot slot)
     {
-        foreach (var x in _railAttachments.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
+        foreach (var x in _railAttachments.ToArray())
+        {
+            x.selectButton.onClick.RemoveAllListeners();
+            Destroy(x.gameObject);
+        }
         _railAttachments.Clear();
-            
+
         if (!slot.AttachmentPoint.usesRail)
+        {
             return;
+        }
 
         var addNewButton = true;
         foreach (var attachment in slot.AttachmentPoint.currentAttachments)
         {
             if (attachment.Data.RailLength == -1)
+            {
                 addNewButton = false;
+            }
             AddRailAttachment(attachment);
         }
         if (addNewButton)
+        {
             AddRailAttachment(null);
-            
+        }
+
         SelectRailAttachment(_railAttachments.First());
     }
 
@@ -455,8 +522,10 @@ public class ViceUI : MonoBehaviour
     {
         var c = _attachmentCategories.FirstOrDefault(x => x.headerText.text.Equals(category));
         if (c)
+        {
             return c;
-            
+        }
+
         c = Instantiate(attachmentCategoryTemplate, attachmentCategoryContent).GetComponent<UIAttachmentCategory>();
         c.gameObject.SetActive(true);
         c.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -481,7 +550,9 @@ public class ViceUI : MonoBehaviour
         FirearmBase firearm = null;
 
         if (_currentManager is Firearm f)
+        {
             firearm = f;
+        }
 
         if (_currentSlot?.AttachmentPoint?.usesRail != true)
         {
@@ -507,11 +578,16 @@ public class ViceUI : MonoBehaviour
         {
             case SoundTypes.Interact:
                 if (interactSound)
+                {
                     interactSound.Play();
+                }
                 break;
+
             case SoundTypes.Select:
                 if (selectSound)
+                {
                     selectSound.Play();
+                }
                 break;
         }
     }

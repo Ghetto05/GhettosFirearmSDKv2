@@ -10,12 +10,15 @@ public class AttachmentFirearmModeManager : MonoBehaviour
     private Handle _firearmTriggerHandle;
     public AttachmentFirearm attachmentFirearm;
     public bool addAttachmentFirearmMode;
-    [CatalogPicker(new[] {Category.HandPose})]
+
+    [CatalogPicker(new[] { Category.HandPose })]
     public string replacementTriggerHandlePose;
-    [CatalogPicker(new[] {Category.HandPose})]
+
+    [CatalogPicker(new[] { Category.HandPose })]
     public string replacementTriggerHandleTargetPose;
+
     public string[] allowReplacementOnItems;
-        
+
     private HandPoseData _defaultHandPoseData;
     private HandPoseData _targetHandPoseData;
     private HandPoseData _replacementDefaultHandPoseData;
@@ -29,21 +32,23 @@ public class AttachmentFirearmModeManager : MonoBehaviour
     private void InvokedStart()
     {
         if (attachmentFirearm.attachment.attachmentPoint.ConnectedManager is not Firearm f)
+        {
             return;
+        }
         _connectedFirearm = f;
         _firearmTriggerHandle = _connectedFirearm.item.mainHandleLeft;
-            
+
         LoadHandleData();
         _defaultHandPoseData = _firearmTriggerHandle.orientations.First().defaultHandPoseData;
         _targetHandPoseData = _firearmTriggerHandle.orientations.First().targetHandPoseData;
-            
+
         _connectedFirearm.OnFiremodeChangedEvent += ConnectedFirearmOnOnFiremodeChangedEvent;
         _connectedFirearm.SavedAmmoItemChangedEvent += FirearmOnSavedAmmoItemChangedEvent;
         attachmentFirearm.SavedAmmoItemChangedEvent += FirearmOnSavedAmmoItemChangedEvent;
         attachmentFirearm.attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
-            
+
         AddAttachmentFirearmMode();
-            
+
         ApplyDefaultAmmoItem();
     }
 
@@ -55,7 +60,9 @@ public class AttachmentFirearmModeManager : MonoBehaviour
     private void AttachmentOnOnDetachEvent(bool despawndetach)
     {
         if (despawndetach)
+        {
             return;
+        }
 
         if (addAttachmentFirearmMode)
         {
@@ -68,20 +75,22 @@ public class AttachmentFirearmModeManager : MonoBehaviour
 
             ApplyHandleData();
         }
-            
+
         _connectedFirearm.OnFiremodeChangedEvent -= ConnectedFirearmOnOnFiremodeChangedEvent;
         _connectedFirearm.SavedAmmoItemChangedEvent -= FirearmOnSavedAmmoItemChangedEvent;
         attachmentFirearm.SavedAmmoItemChangedEvent -= FirearmOnSavedAmmoItemChangedEvent;
         attachmentFirearm.attachment.OnDetachEvent -= AttachmentOnOnDetachEvent;
-            
+
         _connectedFirearm.RemoveOverideAmmoItem(this);
     }
 
     private void AddAttachmentFirearmMode()
     {
         if (!addAttachmentFirearmMode)
+        {
             return;
-            
+        }
+
         if (_connectedFirearm.GetComponentInChildren<FiremodeSelector>()?.firemodes.Contains(FirearmBase.FireModes.AttachmentFirearm) ?? false)
         {
             addAttachmentFirearmMode = false;
@@ -106,7 +115,9 @@ public class AttachmentFirearmModeManager : MonoBehaviour
     private void LoadHandleData()
     {
         if (replacementTriggerHandlePose.IsNullOrEmptyOrWhitespace() || replacementTriggerHandleTargetPose.IsNullOrEmptyOrWhitespace())
+        {
             return;
+        }
 
         _replacementDefaultHandPoseData = Catalog.GetData<HandPoseData>(replacementTriggerHandlePose);
         _replacementTargetHandPoseData = Catalog.GetData<HandPoseData>(replacementTriggerHandleTargetPose);
@@ -114,8 +125,10 @@ public class AttachmentFirearmModeManager : MonoBehaviour
 
     private void ApplyHandleData()
     {
-        if (_firearmTriggerHandle == null || _replacementDefaultHandPoseData == null || _replacementTargetHandPoseData == null || !allowReplacementOnItems.Contains(_connectedFirearm.item.itemId))
+        if (!_firearmTriggerHandle || _replacementDefaultHandPoseData is null || _replacementTargetHandPoseData is null || !allowReplacementOnItems.Contains(_connectedFirearm.item.itemId))
+        {
             return;
+        }
         switch (_connectedFirearm.fireMode)
         {
             case FirearmBase.FireModes.AttachmentFirearm:
@@ -125,6 +138,7 @@ public class AttachmentFirearmModeManager : MonoBehaviour
                     pose.targetHandPoseData = _replacementTargetHandPoseData;
                 }
                 break;
+
             default:
                 foreach (var pose in _firearmTriggerHandle.orientations)
                 {

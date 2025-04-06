@@ -8,7 +8,7 @@ namespace GhettosFirearmSDKv2;
 public class FirearmClicker : MonoBehaviour
 {
     public static List<FirearmClicker> all = new();
-        
+
     public Transform[] axis;
     public Transform[] idlePos;
     public Transform[] pressedPos;

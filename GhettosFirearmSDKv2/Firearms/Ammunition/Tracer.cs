@@ -16,16 +16,22 @@ public class Tracer : MonoBehaviour
     }
 
     public Colors color;
+
     [HideInInspector]
     public Material redMaterial;
+
     [HideInInspector]
     public Material greenMaterial;
+
     [HideInInspector]
     public Material blueMaterial;
+
     [HideInInspector]
     public Material orangeMaterial;
+
     [HideInInspector]
     public Material whiteMaterial;
+
     public List<MeshRenderer> tracerRenderers;
     public Light emissionLight;
 
@@ -71,6 +77,7 @@ public class Tracer : MonoBehaviour
     private IEnumerator DestroyDelayedIE(float delay)
     {
         yield return new WaitForSeconds(delay);
+
         Destroy(gameObject);
     }
 
@@ -92,6 +99,8 @@ public class Tracer : MonoBehaviour
     public void Update()
     {
         if (_fired)
+        {
             transform.Translate(_dir * _speed * Time.deltaTime);
+        }
     }
 }

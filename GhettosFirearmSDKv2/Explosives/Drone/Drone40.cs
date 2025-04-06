@@ -10,10 +10,16 @@ public class Drone40 : MonoBehaviour
 
     public static Drone40 GetByID(string id)
     {
-        if (all == null) return null;
+        if (all is null)
+        {
+            return null;
+        }
         foreach (var drone in all)
         {
-            if (drone.droneId.Equals(id)) return drone;
+            if (drone.droneId.Equals(id))
+            {
+                return drone;
+            }
         }
         return null;
     }
@@ -44,25 +50,34 @@ public class Drone40 : MonoBehaviour
     public Vector3 horizontalStart;
     public Vector3 horizontalEnd;
     public float camVerticalSpeed;
-    private Quaternion _targetRotation = Quaternion.Euler(90, 0, 0);
+    private readonly Quaternion _targetRotation = Quaternion.Euler(90, 0, 0);
     private Quaternion _startRot;
     private float _activationTime;
     public bool active;
     private float _startHeight;
     private bool _beforeSpin = true;
+
     [Space]
     public float driveShaftSpeed;
+
     [Space]
     public Transform driveShaft1;
+
     public Vector3 driveShaft1Axis;
+
     [Space]
     public Transform driveShaft2;
+
     public Vector3 driveShaft2Axis;
+
     [Space]
     public Transform driveShaft3;
+
     public Vector3 driveShaft3Axis;
+
     [Space]
     public Transform driveShaft4;
+
     public Vector3 driveShaft4Axis;
     private float _currentVertical;
     private bool _gottaAddConstrains = true;
@@ -78,7 +93,7 @@ public class Drone40 : MonoBehaviour
     private void Awake()
     {
         _startHeight = transform.position.y;
-        droneId = $"Drone_{type}_{ Random.Range(0, 10)}{Random.Range(0, 10)}{Random.Range(0, 10)}{Random.Range(0, 10)}";
+        droneId = $"Drone_{type}_{Random.Range(0, 10)}{Random.Range(0, 10)}{Random.Range(0, 10)}{Random.Range(0, 10)}";
     }
 
     public void Move(float leftHandY, float rightHandX, float leftHandX, float rightHandY)
@@ -101,7 +116,10 @@ public class Drone40 : MonoBehaviour
                 // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
                 rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
             }
-            else if (_gottaAddConstrains) transform.rotation = Quaternion.Slerp(_startRot, _targetRotation, (Time.time - _activationTime) / turnTime);
+            else if (_gottaAddConstrains)
+            {
+                transform.rotation = Quaternion.Slerp(_startRot, _targetRotation, (Time.time - _activationTime) / turnTime);
+            }
 
             camPivot.localEulerAngles = Vector3.Lerp(horizontalStart, horizontalEnd, _currentVertical);
         }
@@ -133,7 +151,10 @@ public class Drone40 : MonoBehaviour
         rb.velocity = Vector3.zero;
         _startRot = transform.rotation;
         loop.Play();
-        if (all == null) all = new List<Drone40>();
+        if (all is null)
+        {
+            all = new List<Drone40>();
+        }
         all.Add(this);
         Drone40ControlPanel.CallUpdateList();
     }

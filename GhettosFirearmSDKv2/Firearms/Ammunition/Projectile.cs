@@ -27,10 +27,14 @@ public class Projectile : MonoBehaviour
     private void OnCollisionStart(CollisionInstance collision)
     {
         if (!affectors.Contains(collision.sourceCollider))
+        {
             return;
-        
+        }
+
         if (_executed)
+        {
             return;
+        }
 
         _executed = true;
 
@@ -40,23 +44,31 @@ public class Projectile : MonoBehaviour
         var hitParts = new List<RagdollPart>();
         var hitShootables = new List<object>();
         FireMethods.ProcessHit(transform, (FireMethods.HitData)collision, [], data, 1, hitCreatures, killedCreatures, hitParts, hitShootables, item, out _, out _, ref penPow);
-        
+
         HitEvent?.Invoke(hitCreatures, killedCreatures);
-        
+
         if (despawnOnContact)
+        {
             item.Despawn(0.01f);
+        }
 
         if (stick)
+        {
             Stick(collision.targetCollider.attachedRigidbody);
-        
+        }
+
         if (automaticDespawnDelay >= 0)
+        {
             item.Despawn(automaticDespawnDelay);
+        }
     }
 
     private void Stick(Rigidbody rb)
     {
         if (_stuck)
+        {
             return;
+        }
         _stuck = true;
         item.DisallowDespawn = true;
         var joint = item.gameObject.AddComponent<FixedJoint>();
@@ -78,7 +90,9 @@ public class Projectile : MonoBehaviour
     private void StuckItemOnDespawn(EventTime eventTime)
     {
         if (eventTime != EventTime.OnStart)
+        {
             return;
+        }
 
         _stuckItem.OnDespawnEvent -= StuckItemOnDespawn;
         item.Despawn();
@@ -87,12 +101,15 @@ public class Projectile : MonoBehaviour
     private void StuckCreatureOnDespawn(EventTime eventTime)
     {
         if (eventTime != EventTime.OnStart)
+        {
             return;
+        }
 
         _stuckCreature.OnDespawnEvent -= StuckCreatureOnDespawn;
         item.Despawn();
     }
 
     public delegate void OnHit(List<Creature> hitCreatures, List<Creature> killedCreatures);
+
     public event OnHit HitEvent;
 }
