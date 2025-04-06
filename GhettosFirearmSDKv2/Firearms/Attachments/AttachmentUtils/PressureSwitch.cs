@@ -15,9 +15,6 @@ namespace GhettosFirearmSDKv2
         public List<AudioSource> pressSounds;
         public List<AudioSource> releaseSounds;
 
-        private bool _active;
-        private SaveNodeValueBool _saveData;
-
         private void Start()
         {
             Invoke(nameof(InvokedStart), Settings.invokeTime);
