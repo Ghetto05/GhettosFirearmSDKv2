@@ -53,7 +53,7 @@ namespace GhettosFirearmSDKv2
                     break;
                 case Interactable.Action.AlternateUseStart when dualMode || useAltUse:
                     AlternateUseState = !AlternateUseState;
-                    (TriggerState ? pressSounds : releaseSounds).RandomChoice().Play();
+                    (AlternateUseState ? pressSounds : releaseSounds).RandomChoice().Play();
                     break;
             }
         }
