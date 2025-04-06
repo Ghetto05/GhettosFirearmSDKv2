@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2
 {
-    public class PressureSwitch : MonoBehaviour
+    public class PressureSwitch : TacticalSwitch
     {
         public bool toggleMode;
 
@@ -17,16 +17,6 @@ namespace GhettosFirearmSDKv2
 
         private bool _active;
         private SaveNodeValueBool _saveData;
-
-
-        public bool dualMode;
-        public bool useAltUse;
-        public int triggerChannel = 1;
-        public int alternateUseChannel = 2;
-        public TacticalDevice exclusiveDevice;
-
-        private bool _triggerState;
-        private bool _alternateUseState;
 
         private void Start()
         {
@@ -43,32 +33,29 @@ namespace GhettosFirearmSDKv2
 
         private void OnHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
         {
+            if (handle == handle.item.mainHandleLeft ||
+                (attachment?.attachmentPoint.ConnectedManager is FirearmBase f && f.AllTriggerHandles().Contains(handle)))
+                return;
+
             // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (action)
             {
-                case Interactable.Action.UseStart when !_triggerState && (!dualMode || !useAltUse):
-                    _triggerState = true;
-                    pressSounds.RandomChoice().Play();
-                    break;
-                case Interactable.Action.UseStop when _triggerState && (!dualMode || !useAltUse):
-                    _triggerState = false;
-                    releaseSounds.RandomChoice().Play();
-                    break;
-                case Interactable.Action.UseStart when !dualMode || useAltUse:
-                    _triggerState = !_triggerState;
-                    if (_triggerState)
+                case Interactable.Action.UseStart when !TriggerState && (dualMode || !useAltUse):
+                    TriggerState = toggleMode ? !TriggerState : true;
+                    if (toggleMode)
                         pressSounds.RandomChoice().Play();
                     else
-                        releaseSounds.RandomChoice().Play();
+                        (TriggerState ? pressSounds : releaseSounds).RandomChoice().Play();
+                    break;
+                case Interactable.Action.UseStop when TriggerState && (dualMode || !useAltUse):
+                    TriggerState = false;
+                    releaseSounds.RandomChoice().Play();
+                    break;
+                case Interactable.Action.AlternateUseStart when dualMode || useAltUse:
+                    AlternateUseState = !AlternateUseState;
+                    (TriggerState ? pressSounds : releaseSounds).RandomChoice().Play();
                     break;
             }
-        }
-
-        public bool Active(int channel)
-        {
-            if (!dualMode)
-                return true;
-            return (channel == triggerChannel && _triggerState) || (channel == alternateUseChannel && _alternateUseState);
         }
     }
 }

@@ -15,24 +15,10 @@ public class Laser : TacticalDevice
     public Text distanceDisplay;
     public float lastHitDistance;
 
-    private void Start()
+    protected override void InvokedStart()
     {
+        base.InvokedStart();
         physicalSwitch = activeByDefault;
-        if (item)
-            ActualItem = item;
-        else if (attachment)
-        {
-            if (attachment.initialized)
-                Attachment_OnDelayedAttachEvent();
-            else
-                attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
-        }
-        else ActualItem = null;
-    }
-
-    private void Attachment_OnDelayedAttachEvent()
-    {
-        ActualItem = attachment.attachmentPoint.ConnectedManager.Item;
     }
 
     private void Update()

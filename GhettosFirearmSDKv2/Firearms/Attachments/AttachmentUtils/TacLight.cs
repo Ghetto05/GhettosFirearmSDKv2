@@ -1,45 +1,23 @@
-using ThunderRoad;
 using UnityEngine;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class TacLight : TacticalDevice
 {
-    [AddComponentMenu("Firearm SDK v2/Attachments/Systems/Illuminators/Tactical Light")]
-    public class TacLight : TacticalDevice
+    public GameObject lights;
+
+    public void SetActive()
     {
-        public GameObject lights;
-        public Item item;
-        public Attachment attachment;
-        private Item _actualItem;
+        physicalSwitch = true;
+    }
 
-        public void Start()
-        {
-            if (item != null) _actualItem = item;
-            else if (attachment != null)
-            {
-                if (attachment.initialized) Attachment_OnDelayedAttachEvent();
-                else attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
-            }
-            else _actualItem = null;
-        }
+    public void SetNotActive()
+    {
+        physicalSwitch = false;
+    }
 
-        private void Attachment_OnDelayedAttachEvent()
-        {
-            _actualItem = attachment.attachmentPoint.ConnectedManager.Item;
-        }
-
-        public void SetActive()
-        {
-            physicalSwitch = true;
-        }
-
-        public void SetNotActive()
-        {
-            physicalSwitch = false;
-        }
-
-        private void Update()
-        {
-            lights.SetActive(TacSwitchActive && physicalSwitch && (_actualItem == null || _actualItem.holder == null));
-        }
+    private void Update()
+    {
+        lights.SetActive(TacSwitchActive && physicalSwitch && (!ActualItem || !ActualItem.holder));
     }
 }
