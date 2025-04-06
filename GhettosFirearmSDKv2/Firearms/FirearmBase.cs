@@ -76,6 +76,8 @@ public class FirearmBase : AIFireable
         {
             SetSavedAmmoItem(defaultAmmoItem, overrideMagazineLoad ? new ContentCustomData[] { overrideMagazineLoad.ToSaveData() } : null);
         }
+
+        ImprovedLazyPouch.InvokeAmmoItemChanged(this);
     }
 
     public virtual void Update()
