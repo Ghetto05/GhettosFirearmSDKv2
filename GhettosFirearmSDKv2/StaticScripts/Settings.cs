@@ -24,10 +24,10 @@ public class Settings : ThunderScript
     public static float boltPointThreshold = 0.004f;
     public static float aiFirearmSpread = 0f;
 
-    public static float failureToFeedChance = 0.2f;
-    public static float failureToExtractChance = 0.1f;
-    public static float failureToEjectChance = 0.1f;
-    public static float failureToFireChance = 0.25f;
+    public static float failureToFeedChance = 0.02f;
+    public static float failureToExtractChance = 0.01f;
+    public static float failureToEjectChance = 0.01f;
+    public static float failureToFireChance = 0.025f;
         
     #endregion Static
 
