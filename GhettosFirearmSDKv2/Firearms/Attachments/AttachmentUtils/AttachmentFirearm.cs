@@ -33,7 +33,7 @@ public class AttachmentFirearm : FirearmBase
     public override void Update()
     {
         base.Update();
-        if (fireHandle != null && fireHandle.handlers.Count > 0 && setUpForHandPose)
+        if (fireHandle && fireHandle.handlers.Count > 0 && setUpForHandPose)
         {
             fireHandle.handlers[0].poser.SetTargetWeight(Player.local.GetHand(fireHandle.handlers[0].side).controlHand.useAxis);
         }
@@ -41,7 +41,8 @@ public class AttachmentFirearm : FirearmBase
 
     private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
     {
-        if (handle == fireHandle && bolt != null) bolt.Initialize();
+        if (handle == fireHandle && bolt)
+            bolt.Initialize();
     }
 
     public override void PlayMuzzleFlash(Cartridge cartridge)
@@ -57,7 +58,8 @@ public class AttachmentFirearm : FirearmBase
     {
         var hs = new List<Handle>();
         hs.AddRange(additionalTriggerHandles);
-        if (fireHandle == null) return hs;
+        if (!fireHandle)
+            return hs;
         hs.Add(fireHandle);
         return hs;
     }
