@@ -392,11 +392,11 @@ public class ViceUI : MonoBehaviour
         foreach (var x in _attachments.ToArray()) { x.selectButton.onClick.RemoveAllListeners(); Destroy(x.gameObject); }
         _attachments.Clear();
 
-        var data = Catalog.GetDataList<AttachmentData>();
-        data = slot.AttachmentPoint.usesRail ?
-            data.Where(x => x.RailLength <= slot.AttachmentPoint.railSlots.Count && (x.Type.Equals(slot.AttachmentPoint.railType) || slot.AttachmentPoint.alternateTypes.Contains(x.Type))).ToList() :
-            data.Where(x => x.Type == slot.AttachmentPoint.type || slot.AttachmentPoint.alternateTypes.Contains(x.Type)).ToList();
-        data.OrderBy(x => x.CategoryName).ThenBy(y => y.DisplayName).ToList().ForEach(AddAttachment);
+        var data = slot.AttachmentPoint.usesRail ?
+            AttachmentData.AllOfType(slot.AttachmentPoint.railType, slot.AttachmentPoint.alternateTypes).Where(x => x.RailLength <= slot.AttachmentPoint.railSlots.Count).ToList() :
+            AttachmentData.AllOfType(slot.AttachmentPoint.type, slot.AttachmentPoint.alternateTypes).ToList();
+        data.ForEach(AddAttachment);
+
         if (_attachmentCategories.FirstOrDefault(x => x.headerText.text.Equals("Default")) is { } category)
         {
             category.transform.SetAsFirstSibling();

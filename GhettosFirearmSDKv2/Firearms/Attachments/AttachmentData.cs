@@ -18,6 +18,7 @@ public class AttachmentData : CustomData
     public int RailLength = -1;
     public int ForwardClearance;
     public int RearwardClearance;
+    public string[] Types = [];
 
     public string GetID()
     {
@@ -26,9 +27,17 @@ public class AttachmentData : CustomData
         return CategoryName;
     }
 
-    public static List<AttachmentData> AllOfType(string requestedType)
+    public static List<AttachmentData> AllOfType(string requestedType, ICollection<string> alternateTypes)
     {
-        return Catalog.GetDataList<AttachmentData>().Where(d => d.Type.Equals(requestedType)).OrderBy(d => d.DisplayName).ToList();
+        return Catalog.GetDataList<AttachmentData>()
+                      .Where(d => 
+                          d.Type?.Equals(requestedType) == true ||
+                          d.Types?.Contains(requestedType) == true ||
+                          alternateTypes?.Contains(d.Type) == true ||
+                          alternateTypes?.Any(x => d.Types.Contains(x)) == true)
+                      .OrderBy(d => d.CategoryName)
+                      .ThenBy(d => d.DisplayName)
+                      .ToList();
     }
 
     public void SpawnAndAttach(AttachmentPoint point, int? railPosition = null, FirearmSaveData.AttachmentTreeNode thisNode = null, bool initialSetup = false)
