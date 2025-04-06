@@ -1,81 +1,61 @@
 ﻿using System.Linq;
-using ThunderRoad;
 
-namespace GhettosFirearmSDKv2
+namespace GhettosFirearmSDKv2;
+
+public class TriggerBasedTacSwitch : TacticalSwitch
 {
-    public class TriggerBasedTacSwitch : ThunderBehaviour
+    public enum Mode
     {
-        public enum Mode
+        FullPull,
+        PartialPull
+    }
+
+    private const float PartialPullPoint = 0.2f;
+
+    public Firearm firearm;
+    public Mode mode;
+
+    private bool _active;
+
+    private void Start()
+    {
+        Invoke(nameof(InvokedStart), Settings.invokeTime);
+    }
+
+    public void InvokedStart()
+    {
+        if (mode == Mode.FullPull)
         {
-            FullPull,
-            PartialPull
+            firearm.OnTriggerChangeEvent += FirearmOnOnTriggerChangeEvent;
         }
+    }
 
-        private const float PartialPullPoint = 0.2f;
-        
-        public Firearm firearm;
-        public Mode mode;
-
-        private bool _active;
-
-        private void Start()
+    protected void Update()
+    {
+        if (mode == Mode.PartialPull)
         {
-            Invoke(nameof(InvokedStart), Settings.invokeTime);
-        }
-
-        public void InvokedStart()
-        {
-            if (mode == Mode.FullPull)
+            var currentPull = firearm.item.mainHandleRight?.handlers.FirstOrDefault()?.playerHand?.controlHand.useAxis ?? 0f;
+            if (currentPull >= PartialPullPoint && !_active)
             {
-                firearm.OnTriggerChangeEvent += FirearmOnOnTriggerChangeEvent;
+                _active = true;
             }
-            
-            Invoke(nameof(InitialSet), 1f);
-        }
-
-        protected override void ManagedUpdate()
-        {
-            if (mode == Mode.PartialPull)
+            else if (currentPull < PartialPullPoint && _active)
             {
-                var currentPull = firearm.item.mainHandleRight?.handlers.FirstOrDefault()?.playerHand?.controlHand.useAxis ?? 0f;
-                if (currentPull >= PartialPullPoint && !_active)
-                {
-                    Toggle(true);
-                }
-                else if (currentPull < PartialPullPoint && _active)
-                {
-                    Toggle(false);
-                }
+                _active = true;
             }
         }
+    }
 
-        private void FirearmOnOnTriggerChangeEvent(bool isPulled)
+    private void FirearmOnOnTriggerChangeEvent(bool isPulled)
+    {
+        _active = isPulled;
+    }
+
+    private void OnDestroy()
+    {
+        if (mode == Mode.FullPull)
         {
-            Toggle(isPulled);
-        }
-
-        public void InitialSet()
-        {
-            Toggle(false);
-        }
-
-        public void Toggle(bool active)
-        {
-            _active = active;
-            foreach (var td in firearm.GetComponentsInChildren<TacticalDevice>())
-            {
-                // td.TacSwitchActive = _active;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (mode == Mode.FullPull)
-            {
-                firearm.OnTriggerChangeEvent -= FirearmOnOnTriggerChangeEvent;
-            }
-
-            Toggle(true);
+            firearm.OnTriggerChangeEvent -= FirearmOnOnTriggerChangeEvent;
         }
     }
 }
