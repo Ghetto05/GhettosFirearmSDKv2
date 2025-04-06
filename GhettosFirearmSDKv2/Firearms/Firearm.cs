@@ -129,7 +129,7 @@ public class Firearm : FirearmBase, IAttachmentManager
     {
         all.Add(this);
         if (!disableMainFireHandle) mainFireHandle = item.mainHandleLeft;
-        item.OnHeldActionEvent += Item_OnHeldActionEvent;
+        item.OnHeldActionEvent += HeldAction;
         item.OnSnapEvent += Item_OnSnapEvent;
         item.OnUnSnapEvent += Item_OnUnSnapEvent;
         item.OnSnapEvent += Item_OnSnapEvent2;
@@ -161,11 +161,23 @@ public class Firearm : FirearmBase, IAttachmentManager
         base.InvokedStart();
     }
 
+    public void HeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
+    {
+        OnHeldActionEvent(ragdollHand, handle, action, out var handled);
+        if (!handled)
+        {
+            var e = new IAttachmentManager.HeldActionData(ragdollHand, handle, action);
+            OnHeldAction?.Invoke(e);
+            if (!e.Handled)
+                OnUnhandledHeldAction?.Invoke(e);
+        }
+    }
+
     private void OnDespawn(EventTime eventTime)
     {
         if (eventTime != EventTime.OnStart)
             return;
-        item.OnHeldActionEvent -= Item_OnHeldActionEvent;
+        item.OnHeldActionEvent -= HeldAction;
         item.OnSnapEvent -= Item_OnSnapEvent;
         item.OnUnSnapEvent -= Item_OnUnSnapEvent;
         item.OnSnapEvent -= Item_OnSnapEvent2;
@@ -289,14 +301,14 @@ public class Firearm : FirearmBase, IAttachmentManager
 
     private IEnumerator AIFireCoroutine()
     {
-        Item_OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStart);
+        OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStart);
         if (fireMode == FireModes.Semi)
             yield return new WaitForSeconds(0.2f);
         if (fireMode == FireModes.Burst)
             yield return new WaitForSeconds(0.4f);
         if (fireMode == FireModes.Auto)
             yield return new WaitForSeconds(Random.Range(0.2f, 1.3f));
-        Item_OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStop);
+        OnHeldActionEvent(item.mainHandler, item.GetMainHandle(item.mainHandler.side), Interactable.Action.UseStop);
     }
 
     private void UpdateAllLightVolumeReceivers(LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
@@ -348,4 +360,6 @@ public class Firearm : FirearmBase, IAttachmentManager
     public event IAttachmentManager.Collision OnCollision;
     public event IAttachmentManager.AttachmentAdded OnAttachmentAdded;
     public event IAttachmentManager.AttachmentRemoved OnAttachmentRemoved;
+    public event IAttachmentManager.HeldAction OnHeldAction;
+    public event IAttachmentManager.HeldAction OnUnhandledHeldAction;
 }

@@ -141,10 +141,13 @@ public class FirearmBase : AIFireable
         OnMuzzleCalculatedEvent?.Invoke();
     }
 
-    public void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
+    public void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action) => OnHeldActionEvent(ragdollHand, handle, action, out _);
+
+    public void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action, out bool handled)
     {
         if ((handle == mainFireHandle && !disableMainFireHandle) || additionalTriggerHandles.Any(x => x == handle))
         {
+            handled = true;
             OnActionEvent?.Invoke(action);
                 
             if (CanFire && action == Interactable.Action.UseStart && fireMode != FireModes.AttachmentFirearm)
@@ -181,6 +184,10 @@ public class FirearmBase : AIFireable
                 else if (fireMode != FireModes.AttachmentFirearm)
                     ShortPress();
             }
+        }
+        else
+        {
+            handled = false;
         }
     }
 

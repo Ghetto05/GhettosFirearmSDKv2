@@ -21,7 +21,7 @@ public class AttachmentFirearm : FirearmBase
         item = attachment.GetComponentInParent<AttachmentPoint>().ConnectedManager.Item;
         attachment.attachmentPoint.ConnectedManager.OnCollision += OnCollisionEnter;
         attachment.attachmentPoint.ConnectedManager.Item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
-        attachment.OnHeldActionEvent += Item_OnHeldActionEvent;
+        attachment.OnHeldActionEvent += OnHeldActionEvent;
         item.OnSnapEvent += Item_OnSnapEvent;
         item.OnUnSnapEvent += Item_OnUnSnapEvent;
         item.OnGrabEvent += Item_OnGrabEvent;

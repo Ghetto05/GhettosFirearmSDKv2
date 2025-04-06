@@ -23,6 +23,15 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
     private void Start()
     {
         Invoke(nameof(InvokedStart), Settings.invokeTime);
+        item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
+    }
+
+    private void ItemOnOnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
+    {
+        var e = new IAttachmentManager.HeldActionData(ragdollHand, handle, action);
+        OnHeldAction?.Invoke(e);
+        if (!e.Handled)
+            OnUnhandledHeldAction?.Invoke(e);
     }
 
     private void InvokedStart()
@@ -53,4 +62,6 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
     public event IAttachmentManager.Collision OnCollision;
     public event IAttachmentManager.AttachmentAdded OnAttachmentAdded;
     public event IAttachmentManager.AttachmentRemoved OnAttachmentRemoved;
+    public event IAttachmentManager.HeldAction OnHeldAction;
+    public event IAttachmentManager.HeldAction OnUnhandledHeldAction;
 }
