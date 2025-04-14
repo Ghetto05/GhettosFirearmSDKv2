@@ -432,6 +432,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         //state check
         if (isHeld || _letGoBeforeClosed || _closingAfterRelease)
         {
+            Debug.Log($"Held: {isHeld} - Closing through spring: {_letGoBeforeClosed || _closingAfterRelease}"); //TODO: remove debug
             if (MoveBoltWithRb(out var point))
             {
                 bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rigidBody.transform.localPosition.z);
