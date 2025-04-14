@@ -245,8 +245,10 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
 
     private void BoltSemiautomatic_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
     {
+        Debug.Log($"Bolt action: {action} (bolt handles: {boltHandles.Count} contains: {boltHandles.Contains(handle)} state: {state})");
         if (boltHandles.Contains(handle) && action == Interactable.Action.Ungrab && state != BoltState.Locked)
         {
+            Debug.Log("Set _letGoBeforeClosed");
             _letGoBeforeClosed = true;
         }
     }
@@ -432,7 +434,6 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         //state check
         if (isHeld || _letGoBeforeClosed || _closingAfterRelease)
         {
-            Debug.Log($"Held: {isHeld} - Closing through spring: {_letGoBeforeClosed || _closingAfterRelease}"); //TODO: remove debug
             if (MoveBoltWithRb(out var point))
             {
                 bolt.localPosition = new Vector3(bolt.localPosition.x, bolt.localPosition.y, rigidBody.transform.localPosition.z);
