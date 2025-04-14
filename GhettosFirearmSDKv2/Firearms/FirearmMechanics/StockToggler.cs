@@ -24,14 +24,6 @@ public class StockToggler : MonoBehaviour
     private void Start()
     {
         Invoke(nameof(InvokedStart), Settings.invokeTime);
-        if (attachmentManager)
-        {
-            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
-        }
-        if (connectedAttachment)
-        {
-            _attachmentManager = connectedAttachment.attachmentPoint.ConnectedManager;
-        }
     }
 
     public void InvokedStart()
@@ -39,7 +31,7 @@ public class StockToggler : MonoBehaviour
         if (attachmentManager)
         {
             _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
-            OnDelayedAttach();
+            Init(_attachmentManager.SaveData.FirearmNode);
         }
         else if (connectedAttachment)
         {
@@ -56,8 +48,14 @@ public class StockToggler : MonoBehaviour
 
     private void OnDelayedAttach()
     {
+        _attachmentManager = connectedAttachment.attachmentPoint.ConnectedManager;
+        Init(connectedAttachment.Node);
+    }
+
+    private void Init(FirearmSaveData.AttachmentTreeNode node)
+    {
         _attachmentManager.OnHeldAction += OnAction;
-        _stockPosition = connectedAttachment.Node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
+        _stockPosition = node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
         currentIndex = _stockPosition.Value;
         ApplyPosition(_stockPosition.Value, false);
     }
