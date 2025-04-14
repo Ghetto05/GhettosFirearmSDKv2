@@ -1,4 +1,5 @@
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 
@@ -11,8 +12,9 @@ public class ForeGripSling : MonoBehaviour
     public Transform heldPosition;
     public Handle[] handles;
     public Attachment attachment;
-    public Item item;
+    public GameObject attachmentManager;
     private bool _following;
+    private Item _item;
 
     private void Start()
     {
@@ -24,11 +26,15 @@ public class ForeGripSling : MonoBehaviour
     {
         if (attachment)
         {
-            item = attachment.attachmentPoint.ConnectedManager.Item;
+            _item = attachment.attachmentPoint.ConnectedManager.Item;
+        }
+        if (attachmentManager)
+        {
+            _item = attachmentManager.GetComponent<IAttachmentManager>().Item;
         }
 
-        item.OnGrabEvent += OnGrab;
-        item.OnUngrabEvent += OnUnGrab;
+        _item.OnGrabEvent += OnGrab;
+        _item.OnUngrabEvent += OnUnGrab;
     }
 
     private void OnUnGrab(Handle handle, RagdollHand ragdollHand, bool throwing)

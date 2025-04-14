@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -190,6 +191,8 @@ public class Attachment : MonoBehaviour
             }
         }
         attachmentPoint.ConnectedManager.Item.OnHeldActionEvent += InvokeHeldAction;
+        attachmentPoint.ConnectedManager.OnHeldAction += InvokeCustomHeldAction;
+        attachmentPoint.ConnectedManager.OnUnhandledHeldAction += InvokeCustomUnhandledHeldAction;
         OnDelayedAttachEvent?.Invoke();
         firearm?.InvokeAttachmentAdded(this, attachmentPoint);
         initialized = true;
@@ -224,6 +227,16 @@ public class Attachment : MonoBehaviour
         }
     }
 
+    private void InvokeCustomHeldAction(IAttachmentManager.HeldActionData e)
+    {
+        OnHeldAction?.Invoke(e);
+    }
+
+    private void InvokeCustomUnhandledHeldAction(IAttachmentManager.HeldActionData e)
+    {
+        OnUnhandledHeldAction?.Invoke(e);
+    }
+
     private void FixedUpdate()
     {
         if (!colliderGroup || colliderGroup.colliders is null || !attachmentPoint || attachmentPoint.ConnectedManager is null)
@@ -241,6 +254,8 @@ public class Attachment : MonoBehaviour
         if (attachmentPoint && attachmentPoint.ConnectedManager is not null)
         {
             attachmentPoint.ConnectedManager.Item.OnHeldActionEvent -= InvokeHeldAction;
+            attachmentPoint.ConnectedManager.OnHeldAction -= InvokeCustomHeldAction;
+            attachmentPoint.ConnectedManager.OnUnhandledHeldAction -= InvokeCustomUnhandledHeldAction;
         }
         OnDetachEvent?.Invoke(despawnDetach);
         if (despawnDetach || attachmentPoint.ConnectedManager is null)
@@ -260,6 +275,10 @@ public class Attachment : MonoBehaviour
             eve.Invoke();
         }
         var manager = attachmentPoint.ConnectedManager;
+        if (manager is null)
+        {
+            return;
+        }
         Firearm firearm = null;
         if (manager is Firearm f)
         {
@@ -392,7 +411,10 @@ public class Attachment : MonoBehaviour
 
     public event OnDetach OnDetachEvent;
 
-    public delegate void OnHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action);
+    public delegate void OnHeldActionDelegate(RagdollHand ragdollHand, Handle handle, Interactable.Action action);
 
-    public event OnHeldAction OnHeldActionEvent;
+    public event OnHeldActionDelegate OnHeldActionEvent;
+
+    public event IAttachmentManager.HeldAction OnHeldAction;
+    public event IAttachmentManager.HeldAction OnUnhandledHeldAction;
 }

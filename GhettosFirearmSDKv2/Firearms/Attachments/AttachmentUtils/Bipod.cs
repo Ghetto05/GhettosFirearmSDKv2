@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace GhettosFirearmSDKv2;
 [AddComponentMenu("Firearm SDK v2/Attachments/Systems/Bipod")]
 public class Bipod : MonoBehaviour
 {
-    public Item item;
+    public GameObject attachmentManager;
     public Attachment attachment;
     public Transform axis;
     public List<Transform> positions;
@@ -17,16 +18,18 @@ public class Bipod : MonoBehaviour
     public int index;
     public Bipod[] requiredBipods;
     public Bipod[] requiredInactiveBipods;
+    private IAttachmentManager _attachmentManager;
 
     private void Start()
     {
-        if (item)
+        if (attachmentManager)
         {
-            item.OnHeldActionEvent += OnHeldActionEvent;
+            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
+            _attachmentManager.OnHeldAction += OnHeldActionEvent;
         }
         else if (attachment)
         {
-            attachment.OnHeldActionEvent += OnHeldActionEvent;
+            attachment.OnHeldAction += OnHeldActionEvent;
         }
         ApplyPosition(false);
     }
@@ -49,15 +52,17 @@ public class Bipod : MonoBehaviour
         }
     }
 
-    private void OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
+    private void OnHeldActionEvent(IAttachmentManager.HeldActionData e)
     {
-        if (handle == toggleHandle && action == Interactable.Action.UseStart)
+        if (e.Handle == toggleHandle && e.Action == Interactable.Action.UseStart)
         {
             ToggleUp();
+            e.Handled = true;
         }
-        else if (handle == toggleHandle && action == Interactable.Action.AlternateUseStart)
+        else if (e.Handle == toggleHandle && e.Action == Interactable.Action.AlternateUseStart)
         {
             ToggleDown();
+            e.Handled = true;
         }
     }
 

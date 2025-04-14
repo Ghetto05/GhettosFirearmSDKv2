@@ -18,6 +18,6 @@ public class TacLight : TacticalDevice
 
     private void Update()
     {
-        lights.SetActive(TacSwitchActive && physicalSwitch && (!ActualItem || !ActualItem.holder));
+        lights.SetActive(TacSwitchActive && physicalSwitch && (AttachmentManager is null || !AttachmentManager.Item.holder));
     }
 }

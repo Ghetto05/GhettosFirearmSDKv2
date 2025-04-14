@@ -23,7 +23,7 @@ public class Laser : TacticalDevice
 
     private void Update()
     {
-        if (!TacSwitchActive || !physicalSwitch || (ActualItem && ActualItem.holder))
+        if (!TacSwitchActive || !physicalSwitch || (AttachmentManager is not null && AttachmentManager.Item.holder))
         {
             if (cylinderRoot)
             {

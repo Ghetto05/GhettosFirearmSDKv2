@@ -22,10 +22,11 @@ public class OnActionSwitch : MonoBehaviour
     public AudioSource switchSound;
     private int _current;
     public List<UnityEvent> events;
-    public Item parentItem;
+    public GameObject attachmentManager;
     public Attachment parentAttachment;
     public List<SwitchRelation> switches;
     public float lastSwitchTime;
+    private IAttachmentManager _attachmentManager;
 
     private void Start()
     {
@@ -34,20 +35,21 @@ public class OnActionSwitch : MonoBehaviour
 
     public void InvokedStart()
     {
-        if (parentItem)
+        if (attachmentManager)
         {
-            parentItem.OnHeldActionEvent += OnHeldActionEvent;
+            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
+            _attachmentManager.OnHeldAction += OnHeldActionEvent;
         }
         else if (parentAttachment)
         {
-            parentAttachment.OnHeldActionEvent += OnHeldActionEvent;
+            parentAttachment.OnHeldAction += OnHeldActionEvent;
         }
 
-        if (parentAttachment && parentAttachment.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
+        if (parentAttachment?.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value) is not null)
         {
             _current = value.Value;
         }
-        else if (parentItem && parentItem.TryGetComponent(out IAttachmentManager manager) && manager.SaveData.FirearmNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value2))
+        else if (_attachmentManager?.SaveData.FirearmNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value2) is not null)
         {
             _current = value2.Value;
         }
@@ -66,10 +68,15 @@ public class OnActionSwitch : MonoBehaviour
         }
     }
 
-    private void OnHeldActionEvent(RagdollHand ragdollHand, Handle actionHandle, Interactable.Action action)
+    private void OnHeldActionEvent(IAttachmentManager.HeldActionData e)
     {
-        if ((switchAction == Actions.AlternateButtonRelease && action == Interactable.Action.AlternateUseStop) || (switchAction == Actions.AlternateButtonPress && action == Interactable.Action.AlternateUseStart) || (switchAction == Actions.TriggerRelease && action == Interactable.Action.UseStop) || (switchAction == Actions.TriggerPull && action == Interactable.Action.UseStart))
+        if (handle == e.Handle &&
+            ((switchAction == Actions.AlternateButtonRelease && e.Action == Interactable.Action.AlternateUseStop) ||
+            (switchAction == Actions.AlternateButtonPress && e.Action == Interactable.Action.AlternateUseStart) ||
+            (switchAction == Actions.TriggerRelease && e.Action == Interactable.Action.UseStop) ||
+            (switchAction == Actions.TriggerPull && e.Action == Interactable.Action.UseStart)))
         {
+            e.Handled = true;
             if (Time.time - lastSwitchTime > 0.3f)
             {
                 lastSwitchTime = Time.time;
@@ -109,9 +116,9 @@ public class OnActionSwitch : MonoBehaviour
         {
             parentAttachment.Node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
         }
-        else if (parentItem && parentItem.TryGetComponent(out IAttachmentManager manager))
+        else if (_attachmentManager is not null)
         {
-            manager.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
+            _attachmentManager.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 
@@ -10,10 +11,12 @@ public class PressureSwitch : TacticalSwitch
 
     public Attachment attachment;
     public List<Handle> handles;
-    public Item item;
+    public GameObject attachmentManager;
 
     public List<AudioSource> pressSounds;
     public List<AudioSource> releaseSounds;
+
+    private IAttachmentManager _attachmentManager;
 
     private void Start()
     {
@@ -24,24 +27,25 @@ public class PressureSwitch : TacticalSwitch
     {
         if (attachment)
         {
-            attachment.attachmentPoint.ConnectedManager.Item.OnHeldActionEvent += OnHeldAction;
+            _attachmentManager = attachment.attachmentPoint.ConnectedManager;
         }
-        else if (item)
+        else if (attachmentManager)
         {
-            item.OnHeldActionEvent += OnHeldAction;
+            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
         }
+        _attachmentManager.OnUnhandledHeldAction += OnUnhandledHeldAction;
     }
 
-    private void OnHeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
+    private void OnUnhandledHeldAction(IAttachmentManager.HeldActionData e)
     {
-        if (handle == handle.item.mainHandleLeft ||
-            (attachment?.attachmentPoint.ConnectedManager is FirearmBase f && f.AllTriggerHandles().Contains(handle)))
+        if (e.Handle == e.Handle.item.mainHandleLeft ||
+            (_attachmentManager is FirearmBase f && f.AllTriggerHandles().Contains(e.Handle)))
         {
             return;
         }
 
         // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-        switch (action)
+        switch (e.Action)
         {
             case Interactable.Action.UseStart when !TriggerState && (dualMode || !useAltUse):
                 TriggerState = toggleMode ? !TriggerState : true;

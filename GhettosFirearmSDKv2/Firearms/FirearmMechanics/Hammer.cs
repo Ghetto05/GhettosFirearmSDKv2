@@ -1,13 +1,11 @@
 using System.Collections.Generic;
-using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
 public class Hammer : MonoBehaviour
 {
-    public Item item;
-    public Firearm firearm;
+    public FirearmBase firearm;
     public Transform hammer;
     public Transform idlePosition;
     public Transform cockedPosition;
@@ -26,13 +24,13 @@ public class Hammer : MonoBehaviour
 
     public void InvokedStart()
     {
-        if (!firearm && item.gameObject.TryGetComponent(out Firearm f))
+        if (!firearm)
         {
-            firearm = f;
+            firearm = GetComponentInParent<Firearm>();
         }
         firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
         firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
-        _hammerState = firearm.SaveData.FirearmNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
+        _hammerState = firearm.SaveNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
         if (_hammerState.Value)
         {
             Cock(true, true);

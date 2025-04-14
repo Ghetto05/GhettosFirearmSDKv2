@@ -10,10 +10,9 @@ namespace GhettosFirearmSDKv2;
 
 public class Scope : MonoBehaviour
 {
-    public Firearm connectedFirearm;
-    public IAttachmentManager ConnectedManager;
     public Attachment connectedAttachment;
-    public AttachmentManager attachmentManager;
+    public GameObject attachmentManager;
+    private IAttachmentManager _attachmentManager;
 
     public enum LensSizes
     {
@@ -59,15 +58,6 @@ public class Scope : MonoBehaviour
 
     public virtual void Start()
     {
-        if (connectedFirearm)
-        {
-            ConnectedManager = connectedFirearm;
-        }
-        if (attachmentManager)
-        {
-            ConnectedManager = attachmentManager;
-        }
-
         if (lens)
         {
             lenses.Add(lens);
@@ -82,14 +72,15 @@ public class Scope : MonoBehaviour
         cam.targetTexture = rt;
         cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 
-        if (hasZoom && ConnectedManager is not null)
+        if (hasZoom && attachmentManager is not null)
         {
-            ConnectedManager.Item.OnHeldActionEvent += Item_OnHeldActionEvent;
-            _zoomIndex = ConnectedManager.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
+            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
+            _attachmentManager.OnHeldAction += OnHeldAction;
+            _zoomIndex = _attachmentManager.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
         }
         else if (hasZoom && connectedAttachment)
         {
-            connectedAttachment.OnHeldActionEvent += Item_OnHeldActionEvent;
+            connectedAttachment.OnHeldAction += OnHeldAction;
             _zoomIndex = connectedAttachment.Node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
         }
         else
@@ -105,17 +96,19 @@ public class Scope : MonoBehaviour
         }
     }
 
-    private void Item_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
+    private void OnHeldAction(IAttachmentManager.HeldActionData e)
     {
-        if (handle == controllingHandle)
+        if (e.Handle == controllingHandle)
         {
-            if (action == Interactable.Action.UseStart)
+            if (e.Action == Interactable.Action.UseStart)
             {
                 Cycle(true);
+                e.Handled = true;
             }
-            else if (action == Interactable.Action.AlternateUseStart)
+            else if (e.Action == Interactable.Action.AlternateUseStart)
             {
                 Cycle(false);
+                e.Handled = true;
             }
         }
     }

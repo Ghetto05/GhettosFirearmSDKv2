@@ -95,5 +95,10 @@ public interface IAttachmentManager
         public Handle Handle;
         public Interactable.Action Action;
         public bool Handled;
+
+        public override string ToString()
+        {
+            return $"Action: {Action} Handle: {Handle.name}";
+        }
     }
 }

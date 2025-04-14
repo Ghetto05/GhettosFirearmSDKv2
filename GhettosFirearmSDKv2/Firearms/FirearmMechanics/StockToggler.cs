@@ -9,9 +9,7 @@ namespace GhettosFirearmSDKv2;
 
 public class StockToggler : MonoBehaviour
 {
-    public IAttachmentManager ConnectedManager;
-    public Firearm connectedFirearm;
-    public AttachmentManager attachmentManager;
+    public GameObject attachmentManager;
     public Attachment connectedAttachment;
 
     public AudioSource toggleSound;
@@ -21,53 +19,53 @@ public class StockToggler : MonoBehaviour
     public int currentIndex;
     public bool useAsSeparateObjects;
     private SaveNodeValueInt _stockPosition;
+    private IAttachmentManager _attachmentManager;
 
     private void Start()
     {
         Invoke(nameof(InvokedStart), Settings.invokeTime);
-        if (connectedFirearm)
-        {
-            ConnectedManager = connectedFirearm;
-        }
         if (attachmentManager)
         {
-            ConnectedManager = attachmentManager;
+            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
+        }
+        if (connectedAttachment)
+        {
+            _attachmentManager = connectedAttachment.attachmentPoint.ConnectedManager;
         }
     }
 
     public void InvokedStart()
     {
-        if (ConnectedManager is not null)
+        if (attachmentManager)
         {
-            ConnectedManager.Item.OnHeldActionEvent += OnAction;
-            _stockPosition = ConnectedManager.SaveData.FirearmNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
-            currentIndex = _stockPosition.Value;
-            ApplyPosition(_stockPosition.Value, false);
+            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
+            OnDelayedAttach();
         }
         else if (connectedAttachment)
         {
             if (!connectedAttachment.initialized)
             {
-                connectedAttachment.OnDelayedAttachEvent += ConnectedAttachment_OnDelayedAttachEvent;
+                connectedAttachment.OnDelayedAttachEvent += OnDelayedAttach;
             }
             else
             {
-                ConnectedAttachment_OnDelayedAttachEvent();
+                OnDelayedAttach();
             }
         }
     }
 
-    private void ConnectedAttachment_OnDelayedAttachEvent()
+    private void OnDelayedAttach()
     {
-        connectedAttachment.OnHeldActionEvent += OnAction;
+        _attachmentManager.OnHeldAction += OnAction;
         _stockPosition = connectedAttachment.Node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
         currentIndex = _stockPosition.Value;
         ApplyPosition(_stockPosition.Value, false);
     }
 
-    private void OnAction(RagdollHand hand, Handle handle, Interactable.Action action)
+    private void OnAction(IAttachmentManager.HeldActionData e)
     {
-        if (handle == toggleHandle && action == Interactable.Action.UseStart)
+        Debug.Log(e.ToString());
+        if (e.Handle == toggleHandle && e.Action == Interactable.Action.UseStart)
         {
             if (currentIndex + 1 == positions.Length)
             {
@@ -78,8 +76,9 @@ public class StockToggler : MonoBehaviour
                 currentIndex++;
             }
             ApplyPosition(currentIndex);
+            e.Handled = true;
         }
-        else if (handle == toggleHandle && action == Interactable.Action.AlternateUseStart)
+        else if (e.Handle == toggleHandle && e.Action == Interactable.Action.AlternateUseStart)
         {
             if (currentIndex - 1 == -1)
             {
@@ -90,6 +89,7 @@ public class StockToggler : MonoBehaviour
                 currentIndex--;
             }
             ApplyPosition(currentIndex);
+            e.Handled = true;
         }
         _stockPosition.Value = currentIndex;
     }
@@ -133,9 +133,9 @@ public class StockToggler : MonoBehaviour
             {
                 Debug.Log($"FAILED TO APPLY STOCK POSITION! Attachment {connectedAttachment.name} on firearm {connectedAttachment.attachmentPoint.ConnectedManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
             }
-            else if (ConnectedManager is not null)
+            else if (_attachmentManager is not null)
             {
-                Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {ConnectedManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
+                Debug.Log($"FAILED TO APPLY STOCK POSITION! Firearm {_attachmentManager.Transform.name}: Index {index}, list is {positions.Length} entries long!");
             }
         }
     }

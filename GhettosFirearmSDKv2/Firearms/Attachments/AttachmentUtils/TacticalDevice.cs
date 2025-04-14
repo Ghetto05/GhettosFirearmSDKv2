@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 
@@ -7,10 +8,10 @@ namespace GhettosFirearmSDKv2;
 public class TacticalDevice : MonoBehaviour
 {
     public int channel = 1;
-    public Item item;
+    public GameObject attachmentManager;
     public Attachment attachment;
-    protected Item ActualItem;
     public bool physicalSwitch;
+    protected IAttachmentManager AttachmentManager;
 
     private void Start()
     {
@@ -19,9 +20,9 @@ public class TacticalDevice : MonoBehaviour
 
     protected virtual void InvokedStart()
     {
-        if (item)
+        if (attachmentManager)
         {
-            ActualItem = item;
+            AttachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
         }
         else if (attachment)
         {
@@ -39,19 +40,18 @@ public class TacticalDevice : MonoBehaviour
     private void Attachment_OnDelayedAttachEvent()
     {
         attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
-        ActualItem = attachment.attachmentPoint.ConnectedManager.Item;
+        AttachmentManager = attachment.attachmentPoint.ConnectedManager;
     }
 
     protected bool TacSwitchActive
     {
         get
         {
-            if (!ActualItem)
+            if (AttachmentManager is null)
             {
                 return false;
             }
-            var switches = ActualItem.GetComponentsInChildren<PressureSwitch>();
-            Debug.Log($"Switches: {switches.Length}\n  {string.Join("\n  ", switches.Select(x => $"Active: {x.Active(channel)} Not exclusive: {!x.exclusiveDevice} Exclusive device: {x.exclusiveDevice}"))}");
+            var switches = AttachmentManager.Transform.GetComponentsInChildren<PressureSwitch>();
             return !switches.Any() || switches.Any(x => x.Active(channel) && (!x.exclusiveDevice || x.exclusiveDevice == this));
         }
     }
