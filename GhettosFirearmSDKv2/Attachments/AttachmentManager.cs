@@ -69,6 +69,7 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
 
     private void Start()
     {
+        AttachmentPoints.ForEach(x => x.attachmentManager = gameObject);
         item.OnSpawnEvent += OnItemSpawn;
         item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
     }

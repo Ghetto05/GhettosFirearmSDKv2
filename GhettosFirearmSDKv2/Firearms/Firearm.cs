@@ -128,6 +128,8 @@ public class Firearm : FirearmBase, IAttachmentManager
 
     public override void Start()
     {
+        AttachmentPoints.ForEach(x => x.attachmentManager = gameObject);
+        
         if (GameModeManager.instance?.currentGameMode?.name.Equals("CrystalHunt") == true)
         {
             item.Despawn();

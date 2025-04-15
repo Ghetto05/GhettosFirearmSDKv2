@@ -28,8 +28,6 @@ public static class SharedAttachmentManagerFunctions
 
     public static void LoadAndApplyData(IAttachmentManager manager)
     {
-        manager.AttachmentPoints.ForEach(x => x.attachmentManager = manager.Transform.gameObject);
-        
         if (!manager.Item.TryGetCustomData(out FirearmSaveData data))
         {
             manager.SaveData = new FirearmSaveData
