@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Events;
@@ -26,32 +27,20 @@ public class OnActionSwitch : MonoBehaviour
     public Attachment parentAttachment;
     public List<SwitchRelation> switches;
     public float lastSwitchTime;
-    private IAttachmentManager _attachmentManager;
+    private IComponentParent _parent;
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(attachmentManager, parentAttachment).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (attachmentManager)
-        {
-            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
-            _attachmentManager.OnHeldAction += OnHeldActionEvent;
-        }
-        else if (parentAttachment)
-        {
-            parentAttachment.OnHeldAction += OnHeldActionEvent;
-        }
-
-        if (parentAttachment?.Node.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value) is not null)
+        manager.OnHeldAction += OnHeldActionEvent;
+        _parent = parent;
+        if (_parent.SaveNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value))
         {
             _current = value.Value;
-        }
-        else if (_attachmentManager?.SaveData.FirearmNode.TryGetValue("Switch" + gameObject.name, out SaveNodeValueInt value2) is not null)
-        {
-            _current = value2.Value;
         }
         Util.DelayedExecute(1f, Delay, this);
     }
@@ -68,7 +57,7 @@ public class OnActionSwitch : MonoBehaviour
         }
     }
 
-    private void OnHeldActionEvent(IAttachmentManager.HeldActionData e)
+    private void OnHeldActionEvent(IComponentParent.HeldActionData e)
     {
         if (handle == e.Handle &&
             ((switchAction == Actions.AlternateButtonRelease && e.Action == Interactable.Action.AlternateUseStop) ||
@@ -112,14 +101,7 @@ public class OnActionSwitch : MonoBehaviour
             }
         }
 
-        if (parentAttachment)
-        {
-            parentAttachment.Node.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
-        }
-        else if (_attachmentManager is not null)
-        {
-            _attachmentManager.SaveData.FirearmNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
-        }
+        _parent.SaveNode.GetOrAddValue("Switch" + gameObject.name, new SaveNodeValueInt()).Value = _current;
     }
 
     public void AlignSwitch(SwitchRelation swi, int index)

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -52,7 +53,7 @@ public class Bipod : MonoBehaviour
         }
     }
 
-    private void OnHeldActionEvent(IAttachmentManager.HeldActionData e)
+    private void OnHeldActionEvent(IComponentParent.HeldActionData e)
     {
         if (e.Handle == toggleHandle && e.Action == Interactable.Action.UseStart)
         {

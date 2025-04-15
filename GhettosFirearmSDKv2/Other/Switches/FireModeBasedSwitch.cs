@@ -1,3 +1,6 @@
+using System;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -5,68 +8,51 @@ namespace GhettosFirearmSDKv2;
 
 public class FireModeBasedSwitch : MonoBehaviour
 {
-    public FirearmBase firearm;
+    private FirearmBase _firearm;
+    public GameObject firearm;
     public Attachment attachment;
     public UnityEvent onSafe;
     public UnityEvent onSemi;
     public UnityEvent onBurst;
     public UnityEvent onAuto;
+    public UnityEvent onAttachment;
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(firearm, attachment).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (!firearm && attachment)
+        if (manager is FirearmBase f)
         {
-            if (attachment.initialized)
-            {
-                Attachment_OnDelayedAttachEvent();
-            }
-            else
-            {
-                attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
-            }
-        }
-
-        if (firearm)
-        {
-            firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
+            _firearm = f;
+            _firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
             Firearm_OnFiremodeChangedEvent();
         }
         Util.DelayedExecute(1f, Firearm_OnFiremodeChangedEvent, this);
     }
 
-    private void Attachment_OnDelayedAttachEvent()
-    {
-        if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
-        {
-            return;
-        }
-        firearm = f;
-        firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
-        Util.DelayedExecute(1f, Firearm_OnFiremodeChangedEvent, this);
-    }
-
     private void Firearm_OnFiremodeChangedEvent()
     {
-        if (firearm.fireMode == FirearmBase.FireModes.Safe)
+        switch (_firearm.fireMode)
         {
-            onSafe?.Invoke();
-        }
-        else if (firearm.fireMode == FirearmBase.FireModes.Semi)
-        {
-            onSemi?.Invoke();
-        }
-        else if (firearm.fireMode == FirearmBase.FireModes.Burst)
-        {
-            onBurst?.Invoke();
-        }
-        else if (firearm.fireMode == FirearmBase.FireModes.Auto)
-        {
-            onAuto?.Invoke();
+            default:
+            case FirearmBase.FireModes.Safe:
+                onSafe?.Invoke();
+                break;
+            case FirearmBase.FireModes.Semi:
+                onSemi?.Invoke();
+                break;
+            case FirearmBase.FireModes.Burst:
+                onBurst?.Invoke();
+                break;
+            case FirearmBase.FireModes.Auto:
+                onAuto?.Invoke();
+                break;
+            case FirearmBase.FireModes.AttachmentFirearm:
+                onAttachment?.Invoke();
+                break;
         }
     }
 }

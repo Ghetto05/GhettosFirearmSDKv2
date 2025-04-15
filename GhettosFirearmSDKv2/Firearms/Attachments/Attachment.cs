@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -11,7 +12,7 @@ using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2;
 
-public class Attachment : MonoBehaviour
+public class Attachment : MonoBehaviour, IComponentParent
 {
     public AsyncOperationHandle<GameObject>? AssetLoadHandle;
 
@@ -52,6 +53,20 @@ public class Attachment : MonoBehaviour
 
     public bool initialized;
     public bool addedByInitialSetup;
+
+    public GameObject GameObject => gameObject;
+
+    public FirearmSaveData.AttachmentTreeNode SaveNode => Node;
+    private List<Action<IAttachmentManager, IComponentParent>> _requestedInitializations = [];
+    public void GetInitialization(Action<IAttachmentManager, IComponentParent> initializationCallback)
+    {
+        if (!initialized)
+        {
+            _requestedInitializations.Add(initializationCallback);
+            return;
+        }
+        initializationCallback.Invoke(attachmentPoint.ConnectedManager, this);
+    }
 
     private void Update()
     {
@@ -115,8 +130,7 @@ public class Attachment : MonoBehaviour
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         foreach (var ap in attachmentPoints.Where(x => x))
         {
-            ap.ConnectedManager = attachmentPoint.ConnectedManager;
-            ap.attachment = this;
+            ap.attachmentManager = gameObject;
         }
         attachmentPoint.ConnectedManager.UpdateAttachments();
         attachmentPoint.ConnectedManager.Item.OnDespawnEvent += Item_OnDespawnEvent;
@@ -195,7 +209,10 @@ public class Attachment : MonoBehaviour
         attachmentPoint.ConnectedManager.OnUnhandledHeldAction += InvokeCustomUnhandledHeldAction;
         OnDelayedAttachEvent?.Invoke();
         firearm?.InvokeAttachmentAdded(this, attachmentPoint);
+
         initialized = true;
+        _requestedInitializations.ForEach(x => x.Invoke(attachmentPoint.ConnectedManager, this));
+        _requestedInitializations = null;
 
         attachmentPoint.SetDependantObjectVisibility();
         attachmentPoint.ConnectedManager.Item.UpdateReveal();
@@ -206,7 +223,7 @@ public class Attachment : MonoBehaviour
     {
         foreach (var n in Node.Childs)
         {
-            var point = GetSlotFromId(n.Slot);
+            var point = attachmentPoints.FirstOrDefault(x => x.id.Equals(n.Slot));
             Catalog.GetData<AttachmentData>(Util.GetSubstituteId(n.AttachmentId, $"[Point {point?.id} on {point?.ConnectedManager?.Item?.itemId}]")).SpawnAndAttach(point, null, n, addedByInitialSetup);
         }
     }
@@ -262,14 +279,7 @@ public class Attachment : MonoBehaviour
         {
             return;
         }
-        if (attachmentPoint.attachment)
-        {
-            attachmentPoint.attachment.Node.Childs.Remove(Node);
-        }
-        else if (attachmentPoint.ConnectedManager is not null)
-        {
-            attachmentPoint.ConnectedManager.SaveData.FirearmNode.Childs.Remove(Node);
-        }
+        attachmentPoint.Parent.SaveNode.Childs.Remove(Node);
         foreach (var eve in onDetachEvents)
         {
             eve.Invoke();
@@ -355,18 +365,17 @@ public class Attachment : MonoBehaviour
             return;
         }
 
-        if ((forwards && RailPosition + Data.RailLength >= attachmentPoint.railSlots.Count) || (!forwards && RailPosition == 0))
+        switch (forwards)
         {
-            return;
-        }
-
-        if (forwards)
-        {
-            Node.SlotPosition++;
-        }
-        else
-        {
-            Node.SlotPosition--;
+            case true when RailPosition + Data.RailLength >= attachmentPoint.railSlots.Count:
+            case false when RailPosition == 0:
+                return;
+            case true:
+                Node.SlotPosition++;
+                break;
+            default:
+                Node.SlotPosition--;
+                break;
         }
 
         UpdatePosition();
@@ -391,29 +400,17 @@ public class Attachment : MonoBehaviour
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
     }
 
-    public AttachmentPoint GetSlotFromId(string id)
-    {
-        foreach (var point in attachmentPoints)
-        {
-            if (point.id.Equals(id))
-            {
-                return point;
-            }
-        }
-        return null;
-    }
+    public delegate void DelayedAttach();
 
-    public delegate void OnDelayedAttach();
+    public event DelayedAttach OnDelayedAttachEvent;
 
-    public event OnDelayedAttach OnDelayedAttachEvent;
+    public delegate void DetachDelegate(bool despawnDetach);
 
-    public delegate void OnDetach(bool despawnDetach);
+    public event DetachDelegate OnDetachEvent;
 
-    public event OnDetach OnDetachEvent;
+    public delegate void HeldAction(RagdollHand ragdollHand, Handle handle, Interactable.Action action);
 
-    public delegate void OnHeldActionDelegate(RagdollHand ragdollHand, Handle handle, Interactable.Action action);
-
-    public event OnHeldActionDelegate OnHeldActionEvent;
+    public event HeldAction OnHeldActionEvent;
 
     public event IAttachmentManager.HeldAction OnHeldAction;
     public event IAttachmentManager.HeldAction OnUnhandledHeldAction;

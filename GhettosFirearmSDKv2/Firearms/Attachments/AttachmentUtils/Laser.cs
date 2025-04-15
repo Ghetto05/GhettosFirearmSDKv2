@@ -1,4 +1,6 @@
 ﻿using System.Globalization;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,9 +17,9 @@ public class Laser : TacticalDevice
     public Text distanceDisplay;
     public float lastHitDistance;
 
-    protected override void InvokedStart()
+    protected override void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        base.InvokedStart();
+        base.Init(manager, parent);
         physicalSwitch = activeByDefault;
     }
 

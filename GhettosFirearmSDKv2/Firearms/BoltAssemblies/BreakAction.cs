@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -76,7 +78,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(Parent.GameObject, null).GetInitialization(Init);
         firearm.actualHitscanMuzzle = muzzles.First();
 
         if (editorChamberSets.Any())
@@ -99,7 +101,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         }
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         _loadedCartridges = new Cartridge[mountPoints.Count];
         actualMuzzles = muzzles;

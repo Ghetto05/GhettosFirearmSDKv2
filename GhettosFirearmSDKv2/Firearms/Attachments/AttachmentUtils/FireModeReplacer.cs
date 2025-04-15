@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
 public class FireModeReplacer : MonoBehaviour
 {
+    private IAttachmentManager _attachmentManager;
     public Attachment attachment;
     public FirearmBase.FireModes oldFireMode;
     public FirearmBase.FireModes newFireMode;
@@ -13,18 +16,19 @@ public class FireModeReplacer : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(null, attachment).GetInitialization(Init);
     }
 
-    private void InvokedStart()
+    private void Init(IAttachmentManager manager, IComponentParent parent)
     {
+        _attachmentManager = manager;
         Apply();
         attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
     }
 
-    private void AttachmentOnOnDetachEvent(bool despawndetach)
+    private void AttachmentOnOnDetachEvent(bool despawnDetach)
     {
-        if (!despawndetach)
+        if (!despawnDetach)
         {
             Revert();
         }
@@ -32,11 +36,11 @@ public class FireModeReplacer : MonoBehaviour
 
     private void Apply()
     {
-        if (attachment.attachmentPoint.ConnectedManager is not FirearmBase firearm)
+        if (_attachmentManager is not FirearmBase firearm)
         {
             return;
         }
-        foreach (var selector in firearm.GetComponentsInChildren<FiremodeSelector>().Where(x => x.firearm == firearm))
+        foreach (var selector in firearm.GetComponentsInChildren<FiremodeSelector>().Where(x => x.actualFirearm == firearm))
         {
             _replacedIndexes.Add(selector, new List<int>());
 
@@ -62,7 +66,7 @@ public class FireModeReplacer : MonoBehaviour
 
     private void Revert()
     {
-        if (attachment.attachmentPoint.ConnectedManager is not FirearmBase firearm)
+        if (_attachmentManager is not FirearmBase firearm)
         {
             return;
         }

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
@@ -12,10 +14,10 @@ public class ScopeReticleReplacer : MonoBehaviour
 
     public void Start()
     {
-        Invoke(nameof(DelayedStart), Settings.invokeTime);
+        Util.GetParent(null, attachment).GetInitialization(Init);
     }
 
-    public void DelayedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         _scope = GetComponentInParent<Scope>();
 

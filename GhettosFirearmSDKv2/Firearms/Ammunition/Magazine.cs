@@ -64,11 +64,11 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
 
     private void Update()
     {
-        if (currentWell && currentWell.firearm && CanGrab)
+        if (currentWell && currentWell.actualFirearm && CanGrab)
         {
             foreach (var handle in handles)
             {
-                handle.SetTouch(!currentWell.firearm.item.holder);
+                handle.SetTouch(!currentWell.actualFirearm.item.holder);
                 handle.SetTelekinesis(!currentWell);
             }
         }
@@ -90,12 +90,30 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime + (overrideAttachment ? 2 : 0));
+        if (overrideAttachment)
+        {
+            Util.GetParent(overrideAttachment.gameObject, null).GetInitialization((_ , _) => Init());
+        }
+        else if (currentWell?.mountCurrentMagazine == true)
+        {
+            Util.GetParent(currentWell.firearm, null).GetInitialization((_ , _) => Init());
+        }
+        else
+        {
+            item.OnSpawnEvent += OnItemSpawn;
+        }
     }
 
-    public void InvokedStart()
+    private void OnItemSpawn(EventTime eventTime)
     {
-        cartridges = new List<Cartridge>();
+        if (eventTime != EventTime.OnEnd) return;
+        Init();
+        item.OnSpawnEvent -= OnItemSpawn;
+    }
+
+    public void Init()
+    {
+        cartridges = [];
         if (!overrideItem)
         {
             item = GetComponent<Item>();
@@ -341,7 +359,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
     public Cartridge ConsumeRound()
     {
         Cartridge c = null;
-        if (cartridges.Count > 0 && !Util.DoMalfunction(Settings.malfunctionFailureToFeed, Settings.failureToFeedChance, 1, currentWell?.firearm.HeldByAI() ?? false))
+        if (cartridges.Count > 0 && !Util.DoMalfunction(Settings.malfunctionFailureToFeed, Settings.failureToFeedChance, 1, currentWell?.actualFirearm.HeldByAI() ?? false))
         {
             c = cartridges[0];
             OnConsumeEvent?.Invoke(c);
@@ -385,10 +403,10 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             }
             foreach (var ren in _originalRenderers)
             {
-                well.firearm.item.renderers.Add(ren);
+                well.actualFirearm.item.renderers.Add(ren);
                 item.renderers.Remove(ren);
             }
-            well.firearm.item.lightVolumeReceiver.SetRenderers(well.firearm.item.renderers);
+            well.actualFirearm.item.lightVolumeReceiver.SetRenderers(well.actualFirearm.item.renderers);
             item.lightVolumeReceiver.SetRenderers(item.renderers);
         }
 
@@ -439,8 +457,8 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
                 group.transform.SetParent(currentWell.mountPoint);
             }
             item.colliderGroups.RemoveAll(x => _colliderGroups.Contains(x));
-            currentWell.firearm.item.colliderGroups.AddRange(_colliderGroups);
-            currentWell.firearm.item.RefreshCollision();
+            currentWell.actualFirearm.item.colliderGroups.AddRange(_colliderGroups);
+            currentWell.actualFirearm.item.RefreshCollision();
         }
 
         #endregion
@@ -458,7 +476,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
         // save mag to firearm
         if (!overrideItem && !overrideAttachment)
         {
-            _firearmSave = FirearmSaveData.GetNode(currentWell.firearm).GetOrAddValue(currentWell.SaveID, new SaveNodeValueMagazineContents());
+            _firearmSave = FirearmSaveData.GetNode(currentWell.actualFirearm).GetOrAddValue(currentWell.SaveID, new SaveNodeValueMagazineContents());
             _firearmSave.Value.GetContentsFromMagazine(this);
             _firearmSave.Value.ItemID = item.itemId;
         }
@@ -474,7 +492,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
     {
         if (currentWell)
         {
-            currentWell.firearm.item.RefreshCollision();
+            currentWell.actualFirearm.item.RefreshCollision();
         }
     }
 
@@ -493,14 +511,14 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             //Revert dungeon lighting fix
             foreach (var ren in _originalRenderers)
             {
-                lastWell.firearm.item.renderers.Remove(ren);
+                lastWell.actualFirearm.item.renderers.Remove(ren);
                 item.renderers.Add(ren);
             }
-            lastWell.firearm.item.lightVolumeReceiver.SetRenderers(lastWell.firearm.item.renderers);
+            lastWell.actualFirearm.item.lightVolumeReceiver.SetRenderers(lastWell.actualFirearm.item.renderers);
             item.lightVolumeReceiver.SetRenderers(item.renderers);
 
             //// Collider fix attempt
-            lastWell.firearm.item.colliderGroups.RemoveAll(x => _colliderGroups.Contains(x));
+            lastWell.actualFirearm.item.colliderGroups.RemoveAll(x => _colliderGroups.Contains(x));
             item.colliderGroups.AddRange(_colliderGroups);
             foreach (var group in _colliderGroups)
             {
@@ -530,7 +548,7 @@ public class Magazine : MonoBehaviour, IAmmunitionLoadable
             {
                 item.physicBody.isKinematic = false;
                 item.physicBody.rigidBody.WakeUp();
-                item.physicBody.velocity = lastWell.firearm.item.physicBody.velocity * 0.7f;
+                item.physicBody.velocity = lastWell.actualFirearm.item.physicBody.velocity * 0.7f;
             }
             if (destroyOnEject && !overrideItem && !overrideAttachment)
             {

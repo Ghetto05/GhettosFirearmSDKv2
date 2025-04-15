@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
@@ -88,10 +90,10 @@ public class SelfLoadingBolt : BoltBase
 
     public void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(Parent.GameObject, null).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         firearm.OnTriggerChangeEvent += Firearm_OnTriggerChangeEvent;
         ChamberSaved();

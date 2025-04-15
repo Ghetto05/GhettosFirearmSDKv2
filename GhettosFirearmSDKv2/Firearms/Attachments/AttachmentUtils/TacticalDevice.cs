@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -12,35 +13,17 @@ public class TacticalDevice : MonoBehaviour
     public Attachment attachment;
     public bool physicalSwitch;
     protected IAttachmentManager AttachmentManager;
+    protected IComponentParent Parent;
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(attachmentManager, attachment).GetInitialization(Init);
     }
 
-    protected virtual void InvokedStart()
+    protected virtual void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (attachmentManager)
-        {
-            AttachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
-        }
-        else if (attachment)
-        {
-            if (attachment.initialized)
-            {
-                Attachment_OnDelayedAttachEvent();
-            }
-            else
-            {
-                attachment.OnDelayedAttachEvent += Attachment_OnDelayedAttachEvent;
-            }
-        }
-    }
-
-    private void Attachment_OnDelayedAttachEvent()
-    {
-        attachment.OnDelayedAttachEvent -= Attachment_OnDelayedAttachEvent;
-        AttachmentManager = attachment.attachmentPoint.ConnectedManager;
+        AttachmentManager = manager;
+        Parent = parent;
     }
 
     protected bool TacSwitchActive

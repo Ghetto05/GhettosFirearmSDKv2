@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
+using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
@@ -15,12 +17,12 @@ public class AttachmentFireModeSelector : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(null, attachment).GetInitialization(Init);
     }
 
-    private void InvokedStart()
+    private void Init(IAttachmentManager manager,  IComponentParent parent)
     {
-        if (attachment.attachmentPoint.ConnectedManager is not Firearm f)
+        if (manager is not Firearm f)
         {
             return;
         }

@@ -1,4 +1,6 @@
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -33,11 +35,11 @@ public class LeverAction : MonoBehaviour
 
     public void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(bolt.Parent.GameObject, null).GetInitialization(Init);
         leverHandle.SetTouch(false);
     }
 
-    private void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         _targetAngle = Quaternion.Angle(start.localRotation, end.localRotation);
         Lock(true);

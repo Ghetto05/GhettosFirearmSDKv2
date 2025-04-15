@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
@@ -52,6 +53,8 @@ public class FirearmBase : AIFireable
             return FirearmSaveData.GetNode(this);
         }
     }
+
+    public virtual IComponentParent Parent { get; }
 
     public virtual void Start()
     {

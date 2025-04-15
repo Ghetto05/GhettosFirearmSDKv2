@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -10,33 +11,28 @@ public class PressureSwitch : TacticalSwitch
     public bool toggleMode;
 
     public Attachment attachment;
-    public List<Handle> handles;
     public GameObject attachmentManager;
+    public List<Handle> handles;
 
     public List<AudioSource> pressSounds;
     public List<AudioSource> releaseSounds;
 
     private IAttachmentManager _attachmentManager;
+    private IComponentParent _parent;
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(attachmentManager, attachment).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (attachment)
-        {
-            _attachmentManager = attachment.attachmentPoint.ConnectedManager;
-        }
-        else if (attachmentManager)
-        {
-            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
-        }
-        _attachmentManager.OnUnhandledHeldAction += OnUnhandledHeldAction;
+        _parent = parent;
+        _attachmentManager = manager;
+        _parent.OnUnhandledHeldAction += OnUnhandledHeldAction;
     }
 
-    private void OnUnhandledHeldAction(IAttachmentManager.HeldActionData e)
+    private void OnUnhandledHeldAction(IComponentParent.HeldActionData e)
     {
         if (e.Handle == e.Handle.item.mainHandleLeft ||
             (_attachmentManager is FirearmBase f && f.AllTriggerHandles().Contains(e.Handle)))
@@ -48,7 +44,7 @@ public class PressureSwitch : TacticalSwitch
         switch (e.Action)
         {
             case Interactable.Action.UseStart when !TriggerState && (dualMode || !useAltUse):
-                TriggerState = toggleMode ? !TriggerState : true;
+                TriggerState = !toggleMode || !TriggerState;
                 if (toggleMode)
                 {
                     pressSounds.RandomChoice().Play();

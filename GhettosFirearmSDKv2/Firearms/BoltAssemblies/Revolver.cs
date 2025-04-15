@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -122,10 +124,10 @@ public class Revolver : BoltBase, IAmmunitionLoadable
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime + 0.2f);
+        Util.GetParent(Parent.GameObject, null).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         Lock(true);
         rotateBody.gameObject.AddComponent<CollisionRelay>().OnCollisionEnterEvent += OnCollisionEvent;

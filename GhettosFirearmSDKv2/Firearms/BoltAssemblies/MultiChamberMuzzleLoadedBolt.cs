@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
@@ -32,10 +34,10 @@ public class MultiChamberMuzzleLoadedBolt : BoltBase, IAmmunitionLoadable
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(Parent.GameObject, null).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         _loadedCartridges = new Cartridge[mountPoints.Count];
         actualMuzzles = muzzles;

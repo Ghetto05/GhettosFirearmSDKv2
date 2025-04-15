@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -7,10 +9,10 @@ namespace GhettosFirearmSDKv2;
 
 public class CartridgeHolder : MonoBehaviour
 {
-    public IAttachmentManager ConnectedManager;
+    private IAttachmentManager _connectedManager;
+    private IComponentParent _parent;
     public Attachment attachment;
-    public AttachmentManager attachmentManager;
-    public Firearm firearm;
+    public GameObject attachmentManager;
 
     public int slot;
     public string caliber;
@@ -24,45 +26,26 @@ public class CartridgeHolder : MonoBehaviour
 
     private void Start()
     {
-        if (firearm)
-        {
-            ConnectedManager = firearm;
-        }
-        if (attachmentManager)
-        {
-            ConnectedManager = attachmentManager;
-        }
-
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(attachmentManager, attachment).GetInitialization(Init);
         Invoke(nameof(UpdateCartridgePositions), Settings.invokeTime * 5);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (ConnectedManager is not null)
-        {
-            ConnectedManager.OnCollision += Collision;
-            ConnectedManager.Item.OnGrabEvent += Firearm_OnGrabEvent;
-        }
-        else if (attachment)
-        {
-            attachment.attachmentPoint.ConnectedManager.OnCollision += Collision;
-            attachment.attachmentPoint.ConnectedManager.Item.OnGrabEvent += Firearm_OnGrabEvent;
-        }
+        _connectedManager = manager;
+        _parent = parent;
+        manager.OnCollision += Collision;
+        manager.Item.OnGrabEvent += Firearm_OnGrabEvent;
 
         SaveNodeValueCartridgeData save = null;
-        if (attachment && attachment.Node.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value))
+        if (parent.SaveNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value))
         {
             save = value;
-        }
-        else if (ConnectedManager is not null && ConnectedManager.SaveData.FirearmNode.TryGetValue("CartridgeHolder" + slot, out SaveNodeValueCartridgeData value2))
-        {
-            save = value2;
         }
 
         if (save is not null)
         {
-            Util.SpawnItem(save.Value.ItemId, $"[Cartridge holder - Firearm: {ConnectedManager?.Item?.itemId ?? "--"} Attachment: {attachment?.Data.id ?? "--"} Slot: {slot}]", cartridge =>
+            Util.SpawnItem(save.Value.ItemId, $"[Cartridge holder - Firearm: {_connectedManager?.Item?.itemId ?? "--"} Attachment: {attachment?.Data.id ?? "--"} Slot: {slot}]", cartridge =>
             {
                 var c = cartridge.GetComponent<Cartridge>();
                 save.Value.Apply(c);
@@ -91,29 +74,18 @@ public class CartridgeHolder : MonoBehaviour
         {
             Util.PlayRandomAudioSource(roundEjectSounds);
             loaded.ToggleCollision(true);
-            if (ConnectedManager is not null)
+            if (_connectedManager is not null)
             {
-                Util.DelayIgnoreCollision(ConnectedManager.Transform.gameObject, loaded.gameObject, false, 1f, loaded.item);
-            }
-            if (attachment)
-            {
-                Util.DelayIgnoreCollision(attachment.gameObject, loaded.gameObject, false, 1f, loaded.item);
+                Util.DelayIgnoreCollision(_connectedManager.Transform.gameObject, loaded.gameObject, false, 1f, loaded.item);
             }
             loaded.loaded = false;
             loaded.GetComponent<Rigidbody>().isKinematic = false;
             loaded.item.DisallowDespawn = false;
             loaded.transform.parent = null;
-            loaded.item.OnGrabEvent -= Item_OnGrabEvent;
+            loaded.item.OnGrabEvent -= OnGrab;
             loadedCartridge = null;
 
-            if (attachment)
-            {
-                attachment.Node.RemoveValue("CartridgeHolder" + slot);
-            }
-            else if (ConnectedManager is not null)
-            {
-                ConnectedManager.SaveData.FirearmNode.RemoveValue("CartridgeHolder" + slot);
-            }
+            attachment.Node.RemoveValue("CartridgeHolder" + slot);
         }
         UpdateCartridgePositions();
         return loaded;
@@ -128,13 +100,9 @@ public class CartridgeHolder : MonoBehaviour
             c.ToggleCollision(false);
             loadedCartridge = c;
             c.UngrabAll();
-            if (ConnectedManager is not null)
+            if (_connectedManager is not null)
             {
-                Util.IgnoreCollision(c.gameObject, ConnectedManager.Transform.gameObject, true);
-            }
-            if (attachment)
-            {
-                Util.IgnoreCollision(c.gameObject, attachment.gameObject, true);
+                Util.IgnoreCollision(c.gameObject, _connectedManager.Transform.gameObject, true);
             }
             if (!silent)
             {
@@ -145,31 +113,18 @@ public class CartridgeHolder : MonoBehaviour
             c.transform.localPosition = Vector3.zero;
             c.transform.localEulerAngles = Vector3.zero;
 
-            c.item.OnGrabEvent += Item_OnGrabEvent;
+            c.item.OnGrabEvent += OnGrab;
 
-            FirearmSaveData.AttachmentTreeNode target = null;
-            if (attachment)
-            {
-                target = attachment.Node;
-            }
-            else if (ConnectedManager is not null)
-            {
-                target = ConnectedManager.SaveData.FirearmNode;
-            }
-
-            if (target is not null)
-            {
-                target.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(c.item.itemId, c.Fired);
-            }
+            _parent.SaveNode.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(c.item.itemId, c.Fired);
         }
         UpdateCartridgePositions();
     }
 
-    private void Item_OnGrabEvent(Handle handle, RagdollHand ragdollHand)
+    private void OnGrab(Handle handle, RagdollHand ragdollHand)
     {
         var c = EjectRound();
         var success = chamberLoader?.TryLoad(c) ?? false;
-        if (success && ConnectedManager is FirearmBase { bolt: BoltSemiautomatic { caught: true } bolt })
+        if (success && _connectedManager is FirearmBase { bolt: BoltSemiautomatic { caught: true } bolt })
         {
             bolt.TryRelease();
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
 using UnityEngine;
@@ -10,10 +11,10 @@ namespace GhettosFirearmSDKv2;
 
 public class AttachmentPoint : MonoBehaviour
 {
-    public Firearm parentFirearm;
-    public AttachmentManager attachmentManager;
-    public IAttachmentManager ConnectedManager;
+    public GameObject attachmentManager;
     public Attachment attachment;
+    public IAttachmentManager ConnectedManager;
+    public IComponentParent Parent;
 
     public string type;
     public List<string> alternateTypes;
@@ -35,28 +36,19 @@ public class AttachmentPoint : MonoBehaviour
 
     private void Start()
     {
-        if (parentFirearm)
-        {
-            ConnectedManager = parentFirearm;
-        }
-        if (attachmentManager)
-        {
-            ConnectedManager = attachmentManager;
-        }
+        Util.GetParent(attachmentManager, attachment).GetInitialization(Init);
 
         if (Settings.debugMode)
         {
             StartCoroutine(Alert());
         }
-        Invoke(nameof(InvokedStart), Settings.invokeTime + 0.01f);
     }
 
-    private void InvokedStart()
+    private void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (ConnectedManager is not null)
-        {
-            ConnectedManager.OnCollision += OnCollision;
-        }
+        Parent = parent;
+        ConnectedManager = manager;
+        ConnectedManager.OnCollision += OnCollision;
     }
 
     private void OnCollision(Collision collision)

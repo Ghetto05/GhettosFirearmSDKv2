@@ -43,7 +43,6 @@ public class GunCase : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
         if (isStatic)
         {
             item.physicBody.isKinematic = true;
@@ -57,10 +56,18 @@ public class GunCase : MonoBehaviour
                 obj.SetActive(false);
             }
         }
+
+        item.OnSpawnEvent += OnItemSpawn;
     }
 
-    public void InvokedStart()
+    public void OnItemSpawn(EventTime eventTime)
     {
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        item.OnSpawnEvent -= OnItemSpawn;
+
         item.OnHeldActionEvent += Item_OnHeldActionEvent;
         holder.Snapped += Holder_Snapped;
         holder.UnSnapped += Holder_UnSnapped;

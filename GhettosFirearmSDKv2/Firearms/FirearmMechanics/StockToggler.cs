@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -23,44 +24,19 @@ public class StockToggler : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(attachmentManager, connectedAttachment).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (attachmentManager)
-        {
-            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
-            Init(_attachmentManager.SaveData.FirearmNode);
-        }
-        else if (connectedAttachment)
-        {
-            if (!connectedAttachment.initialized)
-            {
-                connectedAttachment.OnDelayedAttachEvent += OnDelayedAttach;
-            }
-            else
-            {
-                OnDelayedAttach();
-            }
-        }
-    }
-
-    private void OnDelayedAttach()
-    {
-        _attachmentManager = connectedAttachment.attachmentPoint.ConnectedManager;
-        Init(connectedAttachment.Node);
-    }
-
-    private void Init(FirearmSaveData.AttachmentTreeNode node)
-    {
+        _attachmentManager = manager;
         _attachmentManager.OnHeldAction += OnAction;
-        _stockPosition = node.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
+        _stockPosition = parent.SaveNode.GetOrAddValue("StockPosition" + name, new SaveNodeValueInt());
         currentIndex = _stockPosition.Value;
         ApplyPosition(_stockPosition.Value, false);
     }
 
-    private void OnAction(IAttachmentManager.HeldActionData e)
+    private void OnAction(IComponentParent.HeldActionData e)
     {
         if (e.Handle == toggleHandle && e.Action == Interactable.Action.UseStart)
         {
@@ -112,7 +88,7 @@ public class StockToggler : MonoBehaviour
                 }
             }
 
-            OnToggleEvent?.Invoke(index, playSound);
+            OnToggle?.Invoke(index, playSound);
 
             if (toggleHandle.handlers.Any())
             {
@@ -137,7 +113,7 @@ public class StockToggler : MonoBehaviour
         }
     }
 
-    public delegate void OnToggle(int newIndex, bool playSound);
+    public delegate void Toggle(int newIndex, bool playSound);
 
-    public event OnToggle OnToggleEvent;
+    public event Toggle OnToggle;
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ namespace GhettosFirearmSDKv2;
 
 public class BoltBase : MonoBehaviour
 {
+    public IComponentParent Parent => firearm.Parent;
+    
     public const string ChamberSaveDataId = "BoltChamberSaveData";
 
     public FirearmBase firearm;

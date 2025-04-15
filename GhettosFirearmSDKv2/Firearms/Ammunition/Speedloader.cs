@@ -21,11 +21,17 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        item.OnSpawnEvent += OnItemSpawn;
     }
 
-    public void InvokedStart()
+    public void OnItemSpawn(EventTime eventTime)
     {
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        item.OnSpawnEvent -= OnItemSpawn;
+
         loadedCartridges = new Cartridge[mountPoints.Count];
         item.OnGrabEvent += Item_OnGrabEvent;
         item.OnSnapEvent += Item_OnSnapEvent;

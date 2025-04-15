@@ -18,11 +18,6 @@ public class AdditionalFireModeSelectorAxis : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
-    }
-
-    private void InvokedStart()
-    {
         selector.OnFiremodeChanged += SelectorOnFireModeChanged;
     }
 

@@ -39,12 +39,18 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
 
     private void Start()
     {
-        loadedCartridges = new List<Cartridge>();
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        loadedCartridges = [];
+        item.OnSpawnEvent += OnItemSpawn;
     }
 
-    private void InvokedStart()
+    private void OnItemSpawn(EventTime eventTime)
     {
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        item.OnSpawnEvent -= OnItemSpawn;
+
         item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
         item.OnGrabEvent += ItemOnOnGrabEvent;
 
@@ -186,9 +192,9 @@ public class StripperClip : MonoBehaviour, IAmmunitionLoadable
         {
             return;
         }
-        if (_currentWell && loadedCartridges.Count > 0 && _currentWell.magazineWell.firearm.magazineWell && _currentWell.magazineWell.firearm.magazineWell.currentMagazine)
+        if (_currentWell && loadedCartridges.Count > 0 && _currentWell.magazineWell.actualFirearm.magazineWell?.currentMagazine)
         {
-            var mag = _currentWell.magazineWell.firearm.magazineWell.currentMagazine;
+            var mag = _currentWell.magazineWell.actualFirearm.magazineWell.currentMagazine;
             if (mag.cartridges.Count < mag.ActualCapacity)
             {
                 var c = loadedCartridges[0];

@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -26,12 +28,12 @@ public class AttachmentFirearmModeManager : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime + 0.06f);
+        Util.GetParent(null, attachmentFirearm.attachment).GetInitialization(Init);
     }
 
-    private void InvokedStart()
+    private void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (attachmentFirearm.attachment.attachmentPoint.ConnectedManager is not Firearm f)
+        if (manager is not Firearm f)
         {
             return;
         }
@@ -57,9 +59,9 @@ public class AttachmentFirearmModeManager : MonoBehaviour
         ApplyDefaultAmmoItem();
     }
 
-    private void AttachmentOnOnDetachEvent(bool despawndetach)
+    private void AttachmentOnOnDetachEvent(bool despawnDetach)
     {
-        if (despawndetach)
+        if (despawnDetach)
         {
             return;
         }

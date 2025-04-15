@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -547,5 +549,12 @@ public class Util
             builder.Append(dataList[i]);
         }
         builder.AppendLine();
+    }
+
+    public static IComponentParent GetParent(GameObject manager, Attachment attachment)
+    {
+        if (manager)
+            return manager.GetComponent<IAttachmentManager>();
+        return attachment;
     }
 }

@@ -1,3 +1,6 @@
+using System;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using TMPro;
 using UnityEngine;
@@ -54,13 +57,19 @@ public class Xm157 : MonoBehaviour
     private bool _lastNonUiState = true;
     private bool _lastRedDotState = true;
 
+    private IAttachmentManager _manager;
+    private IComponentParent _parent;
+
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(scope.attachmentManager, scope.connectedAttachment).GetInitialization(Init);
     }
 
-    private void InvokedStart()
+    private void Init(IAttachmentManager manager, IComponentParent parent)
     {
+        _parent = parent;
+        _manager = manager;
+        
         _compassSaveData = scope.connectedAttachment.Node.GetOrAddValue("XM157_Compass", new SaveNodeValueBool { Value = true });
         _rangeFinderSaveData = scope.connectedAttachment.Node.GetOrAddValue("XM157_RangeFinder", new SaveNodeValueBool { Value = true });
         _visualLaserSaveData = scope.connectedAttachment.Node.GetOrAddValue("XM157_VisualLaser", new SaveNodeValueBool { Value = false });
@@ -71,28 +80,36 @@ public class Xm157 : MonoBehaviour
         visualLaser.physicalSwitch = _visualLaserSaveData.Value;
         uiColor = (UiColors)_colorSaveData.Value;
         ApplyColor();
-        scope.connectedAttachment.OnHeldActionEvent += ConnectedAttachmentOnOnHeldActionEvent;
-        scope.connectedAttachment.attachmentPoint.ConnectedManager.Item.OnGrabEvent += MenuHandleOnGrabbed;
+        _parent.OnHeldAction += OnHeldAction;
+        _manager.Item.OnGrabEvent += OnGrab;
     }
 
-    private void ConnectedAttachmentOnOnHeldActionEvent(RagdollHand hand, Handle handle, Interactable.Action action)
+    private void OnHeldAction(IComponentParent.HeldActionData e)
     {
-        if (handle != menuHandle)
+        if (e.Handle != menuHandle)
         {
             return;
         }
 
-        if (action == Interactable.Action.Ungrab)
+        switch (e.Action)
         {
-            UnGrab();
-        }
-        if (action == Interactable.Action.UseStart)
-        {
-            Trigger();
-        }
-        if (action == Interactable.Action.AlternateUseStart)
-        {
-            AlternateUse();
+            case Interactable.Action.Ungrab:
+                UnGrab();
+                e.Handled = true;
+                break;
+            case Interactable.Action.UseStart:
+                Trigger();
+                e.Handled = true;
+                break;
+            case Interactable.Action.AlternateUseStart:
+                AlternateUse();
+                e.Handled = true;
+                break;
+            case Interactable.Action.UseStop:
+            case Interactable.Action.AlternateUseStop:
+            case Interactable.Action.Grab:
+            default:
+                break;
         }
     }
 
@@ -102,11 +119,11 @@ public class Xm157 : MonoBehaviour
         {
             return;
         }
-        scope.connectedAttachment.attachmentPoint.ConnectedManager.Item.OnGrabEvent -= MenuHandleOnGrabbed;
-        scope.connectedAttachment.OnHeldActionEvent -= ConnectedAttachmentOnOnHeldActionEvent;
+        _manager.Item.OnGrabEvent -= OnGrab;
+        _parent.OnHeldAction -= OnHeldAction;
     }
 
-    private void MenuHandleOnGrabbed(Handle handle, RagdollHand hand)
+    private void OnGrab(Handle handle, RagdollHand hand)
     {
         if (handle == menuHandle)
         {

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 
 namespace GhettosFirearmSDKv2;
@@ -9,21 +11,23 @@ public class AttachmentFirearm : FirearmBase
     public Attachment attachment;
     public Handle fireHandle;
 
+    public override IComponentParent Parent => attachment;
+
     public override void Start()
     {
         base.Start();
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(null, attachment).GetInitialization(Init);
     }
 
-    public override void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         if (!disableMainFireHandle)
         {
             mainFireHandle = fireHandle;
         }
-        item = attachment.GetComponentInParent<AttachmentPoint>().ConnectedManager.Item;
-        attachment.attachmentPoint.ConnectedManager.OnCollision += OnCollisionEnter;
-        attachment.attachmentPoint.ConnectedManager.Item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
+        item = manager.Item;
+        manager.OnCollision += OnCollisionEnter;
+        item.mainCollisionHandler.OnCollisionStartEvent += InvokeCollisionTR;
         attachment.OnHeldActionEvent += OnHeldActionEvent;
         item.OnSnapEvent += Item_OnSnapEvent;
         item.OnUnSnapEvent += Item_OnUnSnapEvent;

@@ -12,7 +12,7 @@ public class StockTogglerAdditional : MonoBehaviour
 
     private void Start()
     {
-        parent.OnToggleEvent += ApplyPosition;
+        parent.OnToggle += ApplyPosition;
     }
 
     public void ApplyPosition(int index, bool playSound = true)

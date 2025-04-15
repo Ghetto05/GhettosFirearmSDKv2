@@ -14,11 +14,17 @@ public class AmmunitionPouch : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        pouchItem.OnSpawnEvent += OnItemSpawn;
     }
 
-    public void InvokedStart()
+    public void OnItemSpawn(EventTime eventTime)
     {
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        pouchItem.OnSpawnEvent -= OnItemSpawn;
+
         holder.Snapped += Holder_Snapped;
         holder.UnSnapped += Holder_UnSnapped;
         pouchItem.OnHeldActionEvent += PouchItem_OnHeldActionEvent;

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2.Attachments;
 
-public interface IAttachmentManager
+public interface IAttachmentManager : IComponentParent
 {
     /// <summary>
     ///     Gets the item
@@ -76,29 +77,4 @@ public interface IAttachmentManager
     public delegate void AttachmentRemoved(Attachment attachment, AttachmentPoint attachmentPoint);
 
     public event AttachmentRemoved OnAttachmentRemoved;
-
-    public delegate void HeldAction(HeldActionData e);
-
-    public event HeldAction OnHeldAction;
-    public event HeldAction OnUnhandledHeldAction;
-
-    public class HeldActionData
-    {
-        public HeldActionData(RagdollHand handler, Handle handle, Interactable.Action action)
-        {
-            Handler = handler;
-            Handle = handle;
-            Action = action;
-        }
-
-        public RagdollHand Handler;
-        public Handle Handle;
-        public Interactable.Action Action;
-        public bool Handled;
-
-        public override string ToString()
-        {
-            return $"Action: {Action} Handle: {Handle.name}";
-        }
-    }
 }

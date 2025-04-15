@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -98,7 +100,7 @@ public class FlintLock : BoltBase, IAmmunitionLoadable
     {
         GenerateFireData();
         OpenPan(true);
-        Invoke(nameof(InvokedStart), Settings.invokeTime * 2);
+        Util.GetParent(Parent.GameObject, null).GetInitialization(Init);
     }
 
     private void GenerateFireData()
@@ -120,7 +122,7 @@ public class FlintLock : BoltBase, IAmmunitionLoadable
         _emptyFireData.drawsImpactDecal = false;
     }
 
-    private void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         firearm.OnCollisionEvent += FirearmOnOnCollisionEvent;
         firearm.OnCockActionEvent += FirearmOnOnCockActionEvent;

@@ -28,11 +28,17 @@ public class ImprovedLazyPouch : MonoBehaviour
     private void Start()
     {
         pouchItem.OnDespawnEvent += PouchItemOnOnDespawnEvent;
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        pouchItem.OnSpawnEvent += OnItemSpawn;
     }
 
-    public void InvokedStart()
+    public void OnItemSpawn(EventTime eventTime)
     {
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        pouchItem.OnSpawnEvent -= OnItemSpawn;
+
         holder.Snapped += Holder_Snapped;
         holder.UnSnapped += Holder_UnSnapped;
         SavedAmmoItemChangedEvent += OnSavedAmmoItemChangedEvent;

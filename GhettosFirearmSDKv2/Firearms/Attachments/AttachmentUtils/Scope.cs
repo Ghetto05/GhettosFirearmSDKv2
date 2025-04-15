@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -13,6 +14,7 @@ public class Scope : MonoBehaviour
     public Attachment connectedAttachment;
     public GameObject attachmentManager;
     private IAttachmentManager _attachmentManager;
+    private IComponentParent _parent;
 
     public enum LensSizes
     {
@@ -62,54 +64,48 @@ public class Scope : MonoBehaviour
         {
             lenses.Add(lens);
         }
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(attachmentManager, connectedAttachment).GetInitialization(Init);
     }
 
-    private void InvokedStart()
+    private void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        var rt = new RenderTexture(1024, 1024, 1, DefaultFormat.HDR);
-        rt.graphicsFormat = GraphicsFormat.R16G16B16A16_UNorm;
+        _attachmentManager = manager;
+        _parent = parent;
+        
+        var rt = new RenderTexture(1024, 1024, 1, DefaultFormat.HDR)
+        {
+            graphicsFormat = GraphicsFormat.R16G16B16A16_UNorm
+        };
         cam.targetTexture = rt;
         cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 
-        if (hasZoom && attachmentManager is not null)
+        if (hasZoom)
         {
-            _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
-            _attachmentManager.OnHeldAction += OnHeldAction;
-            _zoomIndex = _attachmentManager.SaveData.FirearmNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
-        }
-        else if (hasZoom && connectedAttachment)
-        {
-            connectedAttachment.OnHeldAction += OnHeldAction;
-            _zoomIndex = connectedAttachment.Node.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
+            _parent.OnHeldAction += OnHeldAction;
+            _zoomIndex = _parent.SaveNode.GetOrAddValue("ScopeZoom", new SaveNodeValueInt());
+            currentIndex = _zoomIndex.Value;
+            SetZoom();
+            UpdatePosition();
         }
         else
         {
             SetFOVFromMagnification(noZoomMagnification);
         }
-
-        if (hasZoom)
-        {
-            currentIndex = _zoomIndex.Value;
-            SetZoom();
-            UpdatePosition();
-        }
     }
 
-    private void OnHeldAction(IAttachmentManager.HeldActionData e)
+    private void OnHeldAction(IComponentParent.HeldActionData e)
     {
-        if (e.Handle == controllingHandle)
+        if (e.Handle != controllingHandle) return;
+        switch (e.Action)
         {
-            if (e.Action == Interactable.Action.UseStart)
-            {
+            case Interactable.Action.UseStart:
                 Cycle(true);
                 e.Handled = true;
-            }
-            else if (e.Action == Interactable.Action.AlternateUseStart)
-            {
+                break;
+            case Interactable.Action.AlternateUseStart:
                 Cycle(false);
                 e.Handled = true;
-            }
+                break;
         }
     }
 

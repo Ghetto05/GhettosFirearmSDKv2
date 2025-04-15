@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -84,10 +86,10 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
 
     public void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(Parent.GameObject, null).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         foreach (var releaseButton in releaseButtons)
         {

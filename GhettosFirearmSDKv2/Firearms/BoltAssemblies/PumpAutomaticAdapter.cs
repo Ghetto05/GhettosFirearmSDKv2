@@ -1,3 +1,5 @@
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -28,11 +30,11 @@ public class PumpAutomaticAdapter : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime * 2);
+        Util.GetParent(automaticBolt.Parent.GameObject, null).GetInitialization(Init);
         pumpAction.fireOnTriggerPress = false;
     }
 
-    private void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
         item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
         item.OnDespawnEvent += ItemOnOnDespawnEvent;

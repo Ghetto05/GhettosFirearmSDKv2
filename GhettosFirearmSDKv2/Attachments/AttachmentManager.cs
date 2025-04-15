@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -48,10 +50,26 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
 
     public Item item;
     public List<AttachmentPoint> attachmentPoints;
+    public FirearmSaveData.AttachmentTreeNode SaveNode => SaveData.FirearmNode;
+
+    public GameObject GameObject => gameObject;
+
+    private List<Action<IAttachmentManager, IComponentParent>> _requestedInitializations = [];
+    private bool _initialized;
+    
+    public void GetInitialization(Action<IAttachmentManager, IComponentParent> initializationCallback)
+    {
+        if (!_initialized)
+        {
+            _requestedInitializations.Add(initializationCallback);
+            return;
+        }
+        initializationCallback.Invoke(this, this);
+    }
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        item.OnSpawnEvent += OnItemSpawn;
         item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
     }
 
@@ -65,9 +83,18 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
         }
     }
 
-    private void InvokedStart()
+    private void OnItemSpawn(EventTime eventTime)
     {
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        item.OnSpawnEvent -= OnItemSpawn;
+
         SharedAttachmentManagerFunctions.LoadAndApplyData(this);
+        _initialized = true;
+        _requestedInitializations.ForEach(x => x.Invoke(this, this));
+        _requestedInitializations = null;
     }
 
     public AttachmentPoint GetSlotFromId(string id)
@@ -93,6 +120,7 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
     public event IAttachmentManager.Collision OnCollision;
     public event IAttachmentManager.AttachmentAdded OnAttachmentAdded;
     public event IAttachmentManager.AttachmentRemoved OnAttachmentRemoved;
+
     public event IAttachmentManager.HeldAction OnHeldAction;
     public event IAttachmentManager.HeldAction OnUnhandledHeldAction;
 }

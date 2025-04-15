@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
+using ThunderRoad;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2;
 
 public class BoltAttacher : MonoBehaviour
 {
-    public FirearmBase firearm;
+    private FirearmBase _firearm;
     public Attachment attachment;
     public Transform boltChild;
     public Transform boltRbChild;
@@ -15,16 +19,16 @@ public class BoltAttacher : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(null, attachment).GetInitialization(Init);
     }
 
-    private void InvokedStart()
+    private void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (attachment.attachmentPoint.ConnectedManager is not FirearmBase f)
+        if (manager is not FirearmBase f)
         {
             return;
         }
-        firearm = f;
+        _firearm = f;
         attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
         if (GetParent() is { } p)
         {
@@ -56,7 +60,7 @@ public class BoltAttacher : MonoBehaviour
 
     private Transform GetParent()
     {
-        var bolt = firearm.bolt;
+        var bolt = _firearm.bolt;
         if (!bolt)
         {
             return null;
@@ -77,7 +81,7 @@ public class BoltAttacher : MonoBehaviour
 
     private Transform GetParentRb()
     {
-        var bolt = firearm.bolt;
+        var bolt = _firearm.bolt;
         if (!bolt)
         {
             return null;
@@ -98,7 +102,7 @@ public class BoltAttacher : MonoBehaviour
 
     private void SetHandles()
     {
-        var bolt = firearm.bolt;
+        var bolt = _firearm.bolt;
         if (!bolt)
         {
             return;
@@ -117,7 +121,7 @@ public class BoltAttacher : MonoBehaviour
 
     private void ResetHandles()
     {
-        var bolt = firearm.bolt;
+        var bolt = _firearm.bolt;
         if (!bolt)
         {
             return;

@@ -58,7 +58,6 @@ public class Cartridge : MonoBehaviour
         {
             unfiredOnlyObject.SetActive(true);
         }
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
         if (data.isInert)
         {
             Fired = true;
@@ -70,10 +69,18 @@ public class Cartridge : MonoBehaviour
                 c.material = null;
             }
         }
+
+        item.OnSpawnEvent += OnItemSpawn;
     }
 
-    private void InvokedStart()
+    private void OnItemSpawn(EventTime eventTime)
     {
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        item.OnSpawnEvent -= OnItemSpawn;
+
         if (firedOnlyObject)
         {
             firedOnlyObject.SetActive(Fired);

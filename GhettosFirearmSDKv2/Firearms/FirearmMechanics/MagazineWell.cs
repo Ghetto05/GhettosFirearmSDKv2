@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 
@@ -7,7 +9,10 @@ namespace GhettosFirearmSDKv2;
 
 public class MagazineWell : MonoBehaviour
 {
-    public FirearmBase firearm;
+    private IAttachmentManager _manager;
+    private IComponentParent _parent;
+    public FirearmBase actualFirearm;
+    public GameObject firearm;
     public string acceptedMagazineType;
     public List<string> alternateMagazineTypes;
     public string caliber;
@@ -33,14 +38,27 @@ public class MagazineWell : MonoBehaviour
 
     public virtual void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(firearm, null).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        firearm.OnCollisionEvent += TryMount;
-        firearm.OnColliderToggleEvent += Firearm_OnColliderToggleEvent;
-        firearm.item.OnDespawnEvent += Item_OnDespawnEvent;
+        _manager = manager;
+        _parent = parent;
+
+        if (manager is Firearm f)
+        {
+            actualFirearm = f;
+        }
+
+        if (parent is Attachment a && a.GetComponent<AttachmentFirearm>() is { } af)
+        {
+            actualFirearm = af;
+        }
+        
+        actualFirearm.OnCollisionEvent += TryMount;
+        actualFirearm.OnColliderToggleEvent += Firearm_OnColliderToggleEvent;
+        _manager.Item.OnDespawnEvent += Item_OnDespawnEvent;
         if (spawnMagazineOnAwake)
         {
             Load();
@@ -72,7 +90,7 @@ public class MagazineWell : MonoBehaviour
         {
             if (!currentMagazine.overrideItem && !currentMagazine.overrideAttachment)
             {
-                currentMagazine.item.SetMeshLayer(firearm.item.gameObject.layer);
+                currentMagazine.item.SetMeshLayer(_manager.Item.gameObject.layer);
             }
             roundCounterMessage = currentMagazine.cartridges.Count.ToString();
         }
@@ -92,7 +110,7 @@ public class MagazineWell : MonoBehaviour
 
     public virtual void Load()
     {
-        if (FirearmSaveData.GetNode(firearm).TryGetValue(SaveID, out SaveNodeValueMagazineContents data))
+        if (_parent.SaveNode.TryGetValue(SaveID, out SaveNodeValueMagazineContents data))
         {
             var cdata = new List<ContentCustomData>();
             cdata.Add(data.Value.CloneJson());
@@ -115,7 +133,7 @@ public class MagazineWell : MonoBehaviour
 
     private void Mag_onLoadFinished(Magazine mag)
     {
-        mag.Mount(this, firearm.item.physicBody.rigidBody, true);
+        mag.Mount(this, _manager.Item.physicBody.rigidBody, true);
         allowLoad = true;
     }
 
@@ -125,10 +143,10 @@ public class MagazineWell : MonoBehaviour
         {
             if (collision.contacts[0].otherCollider == mag.mountCollider && Util.AllowLoadMagazine(mag, this) && mag.loadable)
             {
-                mag.Mount(this, firearm.item.physicBody.rigidBody);
-                if (tryReleasingBoltIfMagazineIsInserted && firearm.bolt)
+                mag.Mount(this, _manager.Item.physicBody.rigidBody);
+                if (tryReleasingBoltIfMagazineIsInserted && actualFirearm.bolt)
                 {
-                    firearm.bolt.TryRelease(true);
+                    actualFirearm.bolt.TryRelease(true);
                 }
             }
         }
@@ -159,7 +177,7 @@ public class MagazineWell : MonoBehaviour
 
     private bool BoltExistsAndIsPulled()
     {
-        return !onlyAllowEjectionWhenBoltIsPulled || !firearm.bolt || firearm.bolt.state == BoltBase.BoltState.Back || firearm.bolt.state == BoltBase.BoltState.LockedBack;
+        return !onlyAllowEjectionWhenBoltIsPulled || !actualFirearm.bolt || actualFirearm.bolt.state == BoltBase.BoltState.Back || actualFirearm.bolt.state == BoltBase.BoltState.LockedBack;
     }
 
     public virtual void Eject(bool forced = false)

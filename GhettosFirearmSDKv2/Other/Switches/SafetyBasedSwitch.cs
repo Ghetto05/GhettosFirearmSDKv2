@@ -19,7 +19,7 @@ public class SafetyBasedSwitch : MonoBehaviour
 
     private void Init()
     {
-        Selector_onFiremodeChanged(selector.firearm.fireMode);
+        Selector_onFiremodeChanged(selector.actualFirearm.fireMode);
     }
 
     private void Selector_onFiremodeChanged(FirearmBase.FireModes newMode)

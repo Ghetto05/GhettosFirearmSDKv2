@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
 public class Hammer : MonoBehaviour
 {
-    public FirearmBase firearm;
+    public GameObject firearm;
+    private FirearmBase _firearm;
     public Transform hammer;
     public Transform idlePosition;
     public Transform cockedPosition;
@@ -19,18 +22,19 @@ public class Hammer : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(firearm, null).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (!firearm)
+        if (manager is not FirearmBase f)
         {
-            firearm = GetComponentInParent<Firearm>();
+            return;
         }
-        firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
-        firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
-        _hammerState = firearm.SaveNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
+        _firearm = f;
+        _firearm.OnFiremodeChangedEvent += Firearm_OnFiremodeChangedEvent;
+        _firearm.OnCockActionEvent += Firearm_OnCockActionEvent;
+        _hammerState = parent.SaveNode.GetOrAddValue("HammerState", new SaveNodeValueBool());
         if (_hammerState.Value)
         {
             Cock(true, true);
@@ -43,7 +47,7 @@ public class Hammer : MonoBehaviour
 
     private void Firearm_OnFiremodeChangedEvent()
     {
-        if (hasDecocker && firearm.fireMode == FirearmBase.FireModes.Safe)
+        if (hasDecocker && _firearm.fireMode == FirearmBase.FireModes.Safe)
         {
             Fire();
         }
@@ -51,7 +55,7 @@ public class Hammer : MonoBehaviour
 
     private void Firearm_OnCockActionEvent()
     {
-        if (!allowManualCock || (!allowCockUncockWhenSafetyIsOn && firearm.fireMode == FirearmBase.FireModes.Safe))
+        if (!allowManualCock || (!allowCockUncockWhenSafetyIsOn && _firearm.fireMode == FirearmBase.FireModes.Safe))
         {
             return;
         }

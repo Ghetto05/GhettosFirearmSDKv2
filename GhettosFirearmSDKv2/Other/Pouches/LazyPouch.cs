@@ -20,13 +20,19 @@ public class LazyPouch : MonoBehaviour
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        pouchItem.OnSpawnEvent += OnItemSpawn;
     }
 
-    public void InvokedStart()
+    public void OnItemSpawn(EventTime eventTime)
     {
-        spawnedItems = new List<Item>();
-        containedItems = new List<string>();
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        pouchItem.OnSpawnEvent -= OnItemSpawn;
+
+        spawnedItems = [];
+        containedItems = [];
 
         holder.Snapped += Holder_Snapped;
         holder.UnSnapped += Holder_UnSnapped;

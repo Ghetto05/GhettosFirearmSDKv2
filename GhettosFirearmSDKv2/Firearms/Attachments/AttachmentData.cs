@@ -89,23 +89,18 @@ public class AttachmentData : CustomData
                 attachment.attachmentPoint = point;
                 if (thisNode is null)
                 {
-                    attachment.Node = new FirearmSaveData.AttachmentTreeNode();
-                    attachment.Node.AttachmentId = id;
-                    attachment.Node.Slot = point.id;
-                    attachment.Node.SlotPosition = point.usesRail ? point.railSlots.IndexOf(target) : 0;
+                    attachment.Node = new FirearmSaveData.AttachmentTreeNode
+                    {
+                        AttachmentId = id,
+                        Slot = point.id,
+                        SlotPosition = point.usesRail ? point.railSlots.IndexOf(target) : 0
+                    };
                 }
                 else
                 {
                     attachment.Node = thisNode;
                 }
-                if (point.attachment && !point.attachment.Node.Childs.Contains(thisNode))
-                {
-                    point.attachment.Node.Childs.Add(attachment.Node);
-                }
-                else if (thisNode is null)
-                {
-                    point.ConnectedManager.SaveData.FirearmNode.Childs.Add(attachment.Node);
-                }
+                point.Parent.SaveNode.Childs.Add(attachment.Node);
                 attachment.Initialize(callback, thisNode, initialSetup);
                 point.InvokeAttachmentAdded(attachment);
             }

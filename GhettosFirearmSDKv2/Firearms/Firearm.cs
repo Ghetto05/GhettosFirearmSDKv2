@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -107,6 +109,23 @@ public class Firearm : FirearmBase, IAttachmentManager
         return CurrentAttachments.Where(a => a.multiplyDamage).Aggregate(1f, (current, a) => current * a.damageMultiplier);
     }
 
+    private List<Action<IAttachmentManager, IComponentParent>> _requestedInitializations = [];
+    private bool _initialized;
+
+    public GameObject GameObject => gameObject;
+
+    public override IComponentParent Parent => this;
+
+    public void GetInitialization(Action<IAttachmentManager, IComponentParent> initializationCallback)
+    {
+        if (!_initialized)
+        {
+            _requestedInitializations.Add(initializationCallback);
+            return;
+        }
+        initializationCallback.Invoke(this, this);
+    }
+
     public override void Start()
     {
         if (GameModeManager.instance?.currentGameMode?.name.Equals("CrystalHunt") == true)
@@ -121,7 +140,8 @@ public class Firearm : FirearmBase, IAttachmentManager
         {
             item = GetComponent<Item>();
         }
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+
+        item.OnSpawnEvent += OnItemSpawn;
 
         var aiModule = new ItemModuleAI
                        {
@@ -158,8 +178,14 @@ public class Firearm : FirearmBase, IAttachmentManager
         item.data.moduleAI = aiModule;
     }
 
-    public override void InvokedStart()
+    public void OnItemSpawn(EventTime eventTime)
     {
+        if (eventTime != EventTime.OnEnd)
+        {
+            return;
+        }
+        item.OnSpawnEvent -= OnItemSpawn;
+
         all.Add(this);
         if (!disableMainFireHandle)
         {
@@ -194,6 +220,10 @@ public class Firearm : FirearmBase, IAttachmentManager
         }
 
         #endregion handle type validation
+
+        _initialized = true;
+        _requestedInitializations.ForEach(x => x.Invoke(this, this));
+        _requestedInitializations = null;
 
         Invoke(nameof(DelayedLoad), 2.3f);
 
@@ -351,7 +381,7 @@ public class Firearm : FirearmBase, IAttachmentManager
 
     public void AIFire()
     {
-        if (fireMode == FireModes.Safe && GetComponentsInChildren<FiremodeSelector>().FirstOrDefault(x => x.firearm == this) is { } fs)
+        if (fireMode == FireModes.Safe && GetComponentsInChildren<FiremodeSelector>().FirstOrDefault(x => x.actualFirearm == this) is { } fs)
         {
             fs.CycleFiremode();
         }

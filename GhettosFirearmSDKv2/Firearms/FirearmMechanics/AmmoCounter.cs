@@ -1,3 +1,5 @@
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using TMPro;
 using UnityEngine;
 
@@ -18,21 +20,16 @@ public class AmmoCounter : MonoBehaviour
 
     public void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(firearm.gameObject, attachment).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (attachment && attachment.attachmentPoint.ConnectedManager is FirearmBase f)
-        {
-            firearm = f;
-        }
-
-        if (firearm)
-        {
-            _bolt = firearm.bolt;
-            _magazineWell = firearm.magazineWell;
-        }
+        if (manager is not FirearmBase f)
+            return;
+        firearm = f;
+        _bolt = firearm.bolt;
+        _magazineWell = firearm.magazineWell;
     }
 
     private void Update()

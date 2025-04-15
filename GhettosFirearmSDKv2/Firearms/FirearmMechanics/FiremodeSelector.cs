@@ -1,10 +1,14 @@
+using GhettosFirearmSDKv2.Attachments;
+using GhettosFirearmSDKv2.Common;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
 public class FiremodeSelector : MonoBehaviour
 {
-    public FirearmBase firearm;
+    private IComponentParent _parent;
+    public FirearmBase actualFirearm;
+    public GameObject firearm;
     public Attachment attachment;
     public Transform safetySwitch;
     public Transform safePosition;
@@ -27,51 +31,60 @@ public class FiremodeSelector : MonoBehaviour
 
     private void OnDestroy()
     {
-        firearm.OnAltActionEvent -= Firearm_OnAltActionEvent;
-        if (attachment)
+        actualFirearm.OnAltActionEvent -= OnAltAction;
+        if (_parent is Attachment a)
         {
-            attachment.OnDetachEvent -= AttachmentOnOnDetachEvent;
+            a.OnDetachEvent -= AttachmentOnOnDetachEvent;
         }
     }
 
     private void Start()
     {
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
+        Util.GetParent(firearm, attachment).GetInitialization(Init);
     }
 
-    public void InvokedStart()
+    public void Init(IAttachmentManager manager, IComponentParent parent)
     {
-        if (!firearm && attachment && attachment.attachmentPoint.ConnectedManager is Firearm f)
+        _parent = parent;
+        if (manager is Firearm f)
         {
-            firearm = f;
-            attachment.OnDetachEvent += AttachmentOnOnDetachEvent;
-            _preAttachFireMode = firearm.fireMode;
+            actualFirearm = f;
+        }
+        
+        if (parent is Attachment a)
+        {
+            a.OnDetachEvent += AttachmentOnOnDetachEvent;
+            _preAttachFireMode = actualFirearm.fireMode;
+            if (a.GetComponent<AttachmentFirearm>() is { } af)
+            {
+                actualFirearm = af;
+            }
         }
 
-        if (!firearm)
+        if (!actualFirearm)
         {
             return;
         }
 
-        firearm.OnAltActionEvent += Firearm_OnAltActionEvent;
-        firearm.fireMode = firemodes[currentIndex];
+        actualFirearm.OnAltActionEvent += OnAltAction;
+        actualFirearm.fireMode = firemodes[currentIndex];
         UpdatePosition();
 
-        _fireModeIndex = FirearmSaveData.GetNode(firearm).GetOrAddValue("Firemode", new SaveNodeValueInt());
-        firearm.SetFiremode(firemodes[_fireModeIndex.Value]);
+        _fireModeIndex = parent.SaveNode.GetOrAddValue("Firemode", new SaveNodeValueInt());
+        actualFirearm.SetFiremode(firemodes[_fireModeIndex.Value]);
         currentIndex = _fireModeIndex.Value;
         UpdatePosition();
-        OnFiremodeChanged?.Invoke(firearm.fireMode);
+        OnFiremodeChanged?.Invoke(actualFirearm.fireMode);
     }
 
-    private void AttachmentOnOnDetachEvent(bool despawndetach)
+    private void AttachmentOnOnDetachEvent(bool despawnDetach)
     {
-        firearm.fireMode = _preAttachFireMode;
+        actualFirearm.fireMode = _preAttachFireMode;
     }
 
-    private void Firearm_OnAltActionEvent(bool longPress)
+    private void OnAltAction(bool longPress)
     {
-        if (longPress && (allowSwitchingModeIfHammerIsUncocked || (hammer && hammer.cocked && (!onlyAllowSwitchingIfBoltHasState || !firearm.bolt || firearm.bolt.state == switchAllowedState))))
+        if (longPress && (allowSwitchingModeIfHammerIsUncocked || (hammer && hammer.cocked && (!onlyAllowSwitchingIfBoltHasState || !actualFirearm.bolt || actualFirearm.bolt.state == switchAllowedState))))
         {
             CycleFiremode();
         }
@@ -87,10 +100,10 @@ public class FiremodeSelector : MonoBehaviour
         {
             currentIndex = 0;
         }
-        firearm.SetFiremode(firemodes[currentIndex]);
+        actualFirearm.SetFiremode(firemodes[currentIndex]);
         if (fireRates is not null && fireRates.Length > currentIndex)
         {
-            firearm.roundsPerMinute = fireRates[currentIndex];
+            actualFirearm.roundsPerMinute = fireRates[currentIndex];
         }
         if (switchSound)
         {
@@ -105,7 +118,7 @@ public class FiremodeSelector : MonoBehaviour
             UpdatePosition();
         }
         _fireModeIndex.Value = currentIndex;
-        OnFiremodeChanged?.Invoke(firearm.fireMode);
+        OnFiremodeChanged?.Invoke(actualFirearm.fireMode);
     }
 
     private void UpdatePosition()
@@ -114,7 +127,7 @@ public class FiremodeSelector : MonoBehaviour
         {
             return;
         }
-        var mode = firearm.fireMode;
+        var mode = actualFirearm.fireMode;
         if (mode == FirearmBase.FireModes.Safe && safePosition)
         {
             safetySwitch.position = safePosition.position;

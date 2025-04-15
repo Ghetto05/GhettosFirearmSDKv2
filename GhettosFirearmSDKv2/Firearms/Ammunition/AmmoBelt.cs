@@ -28,11 +28,6 @@ public class AmmoBelt : MonoBehaviour
         magazine.OnConsumeEvent += MagazineOnOnConsumeEvent;
         magazine.OnInsertEvent += _ => Insert();
         magazine.OnEjectEvent += _ => Remove();
-        Invoke(nameof(InvokedStart), Settings.invokeTime);
-    }
-
-    private void InvokedStart()
-    {
         Remove(true);
     }
 
@@ -44,7 +39,7 @@ public class AmmoBelt : MonoBehaviour
             {
                 data.SpawnAsync(item =>
                 {
-                    Util.IgnoreCollision(item.gameObject, magazine.currentWell.firearm.item.gameObject, true);
+                    Util.IgnoreCollision(item.gameObject, magazine.currentWell.actualFirearm.item.gameObject, true);
                     StartCoroutine(LinkEject(item));
                     item.Despawn(5f);
                 }, magazine.currentWell.beltLinkEjectDir.position, magazine.currentWell.beltLinkEjectDir.rotation);
