@@ -62,7 +62,6 @@ public class StockToggler : MonoBehaviour
 
     private void OnAction(IAttachmentManager.HeldActionData e)
     {
-        Debug.Log($"Stock save data exists: {_stockPosition != null}"); //TODO: remove debug
         if (e.Handle == toggleHandle && e.Action == Interactable.Action.UseStart)
         {
             if (currentIndex + 1 == positions.Length)

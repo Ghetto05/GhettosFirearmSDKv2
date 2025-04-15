@@ -245,8 +245,6 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
 
     private void BoltSemiautomatic_OnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
     {
-        //TODO: remove debug
-        Debug.Log($"Bolt action: {action} (bolt handles: {boltHandles.Count} contains: {boltHandles.Contains(handle)} state: {state})");
         if (boltHandles.Contains(handle) && action == Interactable.Action.Ungrab && state != BoltState.Locked)
         {
             Debug.Log("Set _letGoBeforeClosed");
