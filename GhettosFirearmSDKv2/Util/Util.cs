@@ -553,6 +553,7 @@ public class Util
 
     public static IComponentParent GetParent(GameObject manager, Attachment attachment)
     {
+        // problem: some types were changed to gameobject, but not the unity references
         if (manager)
             return manager.GetComponent<IAttachmentManager>();
         return attachment;
