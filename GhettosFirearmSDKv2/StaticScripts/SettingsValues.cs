@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
-public class FirearmsSettingsValues
+public class SettingsValues
 {
     public static ModOptionBool[] spawnBooleanButton =
     {

@@ -12,6 +12,19 @@ namespace GhettosFirearmSDKv2;
 
 public class FireMethods : MonoBehaviour
 {
+    public static readonly int FireLayerMask = LayerMask.GetMask(
+        "NPC",
+        "Ragdoll",
+        "Default",
+        "DroppedItem",
+        "MovingItem",
+        "PlayerLocomotionObject",
+        "Avatar",
+        "PlayerHandAndFoot",
+        "MovingObjectOnly",
+        "NoLocomotion",
+        "ItemAndRagdollOnly");
+    
     public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitPoints, out List<Vector3> trajectories, out List<Creature> hitCreatures, out List<Creature> killedCreatures, float damageMultiplier, bool useAISpread)
     {
         hitPoints = [];
@@ -134,20 +147,8 @@ public class FireMethods : MonoBehaviour
         #endregion physics toggle
 
         var hitCreatures = new List<Creature>();
-        var layer = LayerMask.GetMask(
-            "NPC",
-            "Ragdoll",
-            "Default",
-            "DroppedItem",
-            "MovingItem",
-            "PlayerLocomotionObject",
-            "Avatar",
-            "PlayerHandAndFoot",
-            "MovingObjectOnly",
-            "NoLocomotion",
-            "ItemAndRagdollOnly");
 
-        var hits = Physics.RaycastAll(muzzle.position, forward, data.projectileRange, layer)
+        var hits = Physics.RaycastAll(muzzle.position, forward, data.projectileRange, FireLayerMask)
                           .OrderBy(h => Vector3.Distance(h.point, muzzle.position))
                           .ToList();
         var power = (int)data.penetrationPower;
@@ -195,13 +196,13 @@ public class FireMethods : MonoBehaviour
                 var c = ProcessHit(muzzle, (HitData)hit, successfulHits, data, damageMultiplier, hitCreatures, killedCreatures, hitParts, hitShootables, gunItem, out var lowerDamageLevel, out var cancel, ref power);
                 if (lowerDamageLevel)
                 {
-                    if (power is (int)ProjectileData.PenetrationLevels.None or (int)ProjectileData.PenetrationLevels.Leather)
+                    if (power - Settings.overPenetrationPowerRequirement < 0)
                     {
                         processing = false;
                     }
                     else
                     {
-                        power -= 2;
+                        power -= Settings.overPenetrationPowerRequirement;
                     }
                 }
 
@@ -297,6 +298,10 @@ public class FireMethods : MonoBehaviour
                 if (data.drawsImpactDecal && penetrated)
                 {
                     DrawDecal(ragdollPart, hit, data.customImpactDecalId);
+                    if (penetrationPower >= Settings.overPenetrationPowerRequirement)
+                    {
+                        DrawExitWound(ragdollPart, hit, muzzle.forward, data.customImpactDecalId);
+                    }
                 }
 
                 #endregion Impact effect
@@ -612,14 +617,39 @@ public class FireMethods : MonoBehaviour
             rem.textureContainer.GetRandomTexture(), rem.maxChannelMultiplier, controllers, rem.revealData, null));
     }
 
-    private static void DrawExitWound(RagdollPart rp, HitData hit, string customDecal, bool isFore = true)
+    private static void DrawExitWound(RagdollPart rp, HitData hit, Vector3 muzzleDirection, string customDecal, bool isGore = true)
     {
+        if (Settings.disableExitWounds)
+        {
+            return;
+        }
+        
+        Vector3 source;
+        var wallHits = Physics.RaycastAll(hit.Point, muzzleDirection, 5, FireLayerMask);
+        if (wallHits.Any(x => x.rigidbody.GetComponentInParent<Ragdoll>() != rp.ragdoll))
+        {
+            source = wallHits.OrderBy(x => Vector3.Distance(x.point, hit.Point))
+                .FirstOrDefault(x => x.rigidbody.GetComponentInParent<Ragdoll>() != rp.ragdoll).point;
+        }
+        else
+        {
+            source = hit.Point + muzzleDirection.normalized * 5;
+        }
 
+        var bodyHits = Physics.RaycastAll(source, (hit.Point - source).normalized, Vector3.Distance(hit.Point, source),
+                FireLayerMask).Where(x => x.rigidbody.GetComponentInParent<Ragdoll>() == rp.ragdoll)
+            .OrderBy(x => Vector3.Distance(x.point, source)).ToArray();
+
+        var splatterHit = bodyHits.Any(x => x.rigidbody.GetComponentInParent<RagdollPart>() == rp)
+            ? bodyHits.FirstOrDefault(x => x.rigidbody.GetComponentInParent<RagdollPart>() == rp)
+            : bodyHits.FirstOrDefault();
+        
+        DrawDecal(rp, (HitData)splatterHit, customDecal, isGore);
     }
 
     private static void BloodSplatter(Vector3 origin, Vector3 direction, float force, int projectileCount, int penetrationPower, bool penetratedArmor)
     {
-        if (Settings.disableGore || Settings.disableBloodSpatters || penetrationPower < 2 || !penetratedArmor)
+        if (Settings.disableGore || Settings.disableBloodSpatters || penetrationPower < Settings.overPenetrationPowerRequirement || !penetratedArmor)
         {
             return;
         }

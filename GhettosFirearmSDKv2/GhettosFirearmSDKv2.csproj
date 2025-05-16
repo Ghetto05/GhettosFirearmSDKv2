@@ -92,7 +92,7 @@
         <Compile Include="SaveData\SaveNodeValueCartridgeData.cs"/>
         <Compile Include="SaveData\SaveNodeValueItem.cs"/>
         <Compile Include="StaticScripts\FirearmCleaner.cs"/>
-        <Compile Include="StaticScripts\FirearmsSettingsValues.cs"/>
+        <Compile Include="StaticScripts\SettingsValues.cs" />
         <Compile Include="StaticScripts\HomeAdjustments.cs"/>
         <Compile Include="StaticScripts\Initialization.cs"/>
         <Compile Include="StaticScripts\Score.cs"/>

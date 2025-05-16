@@ -23,6 +23,7 @@ public class Settings : ThunderScript
     public static float firingSoundDeviation = 0.2f;
     public static float boltPointThreshold = 0.004f;
     public static float aiFirearmSpread = 0f;
+    public static int overPenetrationPowerRequirement = 2;
 
     public static float failureToFeedChance = 0.02f;
     public static float failureToExtractChance = 0.01f;
@@ -49,7 +50,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(2)]
     [ModOptionCategory("Settings", 1)]
-    [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0. Note: Firearms will never despawn up until 10 seconds after having spawned in.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.firearmDespawnTimeValues), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "Firearm despawn time", tooltip = "Despawns any dropped firearms after set time. Disabled if set to 0. Note: Firearms will never despawn up until 10 seconds after having spawned in.", saveValue = true, valueSourceName = nameof(SettingsValues.firearmDespawnTimeValues), valueSourceType = typeof(SettingsValues))]
     public static float firearmDespawnTime = 60f;
 
     [ModOptionOrder(3)]
@@ -69,7 +70,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(6)]
     [ModOptionCategory("Settings", 1)]
-    [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.triggerDisciplineTimers), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "Trigger discipline timer", tooltip = "Defines the amount of time after which the index finger will move off the trigger after last pressing it.", saveValue = true, valueSourceName = nameof(SettingsValues.triggerDisciplineTimers), valueSourceType = typeof(SettingsValues))]
     public static float triggerDisciplineTime = 3f;
 
     [ModOptionOrder(7)]
@@ -137,7 +138,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(1)]
     [ModOptionCategory("NVG Offsets", 5)]
-    [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "NVG Forward Offset", tooltip = "Offsets all NVGs forwards.", saveValue = true, valueSourceName = nameof(SettingsValues.possibleNvgOffsets), valueSourceType = typeof(SettingsValues))]
     public static float NvgForwardOffset
     {
         get
@@ -155,7 +156,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(2)]
     [ModOptionCategory("NVG Offsets", 5)]
-    [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "NVG Upward Offset", tooltip = "Offsets all NVGs upwards.", saveValue = true, valueSourceName = nameof(SettingsValues.possibleNvgOffsets), valueSourceType = typeof(SettingsValues))]
     public static float NvgUpwardOffset
     {
         get
@@ -173,7 +174,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(3)]
     [ModOptionCategory("NVG Offsets", 5)]
-    [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.possibleNvgOffsets), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "NVG Sideways Offset", tooltip = "Offsets all NVGs sideways.", saveValue = true, valueSourceName = nameof(SettingsValues.possibleNvgOffsets), valueSourceType = typeof(SettingsValues))]
     public static float NvgSidewaysOffset
     {
         get
@@ -213,7 +214,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(1)]
     [ModOptionCategory("Cheats", 10)]
-    [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", saveValue = true, valueSourceName = nameof(FirearmsSettingsValues.incapacitateOnTorsoShotTimers), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "Incapacitate hit creatures", tooltip = "If enabled, shooting a creature in the torso will prevent them from standing up. May be mistaken for the creature dying.", saveValue = true, valueSourceName = nameof(SettingsValues.incapacitateOnTorsoShotTimers), valueSourceType = typeof(SettingsValues))]
     public static float incapacitateOnTorsoShot = 30;
 
     [ModOptionOrder(2)]
@@ -268,13 +269,18 @@ public class Settings : ThunderScript
     [ModOption(name = "Blood splatter size multiplier", tooltip = "Allows you to change how large blood splatters are.", saveValue = true)]
     public static float bloodSplatterSizeMultiplier = 1f;
 
+    [ModOptionOrder(5)]
+    [ModOptionCategory("Gore", 15)]
+    [ModOption(name = "Disable exit wounds", tooltip = "If enabled, there will be no exit wounds. Reduces lag.", saveValue = true)]
+    public static bool disableExitWounds = false;
+
     #endregion
 
     #region Malfunctions
 
     [ModOptionOrder(1)]
     [ModOptionCategory("Malfunctions", 20)]
-    [ModOptionValues(nameof(FirearmsSettingsValues.malfunctionModes), typeof(FirearmsSettingsValues))]
+    [ModOptionValues(nameof(SettingsValues.malfunctionModes), typeof(SettingsValues))]
     [ModOption(name = "Malfunction mode", tooltip = "Select how frequently malfunctions should occur.", saveValue = true)]
     public static float malfunctionMode = 1f;
 
@@ -339,7 +345,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(41)]
     [ModOptionCategory("Debug", 30)]
-    [ModOption(name = "Spawn Collider Layer Check Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "Spawn Collider Layer Check Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(SettingsValues.spawnBooleanButton), valueSourceType = typeof(SettingsValues))]
     // ReSharper disable once UnusedMember.Global - spawner dummy
     public static bool SpawnColliderLayerChecker
     {
@@ -360,7 +366,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(42)]
     [ModOptionCategory("Debug", 30)]
-    [ModOption(name = "Spawn Rail Type Check Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "Spawn Rail Type Check Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(SettingsValues.spawnBooleanButton), valueSourceType = typeof(SettingsValues))]
     // ReSharper disable once UnusedMember.Global - spawner dummy
     public static bool SpawnRailTypeChecker
     {
@@ -381,7 +387,7 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(43)]
     [ModOptionCategory("Debug", 30)]
-    [ModOption(name = "Spawn Attachment Validation Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(FirearmsSettingsValues.spawnBooleanButton), valueSourceType = typeof(FirearmsSettingsValues))]
+    [ModOption(name = "Spawn Attachment Validation Tool", tooltip = "Only for development.", saveValue = false, valueSourceName = nameof(SettingsValues.spawnBooleanButton), valueSourceType = typeof(SettingsValues))]
     // ReSharper disable once UnusedMember.Global - spawner dummy
     public static bool SpawnAttachmentValidator
     {
