@@ -34,6 +34,7 @@ public class PressureSwitch : TacticalSwitch
             _attachmentManager = attachmentManager.GetComponent<IAttachmentManager>();
         }
         _attachmentManager.OnUnhandledHeldAction += OnUnhandledHeldAction;
+        OnInvokedStart();
     }
 
     private void OnUnhandledHeldAction(IAttachmentManager.HeldActionData e)
@@ -51,23 +52,28 @@ public class PressureSwitch : TacticalSwitch
                 TriggerState = toggleMode ? !TriggerState : true;
                 if (toggleMode)
                 {
-                    pressSounds.RandomChoice().Play();
+                    pressSounds.RandomChoice()?.Play();
                 }
                 else
                 {
-                    (TriggerState ? pressSounds : releaseSounds).RandomChoice().Play();
+                    (TriggerState ? pressSounds : releaseSounds).RandomChoice()?.Play();
                 }
                 break;
 
             case Interactable.Action.UseStop when TriggerState && (dualMode || !useAltUse):
                 TriggerState = false;
-                releaseSounds.RandomChoice().Play();
+                releaseSounds.RandomChoice()?.Play();
                 break;
 
             case Interactable.Action.AlternateUseStart when dualMode || useAltUse:
                 AlternateUseState = !AlternateUseState;
-                (AlternateUseState ? pressSounds : releaseSounds).RandomChoice().Play();
+                (AlternateUseState ? pressSounds : releaseSounds).RandomChoice()?.Play();
                 break;
         }
+    }
+
+    public override FirearmSaveData.AttachmentTreeNode GetNode()
+    {
+        return attachment ? attachment.Node : _attachmentManager != null ? _attachmentManager.SaveData.FirearmNode : null;
     }
 }

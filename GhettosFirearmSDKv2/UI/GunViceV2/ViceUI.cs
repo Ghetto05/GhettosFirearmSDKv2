@@ -17,7 +17,7 @@ public class ViceUI : MonoBehaviour
         Interact
     }
 
-    public Collider screenCollider;
+    public List<Collider> screenColliders;
     public RectTransform slotContent;
     public RectTransform slotTemplate;
     public RectTransform attachmentCategoryContent;
@@ -32,10 +32,10 @@ public class ViceUI : MonoBehaviour
     private UISlot _currentSlot;
     private UIRailAttachment _currentRailAttachment;
 
-    private readonly List<UISlot> _slots = new();
-    private readonly List<UIAttachmentCategory> _attachmentCategories = new();
-    private readonly List<UIAttachment> _attachments = new();
-    private readonly List<UIRailAttachment> _railAttachments = new();
+    private readonly List<UISlot> _slots = [];
+    private readonly List<UIAttachmentCategory> _attachmentCategories = [];
+    private readonly List<UIAttachment> _attachments = [];
+    private readonly List<UIRailAttachment> _railAttachments = [];
 
     public Button removeAttachmentButton;
     public Button moveAttachmentForwardButton;
@@ -44,6 +44,16 @@ public class ViceUI : MonoBehaviour
     public TextMeshProUGUI saveAmmoItemButtonText;
     public TextMeshProUGUI slotDisplay;
     public RectTransform slotDisplayButton;
+
+    public RectTransform tacticalDeviceSetupScreen;
+    public GameObject pressurePadTriggerChannelLabel;
+    public TMP_Dropdown pressurePadTriggerChannelDropdown;
+    public GameObject pressurePadAltUseChannelLabel;
+    public TMP_Dropdown pressurePadAltUseChannelDropdown;
+    public GameObject pressurePadActionLabel;
+    public TMP_Dropdown pressurePadActionDropdown;
+    public RectTransform tacticalDeviceChannelPrefab;
+    private List<GameObject> _tacticalDeviceChannelDropdowns = [];
 
     public AudioSource selectSound;
     public AudioSource interactSound;
@@ -54,6 +64,8 @@ public class ViceUI : MonoBehaviour
 
     private void Start()
     {
+        tacticalDeviceSetupScreen.gameObject.SetActive(false);
+
         removeAttachmentButton.onClick.AddListener(RemoveAttachment);
         moveAttachmentForwardButton.onClick.AddListener(delegate { MoveAttachment(true); });
         moveAttachmentRearwardButton.onClick.AddListener(delegate { MoveAttachment(false); });
@@ -111,14 +123,14 @@ public class ViceUI : MonoBehaviour
             return;
         }
 
-        screenCollider.enabled = true;
+        screenColliders.ForEach(x => x.enabled = true);
         GetComponent<Canvas>().enabled = true;
         SetupForManager(manager);
     }
 
     private void HolderOnUnSnapped(Item item)
     {
-        screenCollider.enabled = false;
+        screenColliders.ForEach(x => x.enabled = false);
         GetComponent<Canvas>().enabled = false;
         Cleanup();
     }
@@ -345,6 +357,7 @@ public class ViceUI : MonoBehaviour
         moveAttachmentForwardButton.gameObject.SetActive(visible);
         moveAttachmentRearwardButton.gameObject.SetActive(visible);
         slotDisplayButton.gameObject.SetActive(visible);
+        SetTacticalDeviceMenu();
     }
 
     public void SelectCategory(UIAttachmentCategory category)
@@ -413,6 +426,7 @@ public class ViceUI : MonoBehaviour
         //_currentSlot.SetAttachment(attachment);
         UpdateSlots( /*attachment, false*/);
         UpdateSlotCounter();
+        SetTacticalDeviceMenu();
     }
 
     public void SelectRailAttachment(UIRailAttachment attachment)
@@ -434,6 +448,7 @@ public class ViceUI : MonoBehaviour
         attachment.selectionOutline.gameObject.SetActive(true);
 
         UpdateSaveAmmoButton();
+        SetTacticalDeviceMenu();
     }
 
     private void SetupAttachmentList(UISlot slot)
@@ -516,6 +531,101 @@ public class ViceUI : MonoBehaviour
         a.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         a.Setup(attachment, this);
         _railAttachments.Add(a);
+    }
+
+    private void SetTacticalDeviceMenu()
+    {
+        var show = false;
+        Debug.Log($"Tac devices: {GetCurrentAttachmentComponents<TacticalDevice>()?.Length ?? 0} Pressure switches: {GetCurrentAttachmentComponents<PressureSwitch>()?.Length ?? 0}");
+
+        _tacticalDeviceChannelDropdowns.ForEach(Destroy);
+        _tacticalDeviceChannelDropdowns.Clear();
+        pressurePadTriggerChannelLabel.SetActive(false);
+        pressurePadTriggerChannelDropdown.gameObject.SetActive(false);
+        pressurePadAltUseChannelLabel.SetActive(false);
+        pressurePadAltUseChannelDropdown.gameObject.SetActive(false);
+        pressurePadActionLabel.SetActive(false);
+        pressurePadActionDropdown.gameObject.SetActive(false);
+
+        if (GetCurrentAttachmentComponents<PressureSwitch>() is { } switches && switches.Any())
+        {
+            show = true;
+
+            pressurePadTriggerChannelDropdown.onValueChanged.RemoveAllListeners();
+            pressurePadAltUseChannelDropdown.onValueChanged.RemoveAllListeners();
+            pressurePadActionDropdown.onValueChanged.RemoveAllListeners();
+            var s = switches.First();
+
+            pressurePadTriggerChannelLabel.SetActive(s.dualMode || !s.useAltUse);
+            pressurePadTriggerChannelDropdown.gameObject.SetActive(s.dualMode || !s.useAltUse);
+            pressurePadAltUseChannelLabel.SetActive(s.dualMode || s.useAltUse);
+            pressurePadAltUseChannelDropdown.gameObject.SetActive(s.dualMode || s.useAltUse);
+            pressurePadActionLabel.SetActive(!s.dualMode);
+            pressurePadActionDropdown.gameObject.SetActive(!s.dualMode);
+
+            pressurePadTriggerChannelDropdown.value = s.triggerChannel - 1;
+            pressurePadAltUseChannelDropdown.value = s.alternateUseChannel - 1;
+            pressurePadActionDropdown.value = s.useAltUse ? 1 : 0;
+
+            pressurePadTriggerChannelDropdown.onValueChanged.AddListener(x =>
+            {
+                s.SetTriggerChannel(x + 1);
+            });
+
+            pressurePadAltUseChannelDropdown.onValueChanged.AddListener(x =>
+            {
+                s.SetAltUseChannel(x + 1);
+            });
+
+            pressurePadActionDropdown.onValueChanged.AddListener(x =>
+            {
+                var useAlt = x != 0;
+                s.SetUseAltUse(useAlt);
+                pressurePadTriggerChannelLabel.SetActive(!useAlt);
+                pressurePadTriggerChannelDropdown.gameObject.SetActive(!useAlt);
+                pressurePadAltUseChannelLabel.SetActive(useAlt);
+                pressurePadAltUseChannelDropdown.gameObject.SetActive(useAlt);
+            });
+        }
+
+        if (GetCurrentAttachmentComponents<TacticalDevice>() is { } devices && devices.Any())
+        {
+            show = true;
+
+            foreach (var deviceGroup in devices.GroupBy(x => x.channelName))
+            {
+                var obj = Instantiate(tacticalDeviceChannelPrefab, tacticalDeviceChannelPrefab.transform);
+                obj.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+                obj.gameObject.SetActive(true);
+                var dropDown = obj.GetComponentInChildren<TMP_Dropdown>();
+                var label = obj.Find("Label").GetComponent<TMP_Text>();
+                label.text = $"{deviceGroup.Key} Channel";
+                dropDown.value = deviceGroup.First().channel;
+                dropDown.onValueChanged.AddListener(channel =>
+                {
+                    foreach (var device in deviceGroup)
+                    {
+                        device.SetChannel(channel + 1);
+                    }
+                });
+                _tacticalDeviceChannelDropdowns.Add(obj.gameObject);
+            }
+        }
+
+        tacticalDeviceSetupScreen.gameObject.SetActive(show);
+    }
+
+    private T[] GetCurrentAttachmentComponents<T>()
+    {
+        if (_currentRailAttachment && _currentRailAttachment.CurrentAttachment is { } railAttachment)
+        {
+            return railAttachment.GetComponentsInChildren<T>();
+        }
+        else if (_currentSlot?.AttachmentPoint?.currentAttachments.FirstOrDefault() is { } attachment)
+        {
+            return attachment.GetComponentsInChildren<T>();
+        }
+        return null;
     }
 
     private UIAttachmentCategory GetOrAddCategory(string category)
