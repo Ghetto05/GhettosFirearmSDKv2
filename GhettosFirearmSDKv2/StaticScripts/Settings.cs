@@ -258,13 +258,13 @@ public class Settings : ThunderScript
 
     [ModOptionOrder(3)]
     [ModOptionCategory("Gore", 15)]
-    [ModOptionFloatValues(0, 1, 0.5f)]
+    [ModOptionFloatValues(0f, 10f, 0.1f)]
     [ModOption(name = "Blood splatter life time multiplier", tooltip = "Allows you to change how long blood splatters stay.", saveValue = true)]
     public static float bloodSplatterLifetimeMultiplier = 1f;
 
     [ModOptionOrder(4)]
     [ModOptionCategory("Gore", 15)]
-    [ModOptionFloatValues(0, 5, 0.5f)]
+    [ModOptionFloatValues(0f, 3f, 0.1f)]
     [ModOption(name = "Blood splatter size multiplier", tooltip = "Allows you to change how large blood splatters are.", saveValue = true)]
     public static float bloodSplatterSizeMultiplier = 1f;
 

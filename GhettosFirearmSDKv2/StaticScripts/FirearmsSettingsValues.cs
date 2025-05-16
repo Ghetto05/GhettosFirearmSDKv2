@@ -144,10 +144,11 @@ public class FirearmsSettingsValues
     public static ModOptionFloat[] malfunctionModes =
     {
         new("Disabled", 0f),
-        new("Realistic", 1f),
-        new("Arcade", 10f),
-        new("Gruesome", 33f),
-        new("Nightmare", 100f),
-        new("Defective", 10000f)
+        new("Standard", 1f),
+        new("x10", 10f),
+        new("x100", 100f),
+        new("x1000", 1000f),
+        new("x10k", 10000f),
+        new("x100k", 100000f)
     };
 }
