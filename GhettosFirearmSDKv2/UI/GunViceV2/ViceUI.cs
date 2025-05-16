@@ -594,7 +594,7 @@ public class ViceUI : MonoBehaviour
 
             foreach (var deviceGroup in devices.GroupBy(x => x.channelName))
             {
-                var obj = Instantiate(tacticalDeviceChannelPrefab, tacticalDeviceChannelPrefab.transform);
+                var obj = Instantiate(tacticalDeviceChannelPrefab, tacticalDeviceChannelPrefab.transform.parent);
                 obj.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
                 obj.gameObject.SetActive(true);
                 var dropDown = obj.GetComponentInChildren<TMP_Dropdown>();
