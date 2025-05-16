@@ -612,6 +612,11 @@ public class FireMethods : MonoBehaviour
             rem.textureContainer.GetRandomTexture(), rem.maxChannelMultiplier, controllers, rem.revealData, null));
     }
 
+    private static void DrawExitWound(RagdollPart rp, HitData hit, string customDecal, bool isFore = true)
+    {
+
+    }
+
     private static void BloodSplatter(Vector3 origin, Vector3 direction, float force, int projectileCount, int penetrationPower, bool penetratedArmor)
     {
         if (Settings.disableGore || Settings.disableBloodSpatters || penetrationPower < 2 || !penetratedArmor)
