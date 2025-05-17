@@ -24,7 +24,7 @@ public class FireMethods : MonoBehaviour
         "MovingObjectOnly",
         "NoLocomotion",
         "ItemAndRagdollOnly");
-    
+
     public static void Fire(Item gun, Transform muzzle, ProjectileData data, out List<Vector3> hitPoints, out List<Vector3> trajectories, out List<Creature> hitCreatures, out List<Creature> killedCreatures, float damageMultiplier, bool useAISpread)
     {
         hitPoints = [];
@@ -623,28 +623,34 @@ public class FireMethods : MonoBehaviour
         {
             return;
         }
-        
-        Vector3 source;
-        var wallHits = Physics.RaycastAll(hit.Point, muzzleDirection, 5, FireLayerMask);
-        if (wallHits.Any(x => x.rigidbody.GetComponentInParent<Ragdoll>() != rp.ragdoll))
-        {
-            source = wallHits.OrderBy(x => Vector3.Distance(x.point, hit.Point))
-                .FirstOrDefault(x => x.rigidbody.GetComponentInParent<Ragdoll>() != rp.ragdoll).point;
-        }
-        else
-        {
-            source = hit.Point + muzzleDirection.normalized * 5;
-        }
 
-        var bodyHits = Physics.RaycastAll(source, (hit.Point - source).normalized, Vector3.Distance(hit.Point, source),
-                FireLayerMask).Where(x => x.rigidbody.GetComponentInParent<Ragdoll>() == rp.ragdoll)
-            .OrderBy(x => Vector3.Distance(x.point, source)).ToArray();
+        try
+        {
+            var source = hit.Point + muzzleDirection.normalized * 5;
+            var bodyHits = Physics.RaycastAll(source, (hit.Point - source).normalized, Vector3.Distance(hit.Point, source),
+                                      FireLayerMask).Where(x => x.rigidbody?.GetComponentInParent<Ragdoll>() == rp.ragdoll)
+                                  .OrderBy(x => Vector3.Distance(x.point, source)).ToArray();
 
-        var splatterHit = bodyHits.Any(x => x.rigidbody.GetComponentInParent<RagdollPart>() == rp)
-            ? bodyHits.FirstOrDefault(x => x.rigidbody.GetComponentInParent<RagdollPart>() == rp)
-            : bodyHits.FirstOrDefault();
-        
-        DrawDecal(rp, (HitData)splatterHit, customDecal, isGore);
+            RaycastHit? splatterHit = bodyHits.Any(x => x.rigidbody?.GetComponentInParent<RagdollPart>() == rp)
+                ? bodyHits.FirstOrDefault(x => x.rigidbody?.GetComponentInParent<RagdollPart>() == rp)
+                : bodyHits.Any(x => x.rigidbody?.GetComponentInParent<RagdollPart>() == rp)
+                    ? bodyHits.FirstOrDefault(x => x.rigidbody?.GetComponentInParent<Ragdoll>() == rp.ragdoll)
+                    : null;
+
+            if (splatterHit == null)
+            {
+                return;
+            }
+
+            DrawDecal(rp, (HitData)splatterHit, customDecal, isGore);
+        }
+        catch (Exception e)
+        {
+            if (Settings.debugMode)
+            {
+                Debug.LogError($"Error drawing exit wound:\n{e}");
+            }
+        }
     }
 
     private static void BloodSplatter(Vector3 origin, Vector3 direction, float force, int projectileCount, int penetrationPower, bool penetratedArmor)
