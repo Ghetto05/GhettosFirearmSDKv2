@@ -305,6 +305,7 @@ public class Firearm : FirearmBase, IAttachmentManager
 
     public override void PlayMuzzleFlash(Cartridge cartridge)
     {
+        var overrides = new List<Attachment>();
         var overridden = false;
         foreach (var at in CurrentAttachments)
         {
@@ -313,11 +314,17 @@ public class Firearm : FirearmBase, IAttachmentManager
                 overridden = true;
             }
             if (!at.overridesMuzzleFlash || at.attachmentPoint.dummyMuzzleSlot ||
-                !NoMuzzleFlashOverridingAttachmentChildren(at) || !at.newFlash)
+                !NoMuzzleFlashOverridingAttachmentChildren(at))
             {
                 continue;
             }
-            at.newFlash.Play();
+            overrides.Add(at);
+        }
+
+        var att = overrides.OrderByDescending(x => x.muzzleFlashPriority).FirstOrDefault();
+        if (att?.newFlash)
+        {
+            att.newFlash.Play();
             StartCoroutine(PlayMuzzleFlashLight(cartridge));
         }
 

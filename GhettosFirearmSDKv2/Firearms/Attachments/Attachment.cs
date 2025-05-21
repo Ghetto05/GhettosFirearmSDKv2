@@ -36,6 +36,7 @@ public class Attachment : MonoBehaviour
 
     public bool overridesMuzzleFlash;
     public ParticleSystem newFlash;
+    public int muzzleFlashPriority;
     public Transform minimumMuzzlePosition;
     public List<Damager> damagers;
     public List<string> damagerIds;
