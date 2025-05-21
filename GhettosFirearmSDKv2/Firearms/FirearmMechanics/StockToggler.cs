@@ -60,7 +60,7 @@ public class StockToggler : MonoBehaviour
         ApplyPosition(_stockPosition.Value, false);
     }
 
-    private void OnAction(IAttachmentManager.HeldActionData e)
+    private void OnAction(IInteractionProvider.HeldActionData e)
     {
         if (e.Handle == toggleHandle && e.Action == Interactable.Action.UseStart)
         {

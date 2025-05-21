@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ThunderRoad;
 using UnityEngine;
 
@@ -53,6 +54,23 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
     {
         Invoke(nameof(InvokedStart), Settings.invokeTime);
         item.OnHeldActionEvent += ItemOnOnHeldActionEvent;
+        item.OnDespawnEvent += OnDespawnEvent;
+    }
+
+    private void OnDespawnEvent(EventTime eventTime)
+    {
+        if (eventTime != EventTime.OnStart)
+        {
+            return;
+        }
+        item.OnHeldActionEvent -= ItemOnOnHeldActionEvent;
+        item.OnDespawnEvent -= OnDespawnEvent;
+        OnTeardown?.Invoke();
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        OnCollision?.Invoke(other);
     }
 
     private void ItemOnOnHeldActionEvent(RagdollHand ragdollHand, Handle handle, Interactable.Action action)
@@ -90,6 +108,7 @@ public class AttachmentManager : MonoBehaviour, IAttachmentManager
         OnAttachmentRemoved?.Invoke(attachment, attachmentPoint);
     }
 
+    public event IInteractionProvider.Teardown OnTeardown;
     public event IAttachmentManager.Collision OnCollision;
     public event IAttachmentManager.AttachmentAdded OnAttachmentAdded;
     public event IAttachmentManager.AttachmentRemoved OnAttachmentRemoved;

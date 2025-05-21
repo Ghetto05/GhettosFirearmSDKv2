@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using GhettosFirearmSDKv2.Attachments;
 using ThunderRoad;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -547,5 +548,33 @@ public class Util
             builder.Append(dataList[i]);
         }
         builder.AppendLine();
+    }
+    
+    public static IEnumerator RequestInitialization(GameObject manager, Action<InitializationData> initialization)
+    {
+        if (manager.GetComponent<Attachment>() is { } attachment)
+        {
+            yield return new WaitUntil(() => attachment.initialized);
+            initialization.Invoke(new InitializationData(attachment.attachmentPoint.ConnectedManager, attachment, attachment.Node));
+        }
+        else if (manager.GetComponent<IAttachmentManager>() is { } attachmentManager)
+        {
+            yield return new WaitUntil(() => attachmentManager.SaveData != null);
+            initialization.Invoke(new InitializationData(attachmentManager, attachmentManager, attachmentManager.SaveData.FirearmNode));
+        }
+    }
+
+    public struct InitializationData
+    {
+        public InitializationData(IAttachmentManager manager, IInteractionProvider interactionProvider, FirearmSaveData.AttachmentTreeNode node)
+        {
+            Manager = manager;
+            InteractionProvider = interactionProvider;
+            Node = node;
+        }
+
+        public readonly IAttachmentManager Manager;
+        public readonly IInteractionProvider InteractionProvider;
+        public readonly FirearmSaveData.AttachmentTreeNode Node;
     }
 }

@@ -52,7 +52,7 @@ public class Bipod : MonoBehaviour
         }
     }
 
-    private void OnHeldActionEvent(IAttachmentManager.HeldActionData e)
+    private void OnHeldActionEvent(IInteractionProvider.HeldActionData e)
     {
         if (e.Handle == toggleHandle && e.Action == Interactable.Action.UseStart)
         {

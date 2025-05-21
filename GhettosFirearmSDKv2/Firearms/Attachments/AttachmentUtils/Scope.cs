@@ -96,7 +96,7 @@ public class Scope : MonoBehaviour
         }
     }
 
-    private void OnHeldAction(IAttachmentManager.HeldActionData e)
+    private void OnHeldAction(IInteractionProvider.HeldActionData e)
     {
         if (e.Handle == controllingHandle)
         {

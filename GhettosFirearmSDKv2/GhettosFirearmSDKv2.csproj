@@ -34,6 +34,7 @@
     <ItemGroup>
         <Compile Include="Attachments\AttachmentManager.cs"/>
         <Compile Include="Attachments\IAttachmentManager.cs"/>
+        <Compile Include="Attachments\IInteractionProvider.cs" />
         <Compile Include="Attachments\SharedAttachmentManagerFunctions.cs"/>
         <Compile Include="Chemicals\DartBehavoirs.cs"/>
         <Compile Include="Clothing\HUD\HUDModuleHeldWeaponOverrideIcon.cs"/>

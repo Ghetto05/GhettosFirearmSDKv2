@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 
 namespace GhettosFirearmSDKv2;
 
-public class Attachment : MonoBehaviour
+public class Attachment : MonoBehaviour, IInteractionProvider
 {
     public AsyncOperationHandle<GameObject>? AssetLoadHandle;
 
@@ -192,6 +192,7 @@ public class Attachment : MonoBehaviour
             }
         }
         attachmentPoint.ConnectedManager.Item.OnHeldActionEvent += InvokeHeldAction;
+        attachmentPoint.ConnectedManager.OnCollision += InvokeCollision;
         attachmentPoint.ConnectedManager.OnHeldAction += InvokeCustomHeldAction;
         attachmentPoint.ConnectedManager.OnUnhandledHeldAction += InvokeCustomUnhandledHeldAction;
         OnDelayedAttachEvent?.Invoke();
@@ -228,12 +229,17 @@ public class Attachment : MonoBehaviour
         }
     }
 
-    private void InvokeCustomHeldAction(IAttachmentManager.HeldActionData e)
+    private void InvokeCollision(Collision e)
+    {
+        OnCollision?.Invoke(e);
+    }
+
+    private void InvokeCustomHeldAction(IInteractionProvider.HeldActionData e)
     {
         OnHeldAction?.Invoke(e);
     }
 
-    private void InvokeCustomUnhandledHeldAction(IAttachmentManager.HeldActionData e)
+    private void InvokeCustomUnhandledHeldAction(IInteractionProvider.HeldActionData e)
     {
         OnUnhandledHeldAction?.Invoke(e);
     }
@@ -252,9 +258,11 @@ public class Attachment : MonoBehaviour
 
     public void Detach(bool despawnDetach = false)
     {
+        OnTeardown?.Invoke();
         if (attachmentPoint && attachmentPoint.ConnectedManager is not null)
         {
             attachmentPoint.ConnectedManager.Item.OnHeldActionEvent -= InvokeHeldAction;
+            attachmentPoint.ConnectedManager.OnCollision -= InvokeCollision;
             attachmentPoint.ConnectedManager.OnHeldAction -= InvokeCustomHeldAction;
             attachmentPoint.ConnectedManager.OnUnhandledHeldAction -= InvokeCustomUnhandledHeldAction;
         }
@@ -416,6 +424,8 @@ public class Attachment : MonoBehaviour
 
     public event OnHeldActionDelegate OnHeldActionEvent;
 
-    public event IAttachmentManager.HeldAction OnHeldAction;
-    public event IAttachmentManager.HeldAction OnUnhandledHeldAction;
+    public event IInteractionProvider.Teardown OnTeardown;
+    public event IInteractionProvider.Collision OnCollision;
+    public event IInteractionProvider.HeldAction OnHeldAction;
+    public event IInteractionProvider.HeldAction OnUnhandledHeldAction;
 }

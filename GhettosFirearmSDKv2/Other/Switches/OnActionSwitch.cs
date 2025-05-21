@@ -68,7 +68,7 @@ public class OnActionSwitch : MonoBehaviour
         }
     }
 
-    private void OnHeldActionEvent(IAttachmentManager.HeldActionData e)
+    private void OnHeldActionEvent(IInteractionProvider.HeldActionData e)
     {
         if (handle == e.Handle &&
             ((switchAction == Actions.AlternateButtonRelease && e.Action == Interactable.Action.AlternateUseStop) ||

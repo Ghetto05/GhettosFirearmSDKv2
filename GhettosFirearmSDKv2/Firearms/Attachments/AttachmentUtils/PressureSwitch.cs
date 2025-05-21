@@ -37,7 +37,7 @@ public class PressureSwitch : TacticalSwitch
         OnInvokedStart();
     }
 
-    private void OnUnhandledHeldAction(IAttachmentManager.HeldActionData e)
+    private void OnUnhandledHeldAction(IInteractionProvider.HeldActionData e)
     {
         if (e.Handle == e.Handle.item.mainHandleLeft ||
             (_attachmentManager is FirearmBase f && f.AllTriggerHandles().Contains(e.Handle)))

@@ -229,6 +229,7 @@ public class Firearm : FirearmBase, IAttachmentManager
         item.lightVolumeReceiver.onVolumeChangeEvent -= UpdateAllLightVolumeReceivers;
         item.mainCollisionHandler.OnCollisionStartEvent -= InvokeCollisionTR;
         all.Remove(this);
+        OnTeardown?.Invoke();
     }
 
     public override void Update()
@@ -435,6 +436,7 @@ public class Firearm : FirearmBase, IAttachmentManager
         OnAttachmentRemoved?.Invoke(attachment, attachmentPoint);
     }
 
+    public event IInteractionProvider.Teardown OnTeardown;
     public event IAttachmentManager.Collision OnCollision;
     public event IAttachmentManager.AttachmentAdded OnAttachmentAdded;
     public event IAttachmentManager.AttachmentRemoved OnAttachmentRemoved;
