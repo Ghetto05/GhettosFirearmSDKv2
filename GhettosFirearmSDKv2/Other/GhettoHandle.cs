@@ -21,8 +21,15 @@ public class GhettoHandle : Handle
         AttachForegrip = 20
     }
 
+    public enum Tags
+    {
+        None = 0,
+        SlidingStockHandle = 1 << 0
+    }
+
     public HandleType type;
     public HandlePriority aiPriority;
+    public Tags tags;
 
     protected override void Awake()
     {

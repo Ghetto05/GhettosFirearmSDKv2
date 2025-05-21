@@ -61,6 +61,8 @@
         <Compile Include="Firearms\Attachments\AttachmentUtils\FireModeReplacer.cs"/>
         <Compile Include="Firearms\Attachments\AttachmentUtils\FireRateAdjuster.cs"/>
         <Compile Include="Firearms\Attachments\AttachmentUtils\ForeGripSling.cs"/>
+        <Compile Include="Firearms\Attachments\AttachmentUtils\SlidingStock.cs" />
+        <Compile Include="Firearms\Attachments\AttachmentUtils\SlidingStockLatch.cs" />
         <Compile Include="Firearms\Attachments\AttachmentUtils\TacticalSwitch.cs"/>
         <Compile Include="Firearms\Attachments\AttachmentUtils\RevolverCaliberReplacer.cs"/>
         <Compile Include="Firearms\Attachments\AttachmentUtils\ScopeReticleReplacer.cs"/>
