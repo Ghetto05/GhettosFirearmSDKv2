@@ -643,6 +643,13 @@ public class FireMethods : MonoBehaviour
             }
 
             DrawDecal(rp, (HitData)splatterHit, customDecal, isGore);
+
+            var ei = Catalog.GetData<EffectData>("BulletImpactFlesh_Ghetto05_FirearmSDKv2")
+                            .Spawn(splatterHit.Value.point,
+                                splatterHit.Value.normal == Vector3.zero ? Quaternion.LookRotation(Vector3.one * 0.0001f) : Quaternion.LookRotation(splatterHit.Value.normal),
+                                splatterHit.Value.collider.transform);
+            ei.SetIntensity(100f);
+            ei.Play();
         }
         catch (Exception e)
         {
