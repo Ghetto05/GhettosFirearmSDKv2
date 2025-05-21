@@ -350,6 +350,7 @@ public class ViceUI : MonoBehaviour
         }
 
         UpdateSaveAmmoButton();
+        SetTacticalDeviceMenu();
     }
 
     private void SetButtonVisibility(bool visible)
@@ -615,15 +616,15 @@ public class ViceUI : MonoBehaviour
         tacticalDeviceSetupScreen.gameObject.SetActive(show);
     }
 
-    private T[] GetCurrentAttachmentComponents<T>()
+    private T[] GetCurrentAttachmentComponents<T>() where T : MonoBehaviour
     {
         if (_currentRailAttachment && _currentRailAttachment.CurrentAttachment is { } railAttachment)
         {
-            return railAttachment.GetComponentsInChildren<T>();
+            return railAttachment.GetComponentsInChildren<T>().Where(x => x.GetComponentInParent<Attachment>() == railAttachment).ToArray();
         }
         else if (_currentSlot?.AttachmentPoint?.currentAttachments.FirstOrDefault() is { } attachment)
         {
-            return attachment.GetComponentsInChildren<T>();
+            return attachment.GetComponentsInChildren<T>().Where(x => x.GetComponentInParent<Attachment>() == attachment).ToArray();
         }
         return null;
     }
