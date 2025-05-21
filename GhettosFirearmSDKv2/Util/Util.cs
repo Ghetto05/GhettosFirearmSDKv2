@@ -60,20 +60,7 @@ public class Util
 
     public static bool CheckCaliberMatch(string insertedCaliber, List<string> targetCalibers, bool ignoreCheat = false)
     {
-        if (targetCalibers is null)
-        {
-            return false;
-        }
-
-        foreach (var targetCaliber in targetCalibers)
-        {
-            if (CheckCaliberMatch(insertedCaliber, targetCaliber, ignoreCheat))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return targetCalibers is not null && targetCalibers.Any(targetCaliber => CheckCaliberMatch(insertedCaliber, targetCaliber, ignoreCheat));
     }
 
     public static bool CheckCaliberMatch(string insertedCaliber, string targetCaliber, bool ignoreCheat = false)
@@ -104,14 +91,8 @@ public class Util
             return true;
         }
 
-        var sameType = magazine.magazineType.Equals(well.acceptedMagazineType);
-        foreach (var t in well.alternateMagazineTypes)
-        {
-            if (t.Equals(magazine.magazineType))
-            {
-                sameType = true;
-            }
-        }
+        var sameType = magazine.magazineType.Equals(well.acceptedMagazineType) || 
+                       well.alternateMagazineTypes.Any(t => t.Equals(magazine.magazineType));
         var compatibleCaliber = magazine.cartridges.Count == 0 ||
                                 !Settings.doCaliberChecks ||
                                 well.caliber.Equals(magazine.cartridges[0].caliber) ||
@@ -135,90 +116,28 @@ public class Util
     {
         if (theseColliders is not null && otherColliders is null)
         {
-            foreach (var con in collision.contacts)
-            {
-                foreach (var c in theseColliders)
-                {
-                    if (c == con.thisCollider)
-                    {
-                        return true;
-                    }
-                }
-            }
+            return collision.contacts.Any(con => theseColliders.Any(c => c == con.thisCollider));
         }
-        else if (theseColliders is null && otherColliders is not null)
+        if (theseColliders is null && otherColliders is not null)
         {
-            foreach (var con in collision.contacts)
-            {
-                foreach (var c in otherColliders)
-                {
-                    if (c == con.otherCollider)
-                    {
-                        return true;
-                    }
-                }
-            }
+            return collision.contacts.Any(con => otherColliders.Any(c => c == con.otherCollider));
         }
-        else if (theseColliders is not null)
-        {
-            foreach (var con in collision.contacts)
-            {
-                var thisColliderFound = false;
-                foreach (var thisCollider in theseColliders)
-                {
-                    if (thisCollider == con.thisCollider)
-                    {
-                        thisColliderFound = true;
-                    }
-                }
-
-                foreach (var otherCollider in otherColliders)
-                {
-                    if (otherCollider == con.otherCollider && thisColliderFound)
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+        return theseColliders is not null && collision.contacts.Any(con => theseColliders.Any(c => c == con.thisCollider) && otherColliders.Any(oc => oc == con.otherCollider));
     }
 
     public static bool CheckForCollisionWithThisCollider(Collision collision, Collider thisCollider)
     {
-        foreach (var con in collision.contacts)
-        {
-            if (con.thisCollider == thisCollider)
-            {
-                return true;
-            }
-        }
-        return false;
+        return collision.contacts.Any(con => con.thisCollider == thisCollider);
     }
 
     public static bool CheckForCollisionWithOtherCollider(Collision collision, Collider otherCollider)
     {
-        foreach (var con in collision.contacts)
-        {
-            if (con.otherCollider == otherCollider)
-            {
-                return true;
-            }
-        }
-        return false;
+        return collision.contacts.Any(con => con.otherCollider == otherCollider);
     }
 
     public static bool CheckForCollisionWithBothColliders(Collision collision, Collider thisCollider, Collider otherCollider)
     {
-        foreach (var con in collision.contacts)
-        {
-            if (con.thisCollider == thisCollider && con.otherCollider == otherCollider)
-            {
-                return true;
-            }
-        }
-        return false;
+        return collision.contacts.Any(con => con.thisCollider == thisCollider && con.otherCollider == otherCollider);
     }
 
     public static void IgnoreCollision(GameObject obj1, GameObject obj2, bool ignore)
@@ -255,39 +174,22 @@ public class Util
         IgnoreCollision(obj1, obj2, ignore);
     }
 
-    public static AudioSource PlayRandomAudioSource(List<AudioSource> sources)
+    public static AudioSource PlayRandomAudioSource(IEnumerable<AudioSource> sources)
     {
         var source = GetRandomFromList(sources);
-        if (source)
-        {
-            source.PlayOneShot(source.clip);
-            return source;
-        }
-        return null;
+        if (!source) return null;
+        source.PlayOneShot(source.clip);
+        return source;
     }
 
-    public static AudioSource PlayRandomAudioSource(AudioSource[] sources)
+    public static T GetRandomFromList<T>(IEnumerable<T> list)
     {
-        return PlayRandomAudioSource(sources.ToList());
-    }
-
-    public static T GetRandomFromList<T>(List<T> list)
-    {
-        if (list is null || list.Count == 0)
+        var l = list?.ToList();
+        if (l is null || !l.Any())
         {
             return default;
         }
-        var i = Random.Range(0, list.Count);
-        return list[i];
-    }
-
-    public static T GetRandomFromList<T>(IList<T> array)
-    {
-        if (array is null)
-        {
-            return default;
-        }
-        return GetRandomFromList(array.ToList());
+        return l[Random.Range(0, l.Count)];
     }
 
     public static float AbsDist(Vector3 v1, Vector3 v2)
@@ -314,14 +216,7 @@ public class Util
 
     public static bool AllLocksUnlocked(List<Lock> locks)
     {
-        foreach (var l in locks)
-        {
-            if (!l.IsUnlocked())
-            {
-                return false;
-            }
-        }
-        return true;
+        return locks.All(t => t.IsUnlocked());
     }
 
     public static Transform RecursiveFindChild(Transform parent, string childName)
@@ -344,14 +239,13 @@ public class Util
     public static void UpdateLightVolumeReceiver(LightVolumeReceiver receiverToBeUpdated, LightProbeVolume currentLightProbeVolume, List<LightProbeVolume> lightProbeVolumes)
     {
         var method = typeof(LightVolumeReceiver).GetMethod("OnParentVolumeChange", BindingFlags.Instance | BindingFlags.NonPublic);
-        method?.Invoke(receiverToBeUpdated, new object[] { currentLightProbeVolume, lightProbeVolumes });
+        method?.Invoke(receiverToBeUpdated, [currentLightProbeVolume, lightProbeVolumes]);
     }
 
     /**
      * <summary>
      *     Function to normalize angles to be within [-180, 180]
      * </summary>
-     * >
      */
     public static float NormalizeAngle(float angle)
     {
