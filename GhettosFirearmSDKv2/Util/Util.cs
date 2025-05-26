@@ -457,6 +457,12 @@ public class Util
             initialization.Invoke(new InitializationData(attachmentManager, attachmentManager, attachmentManager.SaveData.FirearmNode));
         }
     }
+    
+    public static IEnumerator RequestItemInitialization(Item item, Action initialization)
+    {
+        yield return new WaitUntil(() => item.spawnTime > 1f);
+        initialization.Invoke();
+    }
 
     public struct InitializationData
     {

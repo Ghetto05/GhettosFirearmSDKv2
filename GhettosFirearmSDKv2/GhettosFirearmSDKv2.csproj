@@ -47,6 +47,8 @@
         <Compile Include="Clothing\WearableItem.cs"/>
         <Compile Include="Clothing\Wearables\Wearable.cs"/>
         <Compile Include="Firearms\Ammunition\AmmoBelt.cs"/>
+        <Compile Include="Firearms\Ammunition\AmmunitionBelt.cs" />
+        <Compile Include="Firearms\Ammunition\AmmunitionBeltLink.cs" />
         <Compile Include="Firearms\Ammunition\CustomCartridgeDeathSound.cs"/>
         <Compile Include="Firearms\Ammunition\IAmmunitionLoadable.cs"/>
         <Compile Include="Firearms\Ammunition\ICaliberGettable.cs"/>
