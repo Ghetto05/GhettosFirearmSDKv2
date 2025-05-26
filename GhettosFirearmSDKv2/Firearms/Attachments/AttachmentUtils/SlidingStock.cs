@@ -40,8 +40,12 @@ public class SlidingStock : MonoBehaviour
     {
         _baseRigidbody = new GameObject().AddComponent<Rigidbody>();
         _baseRigidbody.isKinematic = true;
+        _baseRigidbody.transform.SetParent(axis.parent);
+        _baseRigidbody.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         _stockRigidbody = new GameObject().AddComponent<Rigidbody>();
         _stockRigidbody.isKinematic = true;
+        _stockRigidbody.transform.SetParent(axis.parent);
+        _stockRigidbody.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         _stabilizer = _stockRigidbody.gameObject.AddComponent<CapsuleCollider>();
         _stabilizer.radius = 0.2f;
         _initializationData = data;
@@ -51,6 +55,9 @@ public class SlidingStock : MonoBehaviour
         _positionSaveData = _initializationData.Node.GetOrAddValue(SaveDataID + name, new SaveNodeValueFloat { Value = 0f });
         axis.localPosition = Vector3.Lerp(forwardEnd.localPosition, rearwardEnd.localPosition, _positionSaveData.Value);
         OnAttachmentAdded(null, null);
+        Unlocked = true;
+        Lock(true);
+        Debug.Log("Sliding stock initialized");
     }
 
     private void OnAttachmentAdded(Attachment attachment, AttachmentPoint attachmentPoint)
@@ -104,10 +111,16 @@ public class SlidingStock : MonoBehaviour
         _initializationData.Manager.OnAttachmentAdded -= OnAttachmentAdded;
     }
 
-    private void Lock()
+    private void Lock(bool silent = false)
     {
+        if (!Unlocked)
+        {
+            return;
+        }
+
         Unlocked = false;
-        Util.PlayRandomAudioSource(lockSounds);
+        if (!silent)
+            Util.PlayRandomAudioSource(lockSounds);
         _stockRigidbody.isKinematic = true;
         Destroy(_joint);
         _positionSaveData.Value = GetPosition(axis);
@@ -124,6 +137,11 @@ public class SlidingStock : MonoBehaviour
 
     private void Unlock()
     {
+        if (Unlocked)
+        {
+            return;
+        }
+
         Util.PlayRandomAudioSource(unlockSounds);
         CreateJoint();
         _stockRigidbody.isKinematic = false;
@@ -153,11 +171,11 @@ public class SlidingStock : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!_joint || !_stabilizer || _stockRigidbody)
+        if (!_joint || !_stabilizer || !_stockRigidbody)
         {
             return;
         }
-        
+
         _stabilizer.gameObject.layer = LayerMask.NameToLayer("FPVHide");
         axis.localPosition = Vector3.Lerp(forwardEnd.localPosition, rearwardEnd.localPosition, GetPosition(_stockRigidbody.transform));
     }

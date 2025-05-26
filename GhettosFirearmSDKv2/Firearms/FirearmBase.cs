@@ -318,7 +318,8 @@ public class FirearmBase : AIFireable
 
         var deviation = Settings.firingSoundDeviation / pitch;
         source.pitch = pitch + Random.Range(-deviation, deviation);
-        source.Play();
+        //source.Play();
+        source.PlayOneShot(source.clip, Settings.endableFireSoundVolume ? Settings.fireSoundVolume : 1f);
     }
 
     public virtual void PlayMuzzleFlash(Cartridge cartridge)
@@ -475,7 +476,7 @@ public class FirearmBase : AIFireable
     public delegate void OnTriggerChange(bool isPulled);
 
     public event OnTriggerChange OnTriggerChangeEvent;
-    public event IAttachmentManager.Collision OnCollisionEvent;
+    public event IInteractionProvider.Collision OnCollisionEvent;
 
     public delegate void OnCollisionTR(CollisionInstance collisionInstance);
 

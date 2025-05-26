@@ -276,7 +276,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         if (_loadedCartridges[i])
         {
             var c = _loadedCartridges[i];
-            if (Settings.breakActionsEjectOnlyFired && !c.Fired && !ignoreFiredState)
+            if (Settings.breakActionsEjectOnlyFired && !(c.Fired || c.Failed) && !ignoreFiredState)
             {
                 return;
             }
@@ -421,7 +421,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         if (state == BoltState.Locked)
         {
             var hammerCocked = hammers.Count - 1 < _currentChamber || !hammers[_currentChamber] || hammers[_currentChamber].cocked;
-            var cartridge = _loadedCartridges[_currentChamber] && !_loadedCartridges[_currentChamber].Fired;
+            var cartridge = _loadedCartridges[_currentChamber] && !_loadedCartridges[_currentChamber].Fired && !_loadedCartridges[_currentChamber].Failed;
 
             _shotsSinceTriggerReset++;
             if (hammers.Count > _currentChamber && hammers[_currentChamber])
@@ -604,7 +604,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         _data.Value = new CartridgeSaveData[_loadedCartridges.Length];
         for (var i = 0; i < _loadedCartridges.Length; i++)
         {
-            _data.Value[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false);
+            _data.Value[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false, _loadedCartridges[i]?.Failed ?? false);
         }
     }
 

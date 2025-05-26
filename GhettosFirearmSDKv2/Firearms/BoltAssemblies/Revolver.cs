@@ -541,7 +541,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         }
 
         var loadedCartridge = _loadedCartridges[ca];
-        if (!loadedCartridge || loadedCartridge.Fired)
+        if (!loadedCartridge || loadedCartridge.Fired || loadedCartridge.Failed)
         {
             InvokeFireLogicFinishedEvent();
             return;
@@ -791,7 +791,7 @@ public class Revolver : BoltBase, IAmmunitionLoadable
         _data.Contents = new CartridgeSaveData[_loadedCartridges.Length];
         for (var i = 0; i < _loadedCartridges.Length; i++)
         {
-            _data.Contents[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false);
+            _data.Contents[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false, _loadedCartridges[i]?.Failed ?? false);
         }
     }
 

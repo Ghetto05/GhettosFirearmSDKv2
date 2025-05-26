@@ -157,7 +157,7 @@ public class Minigun : BoltBase
     public override void TryFire()
     {
         TryLoadRound();
-        if (!loadedCartridge || loadedCartridge.Fired)
+        if (!loadedCartridge || loadedCartridge.Fired || loadedCartridge.Failed)
         {
             InvokeFireLogicFinishedEvent();
             return;

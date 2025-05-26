@@ -123,10 +123,25 @@ public class Settings : ThunderScript
     [ModOption(name = "Hide update notifications", tooltip = "Hide popup notifications for updates.", saveValue = true)]
     public static bool hideUpdateNotifications = false;
 
-    [ModOptionOrder(13)]
-    [ModOptionCategory("Settings", 1)]
+    #endregion
+
+    #region Audio
+
+    [ModOptionOrder(1)]
+    [ModOptionCategory("Audio", 3)]
     [ModOption(name = "Disable cartridge impact sounds", tooltip = "Remove cartridge impact sounds to prevent sound bugs.", saveValue = true)]
     public static bool disableCartridgeImpactSounds = false;
+
+    [ModOptionOrder(2)]
+    [ModOptionCategory("Audio", 3)]
+    [ModOption(name = "Endable fire sound volume multiplier", tooltip = "Toggle the fire sound volume override.", saveValue = true)]
+    public static bool endableFireSoundVolume = false;
+
+    [ModOptionOrder(3)]
+    [ModOptionCategory("Audio", 3)]
+    [ModOptionFloatValues(0f, 5f, 0.1f)]
+    [ModOption(name = "Fire sound volume multiplier", tooltip = "Allows you to change how loud fired shots are.", saveValue = true)]
+    public static float fireSoundVolume = 1f;
 
     #endregion
 

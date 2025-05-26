@@ -191,7 +191,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
 
     public override void TryFire()
     {
-        if (actsAsRelay || !loadedCartridge || loadedCartridge.Fired || (hammer && !hammer.cocked))
+        if (actsAsRelay || !loadedCartridge || loadedCartridge.Fired || loadedCartridge.Failed || (hammer && !hammer.cocked))
         {
             Lock(false);
             InvokeFireLogicFinishedEvent();
@@ -221,7 +221,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
             Lock(false);
         }
         loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, fire);
-        SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false);
+        SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false, loadedCartridge?.Failed ?? false);
         InvokeFireLogicFinishedEvent();
         InvokeFireEvent();
     }
@@ -384,7 +384,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
         {
             return;
         }
-        SaveChamber(null, false);
+        SaveChamber(null, false, false);
         _currentRoundRemounted = false;
         var c = loadedCartridge;
         loadedCartridge = null;
@@ -424,7 +424,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
             c.transform.SetParent(roundMount);
             c.transform.localPosition = Vector3.zero;
             c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            SaveChamber(c.item.itemId, c.Fired);
+            SaveChamber(c.item.itemId, c.Fired, c.Failed);
         }
     }
 
@@ -465,7 +465,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
             c.transform.SetParent(roundMount);
             c.transform.localPosition = Vector3.zero;
             c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            SaveChamber(c.item.itemId, c.Fired);
+            SaveChamber(c.item.itemId, c.Fired, c.Failed);
             return true;
         }
         return false;
@@ -528,7 +528,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
 
     public void ClearRounds()
     {
-        SaveChamber(null, false);
+        SaveChamber(null, false, false);
         if (!loadedCartridge)
         {
             return;

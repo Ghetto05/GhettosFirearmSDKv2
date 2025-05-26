@@ -52,22 +52,22 @@ public class PressureSwitch : TacticalSwitch
                 TriggerState = toggleMode ? !TriggerState : true;
                 if (toggleMode)
                 {
-                    pressSounds.RandomChoice()?.Play();
+                    Util.PlayRandomAudioSource(pressSounds);
                 }
                 else
                 {
-                    (TriggerState ? pressSounds : releaseSounds).RandomChoice()?.Play();
+                    Util.PlayRandomAudioSource(TriggerState ? pressSounds : releaseSounds);
                 }
                 break;
 
             case Interactable.Action.UseStop when TriggerState && (dualMode || !useAltUse):
                 TriggerState = false;
-                releaseSounds.RandomChoice()?.Play();
+                Util.PlayRandomAudioSource(releaseSounds);
                 break;
 
             case Interactable.Action.AlternateUseStart when dualMode || useAltUse:
                 AlternateUseState = !AlternateUseState;
-                (AlternateUseState ? pressSounds : releaseSounds).RandomChoice()?.Play();
+                Util.PlayRandomAudioSource(AlternateUseState ? pressSounds : releaseSounds);
                 break;
         }
     }

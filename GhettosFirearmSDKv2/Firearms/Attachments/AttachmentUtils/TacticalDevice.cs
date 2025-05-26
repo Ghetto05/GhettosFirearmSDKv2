@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
-using ThunderRoad;
 using UnityEngine;
 
 namespace GhettosFirearmSDKv2;

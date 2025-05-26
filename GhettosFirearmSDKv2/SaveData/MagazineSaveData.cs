@@ -115,7 +115,7 @@ public class MagazineSaveData : ContentCustomData
         for (var i = 0; i < magazine.cartridges.Count; i++)
         {
             var car = magazine.cartridges[i];
-            Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired);
+            Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired, car.Failed);
         }
     }
 
@@ -129,7 +129,7 @@ public class MagazineSaveData : ContentCustomData
         for (var i = 0; i < clip.loadedCartridges.Count; i++)
         {
             var car = clip.loadedCartridges[i];
-            Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired);
+            Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired, car.Failed);
         }
     }
 

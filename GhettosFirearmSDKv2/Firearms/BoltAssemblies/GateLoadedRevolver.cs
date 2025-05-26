@@ -215,7 +215,7 @@ public class GateLoadedRevolver : BoltBase, IAmmunitionLoadable
         for (var i = 0; i < loadedCartridges.Length; i++)
         {
             var car = loadedCartridges[i];
-            _data.Contents[i] = new CartridgeSaveData(car?.item.itemId, car?.Fired ?? false);
+            _data.Contents[i] = new CartridgeSaveData(car?.item.itemId, car?.Fired ?? false, car?.Failed ?? false);
         }
     }
 
@@ -390,7 +390,7 @@ public class GateLoadedRevolver : BoltBase, IAmmunitionLoadable
             hammerAxis.localEulerAngles = hammerIdlePosition.localEulerAngles;
 
             var loadedCartridge = loadedCartridges[_currentChamber];
-            if (!loadedCartridge || loadedCartridge.Fired)
+            if (!loadedCartridge || loadedCartridge.Fired || loadedCartridge.Failed)
             {
                 InvokeFireLogicFinishedEvent();
                 return;

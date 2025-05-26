@@ -34,7 +34,7 @@ public class MuzzleLoadedBolt : BoltBase
             c.transform.parent = roundMount;
             c.transform.localPosition = Vector3.zero;
             c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            SaveChamber(c.item.itemId, c.Fired);
+            SaveChamber(c.item.itemId, c.Fired, c.Failed);
             return true;
         }
         return false;
@@ -67,7 +67,7 @@ public class MuzzleLoadedBolt : BoltBase
             }
         }
 
-        if (!loadedCartridge || loadedCartridge.Fired)
+        if (!loadedCartridge || loadedCartridge.Fired || loadedCartridge.Failed)
         {
             InvokeFireLogicFinishedEvent();
             return;
@@ -88,7 +88,7 @@ public class MuzzleLoadedBolt : BoltBase
         FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
         FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hits, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), firearm.HeldByAI());
         loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !Settings.infiniteAmmo);
-        SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false);
+        SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false, loadedCartridge?.Failed ?? false);
         if (ejectOnFire && !Settings.infiniteAmmo)
         {
             EjectRound();
@@ -157,7 +157,7 @@ public class MuzzleLoadedBolt : BoltBase
             return;
         }
         Util.PlayRandomAudioSource(ejectSounds);
-        SaveChamber(null, false);
+        SaveChamber(null, false, false);
         var c = loadedCartridge;
         loadedCartridge = null;
         if (roundEjectPoint)

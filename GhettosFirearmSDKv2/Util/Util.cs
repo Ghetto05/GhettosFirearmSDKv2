@@ -91,7 +91,7 @@ public class Util
             return true;
         }
 
-        var sameType = magazine.magazineType.Equals(well.acceptedMagazineType) || 
+        var sameType = magazine.magazineType.Equals(well.acceptedMagazineType) ||
                        well.alternateMagazineTypes.Any(t => t.Equals(magazine.magazineType));
         var compatibleCaliber = magazine.cartridges.Count == 0 ||
                                 !Settings.doCaliberChecks ||
@@ -443,7 +443,7 @@ public class Util
         }
         builder.AppendLine();
     }
-    
+
     public static IEnumerator RequestInitialization(GameObject manager, Action<InitializationData> initialization)
     {
         if (manager.GetComponent<Attachment>() is { } attachment)

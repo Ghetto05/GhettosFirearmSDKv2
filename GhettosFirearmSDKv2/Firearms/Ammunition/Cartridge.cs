@@ -30,6 +30,7 @@ public class Cartridge : MonoBehaviour
     public CartridgeSaveData SaveData;
 
     private bool _fired;
+    private bool _failed;
 
     public bool Fired
     {
@@ -44,6 +45,30 @@ public class Cartridge : MonoBehaviour
             {
                 SaveData.IsFired = value;
             }
+        }
+    }
+
+    public bool Failed
+    {
+        get
+        {
+            return _failed;
+        }
+        set
+        {
+            _failed = value;
+            if (SaveData is not null)
+            {
+                SaveData.Failed = value;
+            }
+        }
+    }
+
+    public bool CanFire
+    {
+        get
+        {
+            return !Fired && !Failed;
         }
     }
 
@@ -94,7 +119,7 @@ public class Cartridge : MonoBehaviour
         }
         else
         {
-            SaveData = new CartridgeSaveData(item.itemId, Fired);
+            SaveData = new CartridgeSaveData(item.itemId, Fired, Failed);
             item.AddCustomData(SaveData);
         }
     }
@@ -113,7 +138,7 @@ public class Cartridge : MonoBehaviour
             }
         }
 
-        if (!disallowDespawn && !loaded && Fired && !Mathf.Approximately(Settings.cartridgeDespawnTime, 0f))
+        if (!disallowDespawn && !loaded && (Fired || Failed) && !Mathf.Approximately(Settings.cartridgeDespawnTime, 0f))
         {
             StartCoroutine(Despawn());
         }
@@ -140,9 +165,10 @@ public class Cartridge : MonoBehaviour
         item.Despawn();
     }
 
-    public void DisableCartridge(bool fire = true)
+    public void DisableCartridge(bool fire = true, bool failure = false)
     {
-        Fired = fire;
+        Fired = fire && !failure;
+        Failed = failure;
         ToggleTk(fire);
     }
 
@@ -241,7 +267,7 @@ public class Cartridge : MonoBehaviour
     {
         foreach (var handle in item.handles)
         {
-            handle.SetTouch(active && (!Fired || forced));
+            handle.SetTouch(active && (!(Fired || Failed) || forced));
         }
     }
 

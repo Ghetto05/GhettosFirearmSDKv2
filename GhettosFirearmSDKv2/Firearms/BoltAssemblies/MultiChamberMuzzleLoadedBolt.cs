@@ -202,7 +202,7 @@ public class MultiChamberMuzzleLoadedBolt : BoltBase, IAmmunitionLoadable
         for (var i = _loadedCartridges.Length - 1; i >= 0; i--)
         {
             var hammerCocked = hammers.Count - 1 < i || !hammers[i] || hammers[i].cocked;
-            var cartridge = _loadedCartridges[i] && !_loadedCartridges[i].Fired;
+            var cartridge = _loadedCartridges[i] && !_loadedCartridges[i].Fired && !_loadedCartridges[i].Failed;
             if (hammerCocked && cartridge)
             {
                 car = i;
@@ -289,7 +289,7 @@ public class MultiChamberMuzzleLoadedBolt : BoltBase, IAmmunitionLoadable
         _data.Contents = new CartridgeSaveData[_loadedCartridges.Length];
         for (var i = 0; i < _loadedCartridges.Length; i++)
         {
-            _data.Contents[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false);
+            _data.Contents[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false, _loadedCartridges[i]?.Failed ?? false);
         }
     }
 
