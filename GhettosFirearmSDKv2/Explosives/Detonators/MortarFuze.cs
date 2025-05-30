@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace GhettosFirearmSDKv2;
 
-public class MortarFuze : Explosive
+public class MortarFuze : MonoBehaviour
 {
     public enum Modes
     {
@@ -113,7 +113,7 @@ public class MortarFuze : Explosive
         if (_armed && modes[_modeSaveData.Value].mode == Modes.Proximity &&
             Physics.Raycast(proximitySource.position, proximitySource.forward, modes[_modeSaveData.Value].parameter, FireMethods.FireLayerMask))
         {
-            Detonate();
+            explosive.Detonate();
         }
     }
 
@@ -125,6 +125,6 @@ public class MortarFuze : Explosive
             return;
         }
         
-        Invoke(nameof(Detonate), modes[_modeSaveData.Value].parameter);
+        explosive.Invoke(nameof(Explosive.Detonate), modes[_modeSaveData.Value].parameter);
     }
 }

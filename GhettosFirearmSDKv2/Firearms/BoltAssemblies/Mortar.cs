@@ -154,6 +154,12 @@ public class Mortar : BoltBase
         }
 
         _shotsSinceTriggerRest++;
+        
+        var failureToFire = Util.DoMalfunction(Settings.malfunctionFailureToFire, Settings.failureToFireChance, firearm.malfunctionChanceMultiplier, firearm.HeldByAI());
+        if (failureToFire)
+        {
+            _loadedCartridge.data.muzzleVelocity = 0.2f;
+        }
 
         firearm.PlayMuzzleFlash(_loadedCartridge);
         firearm.PlayFireSound(_loadedCartridge);
