@@ -89,9 +89,6 @@ public class FirearmBase : AIFireable
 
     public virtual void Update()
     {
-        Util.ApplyAudioConfig(fireSounds);
-        Util.ApplyAudioConfig(suppressedFireSounds, true);
-
         longPressTime = Settings.longPressTime;
     }
 
@@ -270,6 +267,7 @@ public class FirearmBase : AIFireable
             }
             else
             {
+                Util.ApplyAudioConfig(fireSounds);
                 source = Util.GetRandomFromList(fireSounds);
             }
         }
@@ -282,6 +280,7 @@ public class FirearmBase : AIFireable
             }
             else
             {
+                Util.ApplyAudioConfig(suppressedFireSounds, true);
                 source = Util.GetRandomFromList(suppressedFireSounds);
             }
         }
