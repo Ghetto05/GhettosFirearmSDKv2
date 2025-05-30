@@ -141,7 +141,7 @@ public class Mortar : BoltBase
         c.item.physicBody.isKinematic = true;
         c.item.transform.SetParent(cartridgeEndPoint);
         c.item.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-        SaveChamber(c.item.itemId, c.Fired, c.Failed);
+        SaveChamber(c.item.itemId, c.Fired, c.Failed, c.item.contentCustomData);
         return true;
     }
 
@@ -166,6 +166,6 @@ public class Mortar : BoltBase
         
         InvokeFireEvent();
         InvokeFireLogicFinishedEvent();
-        SaveChamber(_loadedCartridge?.item.itemId, _loadedCartridge?.Fired ?? false, _loadedCartridge?.Failed ?? false);
+        SaveChamber(null, false, false, null);
     }
 }

@@ -221,7 +221,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
             Lock(false);
         }
         loadedCartridge.Fire(hits, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, fire);
-        SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false, loadedCartridge?.Failed ?? false);
+        SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired, loadedCartridge?.Failed, loadedCartridge?.item.contentCustomData);
         InvokeFireLogicFinishedEvent();
         InvokeFireEvent();
     }
@@ -384,7 +384,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
         {
             return;
         }
-        SaveChamber(null, false, false);
+        SaveChamber(null, false, false, null);
         _currentRoundRemounted = false;
         var c = loadedCartridge;
         loadedCartridge = null;
@@ -424,7 +424,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
             c.transform.SetParent(roundMount);
             c.transform.localPosition = Vector3.zero;
             c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            SaveChamber(c.item.itemId, c.Fired, c.Failed);
+            SaveChamber(c.item.itemId, c.Fired, c.Failed, c.item.contentCustomData);
         }
     }
 
@@ -465,7 +465,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
             c.transform.SetParent(roundMount);
             c.transform.localPosition = Vector3.zero;
             c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            SaveChamber(c.item.itemId, c.Fired, c.Failed);
+            SaveChamber(c.item.itemId, c.Fired, c.Failed, c.item.contentCustomData);
             return true;
         }
         return false;
@@ -528,7 +528,7 @@ public class PumpAction : BoltBase, IAmmunitionLoadable
 
     public void ClearRounds()
     {
-        SaveChamber(null, false, false);
+        SaveChamber(null, false, false, null);
         if (!loadedCartridge)
         {
             return;

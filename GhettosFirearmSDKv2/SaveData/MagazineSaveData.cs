@@ -1,5 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
 using ThunderRoad;
 using UnityEngine;
 
@@ -9,7 +8,6 @@ public class MagazineSaveData : ContentCustomData
 {
     public string ItemID;
 
-    [JsonConverter(typeof(CartridgeSaveData.StringArrayToDataArrayConverter))]
     public CartridgeSaveData[] Contents;
 
     public void ApplyToMagazine(Magazine magazine)
@@ -115,7 +113,7 @@ public class MagazineSaveData : ContentCustomData
         for (var i = 0; i < magazine.cartridges.Count; i++)
         {
             var car = magazine.cartridges[i];
-            Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired, car.Failed);
+            Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired, car.Failed, car.item.contentCustomData);
         }
     }
 
@@ -129,7 +127,7 @@ public class MagazineSaveData : ContentCustomData
         for (var i = 0; i < clip.loadedCartridges.Count; i++)
         {
             var car = clip.loadedCartridges[i];
-            Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired, car.Failed);
+            Contents[i] = new CartridgeSaveData(car.item.itemId, car.Fired, car.Failed, car.item.contentCustomData);
         }
     }
 

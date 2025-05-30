@@ -159,7 +159,7 @@ public class CartridgeHolder : MonoBehaviour
 
             if (target is not null)
             {
-                target.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(c.item.itemId, c.Fired, c.Failed);
+                target.GetOrAddValue("CartridgeHolder" + slot, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(c.item.itemId, c.Fired, c.Failed, c.item.contentCustomData);
             }
         }
         UpdateCartridgePositions();

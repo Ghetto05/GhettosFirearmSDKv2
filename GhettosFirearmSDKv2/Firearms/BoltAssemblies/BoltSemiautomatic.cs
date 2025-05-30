@@ -335,7 +335,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         startTimeOfMovement = Time.time;
         InvokeFireEvent();
         InvokeFireLogicFinishedEvent();
-        SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false, loadedCartridge?.Failed ?? false);
+        SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired, loadedCartridge?.Failed, loadedCartridge?.item.contentCustomData);
     }
 
     public override Cartridge GetChamber()
@@ -782,7 +782,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         {
             return;
         }
-        SaveChamber(null, false, false);
+        SaveChamber(null, false, false, null);
         var c = loadedCartridge;
         loadedCartridge = null;
         if (roundEjectPoint)
@@ -832,7 +832,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
             _closedAfterLoad = false;
             loadedCartridge = c;
             UpdateChamberedRounds();
-            SaveChamber(c.item.itemId, c.Fired, c.Failed);
+            SaveChamber(c.item.itemId, c.Fired, c.Failed, c.item.contentCustomData);
         }
 
         if (firearm.HeldByAI() && !originallyInfinite && firearm.magazineWell?.currentMagazine)
@@ -919,7 +919,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
             c.UngrabAll();
             Util.IgnoreCollision(c.gameObject, firearm.gameObject, true);
             UpdateChamberedRounds();
-            SaveChamber(c.item.itemId, c.Fired, c.Failed);
+            SaveChamber(c.item.itemId, c.Fired, c.Failed, c.item.contentCustomData);
             return true;
         }
         return false;
@@ -964,7 +964,7 @@ public class BoltSemiautomatic : BoltBase, IAmmunitionLoadable
         {
             return;
         }
-        SaveChamber(null, false, false);
+        SaveChamber(null, false, false, null);
         loadedCartridge.item.Despawn();
         loadedCartridge = null;
     }

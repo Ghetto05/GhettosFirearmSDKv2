@@ -119,7 +119,7 @@ public class Cartridge : MonoBehaviour
         }
         else
         {
-            SaveData = new CartridgeSaveData(item.itemId, Fired, Failed);
+            SaveData = new CartridgeSaveData(item.itemId, Fired, Failed, item.contentCustomData);
             item.AddCustomData(SaveData);
         }
     }

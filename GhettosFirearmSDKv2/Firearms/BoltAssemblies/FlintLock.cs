@@ -286,7 +286,7 @@ public class FlintLock : BoltBase, IAmmunitionLoadable
                 FireMethods.Fire(firearm.item, firearm.actualHitscanMuzzle, loadedCartridge.data, out var hitPoints, out var trajectories, out var hitCreatures, out var killedCreatures, firearm.CalculateDamageMultiplier(), firearm.HeldByAI());
                 FireMethods.ApplyRecoil(firearm.transform, firearm.item, loadedCartridge.data.recoil, loadedCartridge.data.recoilUpwardsModifier, firearm.recoilModifier, firearm.RecoilModifiers);
                 loadedCartridge.Fire(hitPoints, trajectories, firearm.actualHitscanMuzzle, hitCreatures, killedCreatures, !firearm.HeldByAI() && !Settings.infiniteAmmo);
-                SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired ?? false, loadedCartridge?.Failed ?? false);
+                SaveChamber(loadedCartridge?.item.itemId, loadedCartridge?.Fired, loadedCartridge?.Failed, loadedCartridge?.item.contentCustomData);
             }
         }
         else
@@ -561,7 +561,7 @@ public class FlintLock : BoltBase, IAmmunitionLoadable
             c.transform.parent = rodFrontEnd;
             c.transform.localPosition = Vector3.zero;
             c.transform.localEulerAngles = Util.RandomCartridgeRotation();
-            SaveChamber(c.item.itemId, c.Fired, c.Failed);
+            SaveChamber(c.item.itemId, c.Fired, c.Failed, c.item.contentCustomData);
             Invoke(nameof(Rechamber), 1f);
             if (!_nextLoadIsMuzzle)
             {
@@ -590,7 +590,7 @@ public class FlintLock : BoltBase, IAmmunitionLoadable
         {
             return;
         }
-        SaveChamber(null, false, false);
+        SaveChamber(null, false, false, null);
         var c = loadedCartridge;
         loadedCartridge = null;
         if (roundEjectPoint)
@@ -647,7 +647,7 @@ public class FlintLock : BoltBase, IAmmunitionLoadable
         {
             return;
         }
-        SaveChamber(null, false, false);
+        SaveChamber(null, false, false, null);
         loadedCartridge.item.Despawn();
         loadedCartridge = null;
     }

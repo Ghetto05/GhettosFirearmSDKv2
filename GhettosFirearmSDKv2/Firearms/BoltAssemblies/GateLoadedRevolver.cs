@@ -215,7 +215,7 @@ public class GateLoadedRevolver : BoltBase, IAmmunitionLoadable
         for (var i = 0; i < loadedCartridges.Length; i++)
         {
             var car = loadedCartridges[i];
-            _data.Contents[i] = new CartridgeSaveData(car?.item.itemId, car?.Fired ?? false, car?.Failed ?? false);
+            _data.Contents[i] = new CartridgeSaveData(car?.item.itemId, car?.Fired, car?.Failed, car?.item.contentCustomData);
         }
     }
 

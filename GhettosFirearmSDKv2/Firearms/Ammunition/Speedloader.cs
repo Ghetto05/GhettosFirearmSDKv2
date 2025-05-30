@@ -192,7 +192,7 @@ public class Speedloader : MonoBehaviour, IAmmunitionLoadable
         _data.Contents = new CartridgeSaveData[loadedCartridges.Length];
         for (var i = 0; i < loadedCartridges.Length; i++)
         {
-            _data.Contents[i] = new CartridgeSaveData(loadedCartridges[i]?.item.itemId, loadedCartridges[i]?.Fired ?? false, loadedCartridges[i]?.Failed ?? false);
+            _data.Contents[i] = new CartridgeSaveData(loadedCartridges[i]?.item.itemId, loadedCartridges[i]?.Fired, loadedCartridges[i]?.Failed, loadedCartridges[i]?.item.contentCustomData);
         }
     }
 

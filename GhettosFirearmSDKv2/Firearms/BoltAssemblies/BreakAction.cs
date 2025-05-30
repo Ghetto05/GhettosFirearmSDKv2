@@ -604,7 +604,7 @@ public class BreakAction : BoltBase, IAmmunitionLoadable
         _data.Value = new CartridgeSaveData[_loadedCartridges.Length];
         for (var i = 0; i < _loadedCartridges.Length; i++)
         {
-            _data.Value[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired ?? false, _loadedCartridges[i]?.Failed ?? false);
+            _data.Value[i] = new CartridgeSaveData(_loadedCartridges[i]?.item.itemId, _loadedCartridges[i]?.Fired, _loadedCartridges[i]?.Failed, _loadedCartridges[i]?.item.contentCustomData);
         }
     }
 

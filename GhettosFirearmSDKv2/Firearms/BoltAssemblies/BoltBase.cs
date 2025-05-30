@@ -146,13 +146,13 @@ public class BoltBase : MonoBehaviour
         }
     }
 
-    public void SaveChamber(string id, bool fired, bool failed)
+    public void SaveChamber(string id, bool? fired, bool? failed, List<ContentCustomData> customData)
     {
         var node = FirearmSaveData.GetNode(firearm);
 
         if (node is not null)
         {
-            node.GetOrAddValue(ChamberSaveDataId, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(id, fired, failed);
+            node.GetOrAddValue(ChamberSaveDataId, new SaveNodeValueCartridgeData()).Value = new CartridgeSaveData(id, fired, failed, customData);
         }
     }
 

@@ -30,8 +30,10 @@ public class MagazineLoad : MonoBehaviour
 
     public MagazineSaveData ToSaveData()
     {
-        var data = new MagazineSaveData();
-        data.Contents = ids.Select(x => new CartridgeSaveData(x, false, false)).ToArray();
+        var data = new MagazineSaveData
+        {
+            Contents = ids.Select(x => new CartridgeSaveData(x, false, false, null)).ToArray()
+        };
         return data;
     }
 }

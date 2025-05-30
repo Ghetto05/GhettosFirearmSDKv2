@@ -104,7 +104,7 @@ public class SelfLoadingBolt : BoltBase
             return;
         }
         Util.PlayRandomAudioSource(ejectSounds);
-        SaveChamber(null, false, false);
+        SaveChamber(null, false, false, null);
         if (roundEjectPoint)
         {
             _loadedCartridge.transform.position = roundEjectPoint.position;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ThunderRoad;
@@ -10,12 +11,14 @@ public class CartridgeSaveData : ContentCustomData
     public string ItemId;
     public bool IsFired;
     public bool Failed;
+    public List<ContentCustomData> CustomData;
 
-    public CartridgeSaveData(string itemId, bool isFired, bool failed)
+    public CartridgeSaveData(string itemId, bool? isFired, bool? failed, List<ContentCustomData> customData)
     {
         ItemId = itemId;
-        IsFired = isFired;
-        Failed = failed;
+        IsFired = isFired ?? false;
+        Failed = failed ?? false;
+        CustomData = customData?.CloneJson() ?? [];
     }
 
     public void Apply(Cartridge cartridge)
@@ -28,36 +31,11 @@ public class CartridgeSaveData : ContentCustomData
         {
             cartridge.SetFired();
         }
+        cartridge.item.OverrideCustomData(CustomData.CloneJson());
     }
 
     public static implicit operator CartridgeSaveData(string item)
     {
-        return new CartridgeSaveData(item, false, false);
-    }
-
-    public class StringArrayToDataArrayConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(string[]);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            var token = JToken.Load(reader);
-
-            if (token.Type == JTokenType.Array && token.First?.Type == JTokenType.String)
-            {
-                var stringArray = token.ToObject<string[]>();
-                return Array.ConvertAll(stringArray, item => new CartridgeSaveData(item, false, false));
-            }
-
-            return token.ToObject<CartridgeSaveData[]>();
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            serializer.Serialize(writer, value);
-        }
+        return new CartridgeSaveData(item, false, false, null);
     }
 }
