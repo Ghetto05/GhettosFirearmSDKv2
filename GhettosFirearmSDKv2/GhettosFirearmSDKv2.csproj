@@ -46,6 +46,8 @@
         <Compile Include="Clothing\NVGAdjuster.cs"/>
         <Compile Include="Clothing\WearableItem.cs"/>
         <Compile Include="Clothing\Wearables\Wearable.cs"/>
+        <Compile Include="Explosives\Detonators\MortarFuze.cs" />
+        <Compile Include="Explosives\Detonators\MortarFuzeMode.cs" />
         <Compile Include="Firearms\Ammunition\AmmoBelt.cs"/>
         <Compile Include="Firearms\Ammunition\AmmunitionBelt.cs" />
         <Compile Include="Firearms\Ammunition\AmmunitionBeltLink.cs" />
@@ -73,6 +75,7 @@
         <Compile Include="Firearms\BoltAssemblies\BoltFailureData.cs"/>
         <Compile Include="Firearms\BoltAssemblies\FlintLock.cs"/>
         <Compile Include="Firearms\BoltAssemblies\LeverAction.cs"/>
+        <Compile Include="Firearms\BoltAssemblies\Mortar.cs" />
         <Compile Include="Firearms\BoltAssemblies\PumpAutomaticAdapter.cs"/>
         <Compile Include="Firearms\BoltAssemblies\RecoilSpring.cs"/>
         <Compile Include="Firearms\BoltAssemblies\SplitChargingHandle.cs"/>
