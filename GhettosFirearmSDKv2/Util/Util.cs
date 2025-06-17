@@ -456,8 +456,12 @@ public class Util
             yield return new WaitUntil(() => attachmentManager.SaveData != null);
             initialization.Invoke(new InitializationData(attachmentManager, attachmentManager, attachmentManager.SaveData.FirearmNode));
         }
+        else
+        {
+            throw new Exception($"No parent type found on {manager}!");
+        }
     }
-    
+
     public static IEnumerator RequestItemInitialization(Item item, Action initialization)
     {
         yield return new WaitUntil(() => item.spawnTime > 1f);
