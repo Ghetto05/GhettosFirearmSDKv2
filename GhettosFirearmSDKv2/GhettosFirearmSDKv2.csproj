@@ -85,6 +85,7 @@
         <Compile Include="Firearms\FirearmMechanics\BeltFedCoverAxis.cs"/>
         <Compile Include="Firearms\FirearmMechanics\LeverActionSnapFeeder.cs"/>
         <Compile Include="Firearms\FirearmMechanics\MagazineWellLatch.cs"/>
+        <Compile Include="Firearms\FirearmMechanics\MortarSight.cs" />
         <Compile Include="Firearms\FirearmMechanics\PowderPouch.cs"/>
         <Compile Include="Firearms\FirearmMechanics\PowderReceiver.cs"/>
         <Compile Include="Firearms\FirearmMechanics\PumpActionFeeder.cs"/>

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using GhettosFirearmSDKv2.Attachments;
 using GhettosFirearmSDKv2.Explosives;
 using ThunderRoad;
@@ -17,7 +18,7 @@ public class MortarFuze : MonoBehaviour
 
     public GameObject manager;
     public Explosive explosive;
-    
+
     public Collider[] impactColliders;
     public Transform proximitySource;
     public MortarFuzeMode[] modes;
@@ -33,9 +34,12 @@ public class MortarFuze : MonoBehaviour
     private SaveNodeValueInt _modeSaveData;
     private float _armingDistanceTravelled;
     private bool _armed;
+    private float? _armingStartTime;
 
+    private Guid _debugId;
     private void Start()
     {
+        _debugId = Guid.NewGuid();
         StartCoroutine(Util.RequestInitialization(manager, Initialization));
     }
 
@@ -64,13 +68,12 @@ public class MortarFuze : MonoBehaviour
     private void OnCollision(Collision collision)
     {
         if (!_armed ||
-            modes[_modeSaveData.Value].mode != Modes.Impact ||
             !collision.contacts.Any(x => impactColliders.Contains(x.thisCollider)))
         {
             return;
         }
 
-        explosive?.Detonate(modes[_modeSaveData.Value].parameter);
+        explosive?.Detonate(modes[_modeSaveData.Value].mode == Modes.Impact ? modes[_modeSaveData.Value].parameter : 0);
     }
 
     private void OnHeldAction(IInteractionProvider.HeldActionData e)
@@ -86,7 +89,7 @@ public class MortarFuze : MonoBehaviour
         if (target == null)
         {
             var c = _modeSaveData.Value;
-            c = c + 1 > modes.Length ? 0 : c + 1;
+            c = c + 1 == modes.Length ? 0 : c + 1;
             _modeSaveData.Value = c;
         }
 
@@ -100,9 +103,23 @@ public class MortarFuze : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!_armed && explosive.item?.physicBody.velocity.magnitude > minimumArmingSpeed)
+        Debug.Log($"({_debugId}) Armed: {_armed} Arming: {explosive.item.physicBody.velocity.magnitude > minimumArmingSpeed}");
+
+        if (!_armed)
         {
-            _armingDistanceTravelled = explosive.item.physicBody.velocity.magnitude * Time.fixedDeltaTime;
+            if (explosive.item.physicBody.velocity.magnitude > minimumArmingSpeed)
+            {
+                if (_armingStartTime == null)
+                {
+                    _armingStartTime = Time.time;
+                }
+                _armingDistanceTravelled = explosive.item.physicBody.velocity.magnitude * (Time.time - _armingStartTime.Value);
+                Debug.Log($"({_debugId}) Distance: {_armingDistanceTravelled}");
+            }
+            else
+            {
+                _armingStartTime = null;
+            }
         }
 
         if (!_armed && _armingDistanceTravelled >= armingDistance)
@@ -124,7 +141,7 @@ public class MortarFuze : MonoBehaviour
         {
             return;
         }
-        
+
         explosive.Invoke(nameof(Explosive.Detonate), modes[_modeSaveData.Value].parameter);
     }
 }
